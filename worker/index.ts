@@ -13,6 +13,7 @@ import { DAKIKA, SAAT, sinirAsildi } from "./sinir";
 import { GUN_MS, SORU_SUTUNLARI, TR_FARK, bugunBasi, currentWeek, gorunurKosul, pratikKosulu, setting, showOriginal, soruyaCevir, type SoruListeSatiri } from "./ortak";
 import { pid, pratikAyarla, pratikGerekli } from "./pratik";
 import { katalog } from "./katalog";
+import { ajan } from "./claude";
 import { ALEV, VARSAYILAN_HEDEF, seriler, type GunlukDurum } from "../shared/motivasyon";
 
 const app = new Hono<Env>().basePath("/api");
@@ -35,6 +36,8 @@ app.use("*", pratikAyarla);
 
 // Çatı uçları (her alan adında çalışır): katalog ve bütün pratiklerdeki ilerleme
 app.route("/katalog", katalog);
+// Yerel ajan (Faz 2): AJAN_TOKEN ile korunur, oturum ve pratik gerektirmez
+app.route("/ajan", ajan);
 
 // Bundan sonraki uçlar bir pratiğe aittir; hesap uçları ortaktır
 for (const yol of ["/topics", "/questions", "/questions/*", "/progress", "/progress/*", "/profil/*", "/tekrar", "/tekrar/*", "/yonetim", "/yonetim/*", "/uye/*"]) {

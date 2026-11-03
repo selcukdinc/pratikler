@@ -11,11 +11,16 @@ import { SoruDuzenle } from "./SoruDuzenle";
 import { GorselListesi } from "./GorselListesi";
 import { SoruPanosu } from "../components/SoruPanosu";
 import type { Topic } from "../../shared/api";
-import type { PanelKayit, PanelKullanici, PanelOzet, PanelSoru } from "../../shared/yonetim";
+import type { ClaudeIsi, PanelKayit, PanelKullanici, PanelOzet, PanelPratik, PanelSoru } from "../../shared/yonetim";
+import { CLAUDE_ISTEK_EN_UZUN } from "../../shared/yonetim";
+import { PRATIK, pratikBaglantisi } from "../lib/pratik";
+import { pratikBul } from "../../icerik/index";
 import type { PanelOneri, YazismaOzeti } from "../../shared/sosyal";
 
 const BOLUMLER: [YonetimBolumu, string][] = [
   ["genel", "Genel"],
+  ["pratikler", "Pratikler"],
+  ["claude", "Claude"],
   ["sorular", "Sorular"],
   ["oneriler", "Öneriler"],
   ["mesajlar", "Mesajlar"],
@@ -121,6 +126,122 @@ function Genel() {
           <li><a href={href({ page: "yonetim", bolum: "oneriler" })}><strong>{o.bekleyenOneri}</strong> bekleyen öneri</a></li>
           <li><a href={href({ page: "yonetim", bolum: "mesajlar" })}><strong>{o.okunmamisMesaj}</strong> okunmamış mesaj</a></li>
         </ul>
+      </section>
+    </div>
+  );
+}
+
+// Bütün pratiklerin durumu yan yana (Faz 1). Sayılar bütün pratikleri kapsar;
+// ayar ve soru düzenleme her pratiğin kendi panelinde yapılır.
+function Pratikler() {
+  const [liste, setListe] = useState<PanelPratik[] | null>(null);
+  const [hata, setHata] = useState<string | null>(null);
+  useEffect(() => {
+    api.yonetim.pratikler().then(setListe, (e) => setHata(String(e)));
+  }, []);
+  if (!liste) return hata ? <FormHatasi hata={hata} /> : <p className="empty">Yükleniyor…</p>;
+  const toplam = (f: (p: PanelPratik) => number) => liste.reduce((a, p) => a + f(p), 0);
+  return (
+    <div className="panel-genel">
+      <p className="hint">Son 7 günde {toplam((p) => p.deneme7)} cevap denemesi; bekleyen öneri toplamı {toplam((p) => p.bekleyenOneri)}.</p>
+      <div className="md-tablo">
+        <table>
+          <thead>
+            <tr>
+              <th>Pratik</th><th>Durum</th><th>Açık ünite</th><th>Soru</th><th>Taslak</th>
+              <th>7 gün deneme</th><th>7 gün kişi</th><th>Toplam kişi</th><th>Bekleyen öneri</th>
+            </tr>
+          </thead>
+          <tbody>
+            {liste.map((p) => {
+              const meta = pratikBul(p.id)!;
+              return (
+                <tr key={p.id}>
+                  <td>{p.id === PRATIK.id ? <strong>{p.ad}</strong> : <a href={pratikBaglantisi(meta, "/yonetim")}>{p.ad}</a>}</td>
+                  <td>{p.yayinda ? "Yayında" : "Taslak"}</td>
+                  <td>{p.acikUnite} / {p.uniteSayisi}</td>
+                  <td>{p.soru}</td>
+                  <td>{p.taslak}</td>
+                  <td>{p.deneme7}</td>
+                  <td>{p.kisi7}</td>
+                  <td>{p.kisi}</td>
+                  <td>{p.bekleyenOneri}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+const IS_DURUMU: Record<ClaudeIsi["durum"], string> = {
+  bekliyor: "Ajanı bekliyor",
+  calisiyor: "Çalışıyor",
+  pr: "PR açıldı",
+  hata: "Hata",
+  iptal: "İptal edildi",
+};
+
+// Claude'a iş verme (Faz 2). İş kuyruğa yazılır; yöneticinin bilgisayarındaki
+// yerel ajan (ajan/pratikler-ajan.mjs) alır, denetimlerden geçerse PR açar.
+function ClaudeIsleri() {
+  const [liste, setListe] = useState<ClaudeIsi[] | null>(null);
+  const [istek, setIstek] = useState("");
+  const [hata, setHata] = useState<string | null>(null);
+  const [gonderiliyor, setGonderiliyor] = useState(false);
+  const yukle = () => api.yonetim.claudeIsleri().then(setListe, (e) => setHata(String(e)));
+  useEffect(() => {
+    void yukle();
+    const t = setInterval(() => void yukle(), 15_000);
+    return () => clearInterval(t);
+  }, []);
+
+  const gonder = async (e: FormEvent) => {
+    e.preventDefault();
+    setHata(null);
+    setGonderiliyor(true);
+    const r = await api.yonetim.claudeIsiVer(istek);
+    setGonderiliyor(false);
+    if (!r.ok) return setHata(r.hata.error);
+    setIstek("");
+    void yukle();
+  };
+
+  return (
+    <div className="panel-genel">
+      <section className="ayar-bolum">
+        <h3>{PRATIK.ad} için Claude'a iş ver</h3>
+        <p className="hint">
+          İş kuyruğa yazılır. Bilgisayarındaki yerel ajan açıksa birkaç dakika içinde alır, Claude Code ile depoda
+          değişikliği yapar, yerel denetimlerden (tsc, testler, build) geçerse bir PR açar. Birleştirmek ve yayına almak sende.
+          Ajan kapalıysa iş bekler.
+        </p>
+        <form onSubmit={gonder}>
+          <textarea rows={4} maxLength={CLAUDE_ISTEK_EN_UZUN} value={istek} onChange={(e) => setIstek(e.target.value)}
+            placeholder="Örnek: 3. üniteye Wheatstone köprüsü çıkış gerilimi hesabıyla ilgili iki soru ekle." />
+          <button type="submit" className="primary" disabled={gonderiliyor || istek.trim().length < 10}>İşi kuyruğa ekle</button>
+        </form>
+        <FormHatasi hata={hata} />
+      </section>
+      <section className="ayar-bolum">
+        <h3>İşler</h3>
+        {!liste ? <p className="empty">Yükleniyor…</p> : liste.length === 0 ? <p className="empty">Henüz iş yok.</p> : (
+          <ul className="claude-isleri">
+            {liste.map((i) => (
+              <li key={i.id}>
+                <div><strong>{IS_DURUMU[i.durum]}</strong> · {zaman(i.olusturuldu)}{i.olusturan ? ` · ${i.olusturan}` : ""}</div>
+                <p>{i.istek}</p>
+                {i.prUrl && <a href={i.prUrl} target="_blank" rel="noreferrer">{i.prUrl.replace("https://github.com/", "")}</a>}
+                {i.sonuc && <details><summary>Ajanın notu</summary><pre className="code">{i.sonuc}</pre></details>}
+                {i.durum === "bekliyor" && (
+                  <button onClick={() => api.yonetim.claudeIptal(i.id).then(() => yukle())}>İptal et</button>
+                )}
+              </li>
+            ))}
+          </ul>
+        )}
       </section>
     </div>
   );
@@ -562,6 +683,8 @@ export function Yonetim({ bolum, soru, alt }: { bolum: YonetimBolumu; soru?: str
         ))}
       </nav>
       {bolum === "genel" && <Genel />}
+      {bolum === "pratikler" && <Pratikler />}
+      {bolum === "claude" && <ClaudeIsleri />}
       {bolum === "sorular" && (soru ? <SoruDuzenle id={soru} /> : <SoruListesi />)}
       {bolum === "oneriler" && (alt ? <OneriDetay id={alt} /> : <OneriListesi />)}
       {bolum === "mesajlar" && <PanelMesajlar id={alt} />}

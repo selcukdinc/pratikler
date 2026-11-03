@@ -129,3 +129,37 @@ export function soruSutunlari(g: SoruGirdi): { payload: string; answer: string }
   }
   return { payload: "{}", answer: JSON.stringify(g.answer) };
 }
+
+// Panelin "Pratikler" bölümü: bütün pratiklerin yan yana durumu (Faz 1)
+export interface PanelPratik {
+  id: string;
+  ad: string;
+  alt: string;
+  yayinda: boolean;
+  acikUnite: number;
+  uniteSayisi: number;
+  // Yayında ve açık ünitelerdeki soru sayısı
+  soru: number;
+  taslak: number;
+  // Son 7 gün
+  deneme7: number;
+  kisi7: number;
+  // Bu pratikte en az bir soru denemiş kişi
+  kisi: number;
+  bekleyenOneri: number;
+}
+
+// Yönetim panelinden Claude'a verilen iş (Faz 2, yerel ajan)
+export type ClaudeIsDurumu = "bekliyor" | "calisiyor" | "pr" | "hata" | "iptal";
+export interface ClaudeIsi {
+  id: string;
+  pratik: string;
+  istek: string;
+  durum: ClaudeIsDurumu;
+  sonuc: string | null;
+  prUrl: string | null;
+  olusturan: string | null;
+  olusturuldu: number;
+  guncellendi: number;
+}
+export const CLAUDE_ISTEK_EN_UZUN = 4000;

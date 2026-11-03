@@ -25,7 +25,7 @@ export function cerezAlani(c: Context<Env>): string | undefined {
 const MAX_AGE_S = 60 * 60 * 24 * 180;
 
 export type Env = {
-  Bindings: EpostaEnv & AccessEnv & { DB: D1Database; PBKDF2_ITER?: string; COOKIE_DOMAIN?: string };
+  Bindings: EpostaEnv & AccessEnv & { DB: D1Database; PBKDF2_ITER?: string; COOKIE_DOMAIN?: string; AJAN_TOKEN?: string };
   // pratik: isteğin geldiği pratik (worker/pratik.ts); çatı sitesinde null
   Variables: { me: Me | null; pratik: PratikMeta | null };
 };

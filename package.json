@@ -13,7 +13,9 @@
     "db:migrate:local": "wrangler d1 migrations apply pratikler --local",
     "db:migrate:remote": "wrangler d1 migrations apply pratikler --remote",
     "deploy": "npm run build && wrangler deploy",
-    "sorular:sql": "node --experimental-strip-types scripts/sorular-sql.ts"
+    "sorular:sql": "node --experimental-strip-types scripts/sorular-sql.ts",
+    "denetle": "tsc -b && vitest run && vite build",
+    "ajan": "node ajan/pratikler-ajan.mjs"
   },
   "dependencies": {
     "hono": "^4.13.13",

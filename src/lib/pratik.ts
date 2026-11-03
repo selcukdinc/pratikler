@@ -43,5 +43,5 @@ export const uniteBul = (no: number) => PRATIK.uniteler.find((u) => u.no === no)
 export const uniteYazi = (no: number) => `${no}. ${PRATIK.uniteAdi}`;
 
 // Bir pratiğin ve çatı sitesinin adresi; yerelde aynı sunucuda ?pratik= ile
-export const pratikBaglantisi = (p: PratikMeta) => (yerelMi() ? `/?pratik=${p.id}` : pratikAdresi(p));
+export const pratikBaglantisi = (p: PratikMeta, yol = "/") => (yerelMi() ? `${yol}?pratik=${p.id}` : `${pratikAdresi(p)}${yol === "/" ? "" : yol}`);
 export const catiBaglantisi = () => (yerelMi() ? "/?pratik=katalog" : catiAdresi);
