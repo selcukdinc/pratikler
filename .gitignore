@@ -1,0 +1,8 @@
+node_modules/
+dist/
+.wrangler/
+.dev.vars
+docs/kaynaklar/
+*.tsbuildinfo
+*.DS_Store
+docs/YOL-HARITASI.md
