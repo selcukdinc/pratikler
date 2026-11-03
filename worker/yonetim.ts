@@ -6,6 +6,7 @@ import { Hono, type Context } from "hono";
 import type { Me } from "../shared/api";
 import {
   soruGirdisiHatasi, soruSutunlari,
+  CLAUDE_ISTEK_EN_UZUN, type ClaudeIsi, type PanelPratik,
   type PanelAyarlar, type PanelKayit, type PanelPano, type PanelKullanici, type PanelOzet, type PanelSoru, type SoruGirdi,
 } from "../shared/yonetim";
 import type { PanelOneri, Yazisma } from "../shared/sosyal";
@@ -16,6 +17,8 @@ import type { Env } from "./session";
 import { yetkisiVar, type Izin } from "./yetki";
 import { pratikKosulu } from "./ortak";
 import { pid } from "./pratik";
+import { PRATIKLER } from "../icerik/index";
+import { IS_SQL, isSatiri } from "./claude";
 
 type C = Context<Env>;
 
@@ -118,6 +121,82 @@ yonetim.get("/pano", async (c) => {
     gunluk,
     enCokYanlis: y!.results as PanelPano["enCokYanlis"],
   });
+});
+
+// ---- Pratikler (Faz 1): bütün pratiklerin durumu yan yana ----
+
+yonetim.get("/pratikler", async (c) => {
+  const db = c.env.DB;
+  const hafta = Date.now() - 7 * GUN_MS;
+  const [ayar, soru, d7, kisi, oneri] = await db.batch([
+    db.prepare("SELECT key, value FROM settings WHERE key LIKE '%:current_week'"),
+    db.prepare(
+      `SELECT q.practice_id AS id,
+              SUM(q.status = 'published' AND q.active = 1 AND q.yedek = 0
+                  AND q.week <= COALESCE((SELECT CAST(value AS INTEGER) FROM settings WHERE key = q.practice_id || ':current_week'), 1)) AS soru,
+              SUM(q.status = 'draft') AS taslak
+       FROM questions q GROUP BY q.practice_id`,
+    ),
+    db.prepare(
+      `SELECT q.practice_id AS id, COUNT(*) AS deneme7, COUNT(DISTINCT a.user_id) AS kisi7
+       FROM attempts a JOIN questions q ON q.id = a.question_id WHERE a.created_at >= ? GROUP BY q.practice_id`,
+    ).bind(hafta),
+    db.prepare(
+      `SELECT q.practice_id AS id, COUNT(DISTINCT a.user_id) AS kisi
+       FROM attempts a JOIN questions q ON q.id = a.question_id GROUP BY q.practice_id`,
+    ),
+    db.prepare(
+      `SELECT t.practice_id AS id, COUNT(*) AS oneri FROM suggestions s JOIN topics t ON t.id = s.topic_id
+       WHERE s.status = 'pending' GROUP BY t.practice_id`,
+    ),
+  ]);
+  const harita = <T,>(r: D1Result) => new Map((r.results as (T & { id: string })[]).map((x) => [x.id, x]));
+  const hafta_ = new Map((ayar!.results as { key: string; value: string }[]).map((r) => [r.key.split(":")[0]!, Number(r.value)]));
+  const s = harita<{ soru: number; taslak: number }>(soru!);
+  const d = harita<{ deneme7: number; kisi7: number }>(d7!);
+  const k = harita<{ kisi: number }>(kisi!);
+  const o = harita<{ oneri: number }>(oneri!);
+  return c.json<PanelPratik[]>(
+    PRATIKLER.map((p) => ({
+      id: p.id, ad: p.ad, alt: p.alt, yayinda: p.yayinda,
+      acikUnite: hafta_.get(p.id) ?? 1, uniteSayisi: p.uniteler.length,
+      soru: s.get(p.id)?.soru ?? 0, taslak: s.get(p.id)?.taslak ?? 0,
+      deneme7: d.get(p.id)?.deneme7 ?? 0, kisi7: d.get(p.id)?.kisi7 ?? 0,
+      kisi: k.get(p.id)?.kisi ?? 0, bekleyenOneri: o.get(p.id)?.oneri ?? 0,
+    })),
+  );
+});
+
+// ---- Claude'a iş (Faz 2): kuyruğa yazılır, yerel ajan alır ----
+
+yonetim.get("/claude", async (c) => {
+  const { results } = await c.env.DB.prepare(`${IS_SQL} WHERE i.practice_id = ? ORDER BY i.created_at DESC LIMIT 50`)
+    .bind(pid(c)).all<Parameters<typeof isSatiri>[0]>();
+  return c.json<ClaudeIsi[]>(results.map(isSatiri));
+});
+
+yonetim.post("/claude", izin("soru.ekle"), async (c) => {
+  const b = await c.req.json<{ istek?: string }>().catch(() => ({}) as { istek?: string });
+  const istek = typeof b.istek === "string" ? b.istek.trim() : "";
+  if (istek.length < 10) return c.json({ error: "İsteği biraz daha açık yaz (en az 10 karakter)." }, 400);
+  if (istek.length > CLAUDE_ISTEK_EN_UZUN) return c.json({ error: `İstek en fazla ${CLAUDE_ISTEK_EN_UZUN} karakter olabilir.` }, 400);
+  const id = crypto.randomUUID();
+  const simdi = Date.now();
+  await c.env.DB.batch([
+    c.env.DB.prepare("INSERT INTO claude_isleri (id, practice_id, istek, created_by, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)")
+      .bind(id, pid(c), istek, c.get("me")!.id, simdi, simdi),
+    kayit(c, "claude.is", id),
+  ]);
+  return c.json({ id });
+});
+
+// Ajan almadan önce iptal; çalışan iş ajan tarafında durdurulur
+yonetim.post("/claude/:id/iptal", izin("soru.ekle"), async (c) => {
+  const r = await c.env.DB.prepare(
+    "UPDATE claude_isleri SET durum = 'iptal', updated_at = ? WHERE id = ? AND practice_id = ? AND durum = 'bekliyor'",
+  ).bind(Date.now(), c.req.param("id"), pid(c)).run();
+  if (!r.meta.changes) return c.json({ error: "Bekleyen böyle bir iş yok." }, 404);
+  return c.json({ ok: true });
 });
 
 yonetim.post("/ayarlar", izin("ayar.duzenle"), async (c) => {

@@ -41,6 +41,30 @@ npm test
 - Sorular değişince: `npm run sorular:sql -- <pratik> migrations/NNNN_ad.sql`.
 - Kayıt, doğrulama e-postası gerektirdiği için yalnızca `RESEND_API_KEY` tanımlıyken açılır. Yerelde `.dev.vars` dosyasına `EPOSTA_KONSOL=1` yazarsan kodlar `npm run dev` çıktısına düşer.
 
+## Yönetim panelinden Claude'a iş verme (yerel ajan)
+
+Paneldeki **Claude** sekmesine yazılan iş D1'deki kuyruğa düşer. Kendi bilgisayarında çalışan ajan işi alır, depoda
+`claude -p` (Claude Code, Pro/Max aboneliğinle) ile yapar, `npm run denetle` geçerse `gh pr create` ile PR açar ve
+sonucu panele yazar. Bilgisayar kapalıyken işler bekler; hiçbir şey kendiliğinden birleşmez.
+
+Bir kez kurulum:
+
+```sh
+openssl rand -hex 32                    # bir anahtar üret
+npx wrangler secret put AJAN_TOKEN      # aynı anahtarı Worker'a ver
+npm run db:migrate:remote               # claude_isleri tablosu
+```
+
+Çalıştırma (deponun yerel kopyasında; `claude` ve `gh` kurulu ve giriş yapılmış olmalı):
+
+```sh
+AJAN_TOKEN=<anahtar> npm run ajan              # sürekli, 2 dakikada bir yoklar
+AJAN_TOKEN=<anahtar> npm run ajan -- --bir-kez # tek iş
+```
+
+Ajan her işi `origin/main`'den açılan ayrı bir worktree'de ve `ajan/<kısa kimlik>` dalında yapar; çalışma kopyana dokunmaz.
+Sorular değiştiyse PR bir migration içerir; birleştirdikten sonra `npm run db:migrate:remote` ve `npm run deploy` sende.
+
 ## Lisans
 
 [GPL-3.0-or-later](LICENSE). Sorular ilgili ders notlarına ve kitaplara dayanır; bu proje dersleri veren kurumlarla bağlantılı değildir.

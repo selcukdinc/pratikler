@@ -1221,3 +1221,7 @@ body.boyutlaniyor-dikey { cursor: ns-resize; user-select: none; }
 .katalog-ust .bosluk { flex: 1; }
 .cati { display: grid; grid-template-rows: 36px 1fr; height: 100%; }
 .cati > main { overflow: auto; }
+.claude-isleri { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; }
+.claude-isleri li { border: 1px solid var(--border); border-radius: 6px; padding: 10px; background: var(--panel); }
+.claude-isleri p { margin: 6px 0; white-space: pre-wrap; }
+.claude-isleri pre { max-height: 240px; overflow: auto; white-space: pre-wrap; }

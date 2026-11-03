@@ -14,6 +14,15 @@ export interface Yenilik {
 
 export const YENILIKLER: Yenilik[] = [
   {
+    pr: 2,
+    tarih: "2026-11-03",
+    baslik: "Yönetim panelinde pratikler ve Claude",
+    maddeler: [
+      "Yönetim panelinin yeni **Pratikler** sekmesi bütün pratikleri yan yana gösteriyor: açık ünite, soru sayısı, son 7 gündeki denemeler ve kişiler, bekleyen öneriler.",
+      "**Claude** sekmesinden bir pratiğe iş verilebiliyor (\"3. üniteye iki soru ekle\" gibi). İşi yöneticinin bilgisayarındaki yerel ajan yapıyor; denetimlerden geçerse bir PR olarak geliyor, birleştirmek yine yöneticide.",
+    ],
+  },
+  {
     pr: 1,
     tarih: "2026-11-03",
     baslik: "Tıp Elektroniği Pratik açıldı",
