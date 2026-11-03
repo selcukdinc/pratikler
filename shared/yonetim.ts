@@ -150,10 +150,14 @@ export interface PanelPratik {
 }
 
 // Yönetim panelinden Claude'a verilen iş (Faz 2, yerel ajan)
-export type ClaudeIsDurumu = "bekliyor" | "calisiyor" | "pr" | "hata" | "iptal";
+export type ClaudeIsDurumu = "bekliyor" | "calisiyor" | "pr" | "tamam" | "hata" | "iptal";
+// is: bir pratikte değişiklik; pratik: çatı panelinden yeni pratik; test: ajanı dene
+export type ClaudeIsTuru = "is" | "pratik" | "test";
 export interface ClaudeIsi {
   id: string;
+  // Pratik kimliği; çatı panelinden verilen işlerde "*"
   pratik: string;
+  tur: ClaudeIsTuru;
   istek: string;
   durum: ClaudeIsDurumu;
   sonuc: string | null;
@@ -163,3 +167,48 @@ export interface ClaudeIsi {
   guncellendi: number;
 }
 export const CLAUDE_ISTEK_EN_UZUN = 4000;
+
+// Yeni pratik isteği (çatı paneli). Ajan bunu Claude'a ayrıntılı bir isteğe çevirir.
+export interface YeniPratikGirdi {
+  ad: string;
+  id: string;
+  alt: string;
+  onek: string;
+  alan: string;
+  // Kaynak .md dosyalarının yöneticinin bilgisayarındaki klasörü
+  kaynakKlasoru: string;
+  notlar: string;
+}
+const KIMLIK = /^[a-z][a-z0-9-]{1,30}$/;
+const ALT = /^[a-z][a-z0-9]{1,30}$/;
+const ONEK = /^[a-z]{2,4}$/;
+
+export function yeniPratikHatasi(g: Partial<YeniPratikGirdi>, mevcut: { id: string; alt: string }[]): string | null {
+  if (!g.ad?.trim() || g.ad.trim().length > 60) return "Pratiğin adını yaz (en fazla 60 karakter).";
+  if (!g.id || !KIMLIK.test(g.id)) return "Kimlik küçük harf, rakam ve tireden oluşmalı (ör. tip-elektronigi).";
+  if (!g.alt || !ALT.test(g.alt)) return "Alt alan adı küçük harf ve rakamdan oluşmalı, tire içermemeli (ör. tipelektronigi).";
+  if (!g.onek || !ONEK.test(g.onek)) return "Soru öneki 2-4 küçük harf olmalı (ör. te).";
+  if (["pratikler", "www", "fpga", "dsp", "girisimcilik", "kimya", "fizik", "ayrik"].includes(g.alt)) return "Bu alt alan adı başka bir sitede kullanılıyor.";
+  if (mevcut.some((p) => p.id === g.id || p.alt === g.alt)) return "Bu kimlik ya da alt alan adıyla bir pratik zaten var.";
+  if (!g.alan?.trim()) return "Katalogdaki alanı yaz (ör. Mühendislik).";
+  if (!g.kaynakKlasoru?.trim().startsWith("/") && !g.kaynakKlasoru?.trim().startsWith("~/")) return "Kaynak klasörünü bilgisayarındaki tam yoluyla yaz (ör. ~/Belgeler/dersler/devreler).";
+  if ((g.notlar ?? "").length > 2000) return "Notlar en fazla 2000 karakter olabilir.";
+  return null;
+}
+
+// Yerel ajanın son yoklaması (her döngüde /api/ajan/nabiz ile bildirilir)
+export interface AjanNabzi {
+  zaman: number;
+  makine: string;
+  depo: string;
+  surum: string;
+  node: string;
+  claude: string | null;
+  gh: string | null;
+  aralikSn: number;
+}
+export interface AjanDurumu {
+  // Worker'da AJAN_TOKEN tanımlı mı
+  anahtarTanimli: boolean;
+  nabiz: AjanNabzi | null;
+}

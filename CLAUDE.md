@@ -14,4 +14,5 @@ Bu depo bütün pratiklerin (Tıp Elektroniği, ...) tek Worker ve tek D1 verita
 - Sorular değişince: `npm run sorular:sql -- <pratik> migrations/NNNN_ad.sql`.
 - Yerelde pratik `?pratik=<id>` ile seçilir (`?pratik=katalog` çatı sayfası); istemci API'ye `X-Pratik` başlığı gönderir.
 - Denetimler: `npm run denetle` (`tsc -b`, `vitest run`, `vite build`).
+- Çatı adresinde (pratik yokken) hesap, mesaj, kullanıcı, işlem kaydı, pratikler tablosu ve Claude uçları çalışır; soru, ilerleme, öneri ve pratik ayarı uçları `worker/index.ts`teki `PRATIGE_OZGU` listesiyle pratik ister.
 - GitHub Actions kullanılmaz. Panelden verilen Claude işlerini `ajan/pratikler-ajan.mjs` yöneticinin bilgisayarında yapar (`claude -p`, yerel denetim, PR); birleştirme ve yayın yöneticidedir.

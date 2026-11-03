@@ -6,7 +6,7 @@ import { Hono, type Context } from "hono";
 import type { Me } from "../shared/api";
 import {
   soruGirdisiHatasi, soruSutunlari,
-  CLAUDE_ISTEK_EN_UZUN, type ClaudeIsi, type PanelPratik,
+  CLAUDE_ISTEK_EN_UZUN, yeniPratikHatasi, type AjanDurumu, type ClaudeIsi, type ClaudeIsTuru, type PanelPratik, type YeniPratikGirdi,
   type PanelAyarlar, type PanelKayit, type PanelPano, type PanelKullanici, type PanelOzet, type PanelSoru, type SoruGirdi,
 } from "../shared/yonetim";
 import type { PanelOneri, Yazisma } from "../shared/sosyal";
@@ -18,7 +18,7 @@ import { yetkisiVar, type Izin } from "./yetki";
 import { pratikKosulu } from "./ortak";
 import { pid } from "./pratik";
 import { PRATIKLER } from "../icerik/index";
-import { IS_SQL, isSatiri } from "./claude";
+import { IS_SQL, isSatiri, nabizOku } from "./claude";
 
 type C = Context<Env>;
 
@@ -168,33 +168,61 @@ yonetim.get("/pratikler", async (c) => {
 });
 
 // ---- Claude'a iş (Faz 2): kuyruğa yazılır, yerel ajan alır ----
+// Pratik adresinde işler o pratiğe aittir; çatı adresinde (pratikler.) kapsam "*" olur
+// ve yeni pratik açma işleri buradan verilir.
+const kapsam = (c: C) => c.get("pratik")?.id ?? "*";
 
 yonetim.get("/claude", async (c) => {
   const { results } = await c.env.DB.prepare(`${IS_SQL} WHERE i.practice_id = ? ORDER BY i.created_at DESC LIMIT 50`)
-    .bind(pid(c)).all<Parameters<typeof isSatiri>[0]>();
+    .bind(kapsam(c)).all<Parameters<typeof isSatiri>[0]>();
   return c.json<ClaudeIsi[]>(results.map(isSatiri));
 });
 
+async function isEkle(c: C, tur: ClaudeIsTuru, istek: string) {
+  const id = crypto.randomUUID();
+  const simdi = Date.now();
+  await c.env.DB.batch([
+    c.env.DB.prepare("INSERT INTO claude_isleri (id, practice_id, tur, istek, created_by, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)")
+      .bind(id, kapsam(c), tur, istek, c.get("me")!.id, simdi, simdi),
+    kayit(c, `claude.${tur}`, id),
+  ]);
+  return c.json({ id });
+}
+
 yonetim.post("/claude", izin("soru.ekle"), async (c) => {
+  if (!c.get("pratik")) return c.json({ error: "Çatı panelinden yalnızca yeni pratik açma işi verilir; bir pratiğe iş vermek için o pratiğin panelini kullan." }, 400);
   const b = await c.req.json<{ istek?: string }>().catch(() => ({}) as { istek?: string });
   const istek = typeof b.istek === "string" ? b.istek.trim() : "";
   if (istek.length < 10) return c.json({ error: "İsteği biraz daha açık yaz (en az 10 karakter)." }, 400);
   if (istek.length > CLAUDE_ISTEK_EN_UZUN) return c.json({ error: `İstek en fazla ${CLAUDE_ISTEK_EN_UZUN} karakter olabilir.` }, 400);
-  const id = crypto.randomUUID();
-  const simdi = Date.now();
-  await c.env.DB.batch([
-    c.env.DB.prepare("INSERT INTO claude_isleri (id, practice_id, istek, created_by, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)")
-      .bind(id, pid(c), istek, c.get("me")!.id, simdi, simdi),
-    kayit(c, "claude.is", id),
-  ]);
-  return c.json({ id });
+  return isEkle(c, "is", istek);
 });
+
+// Yeni pratik (yalnızca çatı panelinden). İstek JSON olarak saklanır; ajan Claude'a çevirir.
+yonetim.post("/claude/pratik", izin("soru.ekle"), async (c) => {
+  if (c.get("pratik")) return c.json({ error: "Yeni pratik pratikler.selcukdinc.dev panelinden açılır." }, 400);
+  const g = await c.req.json<Partial<YeniPratikGirdi>>().catch(() => ({}) as Partial<YeniPratikGirdi>);
+  const h = yeniPratikHatasi(g, PRATIKLER);
+  if (h) return c.json({ error: h }, 400);
+  const temiz: YeniPratikGirdi = {
+    ad: g.ad!.trim(), id: g.id!, alt: g.alt!, onek: g.onek!, alan: g.alan!.trim(),
+    kaynakKlasoru: g.kaynakKlasoru!.trim(), notlar: (g.notlar ?? "").trim(),
+  };
+  return isEkle(c, "pratik", JSON.stringify(temiz));
+});
+
+// Ajanı dene: Claude çalıştırılmaz; ajan makinesindeki claude, gh ve depo durumunu bildirir
+yonetim.post("/claude/test", async (c) => isEkle(c, "test", "Ajan testi"));
+
+yonetim.get("/ajan", async (c) =>
+  c.json<AjanDurumu>({ anahtarTanimli: !!c.env.AJAN_TOKEN, nabiz: await nabizOku(c.env.DB) }),
+);
 
 // Ajan almadan önce iptal; çalışan iş ajan tarafında durdurulur
 yonetim.post("/claude/:id/iptal", izin("soru.ekle"), async (c) => {
   const r = await c.env.DB.prepare(
     "UPDATE claude_isleri SET durum = 'iptal', updated_at = ? WHERE id = ? AND practice_id = ? AND durum = 'bekliyor'",
-  ).bind(Date.now(), c.req.param("id"), pid(c)).run();
+  ).bind(Date.now(), c.req.param("id"), kapsam(c)).run();
   if (!r.meta.changes) return c.json({ error: "Bekleyen böyle bir iş yok." }, 404);
   return c.json({ ok: true });
 });
