@@ -61,7 +61,16 @@ if (komut === "kur") {
   } catch {
     // kurulu değildi
   }
-  launchctl("bootstrap", `gui/${uid}`, PLIST);
+  // bootout eski işi bırakırken bootstrap "Input/output error" verebilir; kısa bekleyip dene
+  for (let deneme = 1; ; deneme++) {
+    try {
+      launchctl("bootstrap", `gui/${uid}`, PLIST);
+      break;
+    } catch (e) {
+      if (deneme === 4) throw e;
+      execFileSync("sleep", ["2"]);
+    }
+  }
   console.log(`Ajan servis olarak kuruldu ve başladı. Günlük: ${GUNLUK}`);
 } else if (komut === "kaldir") {
   try {

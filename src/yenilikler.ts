@@ -14,6 +14,15 @@ export interface Yenilik {
 
 export const YENILIKLER: Yenilik[] = [
   {
+    pr: 4,
+    tarih: "2026-11-03",
+    baslik: "Yerel ajan claude'u bulamama ve servis kurulum hatası",
+    maddeler: [
+      "Ajan artık `~/.local/bin`, `/opt/homebrew/bin` ve `/usr/local/bin` klasörlerine kendisi bakıyor; `spawn claude ENOENT` hatası için `.zprofile` düzenlemek gerekmiyor.",
+      "`npm run ajan:servis -- kur` eski servis kapanırken verdiği \"Input/output error\" hatasında kısa bekleyip kendisi yeniden deniyor.",
+    ],
+  },
+  {
     pr: 3,
     tarih: "2026-11-03",
     baslik: "pratikler.selcukdinc.dev'de hesap sayfaları ve yeni pratik açma",

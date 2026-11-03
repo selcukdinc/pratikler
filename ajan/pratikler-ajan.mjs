@@ -53,6 +53,17 @@ if (!TOKEN) {
   );
   process.exit(1);
 }
+// Servis ve .command içinde ~/.zshrc okunmaz; claude, gh ve node'un yaygın kurulum yerlerini PATH'e ekle
+process.env.PATH = [
+  process.env.PATH,
+  join(homedir(), ".local", "bin"),
+  join(homedir(), ".claude", "local"),
+  "/opt/homebrew/bin",
+  "/usr/local/bin",
+]
+  .filter(Boolean)
+  .join(":");
+
 const SURUM = JSON.parse(readFileSync(join(DEPO, "package.json"), "utf8")).version ?? "?";
 
 const log = (...a) => console.log(new Date().toLocaleTimeString("tr-TR"), ...a);
