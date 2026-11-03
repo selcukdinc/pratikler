@@ -220,6 +220,19 @@ export const unite3: Soru[] = [
       aciklama: "Doğru. Dengede çıkış sıfırdır ($R_1 / R_2 = R_3 / R_4$); sensör direncindeki değişim dengeyi bozar.",
     },
     {
+      id: "te-u3-wheatstone-cikis", tip: "fill", zorluk: 3,
+      soru: "Dört koldan yalnızca birinin sensör olduğu bir Wheatstone köprüsü $V_{ex} = 5$ V ile besleniyor. Sensör 120 Ω'luk bir strain gauge ve direnci 0,24 Ω değişiyor. Küçük değişimler için $V_{out} \\approx V_{ex} \\cdot \\Delta R / (4R)$ alınırsa köprü çıkışı yaklaşık ____ mV olur.",
+      bosluklar: [["2,5", "2.5"]],
+      aciklama: "$V_{out} \\approx 5 \\cdot 0{,}24 / (4 \\cdot 120) = 0{,}0025$ V $= 2{,}5$ mV. Direnç değişimi 0,24 Ω gibi çok küçük olsa da köprü bunu ölçülebilir bir gerilime çevirir; bu gerilim genellikle yükseltilir.",
+    },
+    {
+      id: "te-u3-wheatstone-cikis-oran", tip: "mcq", zorluk: 3,
+      soru: "Beslemesi ve $\\Delta R / R$ değeri aynı kalmak koşuluyla, tek sensörlü bir Wheatstone köprüsünün çıkış gerilimi $V_{out} \\approx V_{ex} \\cdot \\Delta R / (4R)$ ise sensör direnci değişimi iki katına çıkarıldığında çıkış nasıl değişir?",
+      secenekler: ["İki katına çıkar", "Yarıya iner", "Dört katına çıkar", "Değişmez", "Sıfırlanır"],
+      dogru: 0,
+      aciklama: "Küçük değişimler için çıkış $\\Delta R$ ile doğrusal orantılıdır; $\\Delta R$ iki katına çıkınca $V_{out}$ de iki katına çıkar. Besleme gerilimini artırmak da çıkışı aynı oranda büyütür.",
+    },
+    {
       id: "te-u3-piezorezistif", tip: "mcq", zorluk: 2,
       soru: "Piezorezistif basınç sensöründe basınç önce neye dönüşür?",
       secenekler: [

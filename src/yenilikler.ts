@@ -14,6 +14,14 @@ export interface Yenilik {
 
 export const YENILIKLER: Yenilik[] = [
   {
+    pr: 3,
+    tarih: "2026-11-03",
+    baslik: "Wheatstone köprüsü çıkış gerilimi soruları",
+    maddeler: [
+      "Tıp Elektroniği 3. ünitede Wheatstone köprüsünün çıkış gerilimini hesaplamaya dair iki yeni soru var: strain gauge ile sayısal bir hesap ve çıkışın direnç değişimiyle nasıl orantılı olduğunu sorgulayan bir soru.",
+    ],
+  },
+  {
     pr: 1,
     tarih: "2026-11-03",
     baslik: "Tıp Elektroniği Pratik açıldı",
