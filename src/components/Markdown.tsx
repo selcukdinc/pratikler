@@ -3,6 +3,7 @@ import { terimleriAyir } from "../lib/terimler";
 import { SEKIL_DESENI } from "../gorseller";
 import { Sekil } from "./Sekil";
 import { matematikHtml, satirSonlari } from "../lib/matematik";
+import { PRATIK } from "../lib/pratik";
 import "katex/dist/katex.min.css";
 
 // Düz metindeki terimlerin ardına İngilizce karşılıklarını ekler: "VE (AND)"
@@ -45,10 +46,14 @@ export function indisli(metin: string): ReactNode {
 // satırlardan not kutusu ve tek başına [[G-H1-01]] yazılan paragraflardan şekil.
 // terim: ders ve soru metinlerinde terimlerin İngilizcesi gösterilir; kod
 // parçalarına dokunulmaz.
-export function inline(text: string, terim = false): ReactNode[] {
-  const duz = (s: string) => (/[_^]/.test(s) ? indisli(s) : terim ? terimli(s) : s);
-  return text.split(/(\$\$[\s\S]+?\$\$|\$[^$\n]+?\$|`[^`]+`|\*\*[^*]+\*\*)/g).map((part, i) => {
-    if (part.length > 2 && part.startsWith("$") && part.endsWith("$")) {
+// Formül ve indis yalnızca LaTeX'i açık pratiklerde (icerik/<pratik>/meta.ts latex)
+const PARCALA_MAT = /(\$\$[\s\S]+?\$\$|\$[^$\n]+?\$|`[^`]+`|\*\*[^*]+\*\*)/g;
+const PARCALA_DUZ = /(`[^`]+`|\*\*[^*]+\*\*)/g;
+
+export function inline(text: string, terim = false, latex = PRATIK.latex): ReactNode[] {
+  const duz = (s: string) => (latex && /[_^]/.test(s) ? indisli(s) : terim ? terimli(s) : s);
+  return text.split(latex ? PARCALA_MAT : PARCALA_DUZ).map((part, i) => {
+    if (latex && part.length > 2 && part.startsWith("$") && part.endsWith("$")) {
       const { html, blok } = matematikHtml(part);
       return <span key={i} className={blok ? "mat-blok" : "mat"} dangerouslySetInnerHTML={{ __html: html }} />;
     }
@@ -56,7 +61,7 @@ export function inline(text: string, terim = false): ReactNode[] {
     if (part.startsWith("**") && part.endsWith("**")) {
       const ic = part.slice(2, -2);
       // "**$F_x$:**" gibi etiketlerde formül kalın yazının içinde de dizilsin
-      return <strong key={i}>{ic.includes("$") ? inline(ic, terim) : duz(ic)}</strong>;
+      return <strong key={i}>{latex && ic.includes("$") ? inline(ic, terim, latex) : duz(ic)}</strong>;
     }
     return <Fragment key={i}>{duz(part)}</Fragment>;
   });

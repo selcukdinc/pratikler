@@ -1,4 +1,4 @@
-import type { Konu, Soru } from "./tipler.ts";
+import type { Konu, Soru } from "../../tipler.ts";
 import { unite1 } from "./unite-1.ts";
 import { unite2 } from "./unite-2.ts";
 import { unite3 } from "./unite-3.ts";

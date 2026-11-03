@@ -10,10 +10,10 @@ export interface EpostaEnv {
 
 export const epostaAcik = (env: EpostaEnv) => !!env.RESEND_API_KEY || env.EPOSTA_KONSOL === "1";
 
-const GONDEREN = "Girişimcilik Pratik <girisimcilikpratik@mail.selcukdinc.dev>";
+const GONDEREN = "Pratikler <pratikler@mail.selcukdinc.dev>";
 
 const AMAC = {
-  kayit: { konu: "Kayıt kodun", cumle: "Girişimcilik Pratik hesabını açmak için bu kodu gir" },
+  kayit: { konu: "Kayıt kodun", cumle: "Pratikler hesabını açmak için bu kodu gir" },
   reset: { konu: "Parola sıfırlama kodun", cumle: "Parolanı sıfırlamak için bu kodu gir" },
   email: { konu: "E-posta doğrulama kodun", cumle: "Yeni e-posta adresini doğrulamak için bu kodu gir" },
 } as const;
@@ -22,7 +22,7 @@ export async function kodGonder(env: EpostaEnv, alici: string, kod: string, amac
   const { konu, cumle } = AMAC[amac];
   const metin =
     `${cumle}: ${kod}\n\nKod 15 dakika geçerli. Bu isteği sen yapmadıysan bu e-postayı yok sayabilirsin.\n\n` +
-    "girisimcilik.selcukdinc.dev";
+    "pratikler.selcukdinc.dev";
 
   if (!env.RESEND_API_KEY) {
     if (env.EPOSTA_KONSOL === "1") {
@@ -43,7 +43,7 @@ export async function kodGonder(env: EpostaEnv, alici: string, kod: string, amac
       html:
         `<p>${cumle}:</p><p style="font:600 28px/1.2 ui-monospace,Menlo,monospace;letter-spacing:6px">${kod}</p>` +
         "<p>Kod 15 dakika geçerli. Bu isteği sen yapmadıysan bu e-postayı yok sayabilirsin.</p>" +
-        '<p style="color:#666">girisimcilik.selcukdinc.dev</p>',
+        '<p style="color:#666">pratikler.selcukdinc.dev</p>',
     }),
   });
   if (!res.ok) throw new Error(`Resend ${res.status}: ${(await res.text()).slice(0, 200)}`);

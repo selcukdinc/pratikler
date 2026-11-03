@@ -14,6 +14,8 @@ import { bildirimGonder } from "./eposta";
 import { ONERI_SQL, mesajlar, oneriSatiri, yazismaOzeti, type OneriSatiri } from "./sosyal";
 import type { Env } from "./session";
 import { yetkisiVar, type Izin } from "./yetki";
+import { pratikKosulu } from "./ortak";
+import { pid } from "./pratik";
 
 type C = Context<Env>;
 
@@ -41,9 +43,10 @@ function kayit(c: C, action: string, target: string | null, detail?: unknown): D
   );
 }
 
-async function ayarlariOku(db: D1Database): Promise<PanelAyarlar> {
-  const { results } = await db.prepare("SELECT key, value FROM settings").all<{ key: string; value: string }>();
-  const m = new Map(results.map((r) => [r.key, r.value]));
+// Ayarlar pratik başınadır: "<pratik>:current_week" gibi
+async function ayarlariOku(db: D1Database, pratik: string): Promise<PanelAyarlar> {
+  const { results } = await db.prepare("SELECT key, value FROM settings WHERE key LIKE ?").bind(`${pratik}:%`).all<{ key: string; value: string }>();
+  const m = new Map(results.map((r) => [r.key.slice(pratik.length + 1), r.value]));
   return {
     showOriginal: m.get("show_original") !== "0",
     currentWeek: Number(m.get("current_week") ?? 1),
@@ -55,25 +58,27 @@ async function ayarlariOku(db: D1Database): Promise<PanelAyarlar> {
 
 yonetim.get("/ozet", async (c) => {
   const db = c.env.DB;
+  const bu = pratikKosulu(pid(c));
   const s = await db.prepare(
     `SELECT COUNT(*) AS toplam,
             SUM(status = 'published' AND active = 1) AS yayinda,
             SUM(status = 'draft') AS taslak,
             SUM(status = 'published' AND active = 0) AS gizli,
             SUM(source = 'original') AS orijinal
-     FROM questions`,
+     FROM questions q WHERE ${bu}`,
   ).first<PanelOzet["soru"]>();
   const u = await db.prepare(
-    `SELECT SUM(kind = 'member') AS uye, SUM(kind = 'guest') AS misafir, (SELECT COUNT(*) FROM attempts) AS deneme FROM users`,
+    `SELECT SUM(kind = 'member') AS uye, SUM(kind = 'guest') AS misafir,
+            (SELECT COUNT(*) FROM attempts a JOIN questions q ON q.id = a.question_id WHERE ${bu}) AS deneme FROM users`,
   ).first<{ uye: number; misafir: number; deneme: number }>();
   const k = await db.prepare(
-    `SELECT (SELECT COUNT(*) FROM suggestions WHERE status = 'pending') AS oneri,
+    `SELECT (SELECT COUNT(*) FROM suggestions s JOIN topics t ON t.id = s.topic_id WHERE s.status = 'pending' AND ${pratikKosulu(pid(c), "t")}) AS oneri,
             (SELECT COUNT(*) FROM threads WHERE admin_unread = 1) AS mesaj`,
   ).first<{ oneri: number; mesaj: number }>();
   return c.json<PanelOzet>({
     bekleyenOneri: k?.oneri ?? 0,
     okunmamisMesaj: k?.mesaj ?? 0,
-    ...(await ayarlariOku(db)),
+    ...(await ayarlariOku(db, pid(c))),
     soru: { toplam: s?.toplam ?? 0, yayinda: s?.yayinda ?? 0, taslak: s?.taslak ?? 0, gizli: s?.gizli ?? 0, orijinal: s?.orijinal ?? 0 },
     uye: u?.uye ?? 0,
     misafir: u?.misafir ?? 0,
@@ -87,16 +92,18 @@ const gunAdi = (ms: number) => new Date(ms + TR_FARK).toISOString().slice(0, 10)
 
 yonetim.get("/pano", async (c) => {
   const db = c.env.DB;
+  const bu = pratikKosulu(pid(c));
   const bugun = Math.floor((Date.now() + TR_FARK) / GUN_MS) * GUN_MS - TR_FARK;
   const bas = bugun - 6 * GUN_MS;
   const [g, y] = await db.batch([
     db.prepare(
-      `SELECT date((created_at + ?) / 1000, 'unixepoch') AS gun, COUNT(*) AS deneme, SUM(correct) AS dogru
-       FROM attempts WHERE created_at >= ? GROUP BY gun`,
+      `SELECT date((a.created_at + ?) / 1000, 'unixepoch') AS gun, COUNT(*) AS deneme, SUM(a.correct) AS dogru
+       FROM attempts a JOIN questions q ON q.id = a.question_id WHERE ${bu} AND a.created_at >= ? GROUP BY gun`,
     ).bind(TR_FARK, bas),
     db.prepare(
       `SELECT q.id, q.prompt, q.type, COUNT(a.id) AS deneme, SUM(a.correct = 0) AS yanlis
        FROM questions q JOIN attempts a ON a.question_id = q.id
+       WHERE ${bu}
        GROUP BY q.id HAVING deneme >= 3 AND yanlis > 0
        ORDER BY CAST(yanlis AS REAL) / deneme DESC, deneme DESC LIMIT 5`,
     ),
@@ -115,7 +122,7 @@ yonetim.get("/pano", async (c) => {
 
 yonetim.post("/ayarlar", izin("ayar.duzenle"), async (c) => {
   const b = (await c.req.json<Partial<PanelAyarlar>>().catch(() => ({}))) as Partial<PanelAyarlar>;
-  const once = await ayarlariOku(c.env.DB);
+  const once = await ayarlariOku(c.env.DB, pid(c));
   const sonra: PanelAyarlar = {
     showOriginal: typeof b.showOriginal === "boolean" ? b.showOriginal : once.showOriginal,
     currentWeek: b.currentWeek === undefined ? once.currentWeek : Number(b.currentWeek),
@@ -127,7 +134,7 @@ yonetim.post("/ayarlar", izin("ayar.duzenle"), async (c) => {
   if (sonra.announcement.length > 300) return c.json({ error: "Duyuru en fazla 300 karakter olabilir." }, 400);
 
   const yaz = (k: string, v: string) =>
-    c.env.DB.prepare("INSERT INTO settings (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value").bind(k, v);
+    c.env.DB.prepare("INSERT INTO settings (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value").bind(`${pid(c)}:${k}`, v);
   const degisen = Object.fromEntries(
     (Object.keys(sonra) as (keyof PanelAyarlar)[]).filter((k) => sonra[k] !== once[k]).map((k) => [k, sonra[k]]),
   );
@@ -136,7 +143,7 @@ yonetim.post("/ayarlar", izin("ayar.duzenle"), async (c) => {
     yaz("show_original", sonra.showOriginal ? "1" : "0"),
     yaz("current_week", String(sonra.currentWeek)),
     yaz("announcement", sonra.announcement),
-    kayit(c, "ayar", null, degisen),
+    kayit(c, "ayar", pid(c), degisen),
   ]);
   return c.json(sonra);
 });
@@ -144,7 +151,7 @@ yonetim.post("/ayarlar", izin("ayar.duzenle"), async (c) => {
 // ---- Sorular ----
 
 yonetim.get("/konular", async (c) => {
-  const { results } = await c.env.DB.prepare("SELECT id, title, week FROM topics ORDER BY week, sort").all();
+  const { results } = await c.env.DB.prepare("SELECT id, title, week FROM topics WHERE practice_id = ? ORDER BY week, sort").bind(pid(c)).all();
   return c.json(results);
 });
 
@@ -184,7 +191,7 @@ function panelSoru(r: SoruSatiri): PanelSoru {
 
 yonetim.get("/sorular", async (c) => {
   const q = c.req.query();
-  const kosul: string[] = [];
+  const kosul: string[] = [pratikKosulu(pid(c))];
   const deger: (string | number)[] = [];
   if (q.konu) (kosul.push("q.topic_id = ?"), deger.push(q.konu));
   if (q.hafta) (kosul.push("q.week = ?"), deger.push(Number(q.hafta)));
@@ -200,7 +207,7 @@ yonetim.get("/sorular", async (c) => {
 });
 
 yonetim.get("/sorular/:id", async (c) => {
-  const r = await c.env.DB.prepare(`${SORU_SQL} WHERE q.id = ? GROUP BY q.id`).bind(c.req.param("id")).first<SoruSatiri>();
+  const r = await c.env.DB.prepare(`${SORU_SQL} WHERE q.id = ? AND ${pratikKosulu(pid(c))} GROUP BY q.id`).bind(c.req.param("id")).first<SoruSatiri>();
   return r ? c.json(panelSoru(r)) : c.json({ error: "soru bulunamadı" }, 404);
 });
 
@@ -208,7 +215,7 @@ async function girdiOku(c: C): Promise<{ g: SoruGirdi; week: number } | { hata: 
   const g = (await c.req.json<Partial<SoruGirdi>>().catch(() => ({}))) as Partial<SoruGirdi>;
   const hata = soruGirdisiHatasi(g);
   if (hata) return { hata };
-  const konu = await c.env.DB.prepare("SELECT week FROM topics WHERE id = ?").bind(g.topicId).first<{ week: number }>();
+  const konu = await c.env.DB.prepare("SELECT week FROM topics WHERE id = ? AND practice_id = ?").bind(g.topicId, pid(c)).first<{ week: number }>();
   if (!konu) return { hata: "Böyle bir konu yok." };
   return { g: { ...(g as SoruGirdi), prompt: g.prompt!.trim(), explanation: g.explanation!.trim(), sourceRef: g.sourceRef!.trim() }, week: konu.week };
 }
@@ -217,15 +224,15 @@ yonetim.post("/sorular", izin("soru.ekle"), async (c) => {
   const o = await girdiOku(c);
   if ("hata" in o) return c.json({ error: o.hata }, 400);
   const { g, week } = o;
-  const id = `p-${crypto.randomUUID().slice(0, 8)}`;
+  const id = `${pid(c)}-p-${crypto.randomUUID().slice(0, 8)}`;
   const { payload, answer } = soruSutunlari(g);
   const me = c.get("me")!;
   await c.env.DB.batch([
     c.env.DB.prepare(
-      `INSERT INTO questions (id, topic_id, week, type, source, prompt, payload, answer, explanation, difficulty, source_ref,
+      `INSERT INTO questions (id, practice_id, topic_id, week, type, source, prompt, payload, answer, explanation, difficulty, source_ref,
                               status, active, created_by, updated_at, updated_by)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-    ).bind(id, g.topicId, week, g.type, g.source, g.prompt, payload, answer, g.explanation, g.difficulty, g.sourceRef || null,
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    ).bind(id, pid(c), g.topicId, week, g.type, g.source, g.prompt, payload, answer, g.explanation, g.difficulty, g.sourceRef || null,
       g.status, g.active ? 1 : 0, me.id, Date.now(), me.id),
     kayit(c, "soru.ekle", id, { durum: g.status }),
   ]);
@@ -235,7 +242,7 @@ yonetim.post("/sorular", izin("soru.ekle"), async (c) => {
 // Kendi eklediği soruyu düzenleme gibi kurallar RBAC'de bu fonksiyona eklenir
 async function duzenleyebilir(c: C, id: string): Promise<boolean> {
   const me: Me | null = c.get("me");
-  return yetkisiVar(me, "soru.duzenle") && !!(await c.env.DB.prepare("SELECT 1 FROM questions WHERE id = ?").bind(id).first());
+  return yetkisiVar(me, "soru.duzenle") && !!(await c.env.DB.prepare("SELECT 1 FROM questions WHERE id = ? AND practice_id = ?").bind(id, pid(c)).first());
 }
 
 yonetim.put("/sorular/:id", async (c) => {
@@ -341,15 +348,15 @@ yonetim.get("/oneriler", izin("oneri.yonet"), async (c) => {
   const durum = c.req.query("durum");
   const gecerli = durum === "pending" || durum === "accepted" || durum === "rejected";
   const { results } = await c.env.DB.prepare(
-    `${PANEL_ONERI_SQL}${gecerli ? " WHERE s.status = ?" : ""} ORDER BY s.status = 'pending' DESC, s.created_at DESC LIMIT 200`,
+    `${PANEL_ONERI_SQL} WHERE t.practice_id = ?${gecerli ? " AND s.status = ?" : ""} ORDER BY s.status = 'pending' DESC, s.created_at DESC LIMIT 200`,
   )
-    .bind(...(gecerli ? [durum] : []))
+    .bind(pid(c), ...(gecerli ? [durum] : []))
     .all<OneriSatiri & { username: string | null }>();
   return c.json(results.map(panelOnerisi));
 });
 
 yonetim.get("/oneriler/:id", izin("oneri.yonet"), async (c) => {
-  const r = await c.env.DB.prepare(`${PANEL_ONERI_SQL} WHERE s.id = ?`).bind(c.req.param("id")).first<OneriSatiri & { username: string | null }>();
+  const r = await c.env.DB.prepare(`${PANEL_ONERI_SQL} WHERE s.id = ? AND t.practice_id = ?`).bind(c.req.param("id"), pid(c)).first<OneriSatiri & { username: string | null }>();
   return r ? c.json(panelOnerisi(r)) : c.json({ error: "öneri bulunamadı" }, 404);
 });
 
@@ -361,7 +368,9 @@ const notOku = async (c: C) => {
 // Kapalı uçlu öneri taslak soruya dönüşür; kod önerisi yalnızca kabul edildi olarak işaretlenir
 yonetim.post("/oneriler/:id/kabul", izin("oneri.yonet"), async (c) => {
   const db = c.env.DB;
-  const s = await db.prepare("SELECT * FROM suggestions WHERE id = ? AND status = 'pending'").bind(c.req.param("id")).first<{
+  const s = await db.prepare(
+    "SELECT s.* FROM suggestions s JOIN topics t ON t.id = s.topic_id WHERE s.id = ? AND s.status = 'pending' AND t.practice_id = ?",
+  ).bind(c.req.param("id"), pid(c)).first<{
     id: string; user_id: string; topic_id: string; type: string; prompt: string; payload: string; answer: string;
     explanation: string; show_name: number;
   }>();
@@ -370,14 +379,14 @@ yonetim.post("/oneriler/:id/kabul", izin("oneri.yonet"), async (c) => {
   const not = await notOku(c);
   const me = c.get("me")!;
   const simdi = Date.now();
-  const questionId = s.type === "code" ? null : `p-${crypto.randomUUID().slice(0, 8)}`;
+  const questionId = s.type === "code" ? null : `${pid(c)}-p-${crypto.randomUUID().slice(0, 8)}`;
   await db.batch([
     ...(questionId
       ? [db.prepare(
-          `INSERT INTO questions (id, topic_id, week, type, source, prompt, payload, answer, explanation, difficulty,
+          `INSERT INTO questions (id, practice_id, topic_id, week, type, source, prompt, payload, answer, explanation, difficulty,
                                   status, active, created_by, suggested_by, updated_at, updated_by)
-           VALUES (?, ?, ?, ?, 'derived', ?, ?, ?, ?, 1, 'draft', 1, ?, ?, ?, ?)`,
-        ).bind(questionId, s.topic_id, konu?.week ?? 1, s.type, s.prompt, s.payload, s.answer, s.explanation, me.id,
+           VALUES (?, ?, ?, ?, ?, 'derived', ?, ?, ?, ?, 1, 'draft', 1, ?, ?, ?, ?)`,
+        ).bind(questionId, pid(c), s.topic_id, konu?.week ?? 1, s.type, s.prompt, s.payload, s.answer, s.explanation, me.id,
           s.show_name ? s.user_id : null, simdi, me.id)]
       : []),
     db.prepare("UPDATE suggestions SET status = 'accepted', admin_note = ?, question_id = ?, decided_at = ?, user_unread = 1 WHERE id = ?")
@@ -391,8 +400,9 @@ yonetim.post("/oneriler/:id/red", izin("oneri.yonet"), async (c) => {
   const id = c.req.param("id");
   const not = await notOku(c);
   const r = await c.env.DB.batch([
-    c.env.DB.prepare("UPDATE suggestions SET status = 'rejected', admin_note = ?, decided_at = ?, user_unread = 1 WHERE id = ? AND status = 'pending'")
-      .bind(not, Date.now(), id),
+    c.env.DB.prepare(`UPDATE suggestions SET status = 'rejected', admin_note = ?, decided_at = ?, user_unread = 1
+       WHERE id = ? AND status = 'pending' AND topic_id IN (SELECT id FROM topics WHERE practice_id = ?)`)
+      .bind(not, Date.now(), id, pid(c)),
     kayit(c, "oneri.red", id ?? null),
   ]);
   if (!r[0]!.meta.changes) return c.json({ error: "Bekleyen böyle bir öneri yok." }, 404);
@@ -444,7 +454,7 @@ yonetim.post("/yazismalar/:id", izin("mesaj.cevapla"), async (c) => {
   if (t.email && t.notify_email) {
     const gonder = bildirimGonder(
       c.env, t.email, `Mesajına cevap var: ${t.subject}`,
-      `Girişimcilik Pratik yöneticisi "${t.subject}" konulu mesajına cevap yazdı.\n\nCevabı okumak için: ${new URL(c.req.url).origin}/mesajlar/${t.id}\n\n` +
+      `${c.get("pratik")?.ad ?? "Pratikler"} Pratik yöneticisi "${t.subject}" konulu mesajına cevap yazdı.\n\nCevabı okumak için: ${new URL(c.req.url).origin}/mesajlar/${t.id}\n\n` +
         "Bu e-postaları Ayarlar sayfasından kapatabilirsin.",
     ).catch((e) => console.log(`[eposta] cevap bildirimi gönderilemedi: ${String(e)}`));
     try {

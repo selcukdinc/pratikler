@@ -4,7 +4,7 @@
 import { useSyncExternalStore } from "react";
 import { YENILIKLER } from "../yenilikler";
 
-const ANAHTAR = "girisimcilik-pratik:yenilik-goruldu";
+const ANAHTAR = "pratik:yenilik-goruldu";
 // Bu sayfa gelmeden önce siteyi kullananlara son günün değişiklikleri yeni görünür
 const ILK_TABAN = 20;
 export const SON_YENILIK = YENILIKLER[0]?.pr ?? 0;
@@ -14,7 +14,7 @@ function oku(): number {
     const v = localStorage.getItem(ANAHTAR);
     if (v !== null) return Number(v) || 0;
     // İlk kez gelen biri için her şey yenidir; rozetle karşılanmasın
-    const taban = localStorage.getItem("girisimcilik-pratik:tanitim-goruldu") === "1" ? ILK_TABAN : SON_YENILIK;
+    const taban = localStorage.getItem("pratik:tanitim-goruldu") === "1" ? ILK_TABAN : SON_YENILIK;
     localStorage.setItem(ANAHTAR, String(taban));
     return taban;
   } catch {

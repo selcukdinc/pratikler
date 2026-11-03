@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
-import { Shell } from "./components/Shell";
+import { PRATIK_YA_DA_KATALOG, SITE_ADI } from "./lib/pratik";
+import { HesapAlani, Shell, TemaDugmesi } from "./components/Shell";
+import { Katalog } from "./pages/Katalog";
 import { OlcekliSayfa } from "./components/Olcek";
 import { useRoute, type Route } from "./lib/router";
 import { api } from "./lib/api";
@@ -49,7 +51,41 @@ function baslik(route: Route, topicTitle?: string): string {
   }
 }
 
+// Çatı sitesi: katalog, giriş/kayıt ve gizlilik; pratik sayfaları pratiklerin kendi adreslerinde
+function CatiApp() {
+  const route = useRoute();
+  const sayfa =
+    route.page === "giris" ? <Giris sonra={route.sonra ?? "/"} /> :
+    route.page === "kayit" ? <Kayit /> :
+    route.page === "sifre-sifirla" ? <SifreSifirla /> :
+    route.page === "gizlilik" ? <Gizlilik /> :
+    <Katalog />;
+  useEffect(() => {
+    document.title = SITE_ADI;
+  }, []);
+  return (
+    <OturumSaglayici>
+      <div className="cati">
+        <header className="topbar katalog-ust">
+          <a className="brand" href="/">
+            <img src="/favicon.svg" alt="" width={18} height={18} />
+            {SITE_ADI}
+          </a>
+          <span className="bosluk" />
+          <TemaDugmesi />
+          <HesapAlani route={route} />
+        </header>
+        <main>{sayfa}</main>
+      </div>
+    </OturumSaglayici>
+  );
+}
+
 export function App() {
+  return PRATIK_YA_DA_KATALOG ? <PratikApp /> : <CatiApp />;
+}
+
+function PratikApp() {
   const route = useRoute();
   const [topics, setTopics] = useState<Topic[]>([]);
   const [currentWeek, setCurrentWeek] = useState<number | null>(null);
@@ -79,7 +115,7 @@ export function App() {
   const title = baslik(route, topicTitle);
 
   useEffect(() => {
-    document.title = `${title} · Girişimcilik Pratik`;
+    document.title = `${title} · ${SITE_ADI}`;
   }, [title]);
 
   return (

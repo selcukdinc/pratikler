@@ -1,6 +1,6 @@
 // 4. ünite: İş Modelleri, Müşteriler, Değer Önerileri ve Gelir Kaynakları
 
-import { cikmis, kitap, turet, type Soru } from "./tipler.ts";
+import { cikmis, kitap, turet, type Soru } from "./yardimci.ts";
 
 const U = 4;
 const K = "u4";

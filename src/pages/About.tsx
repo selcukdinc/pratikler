@@ -1,3 +1,6 @@
+import { PRATIK, SITE_ADI } from "../lib/pratik";
+import { catiAdresi } from "../../icerik/index";
+import { Markdown } from "../components/Markdown";
 import { REPO_URL } from "../lib/api";
 
 const GELISTIRICI_URL = "https://github.com/selcukdinc";
@@ -5,17 +8,11 @@ const GELISTIRICI_URL = "https://github.com/selcukdinc";
 export function About() {
   return (
     <div className="about">
-      <h2>Girişimcilik Pratik</h2>
-      <p>
-        KOSGEB Girişimcilik El Kitabı'nın bölüm sonu sorularını ve geçmiş sınavlarda çıkmış soruları karışık sırayla çözmek için
-        açık kaynaklı bir pratik sitesi. Kitaptaki sorular <strong>GES</strong>, geçmiş sınav soruları <strong>Çıkmış</strong>, aynı
-        konulardan yazılan yeni sorular <strong>Türetilmiş</strong> etiketi taşır.
-      </p>
+      <h2>{SITE_ADI}</h2>
+      <p>{PRATIK.aciklama} Açık kaynaklı, ücretsiz bir pratik sitesidir ve <a href={catiAdresi}>Pratikler</a> çatısı altındaki diğer sitelerle aynı hesabı kullanır.</p>
       <h3>Kaynak</h3>
-      <p>
-        Sorular ve açıklamalar KOSGEB Girişimcilik El Kitabı'na dayanır. Kitap soruları kitaptaki haliyle, türetilmiş sorular
-        kendi cümlelerimizle yazılmıştır. Bu site KOSGEB ile bağlantılı değildir.
-      </p>
+      <Markdown text={PRATIK.kaynakAciklamasi} />
+      {PRATIK.bagimsizlikNotu && <p>{PRATIK.bagimsizlikNotu}</p>}
       <h3>Gizlilik</h3>
       <ul>
         <li>Reklam yok, analitik ya da takip çerezi yok.</li>

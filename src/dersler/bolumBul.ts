@@ -3,7 +3,7 @@
 // şey söylemediği için gösterilmez.
 import { DERSLER } from "./index";
 
-// Hafta -> kavram -> bölümün sırası (0'dan). Kavramlar shared/kavramlar.ts'de.
+// Hafta -> kavram -> bölümün sırası (0'dan). Kavramlar icerik/<pratik>/meta.ts içinde.
 export const KAVRAM_BOLUMU: Record<number, Record<string, number>> = {};
 
 export interface SoruBolumu {

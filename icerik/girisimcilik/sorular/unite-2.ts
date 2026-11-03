@@ -1,6 +1,6 @@
 // 2. ünite: Girişim Fırsatlarını Görme ve Fikir Yaratma/Geliştirme
 
-import { kitap, turet, type Soru } from "./tipler.ts";
+import { kitap, turet, type Soru } from "./yardimci.ts";
 
 const U = 2;
 const K = "u2";

@@ -1,7 +1,7 @@
 // 1. ünite: Girişimciliğin Temel Kavramları
 // Kitap soruları metin ve şıklarıyla aynen; türetilmiş sorular kitaptaki bilgiden kendi cümlelerimizle.
 
-import { cikmis, kitap, turet, type Soru } from "./tipler.ts";
+import { cikmis, kitap, turet, type Soru } from "./yardimci.ts";
 
 const U = 1;
 const K = "u1";

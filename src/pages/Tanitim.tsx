@@ -2,36 +2,24 @@
 // kullanılacağını anlatan sayfa. /sss: sık sorulanlar.
 
 import { useEffect } from "react";
+import { PRATIK } from "../lib/pratik";
 import { href } from "../lib/router";
 import { Markdown } from "../components/Markdown";
 import { SSS } from "../sss";
 import { TANITIM_GORULDU } from "../components/Shell";
 
-const KITLELER = [
-  {
-    baslik: "Girişimcilik dersini alan öğrenciler",
-    metin: "Vize ve finalden önce kitabın bölüm sonu sorularını ve çıkmış soruları karışık sırayla çöz, soru kalıplarını tanı. Yanlış yaptıkların aralıklı tekrarla yeniden karşına çıkar.",
-  },
-  {
-    baslik: "KOSGEB girişimcilik eğitimine hazırlananlar",
-    metin: "Kitabın ilk yedi ünitesindeki bütün \"Kendimizi Sınayalım\" soruları ve aynı konulardan türetilmiş yüzlerce soru tek yerde.",
-  },
-  {
-    baslik: "Kısa sürede çok soru görmek isteyenler",
-    metin: "Karma testte 10, 20, 30 ya da 50 soruluk bir test kur; her soruda şıkların yeri değişir, ezber değil anlayış sınanır.",
-  },
-];
+const KITLELER = PRATIK.tanitim.kitleler;
 
 const ADIMLAR = [
   {
     baslik: "1. Karma test çöz",
-    metin: "Üniteleri, kaynağı (GES, Çıkmış, Türetilmiş ya da yalnız gerçek sorular) ve soru sayısını seç. Sorular karışık sırayla, şıklar karışık yerlerde gelir; sonunda puanını ve yanlışlarını görürsün.",
+    metin: `Üniteleri, kaynağı (${PRATIK.etiketler.map((e) => e.ad).join(", ")}) ve soru sayısını seç. Sorular karışık sırayla, şıklar karışık yerlerde gelir; sonunda puanını ve yanlışlarını görürsün.`,
     bag: { page: "pratik" } as const,
     bagMetni: "Karma teste git",
   },
   {
     baslik: "2. Soru havuzunda ünite ünite çalış",
-    metin: "Bir ünite seç; soruları kitap sırasıyla ya da karışık gör. Çözmediklerini ya da yanlış yaptıklarını süz. Her cevaptan sonra kitaba dayanan kısa bir açıklama çıkar.",
+    metin: "Bir ünite seç; soruları kaynak sırasıyla ya da karışık gör. Çözmediklerini ya da yanlış yaptıklarını süz. Her cevaptan sonra kaynağa dayanan kısa bir açıklama çıkar.",
     bag: { page: "sorular" } as const,
     bagMetni: "Soru havuzunu aç",
   },
@@ -60,12 +48,8 @@ export function Tanitim() {
   return (
     <div className="tanitim">
       <header className="tanitim-ust">
-        <h2>Girişimcilik sorularını karışık sırayla çöz</h2>
-        <p>
-          Girişimcilik Pratik, KOSGEB Girişimcilik El Kitabı'na dayanan ücretsiz ve açık kaynaklı bir soru çalışma sitesi. Kitabın
-          bölüm sonu soruları (GES), geçmiş sınavlarda çıkmış sorular ve aynı konulardan türetilmiş sorular etiketli olarak tek
-          yerde; sorular ve şıklar her seferinde karışık gelir.
-        </p>
+        <h2>{PRATIK.tanitim.baslik}</h2>
+        <p>{PRATIK.tanitim.giris}</p>
         <div className="tanitim-dugmeler">
           <a className="buton primary" href={href({ page: "pratik" })}>Karma teste başla</a>
           <a className="buton" href={href({ page: "sorular" })}>Soru havuzu</a>

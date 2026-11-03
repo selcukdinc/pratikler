@@ -1,6 +1,6 @@
 // 7. ünite: Girişimin Etik Temelleri
 
-import { kitap, turet, type Soru } from "./tipler.ts";
+import { kitap, turet, type Soru } from "./yardimci.ts";
 
 const U = 7;
 const K = "u7";

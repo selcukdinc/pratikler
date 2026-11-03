@@ -7,6 +7,7 @@ import {
   type Okunmamis, type Oneri, type OneriGirdi, type Yazisma, type YazismaMesaji, type YazismaOzeti,
 } from "../shared/sosyal";
 import type { Env } from "./session";
+import { pid } from "./pratik";
 
 type C = Context<Env>;
 const GUN = 24 * 60 * 60 * 1000;
@@ -46,8 +47,8 @@ export function oneriSatiri(r: OneriSatiri): Oneri {
 }
 
 sosyal.get("/oneriler", async (c) => {
-  const { results } = await c.env.DB.prepare(`${ONERI_SQL} WHERE s.user_id = ? ORDER BY s.created_at DESC LIMIT 100`)
-    .bind(c.get("me")!.id)
+  const { results } = await c.env.DB.prepare(`${ONERI_SQL} WHERE s.user_id = ? AND t.practice_id = ? ORDER BY s.created_at DESC LIMIT 100`)
+    .bind(c.get("me")!.id, pid(c))
     .all<OneriSatiri>();
   return c.json(results.map(oneriSatiri));
 });
@@ -65,7 +66,7 @@ sosyal.post("/oneriler", async (c) => {
   const h = oneriHatasi(g);
   if (h) return c.json({ error: h }, 400);
   const db = c.env.DB;
-  if (!(await db.prepare("SELECT 1 FROM topics WHERE id = ?").bind(g.topicId).first())) return c.json({ error: "Böyle bir konu yok." }, 400);
+  if (!(await db.prepare("SELECT 1 FROM topics WHERE id = ? AND practice_id = ?").bind(g.topicId, pid(c)).first())) return c.json({ error: "Böyle bir konu yok." }, 400);
   const say = await db.prepare("SELECT COUNT(*) AS n FROM suggestions WHERE user_id = ? AND created_at > ?")
     .bind(me.id, Date.now() - GUN)
     .first<{ n: number }>();

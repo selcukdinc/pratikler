@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { PRATIK } from "../lib/pratik";
 import { api } from "../lib/api";
 import { uye, useOturum } from "../lib/oturum";
 import { Markdown, inline } from "../components/Markdown";
@@ -52,19 +53,18 @@ function Baslik({ q, n, dersBagi, durum }: IcOzellikler) {
   );
 }
 
-export const ETIKET_ADI: Record<Etiket, string> = { ges: "GES", cikmis: "Çıkmış", turetilmis: "Türetilmiş" };
-const ETIKET_ACIKLAMA: Record<Etiket, string> = {
-  ges: "Girişimcilik El Kitabı'nın bölüm sonu sorusu (Kendimizi Sınayalım)",
-  cikmis: "Daha önce sınavda çıkmış soru",
-  turetilmis: "Kitaptaki bilgiden türetilmiş yeni soru",
-};
+const etiketBul = (id: string) => PRATIK.etiketler.find((e) => e.id === id);
+export const etiketAdi = (id: string) => etiketBul(id)?.ad ?? id;
 
 export function EtiketRozetleri({ q }: { q: Pick<Question, "etiketler"> }) {
   return (
     <>
-      {q.etiketler.map((e) => (
-        <span key={e} className={`tag tag-${e}`} title={ETIKET_ACIKLAMA[e]}>{ETIKET_ADI[e]}</span>
-      ))}
+      {q.etiketler.map((e) => {
+        const t = etiketBul(e);
+        return (
+          <span key={e} className={`tag tag-renk-${t?.renk ?? "turetilmis"}`} title={t?.aciklama}>{t?.ad ?? e}</span>
+        );
+      })}
     </>
   );
 }
@@ -296,12 +296,16 @@ const TURLER: [string, string][] = [["", "Tüm türler"], ["tf", "Doğru/Yanlı�
 
 // Kaynak süzgeci: "gercek" kitabın ve çıkmış sınavların sorularıdır (türetilmişler hariç)
 export type KaynakSecimi = "" | "gercek" | Etiket;
+// Kaynak süzgeci: Hepsi, (pratikte gerçek soru etiketi varsa) yalnız gerçek sorular ve her etiket
+const GERCEK = PRATIK.etiketler.filter((e) => e.gercek).map((e) => e.id);
 export const KAYNAKLAR: [KaynakSecimi, string][] = [
-  ["", "Hepsi"], ["gercek", "Yalnız gerçek sorular"], ["ges", "GES"], ["cikmis", "Çıkmış"], ["turetilmis", "Türetilmiş"],
+  ["", "Hepsi"],
+  ...(GERCEK.length ? [["gercek", "Yalnız gerçek sorular"] as [KaynakSecimi, string]] : []),
+  ...PRATIK.etiketler.map((e) => [e.id, e.ad] as [KaynakSecimi, string]),
 ];
 export function kaynagaUyar(q: Pick<Question, "etiketler">, k: KaynakSecimi): boolean {
   if (!k) return true;
-  if (k === "gercek") return q.etiketler.includes("ges") || q.etiketler.includes("cikmis");
+  if (k === "gercek") return q.etiketler.some((e) => GERCEK.includes(e));
   return q.etiketler.includes(k);
 }
 
@@ -378,7 +382,7 @@ export function Questions({ topic, hafta, topics }: { topic?: string; hafta?: nu
   };
 
   // Aynı bilgiyi soran ikizlerden yalnızca biri listelenir (shared/benzerler.ts)
-  const tekil = useMemo(() => questions && benzerleriAyikla(questions, (id) => durumlar?.[id] !== undefined), [questions, durumlar]);
+  const tekil = useMemo(() => questions && benzerleriAyikla(questions, (id) => durumlar?.[id] !== undefined, PRATIK.benzerler), [questions, durumlar]);
 
   const gorunen = useMemo(() => {
     if (!tekil) return null;

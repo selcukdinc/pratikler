@@ -7,7 +7,7 @@ import { api } from "./api";
 import { uye, useOturum } from "./oturum";
 import { BOS_ILERLEME, bolumIsaretle, ilerlemeBirlestir, ilerlemeDuzelt, type DersIlerleme } from "../../shared/dersIlerleme";
 
-const ANAHTAR = "girisimcilik-pratik:ders-ilerleme";
+const ANAHTAR = "pratik:ders-ilerleme";
 
 function yerelOku(): DersIlerleme {
   try {

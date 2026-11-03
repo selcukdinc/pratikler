@@ -1,11 +1,11 @@
 // Soru havuzundaki çoktan seçmeli soruların şıkları adil mi (bkz. sik-denetimi.ts)
 import { describe, expect, it } from "vitest";
-import { sorular } from "../../content/sorular/index";
+import { SORULAR } from "../../icerik/sorular";
 import { sikUyarilari } from "./sik-denetimi";
 
 describe("şık denetimi", () => {
   // Kitaptan ve çıkmışlardan gelen sorular aynen korunur; denetim türetilmişlere uygulanır
-  const mcq = sorular.flatMap((s) => (s.tip === "mcq" && s.kaynak === "derived" ? [[s.id, s.secenekler, s.dogru] as const] : []));
+  const mcq = Object.values(SORULAR).flatMap((p) => p.sorular).flatMap((s) => (s.tip === "mcq" && s.kaynak === "derived" ? [[s.id, s.secenekler, s.dogru] as const] : []));
   it.each(mcq)("%s", (_, secenekler, dogru) => {
     expect(sikUyarilari(secenekler, dogru)).toEqual([]);
   });

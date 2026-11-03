@@ -1,5 +1,5 @@
 {
-  "name": "girisimcilik-pratik",
+  "name": "pratikler",
   "private": true,
   "version": "0.1.0",
   "type": "module",
@@ -10,13 +10,14 @@
     "preview": "vite preview",
     "test": "vitest run",
     "typecheck": "tsc -b",
-    "db:migrate:local": "wrangler d1 migrations apply girisimcilik-pratik --local",
-    "db:migrate:remote": "wrangler d1 migrations apply girisimcilik-pratik --remote",
+    "db:migrate:local": "wrangler d1 migrations apply pratikler --local",
+    "db:migrate:remote": "wrangler d1 migrations apply pratikler --remote",
     "deploy": "npm run build && wrangler deploy",
     "sorular:sql": "node --experimental-strip-types scripts/sorular-sql.ts"
   },
   "dependencies": {
     "hono": "^4.13.13",
+    "katex": "^0.16.47",
     "react": "^19.3.1",
     "react-dom": "^19.3.1"
   },

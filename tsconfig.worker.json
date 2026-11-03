@@ -12,6 +12,6 @@
     "skipLibCheck": true,
     "types": ["@cloudflare/workers-types"]
   },
-  "include": ["worker", "shared"],
+  "include": ["worker", "shared", "icerik"],
   "exclude": ["**/*.test.ts"]
 }

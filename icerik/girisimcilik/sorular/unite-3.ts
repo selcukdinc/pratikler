@@ -1,6 +1,6 @@
 // 3. ünite: Yapılabilirlik Analizi
 
-import { cikmis, kitap, turet, type Soru } from "./tipler.ts";
+import { cikmis, kitap, turet, type Soru } from "./yardimci.ts";
 
 const U = 3;
 const K = "u3";

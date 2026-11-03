@@ -1,22 +1,20 @@
-# Girişimcilik Pratik
+# Pratikler
 
-KOSGEB Girişimcilik El Kitabı'na dayanan, açık kaynaklı ve ücretsiz bir soru çalışma sitesi.
+Ders ve kitaplar için açık kaynaklı, ücretsiz soru çalışma siteleri; hepsi tek kod tabanı, tek hesap.
 
-**Site:** [girisimcilik.selcukdinc.dev](https://girisimcilik.selcukdinc.dev)
+**Site:** [pratikler.selcukdinc.dev](https://pratikler.selcukdinc.dev)
+
+| Pratik | Adres | Kaynak |
+| --- | --- | --- |
+| Tıp Elektroniği | [tipelektronigi.selcukdinc.dev](https://tipelektronigi.selcukdinc.dev) | Ders notları (1-4. hafta), Semmlow ve Subasi |
 
 ## Neler var?
 
 - **Karma test:** Seçtiğin ünitelerden sorular karışık sırayla, şıklar karışık yerlerde gelir.
-  10, 20, 30, 50 ya da tüm sorularla test kur; sonunda puanını ve yanlışlarını gör.
-- **Etiketli sorular:**
-  - `GES`: kitabın bölüm sonu ("Kendimizi Sınayalım") soruları, kitaptaki haliyle.
-  - `Çıkmış`: geçmiş sınav soruları. Kitapla aynı olan çıkmışlar ikinci kez eklenmez, kitap sorusu iki etiketi birden taşır.
-  - `Türetilmiş`: kitabın aynı konusundan kendi cümlelerimizle yazılmış sorular.
-  - "Yalnız gerçek sorular" seçimi türetilmişleri gizler.
-- **Soru havuzu:** Ünite ünite, kitap sırasıyla ya da karışık.
-- **Aralıklı tekrar:** Yanlış yaptığın sorular 1, 3, 7, 14 ve 30 gün arayla yeniden gelir.
-- **İlerleme:** Ünite ve kavram bazında doğru oranın.
-- **Konu anlatımları:** Yakında.
+- **Etiketli sorular:** her soru kaynağını (ders notu, kitap, çıkmış soru...) gösterir.
+- **Soru havuzu**, **aralıklı tekrar** ve **ilerleme** sayfaları.
+- **Formüller** KaTeX ile dizilir.
+- **Tek hesap:** bir kez giriş yap, bütün pratiklerde ilerlemen kaydedilsin; misafir olarak da çözebilirsin.
 
 ## Gizlilik
 
@@ -25,9 +23,7 @@ KOSGEB Girişimcilik El Kitabı'na dayanan, açık kaynaklı ve ücretsiz bir so
 
 ## Katkıda bulun
 
-- **Yanlış soru mu gördün?** [Yeni bir issue aç](https://github.com/selcukdinc/girisimcilik-pratik/issues/new);
-  ünite numarasını ve sorunun metnini yazman yeterli.
-- **Beğendiysen** depoya yıldız ver, başkalarının bulmasına yardımcı olur.
+Yanlış soru mu gördün? [Yeni bir issue aç](https://github.com/selcukdinc/pratikler/issues/new); pratiği, ünite numarasını ve sorunun metnini yazman yeterli.
 
 ## Geliştiriciler için
 
@@ -36,17 +32,15 @@ Gereksinim: Node.js 22.12 veya üstü.
 ```sh
 npm install
 npm run db:migrate:local   # yerel veritabanına şema ve sorular
-npm run dev                # http://localhost:5173
+npm run dev                # http://localhost:5173/?pratik=tip-elektronigi
 npm test
 ```
 
-Sorular `content/sorular/unite-N.ts` dosyalarındadır. Değiştirdikten sonra
-`npm run sorular:sql -- migrations/NNNN_ad.sql` ile yeni bir migration üret.
-
-Kayıt, doğrulama e-postası gerektirdiği için yalnızca `RESEND_API_KEY` tanımlıyken açılır.
-Yerelde denemek için proje kökünde `.dev.vars` dosyasına `EPOSTA_KONSOL=1` yaz;
-doğrulama kodları e-posta yerine `npm run dev` çıktısına düşer.
+- Pratikler `icerik/<pratik>/` altındadır (`meta.ts` + `sorular/`). Çalışma kuralları için [CLAUDE.md](CLAUDE.md).
+- Yerelde `?pratik=<id>` bir pratiği, `?pratik=katalog` çatı sayfasını açar; seçim tarayıcıda hatırlanır.
+- Sorular değişince: `npm run sorular:sql -- <pratik> migrations/NNNN_ad.sql`.
+- Kayıt, doğrulama e-postası gerektirdiği için yalnızca `RESEND_API_KEY` tanımlıyken açılır. Yerelde `.dev.vars` dosyasına `EPOSTA_KONSOL=1` yazarsan kodlar `npm run dev` çıktısına düşer.
 
 ## Lisans
 
-[GPL-3.0-or-later](LICENSE). Sorular KOSGEB Girişimcilik El Kitabı'na dayanır; bu proje KOSGEB ile bağlantılı değildir.
+[GPL-3.0-or-later](LICENSE). Sorular ilgili ders notlarına ve kitaplara dayanır; bu proje dersleri veren kurumlarla bağlantılı değildir.

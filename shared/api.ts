@@ -43,17 +43,17 @@ export interface Question {
   source: "original" | "derived";
   prompt: string;
   payload: { choices?: string[]; blanks?: number; sabit?: boolean };
-  // ges: kitabın bölüm sonu sorusu, cikmis: çıkmış sınav sorusu, turetilmis
   etiketler: Etiket[];
   difficulty: number;
   sourceRef: string | null;
-  // shared/kavramlar.ts'deki kavram; soru kartındaki ders bölümü bağlantısı buna göre bulunur
+  // Pratiğin kavramı (icerik/<pratik>/meta.ts); soru kartındaki ders bölümü bağlantısı buna göre bulunur
   kavram?: string | null;
   // Üye önerisinden gelen ve adı görünsün denmiş sorularda
   oneren?: string;
 }
 
-export type Etiket = "ges" | "cikmis" | "turetilmis";
+// Pratiğin etiket kimliği (icerik/<pratik>/meta.ts etiketler): ges, cikmis, turetilmis, ders, kitap...
+export type Etiket = string;
 
 export interface SoruIstatistigi {
   // Soruyu deneyen kişi sayısı ve ilk denemesinde doğru yapanlar (misafirler dahil, anonim)
@@ -125,4 +125,27 @@ export interface ApiHata {
   // Hangi alana ait olduğu (form altında göstermek için)
   alan?: string;
   kalan?: number;
+}
+
+// Çatı sitesinin katalog kartı
+export interface KatalogPratik {
+  id: string;
+  alt: string;
+  ad: string;
+  alan: string;
+  aciklama: string;
+  unite: number;
+  // Açık ünitelerdeki yayında soru sayısı (yedekler hariç)
+  soru: number;
+}
+
+// Kişinin bir pratikteki ilerlemesi (çatı sitesindeki "İlerlemem" kartları)
+export interface PratikIlerlemesi {
+  id: string;
+  denenen: number;
+  dogru: number;
+  // Bugün vadesi gelen aralıklı tekrar sayısı
+  bekleyen: number;
+  // Son deneme zamanı (ms)
+  son: number;
 }

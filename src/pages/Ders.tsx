@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { api } from "../lib/api";
 import { href } from "../lib/router";
 import { Markdown, inline } from "../components/Markdown";
-import { UNITELER } from "../dersler/uniteler";
+import { PRATIK } from "../lib/pratik";
 import { QuestionCard } from "./Questions";
 import { bolumId } from "../dersler/bolumBul";
 import { DERSLER, dersBul } from "../dersler";
@@ -46,7 +46,7 @@ function DersListesi() {
         </a>
       )}
       <ol className="ders-listesi">
-        {UNITELER.filter((u) => !dersBul(u.no)).map((u) => (
+        {PRATIK.uniteler.filter((u) => !dersBul(u.no)).map((u) => (
           <li key={u.no}>
             <a href={href({ page: "sorular", hafta: u.no })}>
               <span className="ders-hafta">{u.no}. ünite</span>

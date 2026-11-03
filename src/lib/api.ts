@@ -5,9 +5,14 @@ import type { Okunmamis, Oneri, OneriGirdi, PanelOneri, Yazisma, YazismaOzeti } 
 import type { PanelAyarlar, PanelKayit, PanelKullanici, PanelOzet, PanelPano, PanelSoru, SoruGirdi } from "../../shared/yonetim";
 import { kutlamaBildir } from "./kutlama";
 import type { TekrarCevabi } from "../../shared/tekrar";
+import type { KatalogPratik, PratikIlerlemesi } from "../../shared/api";
+import { PRATIK_YA_DA_KATALOG } from "./pratik";
+
+// Canlıda pratik alan adından anlaşılır; yerelde ve workers.dev'de bu başlıkla bildirilir
+const PRATIK_BASLIGI: Record<string, string> = PRATIK_YA_DA_KATALOG ? { "X-Pratik": PRATIK_YA_DA_KATALOG.id } : {};
 
 async function get<T>(path: string): Promise<T> {
-  const res = await fetch(`/api${path}`, { credentials: "same-origin" });
+  const res = await fetch(`/api${path}`, { credentials: "same-origin", headers: PRATIK_BASLIGI });
   if (!res.ok) throw new Error(`${path}: ${res.status}`);
   return res.json() as Promise<T>;
 }
@@ -20,7 +25,7 @@ async function post<T>(path: string, body: unknown = {}, method = "POST"): Promi
     const res = await fetch(`/api${path}`, {
       method,
       credentials: "same-origin",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", ...PRATIK_BASLIGI },
       body: JSON.stringify(body),
     });
     const data = await res.json().catch(() => null);
@@ -36,6 +41,8 @@ type Kod = { id: string; tekrarSaniye: number };
 
 export const api = {
   me: () => get<MeYaniti>("/me"),
+  katalog: () => get<KatalogPratik[]>("/katalog"),
+  katalogIlerleme: () => get<PratikIlerlemesi[]>("/katalog/ilerleme"),
   topics: () => get<{ currentWeek: number; topics: Topic[]; announcement: string | null }>("/topics"),
   questions: (topic?: string) => get<Question[]>(topic ? `/questions?topic=${encodeURIComponent(topic)}` : "/questions"),
   progress: () => get<TopicProgress[]>("/progress"),
@@ -116,4 +123,4 @@ export const api = {
   },
 };
 
-export const REPO_URL = "https://github.com/selcukdinc/girisimcilik-pratik";
+export const REPO_URL = "https://github.com/selcukdinc/pratikler";

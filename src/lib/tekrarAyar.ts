@@ -6,9 +6,9 @@ import { uye, useOturum } from "./oturum";
 import { GUNLUK_TEKRAR, gunlukGecerli } from "../../shared/tekrar";
 import type { Me } from "../../shared/api";
 
-const ANAHTAR = "girisimcilik-pratik:gunluk-tekrar";
+const ANAHTAR = "pratik:gunluk-tekrar";
 // Menüdeki sayının yeni seçime göre güncellenmesi için
-export const GUNLUK_OLAYI = "girisimcilik-pratik:gunluk-tekrar";
+export const GUNLUK_OLAYI = "pratik:gunluk-tekrar";
 
 function yerel(): number {
   try {

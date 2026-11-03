@@ -1,6 +1,8 @@
 // Sıkça sorulan sorular. Gerçek sorular gelmeye başladıkça bu liste güncellenir.
 // Cevaplar Markdown alt kümesiyle yazılır (`kod`, **kalın**, "- " listeleri).
 
+import { PRATIK } from "./lib/pratik";
+
 export interface SssBolumu {
   baslik: string;
   sorular: { soru: string; cevap: string }[];
@@ -22,12 +24,13 @@ export const SSS: SssBolumu[] = [
       {
         soru: "Sorular nereden geliyor?",
         cevap:
-          "Üç kaynak var ve her soru etiketlidir:\n- **GES**: KOSGEB Girişimcilik El Kitabı'ndaki bölüm sonu (\"Kendimizi Sınayalım\") soruları, kitaptaki haliyle.\n- **Çıkmış**: geçmiş sınavlarda sorulmuş sorular. Kitapla aynı olan çıkmış sorular ayrıca eklenmez; kitap sorusuna Çıkmış etiketi eklenir.\n- **Türetilmiş**: kitabın aynı konusundan kendi cümlelerimizle yazılan yeni sorular.",
+          PRATIK.kaynakAciklamasi,
       },
       {
-        soru: "Yalnızca kitaptaki ve çıkmış sorularla çalışabilir miyim?",
+        soru: "Yalnızca bir kaynaktan gelen sorularla çalışabilir miyim?",
         cevap:
-          "Evet. Karma testte ve soru havuzunda **Kaynak** seçiminden \"Yalnız gerçek sorular\"ı seç; türetilmiş sorular gizlenir. Yalnız GES ya da yalnız Çıkmış da seçebilirsin.",
+          `Evet. Karma testte ve soru havuzunda **Kaynak** seçiminden bir etiketi (${PRATIK.etiketler.map((e) => e.ad).join(", ")}) seçebilirsin.` +
+          (PRATIK.etiketler.some((e) => e.gercek) ? " \"Yalnız gerçek sorular\" seçilince türetilmiş sorular gizlenir." : ""),
       },
       {
         soru: "Neden bazı ünitelerin soruları görünmüyor?",
@@ -37,7 +40,7 @@ export const SSS: SssBolumu[] = [
       {
         soru: "Konu anlatımları ne zaman gelecek?",
         cevap:
-          "Önce bütün bölüm sonu sorularını siteye eklemeye odaklandık. Konu anlatımları ünite ünite eklenecek; o zamana kadar her sorunun açıklamasında kitaptaki ilgili bilgi kısaca yazar.",
+          "Önce soruları siteye eklemeye odaklandık. Konu anlatımları ünite ünite eklenecek; o zamana kadar her sorunun açıklamasında kaynaktaki ilgili bilgi kısaca yazar.",
       },
     ],
   },

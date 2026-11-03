@@ -3,14 +3,15 @@
 
 import { Hono } from "hono";
 import type { Env } from "./session";
-import { GUN_MS, SORU_SUTUNLARI, bugunBasi, gorunurKosul, soruyaCevir, type SoruListeSatiri } from "./ortak";
+import { GUN_MS, SORU_SUTUNLARI, bugunBasi, gorunurKosul, pratikKosulu, soruyaCevir, type SoruListeSatiri } from "./ortak";
+import { pid } from "./pratik";
 import {
   GUNLUK_TEKRAR, ILISKILI_SAYISI, OGRENILDI, SON_KUTU, TAKVIM_GUN, gunlukGecerli, sonrakiKutu, type TekrarCevabi, type TekrarKaynagi,
 } from "../shared/tekrar";
 
 type Satir = { kutu: number; sonraki: number; kaynak: TekrarKaynagi; son_tekrar: number | null };
 
-export async function tekrarIsle(db: D1Database, userId: string, soruId: string, dogru: boolean) {
+export async function tekrarIsle(db: D1Database, pratik: string, userId: string, soruId: string, dogru: boolean) {
   const simdi = Date.now();
   const bugun = bugunBasi();
   const r = await db.prepare("SELECT kutu, sonraki, kaynak, son_tekrar FROM tekrarlar WHERE user_id = ? AND question_id = ?")
@@ -50,7 +51,7 @@ export async function tekrarIsle(db: D1Database, userId: string, soruId: string,
         `INSERT OR IGNORE INTO tekrarlar (user_id, question_id, kutu, sonraki, kaynak, eklendi)
          SELECT ?1, q.id, 1, ?2, 'iliskili', ?3
          FROM questions q, (SELECT kavram, topic_id FROM questions WHERE id = ?4) k
-         WHERE ${await gorunurKosul(db)} AND q.id <> ?4
+         WHERE ${await gorunurKosul(db, pratik)} AND q.id <> ?4
            AND (q.kavram = k.kavram OR (k.kavram IS NULL AND q.topic_id = k.topic_id))
            AND NOT EXISTS (SELECT 1 FROM attempts a WHERE a.user_id = ?1 AND a.question_id = q.id)
            AND NOT EXISTS (SELECT 1 FROM tekrarlar t WHERE t.user_id = ?1 AND t.question_id = q.id)
@@ -98,7 +99,8 @@ tekrar.get("/", async (c) => {
   const db = c.env.DB;
   const simdi = Date.now();
   const bugun = bugunBasi();
-  const gorunur = await gorunurKosul(db);
+  const gorunur = await gorunurKosul(db, pid(c));
+  const bu = pratikKosulu(pid(c));
   const yapilan = (await db.prepare("SELECT COUNT(*) AS n FROM tekrarlar WHERE user_id = ? AND son_tekrar >= ?").bind(me.id, bugun)
     .first<{ n: number }>())?.n ?? 0;
   const kalan = kalanHesapla(s.gunluk, yapilan, s.ek);
@@ -110,15 +112,15 @@ tekrar.get("/", async (c) => {
     db.prepare(`SELECT t.kutu AS t_kutu, t.kaynak AS t_kaynak, q.kavram AS t_kavram, ${SORU_SUTUNLARI} ${vadeli}
                 ORDER BY t.sonraki, t.kutu, t.eklendi LIMIT ?3`).bind(me.id, simdi, kalan),
     db.prepare(`SELECT COUNT(*) AS n ${vadeli}`).bind(me.id, simdi),
-    db.prepare("SELECT kutu, COUNT(*) AS n FROM tekrarlar WHERE user_id = ? GROUP BY kutu").bind(me.id),
+    db.prepare(`SELECT t.kutu, COUNT(*) AS n FROM tekrarlar t JOIN questions q ON q.id = t.question_id WHERE t.user_id = ? AND ${bu} GROUP BY t.kutu`).bind(me.id),
     db.prepare(
-      `SELECT (sonraki - ?2) / ${GUN_MS} AS gun, COUNT(*) AS n FROM tekrarlar
-       WHERE user_id = ?1 AND kutu <= ${SON_KUTU} AND sonraki > ?3 AND sonraki < ?2 + ${(TAKVIM_GUN + 1) * GUN_MS} GROUP BY gun`,
+      `SELECT (t.sonraki - ?2) / ${GUN_MS} AS gun, COUNT(*) AS n FROM tekrarlar t JOIN questions q ON q.id = t.question_id
+       WHERE t.user_id = ?1 AND ${bu} AND t.kutu <= ${SON_KUTU} AND t.sonraki > ?3 AND t.sonraki < ?2 + ${(TAKVIM_GUN + 1) * GUN_MS} GROUP BY gun`,
     ).bind(me.id, bugun, simdi),
     db.prepare(
       `SELECT t.question_id AS id, q.topic_id, q.week, t.kutu, (t.sonraki - ?2) / ${GUN_MS} AS gun, q.prompt
        FROM tekrarlar t JOIN questions q ON q.id = t.question_id
-       WHERE t.user_id = ?1 AND t.kutu <= ${SON_KUTU} AND t.sonraki > ?3 AND t.sonraki < ?2 + ${(TAKVIM_GUN + 1) * GUN_MS}
+       WHERE t.user_id = ?1 AND ${bu} AND t.kutu <= ${SON_KUTU} AND t.sonraki > ?3 AND t.sonraki < ?2 + ${(TAKVIM_GUN + 1) * GUN_MS}
        ORDER BY t.sonraki, t.kutu LIMIT 500`,
     ).bind(me.id, bugun, simdi),
     db.prepare(`SELECT q.week AS hafta, COUNT(*) AS n ${vadeliTum} GROUP BY q.week ORDER BY q.week`).bind(me.id, simdi),
@@ -151,7 +153,7 @@ tekrar.get("/sayi", async (c) => {
   const r = await db.prepare(
     `SELECT (SELECT COUNT(*) FROM tekrarlar y WHERE y.user_id = ?1 AND y.son_tekrar >= ?3) AS yapilan,
             (SELECT COUNT(*) FROM tekrarlar t JOIN questions q ON q.id = t.question_id
-             WHERE t.user_id = ?1 AND t.kutu <= ${SON_KUTU} AND t.sonraki <= ?2 AND ${await gorunurKosul(db)}) AS bekleyen`,
+             WHERE t.user_id = ?1 AND t.kutu <= ${SON_KUTU} AND t.sonraki <= ?2 AND ${await gorunurKosul(db, pid(c))}) AS bekleyen`,
   ).bind(me.id, Date.now(), bugunBasi()).first<{ yapilan: number; bekleyen: number }>();
   const kalan = kalanHesapla(secenekler(c).gunluk, r?.yapilan ?? 0, 0);
   return c.json({ n: Math.min(r?.bekleyen ?? 0, kalan) });
@@ -167,11 +169,13 @@ tekrar.post("/:id/biliyorum", async (c) => {
   return c.json({ ok: true });
 });
 
-// Tekrar ilerlemesini sıfırlar: bütün kutular boşalır (denemeler ve istatistikler kalır)
+// Bu pratikteki tekrar ilerlemesini sıfırlar: kutular boşalır (denemeler ve istatistikler kalır).
+// Başka pratiklerdeki tekrarlara dokunulmaz.
 tekrar.post("/sifirla", async (c) => {
   const me = c.get("me");
   if (!me) return c.json({ ok: true });
-  await c.env.DB.prepare("DELETE FROM tekrarlar WHERE user_id = ?").bind(me.id).run();
+  await c.env.DB.prepare(`DELETE FROM tekrarlar WHERE user_id = ? AND question_id IN (SELECT q.id FROM questions q WHERE ${pratikKosulu(pid(c))})`)
+    .bind(me.id).run();
   return c.json({ ok: true });
 });
 

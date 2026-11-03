@@ -1,3 +1,4 @@
+import { SITE_ADI } from "../lib/pratik";
 // KVKK aydınlatma metni taslağı. Site sahibi tarafından gözden geçirilmeli.
 
 export function Gizlilik() {
@@ -6,13 +7,13 @@ export function Gizlilik() {
       <h2>Gizlilik ve kişisel veriler</h2>
       <p className="hint">Son güncelleme: Kasım 2026</p>
       <p>
-        Girişimcilik Pratik, girişimcilik dersine ve KOSGEB Girişimcilik El Kitabı'na dayalı sınavlara hazırlanmak için yapılmış, kâr amacı gütmeyen ve açık kaynaklı bir pratik
-        sitesidir. Bu metin, 6698 sayılı Kişisel Verilerin Korunması Kanunu (KVKK) kapsamında hangi verileri neden
+        {SITE_ADI}, Pratikler çatısı (*.selcukdinc.dev) altında sınavlara hazırlanmak için yapılmış, kâr amacı gütmeyen ve açık kaynaklı bir pratik
+        sitesidir. Pratikler sitelerinin hepsi aynı hesap ve aynı veritabanını kullanır; bu metin hepsi için geçerlidir. Bu metin, 6698 sayılı Kişisel Verilerin Korunması Kanunu (KVKK) kapsamında hangi verileri neden
         işlediğimizi anlatır.
       </p>
 
       <h3>Veri sorumlusu</h3>
-      <p>Site, girisimcilik.selcukdinc.dev alan adının sahibi tarafından yayımlanır. İletişim için GitHub deposundaki sorun bildirme sayfası kullanılabilir.</p>
+      <p>Site, selcukdinc.dev alan adının sahibi tarafından yayımlanır. İletişim için GitHub deposundaki sorun bildirme sayfası kullanılabilir.</p>
 
       <h3>Hangi verileri tutuyoruz?</h3>
       <ul>

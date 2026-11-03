@@ -1,6 +1,6 @@
 // 5. ünite: Ekonomi, Endüstri, Rekabet ve Müşteri Analizi
 
-import { cikmis, kitap, turet, type Soru } from "./tipler.ts";
+import { cikmis, kitap, turet, type Soru } from "./yardimci.ts";
 
 const U = 5;
 const K = "u5";

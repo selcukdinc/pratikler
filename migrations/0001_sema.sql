@@ -1,4 +1,6 @@
--- Girişimcilik Pratik veritabanı şeması (fpga-pratik'in son şemasından, topluluk ve kod tabloları olmadan)
+-- Pratikler veritabanı şeması. Bütün pratikler tek veritabanını paylaşır: hesaplar,
+-- oturumlar, mesajlar ortak; konu ve sorular practice_id ile ayrılır, denemeler ve
+-- tekrarlar sorunun pratiğine göre süzülür. Pratik kimlikleri icerik/index.ts'tedir.
 
 CREATE TABLE users (
   id            TEXT PRIMARY KEY,
@@ -34,23 +36,27 @@ CREATE TABLE sessions (
 );
 CREATE INDEX sessions_user ON sessions(user_id);
 
+-- key: "<pratik>:<ad>" (ör. "tip-elektronigi:current_week")
 CREATE TABLE settings (
   key   TEXT PRIMARY KEY,
   value TEXT NOT NULL
 );
 
--- week: kitabın ünite numarası
+-- week: pratiğin ünite (ya da hafta) numarası. Kimlikler bütün pratiklerde tektir
+-- (yeni pratiklerde önekli: te-u1).
 CREATE TABLE topics (
   id    TEXT PRIMARY KEY,
+  practice_id TEXT NOT NULL,
   title TEXT NOT NULL,
   week  INTEGER NOT NULL,
   sort  INTEGER NOT NULL DEFAULT 0
 );
 
 -- source: original (kitabın bölüm sonu sorusu ya da çıkmış soru), derived (türetilmiş)
--- etiketler: virgülle ayrılmış ges, cikmis, turetilmis
+-- etiketler: virgülle ayrılmış, pratiğin meta.etiketler kimlikleri
 CREATE TABLE questions (
   id          TEXT PRIMARY KEY,
+  practice_id TEXT NOT NULL,
   topic_id    TEXT NOT NULL REFERENCES topics(id),
   week        INTEGER NOT NULL,
   type        TEXT NOT NULL CHECK (type IN ('tf', 'mcq', 'fill', 'code', 'wave')),
@@ -71,7 +77,8 @@ CREATE TABLE questions (
   yedek INTEGER NOT NULL DEFAULT 0,
   etiketler TEXT NOT NULL DEFAULT ''
 );
-CREATE INDEX questions_week ON questions(week, active);
+CREATE INDEX topics_pratik ON topics(practice_id, week);
+CREATE INDEX questions_week ON questions(practice_id, week, active);
 
 CREATE TABLE attempts (
   id          INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -182,5 +189,6 @@ CREATE TABLE tekrarlar (
 );
 CREATE INDEX tekrarlar_vade ON tekrarlar(user_id, kutu, sonraki);
 
--- current_week: kaçıncı üniteye kadar soruların görüneceği
-INSERT INTO settings (key, value) VALUES ('current_week', '8'), ('show_original', '1'), ('announcement', '');
+-- current_week: kaçıncı üniteye kadar soruların görüneceği (pratik başına)
+INSERT INTO settings (key, value) VALUES
+  ('tip-elektronigi:current_week', '3'), ('tip-elektronigi:show_original', '1'), ('tip-elektronigi:announcement', '');

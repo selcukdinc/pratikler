@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { sorular } from "../../content/sorular/index";
-import { aciklamaMetni } from "../../content/sorular/tipler";
+import { SORULAR } from "../../icerik/sorular";
+import { PRATIKLER } from "../../icerik/index";
+import { aciklamaMetni } from "../../icerik/tipler";
+
+// Formüller yalnızca LaTeX'i açık pratiklerde çizilir
+const sorular = PRATIKLER.filter((p) => p.latex).flatMap((p) => SORULAR[p.id]!.sorular);
 import { MATEMATIK, matematikHatasi, ozetMetin, satirSonlari } from "./matematik";
 
 describe("formüller", () => {

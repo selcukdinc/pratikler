@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { sorular } from "../../content/sorular/index.ts";
+import { SORULAR } from "../../icerik/sorular.ts";
+
+const sorular = Object.values(SORULAR).flatMap((p) => p.sorular);
 
 // Şıklar ekranda karıştırıldığı için açıklama doğru şıkkı harfiyle anamaz;
 // başka şıklara atıf yapan ya da "Hepsi/Hiçbiri" gibi şıklar varsa soru sabit olmalı.

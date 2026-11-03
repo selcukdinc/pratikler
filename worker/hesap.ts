@@ -13,7 +13,7 @@ import { olcekGecerli } from "../shared/gorunum";
 import type { ApiHata } from "../shared/api";
 import { dortHaneliKod, epostaAcik, kodGonder } from "./eposta";
 import { parolaDogru, parolaOzeti, yinelemeSayisi } from "./parola";
-import { COOKIE, endSession, loadUser, otherSessionsQuery, sha256, startSession, type Env } from "./session";
+import { COOKIE, cerezAlani, endSession, loadUser, otherSessionsQuery, sha256, startSession, type Env } from "./session";
 import { DAKIKA, SAAT, sinirAsildi, sinirDolu, sinirSifirla } from "./sinir";
 import { HEDEF_SECENEKLERI } from "../shared/motivasyon";
 
@@ -464,7 +464,7 @@ ayarlar.post("/hesabi-sil", async (c) => {
     c.env.DB.prepare("UPDATE questions SET created_by = NULL WHERE created_by = ?").bind(me.id),
     c.env.DB.prepare("DELETE FROM users WHERE id = ?").bind(me.id),
   ]);
-  deleteCookie(c, COOKIE, { path: "/", secure: true });
+  deleteCookie(c, COOKIE, { path: "/", secure: true, domain: cerezAlani(c) });
   return c.json({ ok: true });
 });
 

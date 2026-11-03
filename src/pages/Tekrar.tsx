@@ -6,7 +6,7 @@ import { api } from "../lib/api";
 import { href } from "../lib/router";
 import { useGunlukTekrar } from "../lib/tekrarAyar";
 import { QuestionCard } from "./Questions";
-import { KAVRAMLAR } from "../../shared/kavramlar";
+import { PRATIK } from "../lib/pratik";
 import {
   ARALIKLAR, EK_TEKRAR, GUNLUK_SECENEKLERI, GUNLUK_TEKRAR, TAKVIM_GUN, sonrakiKutu,
   type TakvimSorusu, type TekrarCevabi, type TekrarSorusu,
@@ -33,7 +33,7 @@ function gunMetni(gun: number) {
 const gunlukAdi = (n: number) => (n === 0 ? "Sınırsız" : String(n));
 
 function Etiket({ t, biliyorum }: { t: TekrarSorusu; biliyorum: () => void }) {
-  const kavram = t.kavram ? KAVRAMLAR[t.kavram]?.ad : null;
+  const kavram = t.kavram ? PRATIK.kavramlar[t.kavram]?.ad : null;
   const dogruysa = sonrakiKutu(t.kutu, true);
   return (
     <div className="tekrar-etiket">

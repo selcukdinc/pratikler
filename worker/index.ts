@@ -10,7 +10,9 @@ import { yonetim } from "./yonetim";
 import { sosyal } from "./sosyal";
 import { tekrar, tekrarIsle } from "./tekrar";
 import { DAKIKA, SAAT, sinirAsildi } from "./sinir";
-import { GUN_MS, SORU_SUTUNLARI, TR_FARK, bugunBasi, currentWeek, gorunurKosul, setting, showOriginal, soruyaCevir, type SoruListeSatiri } from "./ortak";
+import { GUN_MS, SORU_SUTUNLARI, TR_FARK, bugunBasi, currentWeek, gorunurKosul, pratikKosulu, setting, showOriginal, soruyaCevir, type SoruListeSatiri } from "./ortak";
+import { pid, pratikAyarla, pratikGerekli } from "./pratik";
+import { katalog } from "./katalog";
 import { ALEV, VARSAYILAN_HEDEF, seriler, type GunlukDurum } from "../shared/motivasyon";
 
 const app = new Hono<Env>().basePath("/api");
@@ -29,6 +31,15 @@ app.use("*", async (c, next) => {
   c.set("me", await loadMe(c));
   await next();
 });
+app.use("*", pratikAyarla);
+
+// Çatı uçları (her alan adında çalışır): katalog ve bütün pratiklerdeki ilerleme
+app.route("/katalog", katalog);
+
+// Bundan sonraki uçlar bir pratiğe aittir; hesap uçları ortaktır
+for (const yol of ["/topics", "/questions", "/questions/*", "/progress", "/progress/*", "/profil/*", "/tekrar", "/tekrar/*", "/yonetim", "/yonetim/*", "/uye/*"]) {
+  app.use(yol, pratikGerekli);
+}
 
 app.route("/hesap", hesap);
 app.route("/yonetim", yonetim);
@@ -41,23 +52,23 @@ app.get("/me", (c) => {
 });
 
 app.get("/topics", async (c) => {
-  const week = await currentWeek(c.env.DB);
+  const week = await currentWeek(c.env.DB, pid(c));
   const { results } = await c.env.DB.prepare(
-    "SELECT id, title, week FROM topics WHERE week <= ? ORDER BY week, sort",
+    "SELECT id, title, week FROM topics WHERE practice_id = ? AND week <= ? ORDER BY week, sort",
   )
-    .bind(week)
+    .bind(pid(c), week)
     .all<Topic>();
-  return c.json({ currentWeek: week, topics: results, announcement: (await setting(c.env.DB, "announcement")) || null });
+  return c.json({ currentWeek: week, topics: results, announcement: (await setting(c.env.DB, pid(c), "announcement")) || null });
 });
 
 app.get("/questions", async (c) => {
-  const week = await currentWeek(c.env.DB);
-  const original = await showOriginal(c.env.DB);
+  const week = await currentWeek(c.env.DB, pid(c));
+  const original = await showOriginal(c.env.DB, pid(c));
   const topic = c.req.query("topic");
   // answer sütunu bilinçli olarak seçilmiyor
   const sql = `SELECT ${SORU_SUTUNLARI}
                FROM questions q JOIN topics t ON t.id = q.topic_id LEFT JOIN users u ON u.id = q.suggested_by
-               WHERE q.active = 1 AND q.status = 'published' AND q.yedek = 0 AND q.week <= ?${original ? "" : " AND q.source = 'derived'"}${topic ? " AND q.topic_id = ?" : ""}
+               WHERE ${pratikKosulu(pid(c))} AND q.active = 1 AND q.status = 'published' AND q.yedek = 0 AND q.week <= ?${original ? "" : " AND q.source = 'derived'"}${topic ? " AND q.topic_id = ?" : ""}
                ORDER BY q.week, t.sort, q.difficulty, q.rowid`;
   const stmt = c.env.DB.prepare(sql);
   const { results } = await (topic ? stmt.bind(week, topic) : stmt.bind(week)).all<SoruListeSatiri>();
@@ -69,15 +80,16 @@ type SoruSatiri = { type: QuestionType; source: string; payload: string; answer:
 // Sitede görünen (yayında, gizli değil, haftası gelmiş) bir soruyu getirir
 async function yayindakiSoru(c: Context<Env>, id: string): Promise<SoruSatiri | null> {
   const q = await c.env.DB.prepare(
-    "SELECT type, source, payload, answer, explanation FROM questions WHERE id = ? AND active = 1 AND status = 'published' AND week <= ?",
+    "SELECT type, source, payload, answer, explanation FROM questions WHERE id = ? AND practice_id = ? AND active = 1 AND status = 'published' AND week <= ?",
   )
-    .bind(id, await currentWeek(c.env.DB))
+    .bind(id, pid(c), await currentWeek(c.env.DB, pid(c)))
     .first<SoruSatiri>();
-  if (!q || (q.source === "original" && !(await showOriginal(c.env.DB)))) return null;
+  if (!q || (q.source === "original" && !(await showOriginal(c.env.DB, pid(c))))) return null;
   return q;
 }
 
-// Doğru bir cevaptan sonra bugünkü doğru sayısı; istemci hedefe ulaşıldıysa kutlar
+// Doğru bir cevaptan sonra bugünkü doğru sayısı; istemci hedefe ulaşıldıysa kutlar.
+// Günlük hedef kişiye aittir: bütün pratiklerdeki doğrular birlikte sayılır.
 async function gunlukDurum(db: D1Database, userId: string, hedef: number): Promise<GunlukDurum> {
   const r = await db.prepare("SELECT COALESCE(SUM(correct), 0) AS dogru FROM attempts WHERE user_id = ? AND created_at >= ?")
     .bind(userId, bugunBasi())
@@ -105,7 +117,7 @@ app.post("/questions/:id/answer", async (c) => {
   const correct = grade(q.type, beklenen, body.answer);
   const me = await ensureGuest(c);
   await denemeKaydet(c, me.id, c.req.param("id"), correct, body.answer);
-  await tekrarIsle(c.env.DB, me.id, c.req.param("id"), correct);
+  await tekrarIsle(c.env.DB, pid(c), me.id, c.req.param("id"), correct);
 
   const result: AnswerResult = { correct, explanation: q.explanation, istatistik: await soruIstatistigi(c.env.DB, c.req.param("id"), q) };
   if (q.type === "fill") result.bosluklar = boslukSonuclari(beklenen, body.answer) ?? undefined;
@@ -131,9 +143,9 @@ async function soruIstatistigi(db: D1Database, id: string, q: SoruSatiri): Promi
 }
 
 // Konu bazlı ilerleme: sadece sunucudaki deneme kayıtlarından hesaplanır
-async function konuIlerlemesi(db: D1Database, userId: string): Promise<TopicProgress[]> {
-  const week = await currentWeek(db);
-  const original = await showOriginal(db);
+export async function konuIlerlemesi(db: D1Database, pratik: string, userId: string): Promise<TopicProgress[]> {
+  const week = await currentWeek(db, pratik);
+  const original = await showOriginal(db, pratik);
   const { results } = await db.prepare(
     `SELECT t.id AS topicId, t.title, t.week,
             COUNT(DISTINCT q.id) AS total,
@@ -142,7 +154,7 @@ async function konuIlerlemesi(db: D1Database, userId: string): Promise<TopicProg
      FROM topics t
      LEFT JOIN questions q ON q.topic_id = t.id AND q.active = 1 AND q.status = 'published' AND q.yedek = 0 AND q.week <= ?${original ? "" : " AND q.source = 'derived'"}
      LEFT JOIN attempts a ON a.question_id = q.id AND a.user_id = ?
-     WHERE t.week <= ?
+     WHERE ${pratikKosulu(pratik, "t")} AND t.week <= ?
      GROUP BY t.id ORDER BY t.week, t.sort`,
   )
     .bind(week, userId, week)
@@ -150,7 +162,7 @@ async function konuIlerlemesi(db: D1Database, userId: string): Promise<TopicProg
   return results;
 }
 
-app.get("/progress", async (c) => c.json(await konuIlerlemesi(c.env.DB, c.get("me")?.id ?? "")));
+app.get("/progress", async (c) => c.json(await konuIlerlemesi(c.env.DB, pid(c), c.get("me")?.id ?? "")));
 
 // Sitede görünen sorularla sınırlayan koşul (q tablosu için)
 app.get("/questions/durum", async (c) => {
@@ -184,7 +196,7 @@ app.get("/progress/ayrinti", async (c) => {
     db.prepare(
       `SELECT q.id, q.topic_id AS topicId, t.title AS topicTitle, q.week, q.prompt, COUNT(*) AS deneme, MAX(a.created_at) AS son
        FROM attempts a JOIN questions q ON q.id = a.question_id JOIN topics t ON t.id = q.topic_id
-       WHERE a.user_id = ? AND ${await gorunurKosul(db)} AND q.yedek = 0
+       WHERE a.user_id = ? AND ${await gorunurKosul(db, pid(c))} AND q.yedek = 0
        GROUP BY q.id HAVING MAX(a.correct) = 0 ORDER BY son DESC LIMIT 50`,
     ).bind(me.id),
   ]);
@@ -222,11 +234,11 @@ app.get("/profil/:ad", async (c) => {
   const kendisi = c.get("me")?.id === u.id;
   if (!u.public_profile && !kendisi) return c.json<Profil>({ gizli: true, username: u.username });
 
-  const original = await showOriginal(c.env.DB);
+  const original = await showOriginal(c.env.DB, pid(c));
   const { results } = await c.env.DB.prepare(
     `SELECT q.id AS questionId, t.title AS topicTitle, q.week, q.prompt, MAX(a.created_at) AS at
      FROM attempts a JOIN questions q ON q.id = a.question_id JOIN topics t ON t.id = q.topic_id
-     WHERE a.user_id = ? AND a.correct = 1 AND q.active = 1 AND q.status = 'published'${original ? "" : " AND q.source = 'derived'"}
+     WHERE a.user_id = ? AND a.correct = 1 AND ${pratikKosulu(pid(c))} AND q.active = 1 AND q.status = 'published'${original ? "" : " AND q.source = 'derived'"}
      GROUP BY q.id ORDER BY at DESC LIMIT 10`,
   )
     .bind(u.id)
@@ -240,7 +252,7 @@ app.get("/profil/:ad", async (c) => {
     joinedAt: u.created_at,
     publicProfile: u.public_profile === 1,
     kendisi,
-    konular: await konuIlerlemesi(c.env.DB, u.id),
+    konular: await konuIlerlemesi(c.env.DB, pid(c), u.id),
     son: results.map((r) => ({ ...r, prompt: ozet(r.prompt) })),
   });
 });

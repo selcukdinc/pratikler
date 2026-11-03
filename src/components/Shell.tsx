@@ -1,4 +1,5 @@
 import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
+import { PRATIK, SITE_ADI } from "../lib/pratik";
 import { href, navigate, type Route } from "../lib/router";
 import { api } from "../lib/api";
 import { TEMA_ADI, TEMA_SIRASI, useTema } from "../lib/tema";
@@ -65,7 +66,7 @@ function NavLink({ to, current, ikon, children, ek }: {
   );
 }
 
-const DAR = "girisimcilik-pratik:menu-dar";
+const DAR = "pratik:menu-dar";
 function darOku(): boolean {
   try {
     return localStorage.getItem(DAR) === "1";
@@ -76,7 +77,7 @@ function darOku(): boolean {
 
 const TEMA_ISARETI = { sistem: "◐", acik: "☀", koyu: "☾" } as const;
 
-function TemaDugmesi() {
+export function TemaDugmesi() {
   const [tema, sec] = useTema();
   const sonraki = TEMA_SIRASI[(TEMA_SIRASI.indexOf(tema) + 1) % TEMA_SIRASI.length]!;
   return (
@@ -91,7 +92,7 @@ function TemaDugmesi() {
   );
 }
 
-function HesapAlani({ route }: { route: Route }) {
+export function HesapAlani({ route }: { route: Route }) {
   const { me, yuklendi, setMe, epostaAcik } = useOturum();
   const menu = useRef<HTMLDetailsElement>(null);
   const [okunmamis, setOkunmamis] = useState({ mesaj: 0, oneri: 0 });
@@ -142,7 +143,7 @@ function HesapAlani({ route }: { route: Route }) {
   );
 }
 
-export const TANITIM_GORULDU = "girisimcilik-pratik:tanitim-goruldu";
+export const TANITIM_GORULDU = "pratik:tanitim-goruldu";
 
 // İlk kez gelenlere tanıtım sayfasını hatırlatan, kapatılabilen şerit
 function TanitimSeridi({ route }: { route: Route }) {
@@ -221,7 +222,7 @@ export function Shell({ route, currentWeek, title, status, duyuru, children }: P
         </button>
         <a className="brand" href="/pratik">
           <img src="/favicon.svg" alt="" width={18} height={18} />
-          Girişimcilik Pratik
+          {SITE_ADI}
         </a>
         <span className="topbar-status">{status}</span>
         {yeniSayisi > 0 && route.page !== "yenilikler" && (
@@ -252,7 +253,7 @@ export function Shell({ route, currentWeek, title, status, duyuru, children }: P
           Konu anlatımları
         </NavLink>
         <NavLink to={{ page: "sorular" }} current={route} ikon="sorular"
-          ek={currentWeek !== null && <span className="nav-rozet" title={`Sorular ${currentWeek}. üniteye kadar açık`}>Ü{currentWeek}</span>}>
+          ek={currentWeek !== null && <span className="nav-rozet" title={`Sorular ${currentWeek}. ${PRATIK.uniteAdi} dahil açık`}>{PRATIK.uniteKisa}{currentWeek}</span>}>
           Soru havuzu
         </NavLink>
         <NavLink to={{ page: "tekrar" }} current={route} ikon="tekrar"

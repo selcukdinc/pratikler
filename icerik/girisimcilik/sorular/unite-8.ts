@@ -2,7 +2,7 @@
 // Bu ünitenin kitap soruları henüz eklenmedi; burada arkadaş listesindeki iki çıkmış
 // soru (23, 25) ve onların çevresinde türetilmiş sorular var.
 
-import { cikmis, turet, type Soru } from "./tipler.ts";
+import { cikmis, turet, type Soru } from "./yardimci.ts";
 
 const U = 8;
 const K = "u8";

@@ -1,19 +1,19 @@
-// /terimler: kitapta geçen girişimcilik kavramları, İngilizceleri ve kısa anlamları
+// /terimler: pratiğin kaynaklarında geçen kavramlar, İngilizceleri ve kısa anlamları
 import { useState } from "react";
-import { TERIMLER } from "../lib/terimler";
+import { PRATIK } from "../lib/pratik";
 
 const sade = (s: string) => s.toLocaleLowerCase("tr");
 
 export function Terimler() {
   const [ara, setAra] = useState("");
   const a = sade(ara.trim());
-  const liste = [...TERIMLER]
+  const liste = [...PRATIK.terimler]
     .sort((x, y) => x.tr.localeCompare(y.tr, "tr"))
     .filter((t) => !a || sade(t.tr).includes(a) || sade(t.en).includes(a));
   return (
     <div className="terimler">
       <p className="hint">
-        Girişimcilik El Kitabı'nda geçen temel kavramlar ve İngilizce karşılıkları. İngilizcesi kaynak ararken işine yarar.
+        {PRATIK.kaynakAdi} içinde geçen temel kavramlar ve İngilizce karşılıkları. İngilizcesi kaynak ararken işine yarar.
       </p>
       <input type="search" aria-label="Terimlerde ara" placeholder="Türkçe ya da İngilizce ara" value={ara} onChange={(e) => setAra(e.target.value)} />
       <table>

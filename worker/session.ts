@@ -3,16 +3,31 @@
 import type { Context } from "hono";
 import { deleteCookie, getCookie, setCookie } from "hono/cookie";
 import type { Me } from "../shared/api";
+import type { PratikMeta } from "../icerik/tipler";
 import type { EpostaEnv } from "./eposta";
 import type { AccessEnv } from "./access";
 import { VARSAYILAN_HEDEF } from "../shared/motivasyon";
 
-export const COOKIE = "fp_oturum";
+// Çerez adı mevcut sitelerin "fp_oturum" çerezinden farklıdır: platform çerezi bütün
+// *.selcukdinc.dev alt alanlarına gider; aynı adı taşısaydı henüz taşınmamış sitelere
+// (girisimcilik, fpga...) yabancı bir oturum çerezi gönderilmiş olurdu.
+export const COOKIE = "pratikler_oturum";
+
+// Canlıda COOKIE_DOMAIN=".selcukdinc.dev": tek oturum bütün pratiklerde geçer.
+// Çerez yalnızca istek o alan adının altından geldiyse paylaşılır; yerelde ve
+// workers.dev'de host'a özgü kalır (tarayıcı başka alana yazılan çerezi reddeder)
+export function cerezAlani(c: Context<Env>): string | undefined {
+  const alan = c.env.COOKIE_DOMAIN;
+  if (!alan) return undefined;
+  const host = new URL(c.req.url).hostname;
+  return host === alan.replace(/^\./, "") || host.endsWith(alan.startsWith(".") ? alan : `.${alan}`) ? alan : undefined;
+}
 const MAX_AGE_S = 60 * 60 * 24 * 180;
 
 export type Env = {
-  Bindings: EpostaEnv & AccessEnv & { DB: D1Database; PBKDF2_ITER?: string };
-  Variables: { me: Me | null };
+  Bindings: EpostaEnv & AccessEnv & { DB: D1Database; PBKDF2_ITER?: string; COOKIE_DOMAIN?: string };
+  // pratik: isteğin geldiği pratik (worker/pratik.ts); çatı sitesinde null
+  Variables: { me: Me | null; pratik: PratikMeta | null };
 };
 
 export async function sha256(text: string): Promise<string> {
@@ -90,13 +105,14 @@ export async function startSession(c: Context<Env>, userId: string, extra: D1Pre
     sameSite: "Lax",
     path: "/",
     maxAge: MAX_AGE_S,
+    domain: cerezAlani(c),
   });
 }
 
 export async function endSession(c: Context<Env>): Promise<void> {
   const token = getCookie(c, COOKIE);
   if (token) await c.env.DB.prepare("DELETE FROM sessions WHERE token_hash = ?").bind(await sha256(token)).run();
-  deleteCookie(c, COOKIE, { path: "/", secure: true });
+  deleteCookie(c, COOKIE, { path: "/", secure: true, domain: cerezAlani(c) });
 }
 
 // Geçerli oturum dışındaki tüm oturumları kapatır

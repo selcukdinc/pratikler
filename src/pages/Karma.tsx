@@ -7,12 +7,12 @@ import { api } from "../lib/api";
 import { href } from "../lib/router";
 import { inline } from "../components/Markdown";
 import { KAYNAKLAR, QuestionCard, kaynagaUyar, karistir, type KaynakSecimi } from "./Questions";
-import { UNITELER } from "../dersler/uniteler";
+import { PRATIK } from "../lib/pratik";
 import { benzerleriAyikla } from "../../shared/benzerler";
 import type { Question, SoruDurumlari, Topic } from "../../shared/api";
 
 const SAYILAR = [10, 20, 30, 50, 0] as const;
-const AYAR = "girisimcilik-pratik:karma-ayar";
+const AYAR = "pratik:karma-ayar";
 
 interface Ayar {
   uniteler: number[];
@@ -82,14 +82,14 @@ export function Karma({ topics }: { topics: Topic[] }) {
   };
 
   // Aynı bilgiyi soran ikizlerden biri kalır
-  const tekil = useMemo(() => (havuz ? benzerleriAyikla(havuz, (id) => durumlar[id] !== undefined) : null), [havuz, durumlar]);
+  const tekil = useMemo(() => (havuz ? benzerleriAyikla(havuz, (id) => durumlar[id] !== undefined, PRATIK.benzerler) : null), [havuz, durumlar]);
   const uniteSayilari = useMemo(() => {
     const m = new Map<number, number>();
     for (const q of tekil ?? []) if (kaynagaUyar(q, ayar.kaynak)) m.set(q.week, (m.get(q.week) ?? 0) + 1);
     return m;
   }, [tekil, ayar.kaynak]);
   const uygunSayi = [...uniteSayilari].filter(([u]) => ayar.uniteler.length === 0 || ayar.uniteler.includes(u)).reduce((t, [, n]) => t + n, 0);
-  const acikUniteler = UNITELER.filter((u) => topics.length === 0 || topics.some((t) => t.week === u.no));
+  const acikUniteler = PRATIK.uniteler.filter((u) => topics.length === 0 || topics.some((t) => t.week === u.no));
 
   const baslat = () => {
     if (!tekil) return;

@@ -1,6 +1,6 @@
 // 6. ünite: Hukuki Altyapı
 
-import { kitap, turet, type Soru } from "./tipler.ts";
+import { kitap, turet, type Soru } from "./yardimci.ts";
 
 const U = 6;
 const K = "u6";

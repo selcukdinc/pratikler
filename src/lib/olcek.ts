@@ -7,7 +7,7 @@ import { api } from "./api";
 import { uye, useOturum } from "./oturum";
 import { OLCEK_SECENEKLERI, VARSAYILAN_OLCEK, olcekGecerli } from "../../shared/gorunum";
 
-const ANAHTAR = "girisimcilik-pratik:yazi-olcek";
+const ANAHTAR = "pratik:yazi-olcek";
 
 function oku(): number {
   try {
