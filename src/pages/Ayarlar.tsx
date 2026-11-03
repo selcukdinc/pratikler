@@ -1,0 +1,385 @@
+import { useState, type FormEvent, type ReactNode } from "react";
+import { api, type Sonuc } from "../lib/api";
+import { href, navigate, type AyarSekmesi } from "../lib/router";
+import { uye, useOturum } from "../lib/oturum";
+import { KULLANICI_ADI_DEGISIM_GUN, kullaniciAdiHatasi, parolaGucu } from "../../shared/hesap";
+import { AVATARLAR } from "../../shared/avatarlar";
+import { Avatar } from "../components/Avatar";
+import { AvatarSecici } from "../components/AvatarSecici";
+import { Alan, FormHatasi, KodAlani, ParolaGucuCubugu } from "../components/Form";
+import type { Me } from "../../shared/api";
+import { ALEV, HEDEF_SECENEKLERI } from "../../shared/motivasyon";
+import { OLCEK_SECENEKLERI, VARSAYILAN_OLCEK } from "../../shared/gorunum";
+import { useYaziOlcek } from "../lib/olcek";
+
+function Bolum({ baslik, children }: { baslik: string; children: ReactNode }) {
+  return (
+    <section className="ayar-bolum">
+      <h3>{baslik}</h3>
+      {children}
+    </section>
+  );
+}
+
+// Her bölümün kendi gönderim durumu ve mesajı olur
+function useGonderim() {
+  const [hata, setHata] = useState<string | null>(null);
+  const [tamam, setTamam] = useState<string | null>(null);
+  const [mesgul, setMesgul] = useState(false);
+  async function calistir<T>(is: () => Promise<Sonuc<T>>, basari: string, sonra?: (d: T) => void) {
+    setMesgul(true);
+    setHata(null);
+    setTamam(null);
+    const r = await is();
+    setMesgul(false);
+    if (!r.ok) return setHata(r.hata.error);
+    setTamam(basari);
+    sonra?.(r.data);
+  }
+  const mesaj = (
+    <>
+      <FormHatasi hata={hata} />
+      {tamam && <p className="ok" role="status">{tamam}</p>}
+    </>
+  );
+  return { calistir, mesgul, mesaj };
+}
+
+function ProfilAyari({ me }: { me: Me & { username: string } }) {
+  const { setMe } = useOturum();
+  const [secici, setSecici] = useState(false);
+  const [acik, setAcik] = useState(me.publicProfile);
+  const g = useGonderim();
+  const avatarAdi = AVATARLAR.find((a) => a.id === me.avatar)?.ad ?? "Avatar seçilmedi";
+
+  const kaydet = (e: FormEvent) => {
+    e.preventDefault();
+    void g.calistir(() => api.ayarlar.profil({ publicProfile: acik }), "Kaydedildi.", setMe);
+  };
+
+  return (
+    <Bolum baslik="Profil">
+      <div className="avatar-onizleme">
+        <button type="button" className="avatar-dugme" onClick={() => setSecici(true)} title="Avatarı değiştir">
+          <Avatar id={me.avatar} bg={me.avatarBg} size={64} />
+        </button>
+        <div>
+          <strong>{avatarAdi}</strong>
+          <div>
+            <button type="button" onClick={() => setSecici(true)}>Avatarı değiştir</button>
+          </div>
+        </div>
+      </div>
+      {secici && <AvatarSecici me={me} kapat={() => setSecici(false)} />}
+      <form onSubmit={kaydet}>
+        <label className="onay">
+          <input type="checkbox" checked={acik} onChange={(e) => setAcik(e.target.checked)} />
+          Profilim ve ilerlemem herkese açık olsun
+        </label>
+        <p className="hint">Kapalıyken profil sayfanı sadece sen görürsün, diğerleri "Bu profil gizli" yazısını görür.</p>
+        {g.mesaj}
+        <button className="primary" type="submit" disabled={acik === me.publicProfile || g.mesgul}>Kaydet</button>
+      </form>
+    </Bolum>
+  );
+}
+
+function BildirimAyari({ me }: { me: Me }) {
+  const { setMe } = useOturum();
+  const [bildirim, setBildirim] = useState(me.notifyEmail);
+  const g = useGonderim();
+  const kaydet = (e: FormEvent) => {
+    e.preventDefault();
+    void g.calistir(() => api.ayarlar.profil({ notifyEmail: bildirim }), "Kaydedildi.", setMe);
+  };
+  return (
+    <Bolum baslik="E-posta bildirimleri">
+      <form onSubmit={kaydet}>
+        <label className="onay">
+          <input type="checkbox" checked={bildirim} onChange={(e) => setBildirim(e.target.checked)} />
+          Yönetici mesajıma cevap verince e-postayla haber ver
+        </label>
+        <p className="hint">Okunmamış cevaplar her durumda menüdeki Mesajlarım bölümünde görünür.</p>
+        {g.mesaj}
+        <button className="primary" type="submit" disabled={bildirim === me.notifyEmail || g.mesgul}>Kaydet</button>
+      </form>
+    </Bolum>
+  );
+}
+
+function GunlukHedefAyari({ me }: { me: Me }) {
+  const { setMe } = useOturum();
+  const [hedef, setHedef] = useState(me.gunlukHedef);
+  const g = useGonderim();
+  const kaydet = (e: FormEvent) => {
+    e.preventDefault();
+    void g.calistir(() => api.ayarlar.profil({ gunlukHedef: hedef }), "Kaydedildi.", setMe);
+  };
+  return (
+    <Bolum baslik="Günlük hedef">
+      <form onSubmit={kaydet}>
+        <label>
+          Her gün{" "}
+          <select value={hedef} onChange={(e) => setHedef(Number(e.target.value))}>
+            {HEDEF_SECENEKLERI.map((h) => (
+              <option key={h} value={h}>{h ? `${h} doğru cevap` : "hedef yok"}</option>
+            ))}
+          </select>
+        </label>
+        <p className="hint">
+          Hedefe ulaştığın an kısa bir kutlama görürsün; İlerlemem sayfası da bugünkü durumunu gösterir. Bir günde{" "}
+          {ALEV} doğruya ulaşırsan takvimde o günün kutusu alev alır.
+        </p>
+        {g.mesaj}
+        <button className="primary" type="submit" disabled={hedef === me.gunlukHedef || g.mesgul}>Kaydet</button>
+      </form>
+    </Bolum>
+  );
+}
+
+function GorunumAyari() {
+  const [olcek, sec] = useYaziOlcek();
+  return (
+    <Bolum baslik="Metin boyutu">
+      <label>
+        Sayfalardaki yazılar{" "}
+        <select value={olcek} onChange={(e) => sec(Number(e.target.value))}>
+          {OLCEK_SECENEKLERI.map((o) => (
+            <option key={o} value={o}>%{o}{o === VARSAYILAN_OLCEK ? " (varsayılan)" : ""}</option>
+          ))}
+        </select>
+      </label>
+      <p className="hint">
+        Seçim hemen uygulanır ve hesabına kaydedilir; başka bir cihazda giriş yaptığında da aynı boyut gelir. Üst çubuktaki
+        A− ve A+ düğmeleri de aynı ayarı değiştirir.
+      </p>
+    </Bolum>
+  );
+}
+
+function KullaniciAdiAyari({ me }: { me: Me & { username: string } }) {
+  const { setMe } = useOturum();
+  const [yeni, setYeni] = useState(me.username);
+  const g = useGonderim();
+  const sonraki = (me.usernameChangedAt ?? 0) + KULLANICI_ADI_DEGISIM_GUN * 86_400_000;
+  const kilitli = sonraki > Date.now();
+  const yeniK = yeni.trim().toLowerCase();
+
+  const kaydet = (e: FormEvent) => {
+    e.preventDefault();
+    void g.calistir(() => api.ayarlar.kullaniciAdi(yeniK), "Kullanıcı adın değişti.", (m) => {
+      setMe(m);
+      navigate("/ayarlar", { replace: true });
+    });
+  };
+
+  return (
+    <Bolum baslik="Kullanıcı adı">
+      <form onSubmit={kaydet}>
+        <Alan
+          etiket="Kullanıcı adı"
+          value={yeni}
+          onDeger={(v) => setYeni(v.toLowerCase())}
+          maxLength={20}
+          disabled={kilitli}
+          hata={yeniK !== me.username ? kullaniciAdiHatasi(yeniK) : null}
+          not={
+            kilitli
+              ? `${new Date(sonraki).toLocaleDateString("tr-TR")} tarihinden sonra yeniden değiştirebilirsin.`
+              : `${KULLANICI_ADI_DEGISIM_GUN} günde bir değiştirilebilir. Profil adresin de değişir.`
+          }
+        />
+        {g.mesaj}
+        <button type="submit" disabled={kilitli || yeniK === me.username || !!kullaniciAdiHatasi(yeniK) || g.mesgul}>
+          Değiştir
+        </button>
+      </form>
+    </Bolum>
+  );
+}
+
+function EpostaAyari({ me }: { me: Me }) {
+  const { setMe, epostaAcik } = useOturum();
+  const [yeni, setYeni] = useState("");
+  const [parola, setParola] = useState("");
+  const [kod, setKod] = useState("");
+  const [kodId, setKodId] = useState<string | null>(null);
+  const g = useGonderim();
+
+  const iste = (e: FormEvent) => {
+    e.preventDefault();
+    void g.calistir(() => api.ayarlar.eposta(yeni.trim().toLowerCase(), parola), "Yeni adrese kod gönderildi.", (d) =>
+      setKodId(d.id),
+    );
+  };
+  const dogrula = (e: FormEvent) => {
+    e.preventDefault();
+    void g.calistir(() => api.ayarlar.epostaDogrula(kodId!, kod), "E-postan değişti.", (m) => {
+      setMe(m);
+      setKodId(null);
+      setYeni("");
+      setParola("");
+      setKod("");
+    });
+  };
+
+  return (
+    <Bolum baslik="E-posta">
+      <p>
+        Şu anki adresin: <strong>{me.email}</strong>
+      </p>
+      {!epostaAcik ? (
+        <p className="hint">E-posta gönderimi açılınca buradan değiştirebileceksin.</p>
+      ) : kodId ? (
+        <form onSubmit={dogrula}>
+          <KodAlani kod={kod} setKod={setKod} />
+          {g.mesaj}
+          <button className="primary" type="submit" disabled={kod.length !== 4 || g.mesgul}>Doğrula</button>
+        </form>
+      ) : (
+        <form onSubmit={iste}>
+          <Alan etiket="Yeni e-posta" type="email" value={yeni} onDeger={setYeni} autoComplete="email" />
+          <Alan etiket="Parolan" type="password" value={parola} onDeger={setParola} autoComplete="current-password" />
+          {g.mesaj}
+          <button type="submit" disabled={!yeni || !parola || g.mesgul}>Kod gönder</button>
+        </form>
+      )}
+    </Bolum>
+  );
+}
+
+function ParolaAyari({ me }: { me: Me }) {
+  const [mevcut, setMevcut] = useState("");
+  const [yeni, setYeni] = useState("");
+  const [tekrar, setTekrar] = useState("");
+  const g = useGonderim();
+  const ilgili = [me.username ?? "", (me.email ?? "").split("@")[0] ?? ""];
+
+  const kaydet = (e: FormEvent) => {
+    e.preventDefault();
+    void g.calistir(() => api.ayarlar.parola(mevcut, yeni), "Parolan değişti. Diğer cihazlardaki oturumlar kapatıldı.", () => {
+      setMevcut("");
+      setYeni("");
+      setTekrar("");
+    });
+  };
+
+  return (
+    <Bolum baslik="Parola">
+      <form onSubmit={kaydet}>
+        <Alan etiket="Mevcut parola" type="password" value={mevcut} onDeger={setMevcut} autoComplete="current-password" />
+        <Alan etiket="Yeni parola" type="password" value={yeni} onDeger={setYeni} autoComplete="new-password" />
+        <ParolaGucuCubugu parola={yeni} ilgili={ilgili} />
+        <Alan
+          etiket="Yeni parola tekrarı"
+          type="password"
+          value={tekrar}
+          onDeger={setTekrar}
+          autoComplete="new-password"
+          hata={tekrar && tekrar !== yeni ? "Parolalar eşleşmiyor." : null}
+        />
+        {g.mesaj}
+        <button type="submit" disabled={!mevcut || parolaGucu(yeni, ilgili).seviye === 0 || yeni !== tekrar || g.mesgul}>
+          Parolayı değiştir
+        </button>
+      </form>
+    </Bolum>
+  );
+}
+
+function OturumAyari() {
+  const g = useGonderim();
+  return (
+    <Bolum baslik="Oturumlar">
+      <p className="hint">Başka bir bilgisayarda açık kalan oturumların varsa hepsini buradan kapatabilirsin.</p>
+      {g.mesaj}
+      <button onClick={() => g.calistir(() => api.ayarlar.oturumlariKapat(), "Diğer tüm oturumlar kapatıldı.")} disabled={g.mesgul}>
+        Diğer cihazlardan çıkış yap
+      </button>
+    </Bolum>
+  );
+}
+
+function HesapSilme({ me }: { me: Me & { username: string } }) {
+  const { setMe } = useOturum();
+  const [parola, setParola] = useState("");
+  const [onay, setOnay] = useState("");
+  const g = useGonderim();
+
+  const sil = (e: FormEvent) => {
+    e.preventDefault();
+    void g.calistir(() => api.ayarlar.hesabiSil(parola), "Hesabın silindi.", () => {
+      setMe(null);
+      navigate("/", { replace: true });
+    });
+  };
+
+  return (
+    <Bolum baslik="Hesabı sil">
+      <form onSubmit={sil}>
+        <p className="hint">
+          Hesabın, tüm denemelerin ve oturumların kalıcı olarak silinir. Bu işlem geri alınamaz.
+        </p>
+        <Alan etiket="Parolan" type="password" value={parola} onDeger={setParola} autoComplete="current-password" />
+        <Alan etiket={`Onaylamak için kullanıcı adını yaz (${me.username})`} value={onay} onDeger={setOnay} />
+        {g.mesaj}
+        <button className="tehlike" type="submit" disabled={!parola || onay !== me.username || g.mesgul}>
+          Hesabımı kalıcı olarak sil
+        </button>
+      </form>
+    </Bolum>
+  );
+}
+
+const SEKMELER: { id: AyarSekmesi; ad: string }[] = [
+  { id: "profil", ad: "Profil" },
+  { id: "hesap", ad: "Hesap" },
+  { id: "bildirimler", ad: "Bildirimler" },
+  { id: "sil", ad: "Hesabı sil" },
+];
+
+export function Ayarlar({ sekme = "profil" }: { sekme?: AyarSekmesi }) {
+  const { me, yuklendi } = useOturum();
+  if (!yuklendi) return <p className="empty">Yükleniyor…</p>;
+  if (!uye(me)) {
+    return (
+      <div className="hesap-sayfa">
+        <p>
+          Ayarlar için <a href={href({ page: "giris", sonra: "/ayarlar" })}>giriş yapmalısın</a>.
+        </p>
+      </div>
+    );
+  }
+  return (
+    <div className="ayarlar">
+      <nav className="sekmeler ayar-sekmeleri" aria-label="Ayarlar">
+        {SEKMELER.map((s) => (
+          <a key={s.id} href={href({ page: "ayarlar", sekme: s.id })} aria-current={s.id === sekme ? "page" : undefined}
+            className={s.id === "sil" ? "tehlikeli" : undefined}>
+            {s.ad}
+          </a>
+        ))}
+      </nav>
+      {sekme === "profil" && (
+        <>
+          <p className="hint">
+            Profil sayfan: <a href={href({ page: "profil", ad: me.username })}>/profil/{me.username}</a>
+          </p>
+          <ProfilAyari me={me} />
+          <GunlukHedefAyari me={me} />
+          <GorunumAyari />
+          <KullaniciAdiAyari key={me.username} me={me} />
+        </>
+      )}
+      {sekme === "hesap" && (
+        <>
+          <EpostaAyari me={me} />
+          <ParolaAyari me={me} />
+          <OturumAyari />
+        </>
+      )}
+      {sekme === "bildirimler" && <BildirimAyari me={me} />}
+      {sekme === "sil" && <HesapSilme me={me} />}
+    </div>
+  );
+}

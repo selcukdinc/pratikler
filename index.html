@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="tr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Ders ve kitaplar için ücretsiz, açık kaynaklı soru çalışma siteleri: karışık sıralı karma test, soru havuzu ve aralıklı tekrar." />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <title>Pratikler</title>
+    <script>
+      // Tema sayfa çizilmeden seçilir, böylece karanlık temada beyaz parlama olmaz.
+      // Tercih yalnızca localStorage'da durur, çerez kullanılmaz.
+      (function () {
+        var t = "sistem";
+        try { t = localStorage.getItem("tema") || "sistem"; } catch (e) {}
+        var koyu = t === "koyu" || (t !== "acik" && matchMedia("(prefers-color-scheme: dark)").matches);
+        document.documentElement.dataset.theme = koyu ? "dark" : "light";
+        // Metin boyutu da ilk çizimden önce uygulanır (src/lib/olcek.ts ile aynı anahtar)
+        var o = 0;
+        try { o = Number(localStorage.getItem("pratik:yazi-olcek")); } catch (e) {}
+        if (o >= 85 && o <= 150) document.documentElement.style.setProperty("--yazi-olcek", String(o / 100));
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

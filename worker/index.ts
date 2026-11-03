@@ -1,0 +1,260 @@
+import { Hono, type Context } from "hono";
+import { boslukSonuclari, grade, type Answer, type QuestionType } from "../shared/grade";
+import type {
+  AnswerResult, IlerlemeAyrintisi, Profil, ProfilSon, Question, SoruDurumlari, SoruIstatistigi, Topic, TopicProgress,
+} from "../shared/api";
+import { ensureGuest, loadMe, type Env } from "./session";
+import { hesap } from "./hesap";
+import { epostaAcik } from "./eposta";
+import { yonetim } from "./yonetim";
+import { sosyal } from "./sosyal";
+import { tekrar, tekrarIsle } from "./tekrar";
+import { DAKIKA, SAAT, sinirAsildi } from "./sinir";
+import { GUN_MS, SORU_SUTUNLARI, TR_FARK, bugunBasi, currentWeek, gorunurKosul, pratikKosulu, setting, showOriginal, soruyaCevir, type SoruListeSatiri } from "./ortak";
+import { pid, pratikAyarla, pratikGerekli } from "./pratik";
+import { katalog } from "./katalog";
+import { ALEV, VARSAYILAN_HEDEF, seriler, type GunlukDurum } from "../shared/motivasyon";
+
+const app = new Hono<Env>().basePath("/api");
+
+// Durum değiştiren isteklerde başka bir siteden gelen formlar reddedilir (CSRF).
+// Tarayıcılar fetch POST isteklerinde Origin başlığını her zaman gönderir.
+app.use("*", async (c, next) => {
+  if (c.req.method !== "GET" && c.req.method !== "HEAD") {
+    const origin = c.req.header("Origin");
+    if (origin && origin !== new URL(c.req.url).origin) return c.json({ error: "izin verilmeyen kaynak" }, 403);
+  }
+  await next();
+});
+
+app.use("*", async (c, next) => {
+  c.set("me", await loadMe(c));
+  await next();
+});
+app.use("*", pratikAyarla);
+
+// Çatı uçları (her alan adında çalışır): katalog ve bütün pratiklerdeki ilerleme
+app.route("/katalog", katalog);
+
+// Bundan sonraki uçlar bir pratiğe aittir; hesap uçları ortaktır
+for (const yol of ["/topics", "/questions", "/questions/*", "/progress", "/progress/*", "/profil/*", "/tekrar", "/tekrar/*", "/yonetim", "/yonetim/*", "/uye/*"]) {
+  app.use(yol, pratikGerekli);
+}
+
+app.route("/hesap", hesap);
+app.route("/yonetim", yonetim);
+app.route("/uye", sosyal);
+app.route("/tekrar", tekrar);
+
+app.get("/me", (c) => {
+  const me = c.get("me");
+  return c.json(me ? { ...me, epostaAcik: epostaAcik(c.env) } : { epostaAcik: epostaAcik(c.env) });
+});
+
+app.get("/topics", async (c) => {
+  const week = await currentWeek(c.env.DB, pid(c));
+  const { results } = await c.env.DB.prepare(
+    "SELECT id, title, week FROM topics WHERE practice_id = ? AND week <= ? ORDER BY week, sort",
+  )
+    .bind(pid(c), week)
+    .all<Topic>();
+  return c.json({ currentWeek: week, topics: results, announcement: (await setting(c.env.DB, pid(c), "announcement")) || null });
+});
+
+app.get("/questions", async (c) => {
+  const week = await currentWeek(c.env.DB, pid(c));
+  const original = await showOriginal(c.env.DB, pid(c));
+  const topic = c.req.query("topic");
+  // answer sütunu bilinçli olarak seçilmiyor
+  const sql = `SELECT ${SORU_SUTUNLARI}
+               FROM questions q JOIN topics t ON t.id = q.topic_id LEFT JOIN users u ON u.id = q.suggested_by
+               WHERE ${pratikKosulu(pid(c))} AND q.active = 1 AND q.status = 'published' AND q.yedek = 0 AND q.week <= ?${original ? "" : " AND q.source = 'derived'"}${topic ? " AND q.topic_id = ?" : ""}
+               ORDER BY q.week, t.sort, q.difficulty, q.rowid`;
+  const stmt = c.env.DB.prepare(sql);
+  const { results } = await (topic ? stmt.bind(week, topic) : stmt.bind(week)).all<SoruListeSatiri>();
+  return c.json<Question[]>(results.map(soruyaCevir));
+});
+
+type SoruSatiri = { type: QuestionType; source: string; payload: string; answer: string; explanation: string | null };
+
+// Sitede görünen (yayında, gizli değil, haftası gelmiş) bir soruyu getirir
+async function yayindakiSoru(c: Context<Env>, id: string): Promise<SoruSatiri | null> {
+  const q = await c.env.DB.prepare(
+    "SELECT type, source, payload, answer, explanation FROM questions WHERE id = ? AND practice_id = ? AND active = 1 AND status = 'published' AND week <= ?",
+  )
+    .bind(id, pid(c), await currentWeek(c.env.DB, pid(c)))
+    .first<SoruSatiri>();
+  if (!q || (q.source === "original" && !(await showOriginal(c.env.DB, pid(c))))) return null;
+  return q;
+}
+
+// Doğru bir cevaptan sonra bugünkü doğru sayısı; istemci hedefe ulaşıldıysa kutlar.
+// Günlük hedef kişiye aittir: bütün pratiklerdeki doğrular birlikte sayılır.
+async function gunlukDurum(db: D1Database, userId: string, hedef: number): Promise<GunlukDurum> {
+  const r = await db.prepare("SELECT COALESCE(SUM(correct), 0) AS dogru FROM attempts WHERE user_id = ? AND created_at >= ?")
+    .bind(userId, bugunBasi())
+    .first<{ dogru: number }>();
+  return { dogru: r?.dogru ?? 0, hedef };
+}
+
+async function denemeKaydet(c: Context<Env>, userId: string, soruId: string, correct: boolean, answer: unknown) {
+  await c.env.DB.prepare(
+    "INSERT INTO attempts (user_id, question_id, correct, answer, created_at) VALUES (?, ?, ?, ?, ?)",
+  )
+    .bind(userId, soruId, correct ? 1 : 0, JSON.stringify(answer), Date.now())
+    .run();
+}
+
+app.post("/questions/:id/answer", async (c) => {
+  const body = await c.req.json<{ answer: Answer }>().catch(() => null);
+  if (!body?.answer || typeof body.answer !== "object") return c.json({ error: "geçersiz cevap" }, 400);
+
+  const q = await yayindakiSoru(c, c.req.param("id"));
+  if (!q) return c.json({ error: "soru bulunamadı" }, 404);
+  if (q.type === "code" || q.type === "wave") return c.json({ error: "bu soru tipi bu yoldan cevaplanmaz" }, 400);
+
+  const beklenen = JSON.parse(q.answer);
+  const correct = grade(q.type, beklenen, body.answer);
+  const me = await ensureGuest(c);
+  await denemeKaydet(c, me.id, c.req.param("id"), correct, body.answer);
+  await tekrarIsle(c.env.DB, pid(c), me.id, c.req.param("id"), correct);
+
+  const result: AnswerResult = { correct, explanation: q.explanation, istatistik: await soruIstatistigi(c.env.DB, c.req.param("id"), q) };
+  if (q.type === "fill") result.bosluklar = boslukSonuclari(beklenen, body.answer) ?? undefined;
+  if (correct) result.gunluk = await gunlukDurum(c.env.DB, me.id, me.gunlukHedef);
+  return c.json(result);
+});
+
+// Her kişinin bu sorudaki ilk denemesi üzerinden anonim toplamlar
+async function soruIstatistigi(db: D1Database, id: string, q: SoruSatiri): Promise<SoruIstatistigi> {
+  const ilk = `SELECT a.correct, a.answer FROM attempts a
+               WHERE a.question_id = ?1 AND a.id = (SELECT MIN(b.id) FROM attempts b WHERE b.question_id = ?1 AND b.user_id = a.user_id)`;
+  const t = await db.prepare(`SELECT COUNT(*) AS kisi, COALESCE(SUM(correct), 0) AS ilkDogru FROM (${ilk})`).bind(id)
+    .first<{ kisi: number; ilkDogru: number }>();
+  const ist: SoruIstatistigi = { kisi: t?.kisi ?? 0, ilkDogru: t?.ilkDogru ?? 0 };
+  if (q.type === "mcq") {
+    const sikSayisi = ((JSON.parse(q.payload) as { choices?: string[] }).choices ?? []).length;
+    const { results } = await db.prepare(
+      `SELECT json_extract(answer, '$.index') AS sik, COUNT(*) AS sayi FROM (${ilk}) GROUP BY sik`,
+    ).bind(id).all<{ sik: number | null; sayi: number }>();
+    ist.siklar = Array.from({ length: sikSayisi }, (_, i) => results.find((r) => r.sik === i)?.sayi ?? 0);
+  }
+  return ist;
+}
+
+// Konu bazlı ilerleme: sadece sunucudaki deneme kayıtlarından hesaplanır
+export async function konuIlerlemesi(db: D1Database, pratik: string, userId: string): Promise<TopicProgress[]> {
+  const week = await currentWeek(db, pratik);
+  const original = await showOriginal(db, pratik);
+  const { results } = await db.prepare(
+    `SELECT t.id AS topicId, t.title, t.week,
+            COUNT(DISTINCT q.id) AS total,
+            COUNT(DISTINCT a.question_id) AS attempted,
+            COUNT(DISTINCT CASE WHEN a.correct = 1 THEN a.question_id END) AS correct
+     FROM topics t
+     LEFT JOIN questions q ON q.topic_id = t.id AND q.active = 1 AND q.status = 'published' AND q.yedek = 0 AND q.week <= ?${original ? "" : " AND q.source = 'derived'"}
+     LEFT JOIN attempts a ON a.question_id = q.id AND a.user_id = ?
+     WHERE ${pratikKosulu(pratik, "t")} AND t.week <= ?
+     GROUP BY t.id ORDER BY t.week, t.sort`,
+  )
+    .bind(week, userId, week)
+    .all<TopicProgress>();
+  return results;
+}
+
+app.get("/progress", async (c) => c.json(await konuIlerlemesi(c.env.DB, pid(c), c.get("me")?.id ?? "")));
+
+// Sitede görünen sorularla sınırlayan koşul (q tablosu için)
+app.get("/questions/durum", async (c) => {
+  const me = c.get("me");
+  if (!me) return c.json<SoruDurumlari>({});
+  const { results } = await c.env.DB.prepare(
+    "SELECT question_id AS id, MAX(correct) AS dogru FROM attempts WHERE user_id = ? GROUP BY question_id",
+  ).bind(me.id).all<{ id: string; dogru: number }>();
+  return c.json<SoruDurumlari>(Object.fromEntries(results.map((r) => [r.id, r.dogru ? "dogru" : "yanlis"])));
+});
+
+app.get("/progress/ayrinti", async (c) => {
+  const me = c.get("me");
+  const bugun = bugunBasi();
+  const bas = bugun - 83 * GUN_MS;
+  const gunler = Array.from({ length: 84 }, (_, i) => new Date(bas + i * GUN_MS + TR_FARK).toISOString().slice(0, 10));
+  if (!me) {
+    return c.json<IlerlemeAyrintisi>({
+      takvim: gunler.map((gun) => ({ gun, deneme: 0, dogru: 0 })), yanlislar: [],
+      hedef: VARSAYILAN_HEDEF, seri: { simdi: 0, enUzun: 0 }, alevGunleri: 0, hedefGunleri: 0,
+    });
+  }
+
+  const db = c.env.DB;
+  // Bütün günler: takvim son 84 günü, seri ve rozetler hepsini kullanır
+  const [g, y] = await db.batch([
+    db.prepare(
+      `SELECT date((created_at + ?) / 1000, 'unixepoch') AS gun, COUNT(*) AS deneme, SUM(correct) AS dogru
+       FROM attempts WHERE user_id = ? GROUP BY gun`,
+    ).bind(TR_FARK, me.id),
+    db.prepare(
+      `SELECT q.id, q.topic_id AS topicId, t.title AS topicTitle, q.week, q.prompt, COUNT(*) AS deneme, MAX(a.created_at) AS son
+       FROM attempts a JOIN questions q ON q.id = a.question_id JOIN topics t ON t.id = q.topic_id
+       WHERE a.user_id = ? AND ${await gorunurKosul(db, pid(c))} AND q.yedek = 0
+       GROUP BY q.id HAVING MAX(a.correct) = 0 ORDER BY son DESC LIMIT 50`,
+    ).bind(me.id),
+  ]);
+  const tumGunler = g!.results as { gun: string; deneme: number; dogru: number }[];
+  const sayilar = new Map(tumGunler.map((r) => [r.gun, r]));
+  const hedef = me.gunlukHedef;
+  return c.json<IlerlemeAyrintisi>({
+    takvim: gunler.map((gun) => ({ gun, deneme: sayilar.get(gun)?.deneme ?? 0, dogru: sayilar.get(gun)?.dogru ?? 0 })),
+    yanlislar: (y!.results as (IlerlemeAyrintisi["yanlislar"][number] & { prompt: string })[]).map(({ prompt, ...r }) => ({
+      ...r,
+      ozet: ozet(prompt),
+    })),
+    hedef,
+    seri: seriler(tumGunler.map((r) => r.gun), gunler[gunler.length - 1]!),
+    alevGunleri: tumGunler.filter((r) => r.dogru >= ALEV).length,
+    hedefGunleri: hedef > 0 ? tumGunler.filter((r) => r.dogru >= hedef).length : 0,
+  });
+});
+
+// Sorunun ilk satırından Markdown işaretleri atılmış kısa bir özet
+function ozet(prompt: string): string {
+  const satir = prompt.replace(/```[\s\S]*?```/g, " ").replace(/[`*_#>]/g, "").replace(/\s+/g, " ").trim();
+  return satir.length > 90 ? `${satir.slice(0, 89)}…` : satir;
+}
+
+app.get("/profil/:ad", async (c) => {
+  const ad = c.req.param("ad").toLowerCase();
+  const u = await c.env.DB.prepare(
+    "SELECT id, username, avatar, avatar_bg, public_profile, created_at FROM users WHERE username = ? AND kind = 'member'",
+  )
+    .bind(ad)
+    .first<{ id: string; username: string; avatar: string | null; avatar_bg: string | null; public_profile: number; created_at: number }>();
+  if (!u) return c.json({ error: "böyle bir kullanıcı yok" }, 404);
+
+  const kendisi = c.get("me")?.id === u.id;
+  if (!u.public_profile && !kendisi) return c.json<Profil>({ gizli: true, username: u.username });
+
+  const original = await showOriginal(c.env.DB, pid(c));
+  const { results } = await c.env.DB.prepare(
+    `SELECT q.id AS questionId, t.title AS topicTitle, q.week, q.prompt, MAX(a.created_at) AS at
+     FROM attempts a JOIN questions q ON q.id = a.question_id JOIN topics t ON t.id = q.topic_id
+     WHERE a.user_id = ? AND a.correct = 1 AND ${pratikKosulu(pid(c))} AND q.active = 1 AND q.status = 'published'${original ? "" : " AND q.source = 'derived'"}
+     GROUP BY q.id ORDER BY at DESC LIMIT 10`,
+  )
+    .bind(u.id)
+    .all<ProfilSon>();
+
+  return c.json<Profil>({
+    gizli: false,
+    username: u.username,
+    avatar: u.avatar,
+    avatarBg: u.avatar_bg,
+    joinedAt: u.created_at,
+    publicProfile: u.public_profile === 1,
+    kendisi,
+    konular: await konuIlerlemesi(c.env.DB, pid(c), u.id),
+    son: results.map((r) => ({ ...r, prompt: ozet(r.prompt) })),
+  });
+});
+
+export default app;

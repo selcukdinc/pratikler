@@ -1,0 +1,160 @@
+// Girişimcilik Pratik (girisimcilik.selcukdinc.dev): KOSGEB Girişimcilik El Kitabı.
+// Site bugün kendi deposunda (selcukdinc/girisimcilik-pratik) yayında; buradaki kopya
+// platformun ikinci kiracısıdır ve Faz 3'teki taşımaya kadar yayına alınmaz (yayinda: false).
+import type { PratikMeta } from "../tipler.ts";
+
+export const girisimcilik: PratikMeta = {
+  id: "girisimcilik",
+  alt: "girisimcilik",
+  ad: "Girişimcilik",
+  alan: "İşletme",
+  aciklama: "KOSGEB Girişimcilik El Kitabı'nın bölüm sonu soruları, çıkmış sorular ve türetilmiş sorular.",
+  kaynakAdi: "KOSGEB Girişimcilik El Kitabı",
+  bagimsizlikNotu: "Bu site KOSGEB ile bağlantılı değildir.",
+  kaynakAciklamasi:
+    "Üç kaynak var ve her soru etiketlidir:\n- **GES**: KOSGEB Girişimcilik El Kitabı'ndaki bölüm sonu (\"Kendimizi Sınayalım\") soruları, kitaptaki haliyle.\n- **Çıkmış**: geçmiş sınavlarda sorulmuş sorular. Kitapla aynı olan çıkmış sorular ayrıca eklenmez; kitap sorusuna Çıkmış etiketi eklenir.\n- **Türetilmiş**: kitabın aynı konusundan kendi cümlelerimizle yazılan yeni sorular.",
+  tanitim: {
+    baslik: "Girişimcilik sorularını karışık sırayla çöz",
+    giris:
+      "Girişimcilik Pratik, KOSGEB Girişimcilik El Kitabı'na dayanan ücretsiz ve açık kaynaklı bir soru çalışma sitesi. Kitabın bölüm sonu soruları (GES), geçmiş sınavlarda çıkmış sorular ve aynı konulardan türetilmiş sorular etiketli olarak tek yerde; sorular ve şıklar her seferinde karışık gelir.",
+    kitleler: [
+      { baslik: "Girişimcilik dersini alan öğrenciler", metin: "Vize ve finalden önce kitabın bölüm sonu sorularını ve çıkmış soruları karışık sırayla çöz, soru kalıplarını tanı. Yanlış yaptıkların aralıklı tekrarla yeniden karşına çıkar." },
+      { baslik: "KOSGEB girişimcilik eğitimine hazırlananlar", metin: "Kitabın ilk yedi ünitesindeki bütün \"Kendimizi Sınayalım\" soruları ve aynı konulardan türetilmiş yüzlerce soru tek yerde." },
+      { baslik: "Kısa sürede çok soru görmek isteyenler", metin: "Karma testte 10, 20, 30 ya da 50 soruluk bir test kur; her soruda şıkların yeri değişir, ezber değil anlayış sınanır." },
+    ],
+  },
+  uniteAdi: "ünite",
+  uniteKisa: "Ü",
+  yayinda: false,
+  latex: false,
+  etiketler: [
+    { id: "ges", ad: "GES", renk: "kitap", gercek: true, aciklama: "Girişimcilik El Kitabı'nın bölüm sonu sorusu (Kendimizi Sınayalım)" },
+    { id: "cikmis", ad: "Çıkmış", renk: "cikmis", gercek: true, aciklama: "Daha önce sınavda çıkmış soru" },
+    { id: "turetilmis", ad: "Türetilmiş", renk: "turetilmis", aciklama: "Kitaptaki bilgiden türetilmiş yeni soru" },
+  ],
+  uniteler: [
+  { no: 1, baslik: "Girişimciliğin Temel Kavramları" },
+  { no: 2, baslik: "Girişim Fırsatlarını Görme ve Fikir Yaratma/Geliştirme" },
+  { no: 3, baslik: "Yapılabilirlik Analizi" },
+  { no: 4, baslik: "İş Modelleri, Müşteriler, Değer Önerileri ve Gelir Kaynakları" },
+  { no: 5, baslik: "Ekonomi, Endüstri, Rekabet ve Müşteri Analizi" },
+  { no: 6, baslik: "Hukuki Altyapı" },
+  { no: 7, baslik: "Girişimin Etik Temelleri" },
+  { no: 8, baslik: "Pazarlama İlkeleri ve Yönetimi" },
+  ],
+  kavramlar: {
+  // 1. ünite: Girişimciliğin Temel Kavramları
+  "u1-deger": { ad: "Girişimcilikte değer yaratma ve paydaşlar" },
+  "u1-tanim": { ad: "Girişimcilik tanımlarının gelişimi" },
+  "u1-isletme": { ad: "İşletme ve girişim" },
+  "u1-yonetim": { ad: "Yönetim fonksiyonları, yönetici ve lider" },
+  "u1-kobi": { ad: "KOBİ tanımı, avantaj ve dezavantajları" },
+  "u1-nitelik": { ad: "Başarılı girişimcinin nitelikleri" },
+  "u1-motivasyon": { ad: "Girişimcilik motivasyonları ve engelleri" },
+  "u1-basarisizlik": { ad: "Başarısızlık faktörleri ve ölüm vadisi" },
+  "u1-surec": { ad: "Girişimcilik süreci" },
+  "u1-efsane": { ad: "Girişimcilik efsaneleri" },
+  "u1-tur": { ad: "Girişimcilik türleri" },
+
+  // 2. ünite: Girişim Fırsatlarını Görme ve Fikir Yaratma/Geliştirme
+  "u2-kavramlar": { ad: "Fikir, fırsat, problem ve ihtiyaç" },
+  "u2-musteri-kesfi": { ad: "Müşteri keşfi" },
+  "u2-dusunme": { ad: "Tasarımsal düşünme ve yapılacak işler yöntemi" },
+  "u2-inovasyon": { ad: "İnovasyon çeşitleri ve kaynakları" },
+  "u2-trend": { ad: "Trendleri takip etme" },
+
+  // 3. ünite: Yapılabilirlik Analizi
+  "u3-risk": { ad: "Yapılabilirlik analizi ve başarısızlık sebepleri" },
+  "u3-ekip": { ad: "Fikir-kurucu uyumu, vizyon ve ortaklık" },
+  "u3-finans": { ad: "Finansal değerlendirme, başabaş ve ölüm vadisi" },
+  "u3-pazar": { ad: "Pazar tipleri (TMP, EMP, İHP)" },
+  "u3-benimseme": { ad: "Yeniliklerin benimsenmesi" },
+  "u3-ihtiyac": { ad: "İhtiyaç tipleri, trend ve teknoloji" },
+
+  // 4. ünite: İş Modelleri, Müşteriler, Değer Önerileri ve Gelir Kaynakları
+  "u4-kanvas": { ad: "Kanvas iş modeli ve yapı taşları" },
+  "u4-kesit": { ad: "Müşteri kesitleri, işler, acılar ve kazanımlar" },
+  "u4-satin-alma": { ad: "Satın alma sürecindeki roller" },
+  "u4-gelir": { ad: "Gelir kaynakları ve modelleri" },
+
+  // 5. ünite: Ekonomi, Endüstri, Rekabet ve Müşteri Analizi
+  "u5-ekonomi": { ad: "Ekonomik göstergeler: büyüme, faiz, döviz, iş gücü" },
+  "u5-bes-faktor": { ad: "Endüstrinin beş faktör analizi" },
+  "u5-rekabet": { ad: "Rekabet ve sektörler arası farklar" },
+  "u5-talep": { ad: "Talep tahmini ve veri kaynakları" },
+  "u5-musteri": { ad: "Müşteriyi anlamada beş temel soru" },
+
+  // 6. ünite: Hukuki Altyapı
+  "u6-esnaf-tacir": { ad: "Esnaf-tacir ayrımı" },
+  "u6-sermaye": { ad: "Sermaye ve sermaye taahhüdü" },
+  "u6-sirket": { ad: "İşletme ve şirket türleri, sorumluluk" },
+  "u6-kurulus": { ad: "Kuruluş, ana sözleşme ve tüzel kişilik" },
+  "u6-yonetim": { ad: "Yönetim ve temsil" },
+  "u6-rekabet": { ad: "Basiretli tacir ve rekabet yasakları" },
+  "u6-marka": { ad: "Marka, unvan ve işletme adı" },
+  "u6-isg": { ad: "İş sağlığı ve güvenliği" },
+
+  // 7. ünite: Girişimin Etik Temelleri
+  "u7-etik-ahlak": { ad: "Etik ve ahlak" },
+  "u7-sorumluluk": { ad: "Bireysel, sosyal ve örnek olma sorumluluğu" },
+  "u7-ilkeler": { ad: "Girişimcinin etik ilkeleri" },
+  "u7-liderlik": { ad: "Etik liderlik ve etik öğrenme" },
+
+  // 8. ünite: Pazarlama İlkeleri ve Yönetimi (şimdilik yalnız çıkmış ve türetilmiş)
+  "u8-kavramlar": { ad: "Tüketici, müşteri, ihtiyaç, istek ve talep" },
+  "u8-karma": { ad: "Pazarlama karması ve müşteri değeri" },
+  },
+  terimler: [
+  { tr: "girişimci", en: "entrepreneur", aciklama: "Fırsatı görüp kaynakları bir araya getirerek riski üstlenen ve değer yaratan kişi" },
+  { tr: "girişim", en: "venture / startup", aciklama: "Girişimcinin hayata geçirdiği, kâr ya da sosyal fayda amaçlı iş" },
+  { tr: "paydaş", en: "stakeholder", aciklama: "Hissedar, çalışan, tedarikçi, dağıtıcı, devlet gibi işletmeyle iş birliği yapan kişi ve kurumlar" },
+  { tr: "KOBİ", en: "SME", aciklama: "Küçük ve orta büyüklükteki işletme; çalışan sayısı ve ciro/bilançoya göre tanımlanır" },
+  { tr: "ölüm vadisi", en: "valley of death", aciklama: "İlk heyecandan sonra gelirler giderleri karşılayana kadar nakdin eridiği dönem" },
+  { tr: "fırsat", en: "opportunity", aciklama: "Pazar şartları, zaman ve kaynakların uygun hale gelmesi" },
+  { tr: "inovasyon", en: "innovation", aciklama: "Yeni ya da önemli ölçüde iyileştirilmiş ürün, süreç veya iş modeli" },
+  { tr: "müşteri keşfi", en: "customer discovery", aciklama: "Müşterinin en çok acısını hissettiği problemi görüşmelerle bulma süreci" },
+  { tr: "tasarımsal düşünme", en: "design thinking", aciklama: "Kullanıcıyı anlayıp hızlı prototip ve testle çözüm geliştirme yaklaşımı" },
+  { tr: "yapılacak işler", en: "jobs to be done", aciklama: "Araca değil müşterinin yapmak istediği işe odaklanan yöntem" },
+  { tr: "yapılabilirlik analizi", en: "feasibility analysis", aciklama: "Fikrin ekip, finans ve pazar açısından hayata geçirilebilirliğini sınama" },
+  { tr: "pazarlama körlüğü", en: "marketing myopia", aciklama: "Ürüne odaklanıp müşterinin satın aldığı faydayı görememek (Levitt)" },
+  { tr: "başabaş noktası", en: "break-even point", aciklama: "Gelirlerin giderlere eşit olduğu nokta" },
+  { tr: "geri dönüş süresi", en: "payback period", aciklama: "Net kârın ilk yatırımı karşılamasına kadar geçen süre" },
+  { tr: "değerleme", en: "valuation", aciklama: "Girişimin parasal değerinin belirlenmesi" },
+  { tr: "toplam mevcut pazar", en: "total addressable market (TAM)", aciklama: "Ürünün hitap edebileceği tüm potansiyel müşteriler" },
+  { tr: "erişilebilir mevcut pazar", en: "serviceable available market (SAM)", aciklama: "Toplam pazarın girişimin ulaşabileceği kısmı" },
+  { tr: "ilk hedef pazar", en: "serviceable obtainable market (SOM)", aciklama: "Girişimin ilk olarak hedeflediği küçük dilim" },
+  { tr: "erken benimseyenler", en: "early adopters", aciklama: "Sürünün önünde gitmek isteyen vizyoner müşteriler" },
+  { tr: "erken çoğunluk", en: "early majority", aciklama: "Sürüyü takip eden pragmatist müşteriler" },
+  { tr: "uçurum", en: "chasm", aciklama: "Erken benimseyenlerden erken çoğunluğa geçişteki boşluk (Moore)" },
+  { tr: "gizli ihtiyaç", en: "latent need", aciklama: "Kimsenin farkında olmadığı, keşfedilince rekabeti anlamsızlaştıran ihtiyaç" },
+  { tr: "heves", en: "fad", aciklama: "Talebi birden yükselip birden düşen geçici ürün" },
+  { tr: "megatrend", en: "megatrend", aciklama: "Tüm dünyayı etkileyen, toplumsal değişime yol açan eğilim" },
+  { tr: "iş modeli", en: "business model", aciklama: "Girişimin nasıl değer yaratıp sunduğunu ve gelir elde ettiğini anlatan model" },
+  { tr: "Kanvas iş modeli", en: "business model canvas", aciklama: "Osterwalder'in iş fikrini 9 yapı taşına ayıran şablonu" },
+  { tr: "müşteri kesiti", en: "customer segment", aciklama: "Kendi içinde benzer, diğerlerinden farklı müşteri grubu" },
+  { tr: "değer önerisi", en: "value proposition", aciklama: "Müşterinin hangi acısını dindirip hangi kazanımı sağladığınız" },
+  { tr: "ürün/pazar uyumu", en: "product/market fit", aciklama: "Değer önerisinin müşteri kesitinin ihtiyacıyla örtüşmesi" },
+  { tr: "müşteri elde etme maliyeti", en: "customer acquisition cost (CAC)", aciklama: "Bir müşteriyi kazanmak için harcanan ortalama tutar" },
+  { tr: "ömür boyu değer", en: "lifetime value (LTV)", aciklama: "Birim başına ücret × müşterinin sizinle kalma süresi" },
+  { tr: "bedelsiz ve primli", en: "freemium", aciklama: "Temel sürüm ücretsiz, gelişmiş sürüm ücretli gelir modeli" },
+  { tr: "hizmet olarak yazılım", en: "software as a service (SaaS)", aciklama: "Yazılımı bulut üzerinden abonelik ya da kullanım bedeliyle sunma" },
+  { tr: "yem ve olta", en: "bait and hook", aciklama: "Ana ürünü ucuza satıp tamamlayıcı üründen kazanma (tıraş bıçağı modeli)" },
+  { tr: "pazar yeri", en: "marketplace", aciklama: "Alıcı ve satıcıyı buluşturup genellikle komisyon alan platform" },
+  { tr: "beş faktör analizi", en: "five forces analysis", aciklama: "Porter'ın müşteri, rakip, tedarikçi, ikame ve yeni girenlere bakan endüstri analizi" },
+  { tr: "ikame ürün", en: "substitute product", aciklama: "Aynı ihtiyacı farklı yoldan karşılayan ürün" },
+  { tr: "ölçek ekonomisi", en: "economies of scale", aciklama: "Üretim arttıkça birim maliyetin düşmesi" },
+  { tr: "tacir", en: "merchant", aciklama: "Bir ticari işletmeyi kısmen de olsa kendi adına işleten kişi" },
+  { tr: "esnaf", en: "tradesman", aciklama: "Sermayesiyle birlikte bedenî çalışmasına dayanan, kazancı tacir sınırının altında kalan kişi" },
+  { tr: "tüzel kişilik", en: "legal personality", aciklama: "Şirketin ortaklarından ayrı hak ve borç sahibi olabilmesi; tescille kazanılır" },
+  { tr: "basiretli tacir", en: "prudent merchant", aciklama: "İşlerinde ölçülü, dikkatli ve öngörülü davranan tacir" },
+  { tr: "etik", en: "ethics", aciklama: "Ahlaki yargıları inceleyen felsefe dalı" },
+  { tr: "ahlak", en: "morality", aciklama: "Gündelik yaşamı düzenleyen yazılı olmayan kurallar" },
+  { tr: "sosyal sorumluluk", en: "social responsibility", aciklama: "Girişimin topluma karşı yükümlülükleri" },
+  { tr: "pazarlama karması", en: "marketing mix (4P)", aciklama: "Ürün, fiyat, dağıtım ve tutundurma" },
+  { tr: "talep", en: "demand", aciklama: "Satın alma gücüyle desteklenen istek" },
+  ],
+  benzerler: [
+  ["u1-k02", "u1-t-icsel-amac"],
+  ["u1-k07", "u1-t-surec-sira"],
+  ],
+};

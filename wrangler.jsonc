@@ -1,0 +1,36 @@
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	// Bütün pratikler tek Worker ve tek D1 veritabanıyla çalışır; pratik, isteğin alt
+	// alan adından anlaşılır (worker/pratik.ts). Yeni pratik = icerik/<pratik>/ + aşağıya
+	// bir custom domain satırı. Mevcut ayrı sitelerin (fpga, dsp, girisimcilik, kimya,
+	// fizik, ayrik) alan adları burada YOK; onlar kendi Worker'larında kalır.
+	"name": "pratikler",
+	"main": "worker/index.ts",
+	"compatibility_date": "2026-10-01",
+	"assets": {
+		"not_found_handling": "single-page-application",
+		"run_worker_first": [
+			"/api/*"
+		]
+	},
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "pratikler",
+			// `wrangler d1 create pratikler` çıktısındaki id ile değiştirin
+			"database_id": "00000000-0000-0000-0000-000000000000",
+			"migrations_dir": "migrations"
+		}
+	],
+	"vars": {
+		// Oturum çerezi bütün *.selcukdinc.dev alt alan adlarında geçerli olsun (tek hesap)
+		"COOKIE_DOMAIN": ".selcukdinc.dev"
+	},
+	"routes": [
+		{ "pattern": "pratikler.selcukdinc.dev", "custom_domain": true },
+		{ "pattern": "tipelektronigi.selcukdinc.dev", "custom_domain": true }
+	],
+	"observability": {
+		"enabled": false
+	}
+}
