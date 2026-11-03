@@ -1,5 +1,5 @@
 import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
-import { PRATIK, SITE_ADI } from "../lib/pratik";
+import { PRATIK, PRATIK_YA_DA_KATALOG, SITE_ADI } from "../lib/pratik";
 import { href, navigate, type Route } from "../lib/router";
 import { api } from "../lib/api";
 import { TEMA_ADI, TEMA_SIRASI, useTema } from "../lib/tema";
@@ -132,9 +132,10 @@ export function HesapAlani({ route }: { route: Route }) {
         {rozet(toplam)}
       </summary>
       <div className="hesap-menu-liste" role="menu">
-        <a role="menuitem" href={href({ page: "profil", ad: me.username })}>Profilim</a>
+        {/* Profil ve soru önerisi pratiğe özgü; çatı sitesinde yok */}
+        {PRATIK_YA_DA_KATALOG && <a role="menuitem" href={href({ page: "profil", ad: me.username })}>Profilim</a>}
         <a role="menuitem" href="/mesajlar">Mesajlarım {rozet(okunmamis.mesaj)}</a>
-        <a role="menuitem" href="/oner">Soru öner {rozet(okunmamis.oneri)}</a>
+        {PRATIK_YA_DA_KATALOG && <a role="menuitem" href="/oner">Soru öner {rozet(okunmamis.oneri)}</a>}
         <a role="menuitem" href="/ayarlar">Ayarlar</a>
         {me.role === "admin" && <a role="menuitem" href="/yonetim" data-tam-sayfa>Yönetim paneli</a>}
         <button role="menuitem" onClick={cikis}>Çıkış yap</button>

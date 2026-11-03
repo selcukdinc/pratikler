@@ -15,7 +15,8 @@
     "deploy": "npm run build && wrangler deploy",
     "sorular:sql": "node --experimental-strip-types scripts/sorular-sql.ts",
     "denetle": "tsc -b && vitest run && vite build",
-    "ajan": "node ajan/pratikler-ajan.mjs"
+    "ajan": "node ajan/pratikler-ajan.mjs",
+    "ajan:servis": "node ajan/servis.mjs"
   },
   "dependencies": {
     "hono": "^4.13.13",

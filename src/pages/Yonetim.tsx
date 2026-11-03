@@ -11,13 +11,23 @@ import { SoruDuzenle } from "./SoruDuzenle";
 import { GorselListesi } from "./GorselListesi";
 import { SoruPanosu } from "../components/SoruPanosu";
 import type { Topic } from "../../shared/api";
-import type { ClaudeIsi, PanelKayit, PanelKullanici, PanelOzet, PanelPratik, PanelSoru } from "../../shared/yonetim";
-import { CLAUDE_ISTEK_EN_UZUN } from "../../shared/yonetim";
-import { PRATIK, pratikBaglantisi } from "../lib/pratik";
+import type { PanelKayit, PanelKullanici, PanelOzet, PanelPratik, PanelSoru } from "../../shared/yonetim";
+import { ClaudeIsleri } from "./YonetimClaude";
+import { PRATIK_YA_DA_KATALOG } from "../lib/pratik";
+import { pratikBaglantisi } from "../lib/pratik";
 import { pratikBul } from "../../icerik/index";
 import type { PanelOneri, YazismaOzeti } from "../../shared/sosyal";
 
-const BOLUMLER: [YonetimBolumu, string][] = [
+// Çatı adresinde (pratikler.) yalnızca pratiklerden bağımsız bölümler
+const CATI_BOLUMLERI: [YonetimBolumu, string][] = [
+  ["genel", "Pratikler"],
+  ["claude", "Claude"],
+  ["mesajlar", "Mesajlar"],
+  ["kullanicilar", "Kullanıcılar"],
+  ["kayit", "İşlem kaydı"],
+];
+
+const PRATIK_BOLUMLERI: [YonetimBolumu, string][] = [
   ["genel", "Genel"],
   ["pratikler", "Pratikler"],
   ["claude", "Claude"],
@@ -157,7 +167,7 @@ function Pratikler() {
               const meta = pratikBul(p.id)!;
               return (
                 <tr key={p.id}>
-                  <td>{p.id === PRATIK.id ? <strong>{p.ad}</strong> : <a href={pratikBaglantisi(meta, "/yonetim")}>{p.ad}</a>}</td>
+                  <td>{p.id === PRATIK_YA_DA_KATALOG?.id ? <strong>{p.ad}</strong> : <a href={pratikBaglantisi(meta, "/yonetim")}>{p.ad}</a>}</td>
                   <td>{p.yayinda ? "Yayında" : "Yayında değil"}</td>
                   <td>{p.acikUnite} / {p.uniteSayisi}</td>
                   <td>{p.soru}</td>
@@ -172,77 +182,6 @@ function Pratikler() {
           </tbody>
         </table>
       </div>
-    </div>
-  );
-}
-
-const IS_DURUMU: Record<ClaudeIsi["durum"], string> = {
-  bekliyor: "Ajanı bekliyor",
-  calisiyor: "Çalışıyor",
-  pr: "PR açıldı",
-  hata: "Hata",
-  iptal: "İptal edildi",
-};
-
-// Claude'a iş verme (Faz 2). İş kuyruğa yazılır; yöneticinin bilgisayarındaki
-// yerel ajan (ajan/pratikler-ajan.mjs) alır, denetimlerden geçerse PR açar.
-function ClaudeIsleri() {
-  const [liste, setListe] = useState<ClaudeIsi[] | null>(null);
-  const [istek, setIstek] = useState("");
-  const [hata, setHata] = useState<string | null>(null);
-  const [gonderiliyor, setGonderiliyor] = useState(false);
-  const yukle = () => api.yonetim.claudeIsleri().then(setListe, (e) => setHata(String(e)));
-  useEffect(() => {
-    void yukle();
-    const t = setInterval(() => void yukle(), 15_000);
-    return () => clearInterval(t);
-  }, []);
-
-  const gonder = async (e: FormEvent) => {
-    e.preventDefault();
-    setHata(null);
-    setGonderiliyor(true);
-    const r = await api.yonetim.claudeIsiVer(istek);
-    setGonderiliyor(false);
-    if (!r.ok) return setHata(r.hata.error);
-    setIstek("");
-    void yukle();
-  };
-
-  return (
-    <div className="panel-genel">
-      <section className="ayar-bolum">
-        <h3>{PRATIK.ad} için Claude'a iş ver</h3>
-        <p className="hint">
-          İş kuyruğa yazılır. Bilgisayarındaki yerel ajan açıksa birkaç dakika içinde alır, Claude Code ile depoda
-          değişikliği yapar, yerel denetimlerden (tsc, testler, build) geçerse bir PR açar. Birleştirmek ve yayına almak sende.
-          Ajan kapalıysa iş bekler.
-        </p>
-        <form onSubmit={gonder}>
-          <textarea rows={4} maxLength={CLAUDE_ISTEK_EN_UZUN} value={istek} onChange={(e) => setIstek(e.target.value)}
-            placeholder="Örnek: 3. üniteye Wheatstone köprüsü çıkış gerilimi hesabıyla ilgili iki soru ekle." />
-          <button type="submit" className="primary" disabled={gonderiliyor || istek.trim().length < 10}>İşi kuyruğa ekle</button>
-        </form>
-        <FormHatasi hata={hata} />
-      </section>
-      <section className="ayar-bolum">
-        <h3>İşler</h3>
-        {!liste ? <p className="empty">Yükleniyor…</p> : liste.length === 0 ? <p className="empty">Henüz iş yok.</p> : (
-          <ul className="claude-isleri">
-            {liste.map((i) => (
-              <li key={i.id}>
-                <div><strong>{IS_DURUMU[i.durum]}</strong> · {zaman(i.olusturuldu)}{i.olusturan ? ` · ${i.olusturan}` : ""}</div>
-                <p>{i.istek}</p>
-                {i.prUrl && <a href={i.prUrl} target="_blank" rel="noreferrer">{i.prUrl.replace("https://github.com/", "")}</a>}
-                {i.sonuc && <details><summary>Ajanın notu</summary><pre className="code">{i.sonuc}</pre></details>}
-                {i.durum === "bekliyor" && (
-                  <button onClick={() => api.yonetim.claudeIptal(i.id).then(() => yukle())}>İptal et</button>
-                )}
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
     </div>
   );
 }
@@ -672,17 +611,19 @@ export function Yonetim({ bolum, soru, alt }: { bolum: YonetimBolumu; soru?: str
     );
   }
   if (me.role !== "admin") return <p className="empty">Bu sayfa için yetkin yok.</p>;
+  const cati = !PRATIK_YA_DA_KATALOG;
+  if (cati && !CATI_BOLUMLERI.some(([b]) => b === bolum)) bolum = "genel";
 
   return (
     <div className="yonetim">
       <nav className="tabs panel-sekmeler" aria-label="Yönetim bölümleri">
-        {BOLUMLER.map(([b, ad]) => (
+        {(cati ? CATI_BOLUMLERI : PRATIK_BOLUMLERI).map(([b, ad]) => (
           <a key={b} href={href({ page: "yonetim", bolum: b })} aria-current={bolum === b ? "page" : undefined}>
             {ad}
           </a>
         ))}
       </nav>
-      {bolum === "genel" && <Genel />}
+      {bolum === "genel" && (cati ? <Pratikler /> : <Genel />)}
       {bolum === "pratikler" && <Pratikler />}
       {bolum === "claude" && <ClaudeIsleri />}
       {bolum === "sorular" && (soru ? <SoruDuzenle id={soru} /> : <SoruListesi />)}

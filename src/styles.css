@@ -1225,3 +1225,14 @@ body.boyutlaniyor-dikey { cursor: ns-resize; user-select: none; }
 .claude-isleri li { border: 1px solid var(--border); border-radius: 6px; padding: 10px; background: var(--panel); }
 .claude-isleri p { margin: 6px 0; white-space: pre-wrap; }
 .claude-isleri pre { max-height: 240px; overflow: auto; white-space: pre-wrap; }
+.ajan-karti .ok { color: var(--green); }
+.ajan-karti .bad { color: var(--error); }
+.ajan-adimlar { padding-left: 20px; display: grid; gap: 10px; line-height: 1.5; }
+.kopyala { display: flex; gap: 8px; align-items: flex-start; margin-top: 4px; }
+.kopyala pre { flex: 1; margin: 0; white-space: pre-wrap; word-break: break-all; }
+.baglanti-dugme { border: none; background: none; color: var(--link); padding: 0; text-decoration: underline; cursor: pointer; }
+.yeni-pratik { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; }
+.yeni-pratik .tam { grid-column: 1 / -1; }
+.form-alani { display: flex; flex-direction: column; gap: 4px; }
+.form-alani input, .form-alani textarea { width: 100%; box-sizing: border-box; }
+.cati-sayfa { max-width: 1100px; margin: 0 auto; padding: 16px; }

@@ -59,6 +59,9 @@ function CatiApp() {
     route.page === "kayit" ? <Kayit /> :
     route.page === "sifre-sifirla" ? <SifreSifirla /> :
     route.page === "gizlilik" ? <Gizlilik /> :
+    route.page === "ayarlar" ? <Ayarlar sekme={route.sekme} /> :
+    route.page === "mesajlar" ? <Mesajlar id={route.id} /> :
+    route.page === "yonetim" ? <Yonetim bolum={route.bolum} soru={route.soru} alt={route.alt} /> :
     <Katalog />;
   useEffect(() => {
     document.title = SITE_ADI;
@@ -75,7 +78,7 @@ function CatiApp() {
           <TemaDugmesi />
           <HesapAlani route={route} />
         </header>
-        <main>{sayfa}</main>
+        <main>{sayfa.type === Katalog ? sayfa : <div className="cati-sayfa">{sayfa}</div>}</main>
       </div>
     </OturumSaglayici>
   );

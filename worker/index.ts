@@ -40,7 +40,15 @@ app.route("/katalog", katalog);
 app.route("/ajan", ajan);
 
 // Bundan sonraki uçlar bir pratiğe aittir; hesap uçları ortaktır
-for (const yol of ["/topics", "/questions", "/questions/*", "/progress", "/progress/*", "/profil/*", "/tekrar", "/tekrar/*", "/yonetim", "/yonetim/*", "/uye/*"]) {
+// Hesap, mesajlar, kullanıcılar, işlem kaydı, pratikler tablosu ve Claude/ajan uçları
+// çatı adresinde de çalışır; soru, ilerleme, öneri ve pratik ayarları pratik ister.
+const PRATIGE_OZGU = [
+  "/topics", "/questions", "/questions/*", "/progress", "/progress/*", "/profil/*", "/tekrar", "/tekrar/*",
+  "/uye/oneriler", "/uye/oneriler/*",
+  "/yonetim/ozet", "/yonetim/pano", "/yonetim/ayarlar", "/yonetim/konular", "/yonetim/sorular", "/yonetim/sorular/*",
+  "/yonetim/oneriler", "/yonetim/oneriler/*",
+];
+for (const yol of PRATIGE_OZGU) {
   app.use(yol, pratikGerekli);
 }
 

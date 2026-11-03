@@ -8,8 +8,12 @@
 // geçerse commit, push ve `gh pr create` -> sonucu /api/ajan/isler/<id>'ye bildir.
 // Birleştirme ve yayına alma her zaman yöneticidedir.
 //
+// Anahtar: AJAN_TOKEN ortam değişkeni ya da (macOS) Anahtar Zinciri'ndeki
+// "pratikler-ajan" kaydı. Kayıt bir kez şöyle eklenir (anahtar dosyaya yazılmaz):
+//   security add-generic-password -U -s pratikler-ajan -a "$USER" -w '<anahtar>'
+//
 // Ortam değişkenleri:
-//   AJAN_TOKEN       Worker'daki `wrangler secret put AJAN_TOKEN` ile aynı değer (zorunlu)
+//   AJAN_TOKEN       Worker'daki `wrangler secret put AJAN_TOKEN` ile aynı değer
 //   PRATIKLER_API    Varsayılan https://pratikler.selcukdinc.dev
 //   DEPO             Deponun yerel kopyası; varsayılan bu dosyanın iki üst klasörü
 //   ARALIK           Kuyruğu yoklama aralığı, saniye (varsayılan 120)
@@ -17,14 +21,24 @@
 // Kullanım: npm run ajan            (sürekli)
 //           npm run ajan -- --bir-kez (tek iş alıp çıkar)
 
-import { spawn } from "node:child_process";
-import { existsSync, mkdtempSync, rmSync, symlinkSync } from "node:fs";
-import { tmpdir } from "node:os";
+import { execFileSync, spawn } from "node:child_process";
+import { existsSync, mkdtempSync, readFileSync, rmSync, statSync, symlinkSync } from "node:fs";
+import { homedir, hostname, tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const API = (process.env.PRATIKLER_API ?? "https://pratikler.selcukdinc.dev").replace(/\/$/, "");
-const TOKEN = process.env.AJAN_TOKEN;
+// Anahtar önce ortamdan, yoksa macOS Anahtar Zinciri'nden okunur
+function anahtarBul() {
+  if (process.env.AJAN_TOKEN) return process.env.AJAN_TOKEN;
+  if (process.platform !== "darwin") return null;
+  try {
+    return execFileSync("security", ["find-generic-password", "-s", "pratikler-ajan", "-w"], { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] }).trim() || null;
+  } catch {
+    return null;
+  }
+}
+const TOKEN = anahtarBul();
 const DEPO = resolve(process.env.DEPO ?? join(dirname(fileURLToPath(import.meta.url)), ".."));
 const ARALIK = Number(process.env.ARALIK ?? 120) * 1000;
 const GITHUB_DEPO = process.env.GITHUB_DEPO ?? "selcukdinc/pratikler";
@@ -32,9 +46,14 @@ const BIR_KEZ = process.argv.includes("--bir-kez");
 const CLAUDE_SURE = 30 * 60 * 1000;
 
 if (!TOKEN) {
-  console.error("AJAN_TOKEN tanımlı değil. Worker'a `npx wrangler secret put AJAN_TOKEN` ile verdiğin değeri burada da ver.");
+  console.error(
+    "Ajan anahtarı bulunamadı. Worker'a `npx wrangler secret put AJAN_TOKEN` ile verdiğin değeri bir kez\n" +
+      "Anahtar Zinciri'ne ekle:  security add-generic-password -U -s pratikler-ajan -a \"$USER\" -w '<anahtar>'\n" +
+      "ya da AJAN_TOKEN ortam değişkeniyle ver.",
+  );
   process.exit(1);
 }
+const SURUM = JSON.parse(readFileSync(join(DEPO, "package.json"), "utf8")).version ?? "?";
 
 const log = (...a) => console.log(new Date().toLocaleTimeString("tr-TR"), ...a);
 
@@ -103,11 +122,59 @@ function istem(is, prNo) {
   ].join("\n");
 }
 
+const genisYol = (y) => (y.startsWith("~/") ? join(homedir(), y.slice(2)) : y);
+
+function pratikIstemi(g, prNo) {
+  return [
+    "Pratikler deposunda (çatı platformu) yeni bir pratik aç. CLAUDE.md'yi ve mevcut Tıp Elektroniği pratiğini (icerik/tip-elektronigi/) örnek al.",
+    "",
+    `Ad: ${g.ad}`,
+    `Kimlik: ${g.id}  (icerik/${g.id}/)`,
+    `Alt alan adı: ${g.alt}.selcukdinc.dev`,
+    `Soru ve konu kimliği öneki: ${g.onek}-  (konular ${g.onek}-u1, ${g.onek}-u2 ...)`,
+    `Katalog alanı: ${g.alan}`,
+    `Kaynaklar: ${genisYol(g.kaynakKlasoru)} klasöründeki .md dosyaları (ders notları, kitap bölümleri)`,
+    g.notlar ? `Yöneticinin notları: ${g.notlar}` : "",
+    "",
+    "Yapılacaklar:",
+    `- icerik/${g.id}/meta.ts: üniteler kaynakların bölüm/hafta yapısından; kavramlar u<ünite>- önekli; etiketler kaynağın türüne göre (ders notu, kitap...); latex formül varsa true; yayinda: true.`,
+    `- icerik/${g.id}/sorular/: her ünite için kaynağa dayanan, kendi cümlelerimizle yazılmış türetilmiş sorular (tf, mcq, fill karışık); her kavramın en az bir sorusu olsun. Kaynakta açıkça olmayan bilgiyi soru yapma.`,
+    "- icerik/index.ts ve icerik/sorular.ts'e kaydet.",
+    `- wrangler.jsonc routes'a { "pattern": "${g.alt}.selcukdinc.dev", "custom_domain": true } ekle. Başka alan adına dokunma.`,
+    `- migrations/ altında sıradaki numarayla bir ayar migration'ı: INSERT INTO settings (key, value) VALUES ('${g.id}:current_week', '<ünite sayısı>'), ('${g.id}:show_original', '1'), ('${g.id}:announcement', '');`,
+    `- Soruların migration'ı: npm run sorular:sql -- ${g.id} migrations/NNNN_${g.id.replace(/-/g, "_")}.sql`,
+    prNo ? `- src/yenilikler.ts'in en üstüne pr: ${prNo} ve bugünün tarihiyle "${g.ad} Pratik açıldı" kaydı ekle.` : "- src/yenilikler.ts'e kayıt ekle.",
+    "- README.md'deki pratik tablosuna bir satır ekle.",
+    "- `npm run denetle` geçmeli. git commit, push ya da PR açma; bunları ajan yapacak.",
+    "- Son mesajında kaç ünite ve kaç soru eklediğini, hangi kaynakları kullandığını Türkçe özetle.",
+  ].filter(Boolean).join("\n");
+}
+
+// Ajanı dene: Claude çalıştırılmaz, makinedeki araçların durumu bildirilir
+async function testYap(is) {
+  const satir = async (ad, komut, arg) => {
+    const r = await calistir(komut, arg, { hataVer: false, sure: 20_000 }).catch((e) => ({ kod: -1, cikti: e.message }));
+    return `${r.kod === 0 ? "✓" : "✗"} ${ad}: ${r.cikti.trim().split("\n").slice(0, 3).join(" | ") || "(çıktı yok)"}`;
+  };
+  const satirlar = [
+    `Makine: ${hostname()} · Node ${process.version} · ajan ${SURUM}`,
+    `Depo: ${DEPO}`,
+    await satir("claude", "claude", ["--version"]),
+    await satir("gh", "gh", ["auth", "status"]),
+    await satir("git", "git", ["remote", "get-url", "origin"]),
+    `${existsSync(join(DEPO, "node_modules")) ? "✓" : "✗"} node_modules${existsSync(join(DEPO, "node_modules")) ? "" : " yok: depoda bir kez npm install çalıştır"}`,
+  ];
+  await bildir(is.id, "tamam", satirlar.join("\n"));
+  log("test işi cevaplandı");
+}
+
 async function isYap(is) {
+  if (is.tur === "test") return testYap(is);
   const kisa = is.id.slice(0, 8);
   const dal = `ajan/${kisa}`;
   const klasor = mkdtempSync(join(tmpdir(), `pratikler-${kisa}-`));
-  log(`iş ${kisa} (${is.pratik}): ${is.istek.split("\n")[0].slice(0, 80)}`);
+  const yeni = is.tur === "pratik" ? JSON.parse(is.istek) : null;
+  log(`iş ${kisa} (${is.pratik}${yeni ? `, yeni pratik ${yeni.id}` : ""}): ${(yeni?.ad ?? is.istek).split("\n")[0].slice(0, 80)}`);
   try {
     await calistir("git", ["fetch", "origin", "main"]);
     await calistir("git", ["worktree", "add", "-B", dal, klasor, "origin/main"]);
@@ -115,13 +182,16 @@ async function isYap(is) {
     if (existsSync(join(DEPO, "node_modules"))) symlinkSync(join(DEPO, "node_modules"), join(klasor, "node_modules"), "dir");
 
     const prNo = await siradakiPr();
+    const kaynak = yeni ? genisYol(yeni.kaynakKlasoru) : null;
+    if (kaynak && !(existsSync(kaynak) && statSync(kaynak).isDirectory())) return bildir(is.id, "hata", `Kaynak klasörü bulunamadı: ${kaynak}`);
     const claude = (ek = "") =>
       calistir("claude", [
         "-p",
+        ...(kaynak ? ["--add-dir", kaynak] : []),
         "--permission-mode", "acceptEdits",
         "--allowedTools", "Read,Edit,Write,Glob,Grep,Bash(npm run denetle),Bash(npm run sorular\\:sql:*),Bash(npx tsc:*),Bash(npx vitest:*),Bash(ls:*)",
         "--output-format", "text",
-      ], { cwd: klasor, sure: CLAUDE_SURE, girdi: istem(is, prNo) + ek });
+      ], { cwd: klasor, sure: yeni ? 2 * CLAUDE_SURE : CLAUDE_SURE, girdi: (yeni ? pratikIstemi(yeni, prNo) : istem(is, prNo)) + ek });
 
     let { cikti: ozet } = await claude();
     const degisti = (await calistir("git", ["status", "--porcelain"], { cwd: klasor })).cikti.trim();
@@ -135,11 +205,12 @@ async function isYap(is) {
       if (denetim.kod !== 0) return bildir(is.id, "hata", `Denetimler geçmedi:\n\n${denetim.cikti.slice(-4000)}`);
     }
 
-    const baslik = `Claude: ${is.istek.split("\n")[0].slice(0, 70)}`;
+    const baslik = yeni ? `Yeni pratik: ${yeni.ad}` : `Claude: ${is.istek.split("\n")[0].slice(0, 70)}`;
     await calistir("git", ["add", "-A"], { cwd: klasor });
     await calistir("git", ["commit", "-q", "-m", `${baslik}\n\nYönetim panelinden verilen iş ${is.id}; yerel ajanla yapıldı.`], { cwd: klasor });
     await calistir("git", ["push", "-u", "origin", dal, "--force-with-lease"], { cwd: klasor });
-    const govde = `## İstek\n\n${is.istek}\n\n## Yapılan\n\n${ozet.trim()}\n\nYerel denetimler (\`npm run denetle\`: tsc, testler, build) geçti. Yönetim panelindeki iş: \`${is.id}\`.`;
+    const istekMetni = yeni ? `Yeni pratik: **${yeni.ad}** (\`${yeni.id}\`, ${yeni.alt}.selcukdinc.dev), kaynaklar \`${yeni.kaynakKlasoru}\`${yeni.notlar ? `\n\n${yeni.notlar}` : ""}` : is.istek;
+    const govde = `## İstek\n\n${istekMetni}\n\n## Yapılan\n\n${ozet.trim()}\n\nYerel denetimler (\`npm run denetle\`: tsc, testler, build) geçti. Yönetim panelindeki iş: \`${is.id}\`.`;
     let pr = null;
     try {
       const { cikti } = await calistir("gh", ["pr", "create", "--repo", GITHUB_DEPO, "--head", dal, "--base", "main", "--title", baslik, "--body-file", "-"], { cwd: klasor, girdi: govde });
@@ -158,9 +229,24 @@ async function isYap(is) {
   }
 }
 
+// Nabız: panel ajanın açık olduğunu ve makinedeki araçları buradan görür
+let araclar = null;
+async function nabiz() {
+  if (!araclar) {
+    const surum = async (k, a) => (await calistir(k, a, { hataVer: false, sure: 15_000 }).catch(() => ({ kod: -1, cikti: "" })));
+    const cl = await surum("claude", ["--version"]);
+    const gh = await surum("gh", ["--version"]);
+    araclar = { claude: cl.kod === 0 ? cl.cikti.trim().split("\n")[0] : null, gh: gh.kod === 0 ? gh.cikti.trim().split("\n")[0] : null };
+  }
+  await api("/nabiz", { makine: hostname(), depo: DEPO, surum: SURUM, node: process.version, aralikSn: ARALIK / 1000, ...araclar }).catch((e) =>
+    log("nabız gönderilemedi:", e.message),
+  );
+}
+
 async function dongu() {
   log(`ajan çalışıyor: ${API}, depo ${DEPO}, ${ARALIK / 1000} sn arayla`);
   for (;;) {
+    await nabiz();
     try {
       const is = await api("/sonraki");
       if (is) await isYap(is);

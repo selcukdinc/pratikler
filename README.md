@@ -53,14 +53,22 @@ Bir kez kurulum:
 openssl rand -hex 32                    # bir anahtar üret
 npx wrangler secret put AJAN_TOKEN      # aynı anahtarı Worker'a ver
 npm run db:migrate:remote               # claude_isleri tablosu
+# Aynı anahtarı Mac'in Anahtar Zinciri'ne koy (hiçbir dosyaya yazılmaz)
+security add-generic-password -U -s pratikler-ajan -a "$USER" -w '<anahtar>'
 ```
 
 Çalıştırma (deponun yerel kopyasında; `claude` ve `gh` kurulu ve giriş yapılmış olmalı):
 
 ```sh
-AJAN_TOKEN=<anahtar> npm run ajan              # sürekli, 2 dakikada bir yoklar
-AJAN_TOKEN=<anahtar> npm run ajan -- --bir-kez # tek iş
+npm run ajan:servis -- kur      # önerilen: oturum açıkken hep çalışan servis (LaunchAgent)
+npm run ajan                    # ya da Terminal'de, 2 dakikada bir yoklar
+npm run ajan -- --bir-kez       # tek iş
 ```
+
+Anahtar `AJAN_TOKEN` ortam değişkeniyle de verilebilir (macOS dışında gerekli). Panelin Claude sekmesi ajanın
+açık olup olmadığını gösterir; **Ajanı dene** düğmesi makinedeki claude, gh ve depo durumunu raporlatır.
+pratikler.selcukdinc.dev panelinin Claude sekmesinden yeni pratik açılır: ajan, verilen kaynak klasörünü
+Claude'a okutup pratiği hazırlatır ve PR açar.
 
 Ajan her işi `origin/main`'den açılan ayrı bir worktree'de ve `ajan/<kısa kimlik>` dalında yapar; çalışma kopyana dokunmaz.
 Sorular değiştiyse PR bir migration içerir; birleştirdikten sonra `npm run db:migrate:remote` ve `npm run deploy` sende.
