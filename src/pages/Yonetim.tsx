@@ -158,7 +158,7 @@ function Pratikler() {
               return (
                 <tr key={p.id}>
                   <td>{p.id === PRATIK.id ? <strong>{p.ad}</strong> : <a href={pratikBaglantisi(meta, "/yonetim")}>{p.ad}</a>}</td>
-                  <td>{p.yayinda ? "Yayında" : "Taslak"}</td>
+                  <td>{p.yayinda ? "Yayında" : "Yayında değil"}</td>
                   <td>{p.acikUnite} / {p.uniteSayisi}</td>
                   <td>{p.soru}</td>
                   <td>{p.taslak}</td>

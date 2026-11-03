@@ -13,4 +13,5 @@ Bu depo bütün pratiklerin (Tıp Elektroniği, ...) tek Worker ve tek D1 verita
 - Ayarlar pratik başınadır: `settings.key = "<pratik>:current_week"` kaçıncı üniteye kadar soruların görüneceğini belirler.
 - Sorular değişince: `npm run sorular:sql -- <pratik> migrations/NNNN_ad.sql`.
 - Yerelde pratik `?pratik=<id>` ile seçilir (`?pratik=katalog` çatı sayfası); istemci API'ye `X-Pratik` başlığı gönderir.
-- Denetimler: `npx tsc -b`, `npx vitest run`, `npm run build`.
+- Denetimler: `npm run denetle` (`tsc -b`, `vitest run`, `vite build`).
+- GitHub Actions kullanılmaz. Panelden verilen Claude işlerini `ajan/pratikler-ajan.mjs` yöneticinin bilgisayarında yapar (`claude -p`, yerel denetim, PR); birleştirme ve yayın yöneticidedir.
