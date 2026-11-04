@@ -7,6 +7,7 @@ import { writeFileSync } from "node:fs";
 import { PRATIKLER, pratikBul } from "../icerik/index.ts";
 import { SORULAR } from "../icerik/sorular.ts";
 import type { Soru } from "../icerik/tipler.ts";
+import { sayiBelirtimi } from "../shared/grade.ts";
 
 const [pratikId, hedef] = process.argv.slice(2);
 const pratik = pratikId ? pratikBul(pratikId) : undefined;
@@ -21,7 +22,7 @@ const q = (s: string | null) => (s === null ? "NULL" : `'${s.replace(/'/g, "''")
 
 function payload(s: Soru): object {
   if (s.tip === "mcq") return { choices: s.secenekler.map(md), ...(s.sabit ? { sabit: true } : {}) };
-  if (s.tip === "fill") return { blanks: s.bosluklar.length };
+  if (s.tip === "fill" || s.tip === "num") return { blanks: s.bosluklar.length };
   return {};
 }
 
@@ -54,7 +55,8 @@ for (const s of sorular) {
   const konu = konular.find((k) => k.id === s.konu)!;
   if (konu.hafta !== s.hafta) throw new Error(`${s.id}: hafta konuyla uyuşmuyor`);
   if (s.tip === "mcq" && !(s.dogru >= 0 && s.dogru < s.secenekler.length)) throw new Error(`${s.id}: geçersiz doğru şık`);
-  if (s.tip === "fill" && s.bosluklar.some((b) => b.length === 0)) throw new Error(`${s.id}: boş cevap listesi`);
+  if ((s.tip === "fill" || s.tip === "num") && s.bosluklar.some((b) => b.length === 0)) throw new Error(`${s.id}: boş cevap listesi`);
+  if (s.tip === "num" && s.bosluklar.flat().some((b) => !sayiBelirtimi(b))) throw new Error(`${s.id}: geçersiz sayı belirtimi`);
   if (!pratik.kavramlar[s.kavram]) throw new Error(`${s.id}: kavramı yok (icerik/${pratik.id}/meta.ts)`);
   if (!s.etiketler.length) throw new Error(`${s.id}: etiketi yok`);
   for (const e of s.etiketler) if (!etiketler.has(e)) throw new Error(`${s.id}: bilinmeyen etiket ${e}`);

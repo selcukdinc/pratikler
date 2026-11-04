@@ -1,9 +1,10 @@
 // Bir sorunun cevabının anlatıldığı ders bölümü. Soru kartındaki "Derste oku"
-// bağlantısı buradan gelir; sunumdaki slayt adları ("Hafta 4_1") öğrenciye bir
-// şey söylemediği için gösterilmez.
+// bağlantısı buradan gelir; kaynaktaki yer (slayt adı, sınav kâğıdı) öğrenciye
+// bir şey söylemediği için gösterilmez.
 import { DERSLER } from "./index";
 
-// Hafta -> kavram -> bölümün sırası (0'dan). Kavramlar icerik/<pratik>/meta.ts içinde.
+// Hafta -> kavram -> bölümün sırası (0'dan). Kavramlar icerik/<pratik>/meta.ts
+// içinde; eşleme icerik/<pratik>/istemci'den yüklenir (src/lib/icerik.ts).
 export const KAVRAM_BOLUMU: Record<number, Record<string, number>> = {};
 
 export interface SoruBolumu {

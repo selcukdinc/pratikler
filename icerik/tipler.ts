@@ -63,6 +63,8 @@ export interface PratikMeta {
   yayinda: boolean;
   // $...$ ve $$...$$ formülleri KaTeX ile çizilir, A_x / m^2 indisleri dizilir
   latex: boolean;
+  // Alan adının kökünde açılan sayfa: karma test (varsayılan) ya da Sanal Lab
+  anaSayfa?: "pratik" | "lab";
   etiketler: EtiketTanim[];
   uniteler: Unite[];
   // Kimlik biçimi: u<ünite>-<kısa ad>
@@ -105,7 +107,10 @@ interface Ortak {
 export type Soru =
   | (Ortak & { tip: "tf"; dogru: boolean })
   | (Ortak & { tip: "mcq"; secenekler: string[]; dogru: number })
-  | (Ortak & { tip: "fill"; bosluklar: string[][] });
+  | (Ortak & { tip: "fill"; bosluklar: string[][] })
+  // Sayısal soru: her boşluğun kabul ettiği sayı belirtimleri (shared/grade.ts):
+  // "1.48", "1.48±0.01", "[1 2 -1]", "[0.5 0.25]±0.01"
+  | (Ortak & { tip: "num"; bosluklar: string[][] });
 
 export interface PratikSorulari {
   konular: Konu[];

@@ -345,22 +345,31 @@ ayarlar.put("/gunluk-tekrar", async (c) => {
 });
 
 
-ayarlar.get("/ders-ilerleme", async (c) => {
-  const r = await c.env.DB.prepare("SELECT ders_ilerleme FROM users WHERE id = ?").bind(c.get("me")!.id)
-    .first<{ ders_ilerleme: string | null }>();
-  let kayitli: unknown = null;
+// Ders ilerlemesi pratik başınadır: users.ders_ilerleme = { "<pratik>": DersIlerleme }.
+// Pratik gerektirir (worker/index.ts PRATIGE_OZGU).
+async function dersIlerlemeleri(db: D1Database, kullanici: string): Promise<Record<string, unknown>> {
+  const r = await db.prepare("SELECT ders_ilerleme FROM users WHERE id = ?").bind(kullanici).first<{ ders_ilerleme: string | null }>();
   try {
-    kayitli = JSON.parse(r?.ders_ilerleme ?? "null");
+    const v = JSON.parse(r?.ders_ilerleme ?? "null");
+    return v && typeof v === "object" && !Array.isArray(v) ? (v as Record<string, unknown>) : {};
   } catch {
     // bozuk kayıt boş sayılır
+    return {};
   }
-  return c.json(ilerlemeDuzelt(kayitli));
+}
+
+ayarlar.get("/ders-ilerleme", async (c) => {
+  const hepsi = await dersIlerlemeleri(c.env.DB, c.get("me")!.id);
+  return c.json(ilerlemeDuzelt(hepsi[c.get("pratik")!.id]));
 });
 
 ayarlar.put("/ders-ilerleme", async (c) => {
   const b = await govde<{ ilerleme: unknown }>(c);
   const i = ilerlemeDuzelt(b.ilerleme);
-  await c.env.DB.prepare("UPDATE users SET ders_ilerleme = ? WHERE id = ?").bind(JSON.stringify(i), c.get("me")!.id).run();
+  const me = c.get("me")!;
+  const hepsi = await dersIlerlemeleri(c.env.DB, me.id);
+  hepsi[c.get("pratik")!.id] = i;
+  await c.env.DB.prepare("UPDATE users SET ders_ilerleme = ? WHERE id = ?").bind(JSON.stringify(hepsi), me.id).run();
   return c.json(i);
 });
 

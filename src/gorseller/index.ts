@@ -1,6 +1,8 @@
 // Ders şekilleri. Hepsi bizim çizimimizdir; kitaptan ya da sunumlardan görsel alınmaz.
 // Ders metninde tek başına bir paragraf olarak [[G-H1-01]] yazılınca şekil o yere konur.
-// Kod biçimi: G-H<ünite>-<sıra>. Konu anlatımları gelince şekiller buraya eklenir.
+// Kod biçimi: G-H<ünite>-<sıra>. Her pratiğin şekilleri icerik/<pratik>/istemci
+// içindedir ve açılışta bu listeye yüklenir (src/lib/icerik.ts). Kodlar
+// değiştirilmez, silinen bir şeklin kodu yeniden kullanılmaz.
 
 import type { Gorsel } from "./tip";
 

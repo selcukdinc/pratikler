@@ -1236,3 +1236,74 @@ body.boyutlaniyor-dikey { cursor: ns-resize; user-select: none; }
 .form-alani { display: flex; flex-direction: column; gap: 4px; }
 .form-alani input, .form-alani textarea { width: 100%; box-sizing: border-box; }
 .cati-sayfa { max-width: 1100px; margin: 0 auto; padding: 16px; }
+
+/* Sanal Lab, çıkmış sınav denemesi ve dönem başlıkları (kimya-pratik'ten) */
+.ders-listesi .ders-kart-pasif { display: flex; flex-direction: column; gap: 3px; padding: 10px 14px; background: var(--panel); border: 1px dashed var(--border); border-radius: 4px; color: var(--text); opacity: 0.85; }
+
+.deneme-ozet { background: var(--panel); border: 1px solid var(--border); border-left: 4px solid var(--btn-primary-border); padding: 10px 14px; margin: 12px 0; }
+
+.deneme-ozet h3 { margin: 0 0 4px; }
+
+.deneme-dokum { border-collapse: collapse; margin: 8px 0; width: 100%; max-width: 560px; }
+
+.deneme-dokum th, .deneme-dokum td { text-align: left; padding: 4px 8px; border-bottom: 1px solid var(--border); }
+
+.deneme-alt { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: flex-end; margin: 16px 0; }
+
+.donem-baslik { margin: 18px 0 8px; font-size: 13px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+
+.lab-tezgah { display: flex; flex-direction: column; gap: 14px; margin: 12px 0 20px; }
+
+.lab-secim { border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px 10px; margin: 0; min-width: 0; }
+
+.lab-secim legend { font-weight: 600; padding: 0 4px; }
+
+.lab-cipler { display: flex; flex-wrap: wrap; gap: 6px; }
+
+.lab-tezgah .cip { white-space: normal; text-align: left; font-size: 13px; padding: 4px 10px; }
+
+.lab-tezgah .cip[aria-pressed="true"] { border-color: var(--btn-primary-border); background: var(--active); font-weight: 600; }
+
+.lab-svg { width: 100%; max-width: 420px; height: auto; align-self: center; color: var(--text); }
+
+.lab-sonuc { border-left: 4px solid var(--border); background: var(--panel); padding: 8px 12px; border-radius: 4px; }
+
+.lab-sonuc p { margin: 4px 0; }
+
+.lab-sonuc ul { margin: 4px 0; padding-left: 18px; }
+
+.lab-sonuc.dogru { border-left-color: var(--green); }
+
+.lab-sonuc.yanlis { border-left-color: var(--error); }
+
+.lab-surgu { display: flex; flex-direction: column; gap: 6px; }
+
+.lab-surgu input[type="range"], .lab-surgu select { width: 100%; max-width: 420px; }
+
+.lab-girdiler { display: flex; flex-wrap: wrap; gap: 10px; }
+
+.lab-girdiler label { display: flex; align-items: center; gap: 6px; }
+
+.lab-girdiler input { width: 7em; }
+
+.termometreler { display: flex; justify-content: center; gap: 4px; }
+
+.termometre { margin: 0; text-align: center; color: var(--text); }
+
+.termometre svg { width: 100px; height: 200px; }
+
+.orbital-diyagram { display: flex; flex-wrap: wrap; gap: 10px 16px; }
+
+.alt-kabuk { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+
+.alt-kabuk-ad { font-weight: 600; font-size: 13px; }
+
+.kutular { display: flex; }
+
+.orbital-kutu { width: 36px; height: 36px; padding: 0; border-radius: 0; font-size: 18px; line-height: 1; letter-spacing: -2px; }
+
+.orbital-kutu + .orbital-kutu { border-left-width: 0; }
+
+.orbital-kutu.dolu { background: var(--active); }
+
+.lab-bagi { border-left: 4px solid var(--green); background: var(--panel); padding: 6px 12px; border-radius: 4px; }

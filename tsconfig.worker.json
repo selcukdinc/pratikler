@@ -13,5 +13,6 @@
     "types": ["@cloudflare/workers-types"]
   },
   "include": ["worker", "shared", "icerik"],
-  "exclude": ["**/*.test.ts"]
+  // Pratiklerin istemci içeriği (ders, lab, çıkmış sınav) yalnızca tarayıcıda yüklenir
+  "exclude": ["**/*.test.ts", "icerik/*/istemci"]
 }

@@ -124,6 +124,7 @@ export function SoruDuzenle({ id }: { id: string }) {
               <option value="mcq">Çoktan seçmeli</option>
               <option value="tf">Doğru / yanlış</option>
               <option value="fill">Boşluk doldurma</option>
+              <option value="num">Sayısal cevap</option>
             </select>
             )}
           </Etiketli>
@@ -206,16 +207,20 @@ export function SoruDuzenle({ id }: { id: string }) {
           </fieldset>
         )}
 
-        {g.type === "fill" && (
+        {(g.type === "fill" || g.type === "num") && (
           <fieldset className="cevap-alani">
-            <legend>Boşluklar (her boşluk için kabul edilen yazımları | ile ayır)</legend>
+            <legend>
+              {g.type === "num"
+                ? "Sayısal cevaplar (her boşluk: 1.5, 1.5±0.01 ya da [1 2 -1]; birden çok yazımı | ile ayır)"
+                : "Boşluklar (her boşluk için kabul edilen yazımları | ile ayır)"}
+            </legend>
             {blanks.map((b, i) => (
               <div key={i} className="sik-satiri">
                 <span className="choice-letter">Boşluk {i + 1}</span>
                 <input
                   className="mono"
                   value={b.join(" | ")}
-                  placeholder={'ör. 8 | "8"'}
+                  placeholder={g.type === "num" ? "ör. 0.25±0.01" : 'ör. 8 | "8"'}
                   onChange={(e) =>
                     ayarla({ answer: { blanks: blanks.map((x, j) => (j === i ? e.target.value.split("|").map((y) => y.trim()) : x)) } })
                   }

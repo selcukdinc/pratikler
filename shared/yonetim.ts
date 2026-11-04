@@ -1,7 +1,9 @@
 // Yönetim paneli ile Worker arasındaki tipler ve soru girdisi denetimi.
 // Panel cevapları da görür; bu tipler sadece /api/yonetim altında kullanılır.
 
-export type PanelSoruTipi = "tf" | "mcq" | "fill";
+export type PanelSoruTipi = "tf" | "mcq" | "fill" | "num";
+
+import { sayiBelirtimi } from "./grade";
 
 export type Beklenen = { value: boolean } | { index: number } | { blanks: string[][] };
 
@@ -81,7 +83,7 @@ const metin = (v: unknown, en: number) => typeof v === "string" && v.trim().leng
 // Hata yoksa null döner
 export function soruGirdisiHatasi(g: Partial<SoruGirdi>): string | null {
   if (!metin(g.topicId, 100)) return "Konu seçilmeli.";
-  if (g.type !== "tf" && g.type !== "mcq" && g.type !== "fill") return "Soru türü geçersiz.";
+  if (g.type !== "tf" && g.type !== "mcq" && g.type !== "fill" && g.type !== "num") return "Soru türü geçersiz.";
   if (g.source !== "original" && g.source !== "derived") return "Kaynak türü geçersiz.";
   if (![1, 2, 3].includes(g.difficulty as number)) return "Zorluk 1, 2 ya da 3 olmalı.";
   if (typeof g.sourceRef !== "string" || g.sourceRef.length > 200) return "Kaynak notu en fazla 200 karakter olabilir.";
@@ -104,12 +106,16 @@ export function soruGirdisiHatasi(g: Partial<SoruGirdi>): string | null {
       if (!Number.isInteger(a.index) || (a.index as number) < 0 || (a.index as number) >= c.length) return "Doğru şık seçilmeli.";
       break;
     }
-    case "fill": {
+    case "fill":
+    case "num": {
       const b = a.blanks;
       if (!Array.isArray(b) || b.length < 1 || b.length > 6) return "1 ile 6 arasında boşluk olmalı.";
       for (const [i, kabul] of b.entries()) {
         if (!Array.isArray(kabul) || kabul.length < 1 || kabul.length > 10 || !kabul.every((x) => metin(x, 200))) {
           return `Boşluk ${i + 1} için en az bir kabul edilen cevap yazılmalı.`;
+        }
+        if (g.type === "num" && !kabul.every((x: string) => sayiBelirtimi(x))) {
+          return `Boşluk ${i + 1}: sayısal cevap 1.5, 1.5±0.01 ya da [1 2 -1] biçiminde yazılmalı.`;
         }
       }
       break;
@@ -123,7 +129,7 @@ export function soruSutunlari(g: SoruGirdi): { payload: string; answer: string }
   if (g.type === "mcq") {
     return { payload: JSON.stringify({ choices: g.choices.map((c) => c.trim()) }), answer: JSON.stringify(g.answer) };
   }
-  if (g.type === "fill") {
+  if (g.type === "fill" || g.type === "num") {
     const blanks = (g.answer as { blanks: string[][] }).blanks.map((b) => b.map((x) => x.trim()));
     return { payload: JSON.stringify({ blanks: blanks.length }), answer: JSON.stringify({ blanks }) };
   }
