@@ -11,6 +11,7 @@ import type { Me } from "../../shared/api";
 import { ALEV, HEDEF_SECENEKLERI } from "../../shared/motivasyon";
 import { OLCEK_SECENEKLERI, VARSAYILAN_OLCEK } from "../../shared/gorunum";
 import { useYaziOlcek } from "../lib/olcek";
+import { PRATIK, PRATIK_YA_DA_KATALOG } from "../lib/pratik";
 
 function Bolum({ baslik, children }: { baslik: string; children: ReactNode }) {
   return (
@@ -127,6 +128,9 @@ function GunlukHedefAyari({ me }: { me: Me }) {
           </select>
         </label>
         <p className="hint">
+          {PRATIK_YA_DA_KATALOG
+            ? `Bu hedef yalnızca ${PRATIK.ad} için geçerli; yalnızca bu pratikte verdiğin doğru cevaplar sayılır. `
+            : "Burada seçtiğin hedef, ayrıca hedef seçmediğin pratiklerde geçerli olur. "}
           Hedefe ulaştığın an kısa bir kutlama görürsün; İlerlemem sayfası da bugünkü durumunu gösterir. Bir günde{" "}
           {ALEV} doğruya ulaşırsan takvimde o günün kutusu alev alır.
         </p>

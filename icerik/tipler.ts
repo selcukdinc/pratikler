@@ -65,6 +65,8 @@ export interface PratikMeta {
   latex: boolean;
   // Alan adının kökünde açılan sayfa: karma test (varsayılan) ya da Sanal Lab
   anaSayfa?: "pratik" | "lab";
+  // Sekme simgesi ve menüdeki logo (public/ altındaki yol); yoksa /favicon.svg
+  logo?: string;
   etiketler: EtiketTanim[];
   uniteler: Unite[];
   // Kimlik biçimi: u<ünite>-<kısa ad>

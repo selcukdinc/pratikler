@@ -32,6 +32,7 @@ export const kimya: PratikMeta = {
   yayinda: true,
   latex: true,
   anaSayfa: "lab",
+  logo: "/logolar/kimya.svg",
   etiketler: [
     { id: "cikmis", ad: "Çıkmış", renk: "cikmis", gercek: true, aciklama: "Önceki yılların vize ya da final sınavında çıkmış soru" },
     { id: "turetilmis", ad: "Türetilmiş", renk: "turetilmis", aciklama: "Aynı konudan kendi cümlelerimizle yazılmış yeni soru" },

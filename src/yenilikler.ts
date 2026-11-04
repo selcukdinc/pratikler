@@ -14,6 +14,16 @@ export interface Yenilik {
 
 export const YENILIKLER: Yenilik[] = [
   {
+    pr: 6,
+    tarih: "2026-11-04",
+    baslik: "Her pratiğin ilerlemesi ve günlük hedefi artık kendine ait",
+    maddeler: [
+      "İlerlemem sayfasındaki takvim, seri ve rozetler yalnızca o pratikte çözdüğün soruları sayar; başka bir pratikteki çalışman buraya karışmaz.",
+      "Günlük hedefi her pratik için ayrı seçebilirsin. Ana sayfadaki pratik kartları bütün pratiklerdeki ilerlemeni yine birlikte gösterir.",
+      "Kimya Pratik eski yeşil logosuna kavuştu.",
+    ],
+  },
+  {
     pr: 5,
     tarih: "2026-11-04",
     baslik: "Kimya Pratik platforma geliyor: konu anlatımları, Sanal Lab ve sayısal sorular",

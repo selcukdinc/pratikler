@@ -118,6 +118,7 @@ export function tasimaPlani(eski: Tablolar, hedef: Tablolar, ayar: TasimaAyari, 
   const eslemeler = new Map(Object.entries(ayar.hesaplar ?? {}).map(([a, b]) => [kucuk(a), kucuk(b)]));
   const kisiler = new Map<string, string>();
   const dersIlerlemesi: [string, string, boolean][] = [];
+  const hedefler: [string, unknown][] = [];
   const kullanilanEslemeler = new Set<string>();
 
   for (const u of eski.users) {
@@ -144,6 +145,7 @@ export function tasimaPlani(eski: Tablolar, hedef: Tablolar, ayar: TasimaAyari, 
         say("birleşen hesap");
         rapor.push(`Hesap birleşti: ${u.username} <${u.email}> -> ${hedefU.username} <${hedefU.email}>${anahtar ? " (eşleme dosyası)" : " (aynı e-posta)"}`);
         if (u.ders_ilerleme) dersIlerlemesi.push([String(hedefU.id), String(u.ders_ilerleme), true]);
+        hedefler.push([String(hedefU.id), u.gunluk_hedef]);
         continue;
       }
     }
@@ -175,6 +177,7 @@ export function tasimaPlani(eski: Tablolar, hedef: Tablolar, ayar: TasimaAyari, 
     }
     sql.push(ekle("users", satir, { veyaGec: true }));
     if (u.ders_ilerleme) dersIlerlemesi.push([id, String(u.ders_ilerleme), false]);
+    hedefler.push([id, u.gunluk_hedef]);
   }
   for (const a of eslemeler.keys()) if (!kullanilanEslemeler.has(a)) rapor.push(`Uyarı: eşleme dosyasındaki "${a}" eski sitede bulunamadı.`);
   const kisi = (id: unknown) => (id === null || id === undefined ? null : (kisiler.get(String(id)) ?? null));
@@ -192,6 +195,15 @@ export function tasimaPlani(eski: Tablolar, hedef: Tablolar, ayar: TasimaAyari, 
       `UPDATE users SET ders_ilerleme = json_insert(CASE WHEN json_valid(ders_ilerleme) THEN ders_ilerleme ELSE '{}' END, '$."${ayar.pratik}"', json(${q(JSON.stringify(json))})) WHERE id = ${q(id)};`,
     );
     if (birlesen) say("birleşen ders ilerlemesi");
+  }
+
+  // Günlük hedef de pratik başınadır: eski sitedeki hedef bu pratiğin hedefi olur.
+  // Çatıda bu pratik için hedef zaten seçilmişse (tekrar çalıştırma) üzerine yazılmaz.
+  for (const [id, h] of hedefler) {
+    if (typeof h !== "number" || !Number.isInteger(h)) continue;
+    sql.push(
+      `UPDATE users SET gunluk_hedefler = json_insert(CASE WHEN json_valid(gunluk_hedefler) THEN gunluk_hedefler ELSE '{}' END, '$."${ayar.pratik}"', ${h}) WHERE id = ${q(id)};`,
+    );
   }
 
   // ---- Konular ve sorular ----

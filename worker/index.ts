@@ -28,11 +28,12 @@ app.use("*", async (c, next) => {
   await next();
 });
 
+// Pratik önce belirlenir: oturumdaki kişinin günlük hedefi o pratiğe göre yüklenir
+app.use("*", pratikAyarla);
 app.use("*", async (c, next) => {
   c.set("me", await loadMe(c));
   await next();
 });
-app.use("*", pratikAyarla);
 
 // Çatı uçları (her alan adında çalışır): katalog ve bütün pratiklerdeki ilerleme
 app.route("/katalog", katalog);
@@ -100,9 +101,12 @@ async function yayindakiSoru(c: Context<Env>, id: string): Promise<SoruSatiri | 
 }
 
 // Doğru bir cevaptan sonra bugünkü doğru sayısı; istemci hedefe ulaşıldıysa kutlar.
-// Günlük hedef kişiye aittir: bütün pratiklerdeki doğrular birlikte sayılır.
-async function gunlukDurum(db: D1Database, userId: string, hedef: number): Promise<GunlukDurum> {
-  const r = await db.prepare("SELECT COALESCE(SUM(correct), 0) AS dogru FROM attempts WHERE user_id = ? AND created_at >= ?")
+// Günlük hedef pratik başınadır: yalnızca bu pratiğin sorularındaki doğrular sayılır.
+async function gunlukDurum(db: D1Database, pratik: string, userId: string, hedef: number): Promise<GunlukDurum> {
+  const r = await db.prepare(
+    `SELECT COALESCE(SUM(a.correct), 0) AS dogru FROM attempts a JOIN questions q ON q.id = a.question_id
+     WHERE a.user_id = ? AND a.created_at >= ? AND ${pratikKosulu(pratik)}`,
+  )
     .bind(userId, bugunBasi())
     .first<{ dogru: number }>();
   return { dogru: r?.dogru ?? 0, hedef };
@@ -132,7 +136,7 @@ app.post("/questions/:id/answer", async (c) => {
 
   const result: AnswerResult = { correct, explanation: q.explanation, istatistik: await soruIstatistigi(c.env.DB, c.req.param("id"), q) };
   if (q.type === "fill" || q.type === "num") result.bosluklar = boslukSonuclari(beklenen, body.answer, q.type) ?? undefined;
-  if (correct) result.gunluk = await gunlukDurum(c.env.DB, me.id, me.gunlukHedef);
+  if (correct) result.gunluk = await gunlukDurum(c.env.DB, pid(c), me.id, me.gunlukHedef);
   return c.json(result);
 });
 
@@ -180,7 +184,8 @@ app.get("/questions/durum", async (c) => {
   const me = c.get("me");
   if (!me) return c.json<SoruDurumlari>({});
   const { results } = await c.env.DB.prepare(
-    "SELECT question_id AS id, MAX(correct) AS dogru FROM attempts WHERE user_id = ? GROUP BY question_id",
+    `SELECT a.question_id AS id, MAX(a.correct) AS dogru FROM attempts a JOIN questions q ON q.id = a.question_id
+     WHERE a.user_id = ? AND ${pratikKosulu(pid(c))} GROUP BY a.question_id`,
   ).bind(me.id).all<{ id: string; dogru: number }>();
   return c.json<SoruDurumlari>(Object.fromEntries(results.map((r) => [r.id, r.dogru ? "dogru" : "yanlis"])));
 });
@@ -201,8 +206,9 @@ app.get("/progress/ayrinti", async (c) => {
   // Bütün günler: takvim son 84 günü, seri ve rozetler hepsini kullanır
   const [g, y] = await db.batch([
     db.prepare(
-      `SELECT date((created_at + ?) / 1000, 'unixepoch') AS gun, COUNT(*) AS deneme, SUM(correct) AS dogru
-       FROM attempts WHERE user_id = ? GROUP BY gun`,
+      `SELECT date((a.created_at + ?) / 1000, 'unixepoch') AS gun, COUNT(*) AS deneme, SUM(a.correct) AS dogru
+       FROM attempts a JOIN questions q ON q.id = a.question_id
+       WHERE a.user_id = ? AND ${pratikKosulu(pid(c))} GROUP BY gun`,
     ).bind(TR_FARK, me.id),
     db.prepare(
       `SELECT q.id, q.topic_id AS topicId, t.title AS topicTitle, q.week, q.prompt, COUNT(*) AS deneme, MAX(a.created_at) AS son
