@@ -1,5 +1,5 @@
 import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
-import { PRATIK, PRATIK_YA_DA_KATALOG, SITE_ADI } from "../lib/pratik";
+import { LOGO, PRATIK, PRATIK_YA_DA_KATALOG, SITE_ADI } from "../lib/pratik";
 import { DERSLER } from "../dersler";
 import { DENEYLER } from "../lab/deneyler";
 import { SINAVLAR } from "../cikmis/sinavlar";
@@ -229,7 +229,7 @@ export function Shell({ route, currentWeek, title, status, duyuru, children }: P
           <Ikon ad="menu" boyut={20} />
         </button>
         <a className="brand" href="/pratik">
-          <img src="/favicon.svg" alt="" width={18} height={18} />
+          <img src={LOGO} alt="" width={18} height={18} />
           {SITE_ADI}
         </a>
         <span className="topbar-status">{status}</span>

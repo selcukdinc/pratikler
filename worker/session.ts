@@ -47,7 +47,7 @@ function randomToken(): string {
 }
 
 const ME_SQL = `SELECT u.id, u.kind, u.display_name, u.username, u.email, u.avatar, u.avatar_bg, u.role,
-                       u.public_profile, u.username_changed_at, u.notify_email, u.muted_until, u.gunluk_hedef,
+                       u.public_profile, u.username_changed_at, u.notify_email, u.muted_until, u.gunluk_hedef, u.gunluk_hedefler,
                        u.yazi_olcek, u.gunluk_tekrar
                 FROM users u`;
 
@@ -55,10 +55,22 @@ type MeRow = {
   id: string; kind: "guest" | "member"; display_name: string | null; username: string | null;
   email: string | null; avatar: string | null; avatar_bg: string | null; role: string;
   public_profile: number; username_changed_at: number | null; notify_email: number; muted_until: number | null;
-  gunluk_hedef: number; yazi_olcek: number | null; gunluk_tekrar: number | null;
+  gunluk_hedef: number; gunluk_hedefler: string | null; yazi_olcek: number | null; gunluk_tekrar: number | null;
 };
 
-const meFromRow = (r: MeRow): Me => ({
+// Günlük hedef pratik başınadır: gunluk_hedefler {"<pratik>": n}; bir pratikte
+// hedef seçilmediyse gunluk_hedef (çatıda seçilen ya da varsayılan) geçerlidir
+export function pratikHedefi(r: { gunluk_hedef: number; gunluk_hedefler: string | null }, pratik?: string | null): number {
+  if (!pratik || !r.gunluk_hedefler) return r.gunluk_hedef;
+  try {
+    const n = (JSON.parse(r.gunluk_hedefler) as Record<string, unknown>)[pratik];
+    return typeof n === "number" ? n : r.gunluk_hedef;
+  } catch {
+    return r.gunluk_hedef;
+  }
+}
+
+const meFromRow = (r: MeRow, pratik?: string | null): Me => ({
   id: r.id,
   kind: r.kind,
   displayName: r.display_name ?? r.username,
@@ -71,14 +83,14 @@ const meFromRow = (r: MeRow): Me => ({
   usernameChangedAt: r.username_changed_at,
   notifyEmail: r.notify_email === 1,
   mutedUntil: r.muted_until,
-  gunlukHedef: r.gunluk_hedef,
+  gunlukHedef: pratikHedefi(r, pratik),
   yaziOlcek: r.yazi_olcek,
   gunlukTekrar: r.gunluk_tekrar,
 });
 
-export async function loadUser(db: D1Database, id: string): Promise<Me | null> {
+export async function loadUser(db: D1Database, id: string, pratik?: string | null): Promise<Me | null> {
   const row = await db.prepare(`${ME_SQL} WHERE u.id = ?`).bind(id).first<MeRow>();
-  return row ? meFromRow(row) : null;
+  return row ? meFromRow(row, pratik) : null;
 }
 
 export async function loadMe(c: Context<Env>): Promise<Me | null> {
@@ -104,7 +116,7 @@ export async function loadMe(c: Context<Env>): Promise<Me | null> {
       });
     }
   }
-  return row ? meFromRow(row) : null;
+  return row ? meFromRow(row, c.get("pratik")?.id) : null;
 }
 
 // Yeni oturum açar; varsa eski oturum belirteci silinir (girişte oturum sabitleme olmasın)

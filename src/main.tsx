@@ -2,8 +2,11 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { App } from "./App";
 import { icerikYukle } from "./lib/icerik";
-import { PRATIK_YA_DA_KATALOG } from "./lib/pratik";
+import { LOGO, PRATIK_YA_DA_KATALOG } from "./lib/pratik";
 import "./styles.css";
+
+// Sekme simgesi pratiğin logosu olur
+document.querySelector<HTMLLinkElement>('link[rel="icon"]')?.setAttribute("href", LOGO);
 
 // Pratiğin ders, lab ve çıkmış sınav içeriği sayfa çizilmeden önce yüklenir;
 // yüklenemezse site bu sayfalar olmadan açılır

@@ -169,7 +169,7 @@ hesap.post("/kayit/dogrula", async (c) => {
            VALUES (?, 'member', ?, ?, 1, ?, ?, ?, ?, ?)`,
         ).bind(userId, p.username, p.email, p.pass_hash, p.pass_salt, p.pass_iter, avatar, now);
   await startSession(c, userId, [kullanici, c.env.DB.prepare("DELETE FROM pending_signups WHERE id = ?").bind(p.id)]);
-  return c.json(await loadUser(c.env.DB, userId));
+  return c.json(await loadUser(c.env.DB, userId, c.get("pratik")?.id));
 });
 
 // ---- Giriş ve çıkış ----
@@ -226,7 +226,7 @@ hesap.post("/giris", async (c) => {
         ]
       : [];
   await startSession(c, u.id, [...yenile, ...tasi]);
-  return c.json(await loadUser(c.env.DB, u.id));
+  return c.json(await loadUser(c.env.DB, u.id, c.get("pratik")?.id));
 });
 
 hesap.post("/cikis", async (c) => {
@@ -290,7 +290,7 @@ hesap.post("/sifre/dogrula", async (c) => {
     c.env.DB.prepare("DELETE FROM sessions WHERE user_id = ?").bind(r.user_id),
     c.env.DB.prepare("DELETE FROM email_codes WHERE id = ?").bind(r.id),
   ]);
-  return c.json(await loadUser(c.env.DB, r.user_id));
+  return c.json(await loadUser(c.env.DB, r.user_id, c.get("pratik")?.id));
 });
 
 // ---- Ayarlar (giriş gerekir) ----
@@ -322,10 +322,19 @@ ayarlar.post("/profil", async (c) => {
   if (avatarBg !== null && !(AVATAR_ZEMINLERI as readonly string[]).includes(metin(avatarBg))) {
     return hata(c, 400, "Böyle bir zemin rengi yok.");
   }
-  await c.env.DB.prepare("UPDATE users SET public_profile = ?, avatar = ?, avatar_bg = ?, notify_email = ?, gunluk_hedef = ? WHERE id = ?")
+  // Pratikte seçilen hedef yalnızca o pratiğe yazılır; çatıda seçilen, hedef
+  // seçilmemiş pratiklerin ortak hedefidir
+  const pratik = c.get("pratik")?.id;
+  await c.env.DB.prepare(
+    `UPDATE users SET public_profile = ?, avatar = ?, avatar_bg = ?, notify_email = ?, ${
+      pratik
+        ? `gunluk_hedefler = json_set(CASE WHEN json_valid(gunluk_hedefler) THEN gunluk_hedefler ELSE '{}' END, '$."${pratik}"', ?)`
+        : "gunluk_hedef = ?"
+    } WHERE id = ?`,
+  )
     .bind(publicProfile ? 1 : 0, avatar, avatarBg, notifyEmail ? 1 : 0, gunlukHedef, me.id)
     .run();
-  return c.json(await loadUser(c.env.DB, me.id));
+  return c.json(await loadUser(c.env.DB, me.id, c.get("pratik")?.id));
 });
 
 ayarlar.put("/gorunum", async (c) => {
@@ -333,7 +342,7 @@ ayarlar.put("/gorunum", async (c) => {
   if (b.yaziOlcek !== null && !olcekGecerli(b.yaziOlcek)) return hata(c, 400, "Geçersiz metin boyutu.");
   const me = c.get("me")!;
   await c.env.DB.prepare("UPDATE users SET yazi_olcek = ? WHERE id = ?").bind(b.yaziOlcek, me.id).run();
-  return c.json(await loadUser(c.env.DB, me.id));
+  return c.json(await loadUser(c.env.DB, me.id, c.get("pratik")?.id));
 });
 
 ayarlar.put("/gunluk-tekrar", async (c) => {
@@ -341,7 +350,7 @@ ayarlar.put("/gunluk-tekrar", async (c) => {
   if (b.gunlukTekrar !== null && !gunlukGecerli(b.gunlukTekrar)) return hata(c, 400, "Geçersiz günlük tekrar sayısı.");
   const me = c.get("me")!;
   await c.env.DB.prepare("UPDATE users SET gunluk_tekrar = ? WHERE id = ?").bind(b.gunlukTekrar, me.id).run();
-  return c.json(await loadUser(c.env.DB, me.id));
+  return c.json(await loadUser(c.env.DB, me.id, c.get("pratik")?.id));
 });
 
 
@@ -405,7 +414,7 @@ ayarlar.post("/kullanici-adi", async (c) => {
   await c.env.DB.prepare("UPDATE users SET username = ?, username_changed_at = ? WHERE id = ?")
     .bind(yeni, Date.now(), me.id)
     .run();
-  return c.json(await loadUser(c.env.DB, me.id));
+  return c.json(await loadUser(c.env.DB, me.id, c.get("pratik")?.id));
 });
 
 ayarlar.post("/eposta", async (c) => {
@@ -447,7 +456,7 @@ ayarlar.post("/eposta/dogrula", async (c) => {
     c.env.DB.prepare("UPDATE users SET email = ?, email_verified = 1 WHERE id = ?").bind(row!.new_email, me.id),
     c.env.DB.prepare("DELETE FROM email_codes WHERE id = ?").bind(row!.id),
   ]);
-  return c.json(await loadUser(c.env.DB, me.id));
+  return c.json(await loadUser(c.env.DB, me.id, c.get("pratik")?.id));
 });
 
 ayarlar.post("/oturumlari-kapat", async (c) => {
