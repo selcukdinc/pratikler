@@ -8,6 +8,10 @@ import { api } from "./lib/api";
 import { OturumSaglayici } from "./lib/oturum";
 import { Karma } from "./pages/Karma";
 import { Ders } from "./pages/Ders";
+import { Lab } from "./pages/Lab";
+import { Cikmis } from "./pages/Cikmis";
+import { deneyBul } from "./lab/deneyler";
+import { sinavBul } from "./cikmis/sinavlar";
 import { Terimler } from "./pages/Terimler";
 import { Yenilikler } from "./pages/Yenilikler";
 import { Sss, Tanitim } from "./pages/Tanitim";
@@ -29,6 +33,8 @@ import type { Topic } from "../shared/api";
 function baslik(route: Route, topicTitle?: string): string {
   switch (route.page) {
     case "pratik": return "KARMA TEST - Karışık sorular, karışık şıklar";
+    case "lab": return route.deney ? `SANAL LAB - ${deneyBul(route.deney)?.ad ?? "Deney"}` : "SANAL LAB";
+    case "cikmis": return route.sinav ? `ÇIKMIŞ SORULAR - ${sinavBul(route.sinav)?.ad ?? "Sınav"}` : "ÇIKMIŞ SORULAR";
     case "sorular": return `SORU HAVUZU - ${topicTitle ?? (route.hafta ? `${route.hafta}. ünite` : "Tüm sorular")}`;
     case "ders": return route.hafta ? `KONU ANLATIMI - ${route.hafta}. ünite` : "KONU ANLATIMLARI";
     case "ilerleme": return "İLERLEME - Konu bazlı durum";
@@ -132,6 +138,8 @@ function PratikApp() {
             </div>
           )}
           {route.page === "ders" && <Ders hafta={route.hafta} />}
+          {route.page === "lab" && <Lab deney={route.deney} />}
+          {route.page === "cikmis" && <Cikmis sinav={route.sinav} />}
           {route.page === "ilerleme" && <Progress />}
           {route.page === "tekrar" && <Tekrar />}
           {route.page === "hakkinda" && <About />}

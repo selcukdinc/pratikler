@@ -1,5 +1,8 @@
 import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import { PRATIK, PRATIK_YA_DA_KATALOG, SITE_ADI } from "../lib/pratik";
+import { DERSLER } from "../dersler";
+import { DENEYLER } from "../lab/deneyler";
+import { SINAVLAR } from "../cikmis/sinavlar";
 import { href, navigate, type Route } from "../lib/router";
 import { api } from "../lib/api";
 import { TEMA_ADI, TEMA_SIRASI, useTema } from "../lib/tema";
@@ -23,6 +26,8 @@ interface Props {
 // Menüdeki simgeler: 24x24 çizgi çizimler, renk currentColor'dan gelir
 const IKONLAR = {
   pratik: "M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6M4 4l5 5",
+  lab: "M9 3h6M10 3v6l-5.5 9.5A1.7 1.7 0 006 21h12a1.7 1.7 0 001.5-2.5L14 9V3M7.5 15h9",
+  cikmis: "M6 3h9l4 4v14H6zM14 3v5h5M9 13h7M9 17h5",
   ders: "M4 5a2 2 0 012-2h13v16H6a2 2 0 00-2 2zM4 5v16M8 7h7M8 11h7",
   sorular: "M9 6h11M9 12h11M9 18h11M4 6h.01M4 12h.01M4 18h.01",
   ilerleme: "M4 20V11M10 20V5M16 20v-6M2 20h20",
@@ -50,6 +55,8 @@ export function Ikon({ ad, boyut = 16 }: { ad: keyof typeof IKONLAR; boyut?: num
 // Bir menü öğesi, ilgili alt sayfalarda da etkin görünür (ör. /sorular/<konu>)
 const ETKIN: Partial<Record<Route["page"], Route["page"][]>> = {
   sorular: ["sorular"],
+  lab: ["lab"],
+  cikmis: ["cikmis"],
 };
 
 function NavLink({ to, current, ikon, children, ek }: {
@@ -246,17 +253,19 @@ export function Shell({ route, currentWeek, title, status, duyuru, children }: P
         </div>
 
         <div className="nav-section">PRATİK</div>
+        {DENEYLER.length > 0 && <NavLink to={{ page: "lab" }} current={route} ikon="lab">Sanal Lab</NavLink>}
         <NavLink to={{ page: "pratik" }} current={route} ikon="pratik">Karma test</NavLink>
 
         <div className="nav-section">ÇALIŞ</div>
         <NavLink to={{ page: "ders" }} current={route} ikon="ders"
-          ek={<span className="nav-rozet yakinda-rozet" title="Konu anlatımları hazırlanıyor">Yakında</span>}>
+          ek={DERSLER.length === 0 && <span className="nav-rozet yakinda-rozet" title="Konu anlatımları hazırlanıyor">Yakında</span>}>
           Konu anlatımları
         </NavLink>
         <NavLink to={{ page: "sorular" }} current={route} ikon="sorular"
           ek={currentWeek !== null && <span className="nav-rozet" title={`Sorular ${currentWeek}. ${PRATIK.uniteAdi} dahil açık`}>{PRATIK.uniteKisa}{currentWeek}</span>}>
           Soru havuzu
         </NavLink>
+        {SINAVLAR.length > 0 && <NavLink to={{ page: "cikmis" }} current={route} ikon="cikmis">Çıkmış sorular</NavLink>}
         <NavLink to={{ page: "tekrar" }} current={route} ikon="tekrar"
           ek={tekrarSayisi > 0 && <span className="nav-rozet tekrar-rozet" title={`Bugün tekrar edilecek ${tekrarSayisi} soru`}>{tekrarSayisi}</span>}>
           Tekrar

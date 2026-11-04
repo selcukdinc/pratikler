@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { PRATIK } from "../lib/pratik";
+import { PRATIK, uniteBul } from "../lib/pratik";
+import { doneminiBul, donemliMi } from "../dersler";
+import { DONEM_ADI, DONEMLER } from "../dersler/tipler";
 import { api } from "../lib/api";
 import { uye, useOturum } from "../lib/oturum";
 import { Markdown, inline } from "../components/Markdown";
@@ -43,6 +45,7 @@ function Baslik({ q, n, dersBagi, durum }: IcOzellikler) {
       <span className="q-num">Soru {n}</span>
       <EtiketRozetleri q={q} />
       <span className="tag" title={`${q.week}. ünite`}>Ü{q.week}</span>
+      {q.type === "num" && <span className="tag">Sayısal</span>}
       {durum === "dogru" && <span className="tag tag-cozuldu" title="Bu soruyu daha önce doğru çözdün">✓ Çözdün</span>}
       {durum === "yanlis" && <span className="tag tag-yanlisti" title="Bu soruyu denedin ama henüz doğru çözmedin">Yanlış yapmıştın</span>}
       <span className="tag" title={`Zorluk ${q.difficulty}/3`}>{"★".repeat(q.difficulty)}{"☆".repeat(3 - q.difficulty)}</span>
@@ -71,7 +74,7 @@ export function EtiketRozetleri({ q }: { q: Pick<Question, "etiketler"> }) {
 
 // Soru metni; kod bloğu varsa önü, kod ve arkası ayrı öğeler olur (geniş
 // ekranda kod sağ sütuna yerleşir, dar ekranda sıra aynen korunur)
-function SoruMetni({ metin }: { metin: string }) {
+export function SoruMetni({ metin }: { metin: string }) {
   const p = koduAyir(metin);
   if (!p) return <Markdown text={metin} terim />;
   return (
@@ -107,7 +110,7 @@ function KapaliKart({ q, n, dersBagi, durum, onSonuc }: IcOzellikler) {
   const answer: Answer | null =
     q.type === "tf" ? (tf === null ? null : { value: tf })
     : q.type === "mcq" ? (choice === null ? null : { index: choice })
-    : q.type === "fill" ? (blanks.every((b) => b.trim()) ? { blanks } : null)
+    : q.type === "fill" || q.type === "num" ? (blanks.every((b) => b.trim()) ? { blanks } : null)
     : null;
 
   const submit = async () => {
@@ -142,7 +145,8 @@ function KapaliKart({ q, n, dersBagi, durum, onSonuc }: IcOzellikler) {
   };
   const dogruBosluk = bosSonuc?.filter(Boolean).length ?? 0;
 
-  const bosluk = q.type === "fill" ? bosluklariAyir(q.prompt, blanks.length) : null;
+  const bosluklu = q.type === "fill" || q.type === "num";
+  const bosluk = bosluklu ? bosluklariAyir(q.prompt, blanks.length) : null;
   const metin = bosluk ? bosluk.metin : q.prompt;
   const parca = koduAyir(metin);
   // Kod sağ sütuna sığmıyorsa soru metninin altında tam genişlikte durur
@@ -175,7 +179,7 @@ function KapaliKart({ q, n, dersBagi, durum, onSonuc }: IcOzellikler) {
         </div>
       )}
 
-      {q.type === "fill" && (
+      {bosluklu && (
         <div className="choices">
           {blanks.map((b, i) => (
             <label key={i} className={`bosluk${bosSonuc ? (bosSonuc[i] ? " bosluk-dogru" : " bosluk-yanlis") : ""}`}>
@@ -192,10 +196,20 @@ function KapaliKart({ q, n, dersBagi, durum, onSonuc }: IcOzellikler) {
                 disabled={!!result}
                 onChange={(e) => setBlanks(blanks.map((x, j) => (j === i ? e.target.value : x)))}
                 onKeyDown={(e) => e.key === "Enter" && submit()}
+                inputMode={q.type === "num" ? "text" : undefined}
+                autoComplete="off"
+                spellCheck={false}
               />
             </label>
           ))}
         </div>
+      )}
+
+      {q.type === "num" && !result && (
+        <p className="hint sayi-ipucu">
+          Ondalık için virgül ya da nokta yazabilirsin; 3/4, pi/2, sqrt(2) gibi ifadeler de olur. Dizi cevabında elemanları
+          boşlukla ayır: <code>1 2 -1</code> (dizide ondalık için nokta kullan).
+        </p>
       )}
 
       <footer>
@@ -264,15 +278,23 @@ function KonuSecici({ topics, topic, hafta }: { topics: Topic[]; topic?: string;
   if (!haftalar.length) return null;
   return (
     <nav className="konu-secici" aria-label="Hafta ve konu">
-      <div className="secici-satir">
-        <span className="secici-etiket">Ünite</span>
-        <a className="cip" href={href({ page: "sorular" })} aria-current={!seciliHafta ? "page" : undefined}>Tümü</a>
-        {haftalar.map((h) => (
-          <a key={h} className="cip" href={href({ page: "sorular", hafta: h })} aria-current={seciliHafta === h && !topic ? "page" : seciliHafta === h ? "true" : undefined}>
-            {h}
-          </a>
-        ))}
-      </div>
+      {/* Ünitelerin sınav dönemi varsa (kimya: vize/final) her dönem ayrı satırda */}
+      {(donemliMi() ? DONEMLER : [null]).map((donem, i) => {
+        const liste = donem ? haftalar.filter((h) => doneminiBul(h) === donem) : haftalar;
+        if (!liste.length) return null;
+        return (
+          <div key={donem ?? "hepsi"} className="secici-satir">
+            <span className="secici-etiket">{donem ? DONEM_ADI[donem] : "Ünite"}</span>
+            {i === 0 && <a className="cip" href={href({ page: "sorular" })} aria-current={!seciliHafta ? "page" : undefined}>Tümü</a>}
+            {liste.map((h) => (
+              <a key={h} className="cip" href={href({ page: "sorular", hafta: h })} title={uniteBul(h)?.baslik}
+                aria-current={seciliHafta === h && !topic ? "page" : seciliHafta === h ? "true" : undefined}>
+                {h}
+              </a>
+            ))}
+          </div>
+        );
+      })}
       {konular.length > 1 && (
         <div className="secici-satir">
           <span className="secici-etiket">Konu</span>
@@ -292,7 +314,7 @@ type Durum = "tumu" | "cozulmemis" | "yanlis" | "dogru";
 const DURUMLAR: [Durum, string][] = [["cozulmemis", "Çözmediklerim"], ["tumu", "Tümü"], ["yanlis", "Yanlışlarım"], ["dogru", "Doğrularım"]];
 // Havuz açılınca çözülen sorular gizlenir; derste ya da tekrarda çözülenler de sayılır
 const VARSAYILAN_DURUM: Durum = "cozulmemis";
-const TURLER: [string, string][] = [["", "Tüm türler"], ["tf", "Doğru/Yanlış"], ["mcq", "Çoktan seçmeli"], ["fill", "Boşluk doldurma"]];
+const TURLER: [string, string][] = [["", "Tüm türler"], ["tf", "Doğru/Yanlış"], ["mcq", "Çoktan seçmeli"], ["fill", "Boşluk doldurma"], ["num", "Sayısal"]];
 
 // Kaynak süzgeci: "gercek" kitabın ve çıkmış sınavların sorularıdır (türetilmişler hariç)
 export type KaynakSecimi = "" | "gercek" | Etiket;

@@ -14,6 +14,17 @@ export interface Yenilik {
 
 export const YENILIKLER: Yenilik[] = [
   {
+    pr: 5,
+    tarih: "2026-11-04",
+    baslik: "Kimya Pratik platforma geliyor: konu anlatımları, Sanal Lab ve sayısal sorular",
+    maddeler: [
+      "Pratikler artık kendi **konu anlatımlarını**, **Sanal Lab** deneylerini ve **çıkmış sınavlarını** taşıyabiliyor. Konu anlatımları vize ve final diye ayrılabiliyor; çıkmış sınavlar kâğıttaki sırasıyla deneme sınavı olarak çözülüyor.",
+      "Yeni soru türü: **sayısal cevap**. Sonucu yazıyorsun; virgüllü ya da noktalı ondalık, `3/4`, `pi/2`, `sqrt(2)` ve `4.52e23` gibi yazımlar kabul ediliyor.",
+      "Konu anlatımlarındaki \"Bu bölümü bitirdim\" ilerlemesi artık her pratik için ayrı tutuluyor.",
+      "Kimya Pratik'in bütün içeriği (112 soru, 4 ünite anlatımı, 3 deney, 2 çıkmış sınav) platforma alındı. Kimya'daki hesabın, parolan ve ilerlemen taşınınca aynen sürecek; site adresi değişmeyecek.",
+    ],
+  },
+  {
     pr: 4,
     tarih: "2026-11-03",
     baslik: "Yerel ajan claude'u bulamama ve servis kurulum hatası",

@@ -12,6 +12,11 @@ import { VARSAYILAN_HEDEF } from "../shared/motivasyon";
 // *.selcukdinc.dev alt alanlarına gider; aynı adı taşısaydı henüz taşınmamış sitelere
 // (girisimcilik, fpga...) yabancı bir oturum çerezi gönderilmiş olurdu.
 export const COOKIE = "pratikler_oturum";
+// Taşınan eski sitelerin (kimya, fpga...) oturum çerezi. Alan adı çatıya alınınca
+// tarayıcı bu çerezi göndermeye devam eder; oturum tablosu da taşındığı için
+// (scripts/tasi.ts) kişi yeniden giriş yapmaz: aynı belirteç platform çerezine
+// aktarılır ve eski çerez silinir.
+export const ESKI_COOKIE = "fp_oturum";
 
 // Canlıda COOKIE_DOMAIN=".selcukdinc.dev": tek oturum bütün pratiklerde geçer.
 // Çerez yalnızca istek o alan adının altından geldiyse paylaşılır; yerelde ve
@@ -78,12 +83,27 @@ export async function loadUser(db: D1Database, id: string): Promise<Me | null> {
 
 export async function loadMe(c: Context<Env>): Promise<Me | null> {
   const token = getCookie(c, COOKIE);
-  if (!token) return null;
+  const eski = token ? undefined : getCookie(c, ESKI_COOKIE);
+  if (!token && !eski) return null;
   const row = await c.env.DB.prepare(
     `${ME_SQL} JOIN sessions s ON u.id = s.user_id WHERE s.token_hash = ? AND s.expires_at > ?`,
   )
-    .bind(await sha256(token), Date.now())
+    .bind(await sha256((token ?? eski)!), Date.now())
     .first<MeRow>();
+  if (eski) {
+    // Eski siteden gelen oturum: belirteç platform çerezine geçer, eski çerez silinir
+    deleteCookie(c, ESKI_COOKIE, { path: "/", secure: true });
+    if (row) {
+      setCookie(c, COOKIE, eski, {
+        httpOnly: true,
+        secure: true,
+        sameSite: "Lax",
+        path: "/",
+        maxAge: MAX_AGE_S,
+        domain: cerezAlani(c),
+      });
+    }
+  }
   return row ? meFromRow(row) : null;
 }
 

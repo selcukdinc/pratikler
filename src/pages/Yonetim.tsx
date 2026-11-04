@@ -186,7 +186,7 @@ function Pratikler() {
   );
 }
 
-const TUR = { tf: "D/Y", mcq: "Şıklı", fill: "Boşluk", code: "Kod" } as const;
+const TUR = { tf: "D/Y", mcq: "Şıklı", fill: "Boşluk", num: "Sayısal", code: "Kod" } as const;
 
 function SoruListesi() {
   const [konular, setKonular] = useState<Topic[]>([]);

@@ -5,9 +5,11 @@
 import { useEffect, useSyncExternalStore } from "react";
 import { api } from "./api";
 import { uye, useOturum } from "./oturum";
+import { PRATIK } from "./pratik";
 import { BOS_ILERLEME, bolumIsaretle, ilerlemeBirlestir, ilerlemeDuzelt, type DersIlerleme } from "../../shared/dersIlerleme";
 
-const ANAHTAR = "pratik:ders-ilerleme";
+// Yerelde bütün pratikler aynı adreste açıldığı için anahtar pratiğe göredir
+const ANAHTAR = `pratik:ders-ilerleme:${PRATIK.id}`;
 
 function yerelOku(): DersIlerleme {
   try {

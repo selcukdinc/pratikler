@@ -44,7 +44,7 @@ app.route("/ajan", ajan);
 // çatı adresinde de çalışır; soru, ilerleme, öneri ve pratik ayarları pratik ister.
 const PRATIGE_OZGU = [
   "/topics", "/questions", "/questions/*", "/progress", "/progress/*", "/profil/*", "/tekrar", "/tekrar/*",
-  "/uye/oneriler", "/uye/oneriler/*",
+  "/uye/oneriler", "/uye/oneriler/*", "/hesap/ayarlar/ders-ilerleme",
   "/yonetim/ozet", "/yonetim/pano", "/yonetim/ayarlar", "/yonetim/konular", "/yonetim/sorular", "/yonetim/sorular/*",
   "/yonetim/oneriler", "/yonetim/oneriler/*",
 ];
@@ -131,7 +131,7 @@ app.post("/questions/:id/answer", async (c) => {
   await tekrarIsle(c.env.DB, pid(c), me.id, c.req.param("id"), correct);
 
   const result: AnswerResult = { correct, explanation: q.explanation, istatistik: await soruIstatistigi(c.env.DB, c.req.param("id"), q) };
-  if (q.type === "fill") result.bosluklar = boslukSonuclari(beklenen, body.answer) ?? undefined;
+  if (q.type === "fill" || q.type === "num") result.bosluklar = boslukSonuclari(beklenen, body.answer, q.type) ?? undefined;
   if (correct) result.gunluk = await gunlukDurum(c.env.DB, me.id, me.gunlukHedef);
   return c.json(result);
 });

@@ -5,7 +5,7 @@ import { Markdown, inline } from "./Markdown";
 import { boslukEtiketi, bosluklariAyir } from "../lib/bosluk";
 
 interface Props {
-  type: "tf" | "mcq" | "fill" | "code";
+  type: "tf" | "mcq" | "fill" | "num" | "code";
   prompt: string;
   choices: string[];
   dogruSik?: number;
@@ -16,7 +16,7 @@ interface Props {
 }
 
 export function SoruOnizleme({ type, prompt, choices, dogruSik, bosluk, explanation, aciklamaBasligi, ust }: Props) {
-  const ayrik = type === "fill" ? bosluklariAyir(prompt, bosluk) : null;
+  const ayrik = type === "fill" || type === "num" ? bosluklariAyir(prompt, bosluk) : null;
   return (
     <article className="question">
       <header>
@@ -34,7 +34,7 @@ export function SoruOnizleme({ type, prompt, choices, dogruSik, bosluk, explanat
           ))}
         </div>
       )}
-      {type === "fill" && (
+      {(type === "fill" || type === "num") && (
         <div className="choices">
           {Array.from({ length: bosluk }, (_, i) => (
             <label key={i} className="bosluk">

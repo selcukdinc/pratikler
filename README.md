@@ -39,6 +39,7 @@ npm test
 - Pratikler `icerik/<pratik>/` altındadır (`meta.ts` + `sorular/`). Çalışma kuralları için [CLAUDE.md](CLAUDE.md).
 - Yerelde `?pratik=<id>` bir pratiği, `?pratik=katalog` çatı sayfasını açar; seçim tarayıcıda hatırlanır.
 - Sorular değişince: `npm run sorular:sql -- <pratik> migrations/NNNN_ad.sql`.
+- Eski bir siteyi (kimya, fpga...) platforma taşıma adımları: [docs/tasima.md](docs/tasima.md). Veri `npm run tasi` ile taşınır (Node.js 22.13+ `node:sqlite` kullanır).
 - Kayıt, doğrulama e-postası gerektirdiği için yalnızca `RESEND_API_KEY` tanımlıyken açılır. Yerelde `.dev.vars` dosyasına `EPOSTA_KONSOL=1` yazarsan kodlar `npm run dev` çıktısına düşer.
 
 ## Yönetim panelinden Claude'a iş verme (yerel ajan)
