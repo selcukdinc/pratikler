@@ -29,7 +29,7 @@ export const kimya: PratikMeta = {
   },
   uniteAdi: "ünite",
   uniteKisa: "Ü",
-  yayinda: false,
+  yayinda: true,
   latex: true,
   anaSayfa: "lab",
   etiketler: [

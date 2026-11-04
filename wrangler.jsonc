@@ -18,8 +18,14 @@
 			"binding": "DB",
 			"database_name": "pratikler",
 			// `wrangler d1 create pratikler` çıktısındaki id ile değiştirin
-			"database_id": "00000000-0000-0000-0000-000000000000",
+			"database_id": "3fd221f1-2e10-4269-9eaa-5ba08c8c4df6",
 			"migrations_dir": "migrations"
+		},
+		{
+			"binding": "pratikler",
+			"database_name": "pratikler",
+			"database_id": "3fd221f1-2e10-4269-9eaa-5ba08c8c4df6",
+			"remote": true
 		}
 	],
 	"vars": {
@@ -27,8 +33,18 @@
 		"COOKIE_DOMAIN": ".selcukdinc.dev"
 	},
 	"routes": [
-		{ "pattern": "pratikler.selcukdinc.dev", "custom_domain": true },
-		{ "pattern": "tipelektronigi.selcukdinc.dev", "custom_domain": true }
+		{
+			"pattern": "pratikler.selcukdinc.dev",
+			"custom_domain": true
+		},
+		{
+			"pattern": "tipelektronigi.selcukdinc.dev",
+			"custom_domain": true
+		},
+		{
+			"pattern": "kimya.selcukdinc.dev",
+			"custom_domain": true
+		}
 	],
 	"observability": {
 		"enabled": false
