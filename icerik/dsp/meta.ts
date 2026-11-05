@@ -29,7 +29,7 @@ export const dsp: PratikMeta = {
   },
   uniteAdi: "hafta",
   uniteKisa: "H",
-  yayinda: false,
+  yayinda: true,
   latex: true,
   logo: "/logolar/dsp.svg",
   etiketler: [

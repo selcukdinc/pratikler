@@ -38,6 +38,10 @@
 		{
 			"pattern": "kimya.selcukdinc.dev",
 			"custom_domain": true
+		},
+		{
+			"pattern": "dsp.selcukdinc.dev",
+			"custom_domain": true
 		}
 	],
 	"observability": {
