@@ -17,7 +17,8 @@ if (!pratik || !hedef) {
 }
 const { konular, sorular } = SORULAR[pratik.id]!;
 
-const md = (s: string) => s.replace(/~/g, "`");
+// MatStudio'nun ~ işleci (~=, ~x) için ¬ yazılır
+const md = (s: string) => s.replace(/~/g, "`").replace(/¬/g, "~");
 const q = (s: string | null) => (s === null ? "NULL" : `'${s.replace(/'/g, "''")}'`);
 
 function payload(s: Soru): object {

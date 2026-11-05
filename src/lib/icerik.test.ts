@@ -78,10 +78,11 @@ describe.each(PRATIKLER)("istemci içeriği: %s", (id, icerik) => {
   });
 
   // Öğrenci boşluk doldurma cevabını dersten öğrenebilmeli: anlatımı yazılmış
-  // ünitelerde ilk kabul edilen yazımlardan biri o üniteye kadarki metinde geçer
+  // ünitelerde ilk kabul edilen yazımlardan biri o üniteye kadarki metinde ya da
+  // MatStudio örneklerinde geçer
   it("boşluk doldurma cevapları ders metninde geçiyor", () => {
     const metin = (h: number) =>
-      dersler.filter((d) => d.hafta <= h).flatMap((d) => d.bolumler.map((b) => b.metin)).join("\n").toLocaleLowerCase("tr");
+      dersler.filter((d) => d.hafta <= h).flatMap((d) => d.bolumler.map((b) => `${b.metin}\n${b.matlab?.kod ?? ""}`)).join("\n").toLocaleLowerCase("tr");
     const eksik: string[] = [];
     for (const s of sorular) {
       if (s.tip !== "fill" || !dersler.find((d) => d.hafta === s.hafta)?.bolumler.length) continue;

@@ -8,6 +8,7 @@ import { PRATIK_YA_DA_KATALOG } from "./pratik";
 export type Route =
   | { page: "pratik" }
   | { page: "lab"; deney?: string }
+  | { page: "matstudio" }
   | { page: "cikmis"; sinav?: string }
   | { page: "sorular"; topic?: string; hafta?: number }
   | { page: "ders"; hafta?: number }
@@ -54,6 +55,8 @@ export function parsePath(path: string, search = ""): Route {
       return { page: "pratik" };
     case "lab":
       return arg ? { page: "lab", deney: parca(arg) } : { page: "lab" };
+    case "matstudio":
+      return { page: "matstudio" };
     case "cikmis":
       return arg ? { page: "cikmis", sinav: parca(arg) } : { page: "cikmis" };
     case "sorular": {
