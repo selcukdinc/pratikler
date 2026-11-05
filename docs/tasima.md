@@ -21,6 +21,8 @@ Yapılacaklar:
   - sorular için `npm run sorular:sql -- <pratik> migrations/NNNN_<pratik>_sorular.sql`.
 - `src/yenilikler.ts` kaydı ve `npm run denetle`.
 
+**Hızlı yol (DSP'de kullanıldı).** Eski dosyaları elle düzenlemek yerine olduğu gibi kopyala (`icerik/<pratik>/sorular/kaynak/`, `icerik/<pratik>/istemci/`) ve kimlik öneklerini yüklerken bir dönüşüm dosyasıyla ekle (`icerik/dsp/kimlik.ts`, `icerik/dsp/sorular/index.ts`, `icerik/dsp/istemci/index.ts`). Kavramlara sorunun haftasıyla `u<hafta>-` eklenir; `meta.ts` küçük bir betikle eski kavram, terim ve ikiz soru listelerinden üretilebilir. Kullanıcı verisi önemsizse 3. adım (veri taşıma) tamamen atlanır.
+
 Eski sitede çatının bilmediği bir özellik olabilir (DSP'nin mini MATLAB'ı, FPGA'nın simülatörü, yeni bir soru türü gibi). Böyle bir özellik önce çatıya pratik başına açılabilen bir özellik olarak eklenir. Kimyada ders sayfaları, Sanal Lab, çıkmış sınav sayfası ve sayısal sorular bu şekilde eklendi.
 
 ## 2. Yayına hazırla (sen)

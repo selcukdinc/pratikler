@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { PRATIK_YA_DA_KATALOG, SITE_ADI } from "./lib/pratik";
+import { Suspense, lazy, useEffect, useState } from "react";
+import { PRATIK_YA_DA_KATALOG, SITE_ADI, uniteYazi } from "./lib/pratik";
 import { HesapAlani, Shell, TemaDugmesi } from "./components/Shell";
 import { Katalog } from "./pages/Katalog";
 import { OlcekliSayfa } from "./components/Olcek";
@@ -16,6 +16,11 @@ import { Terimler } from "./pages/Terimler";
 import { Yenilikler } from "./pages/Yenilikler";
 import { Sss, Tanitim } from "./pages/Tanitim";
 import { Questions } from "./pages/Questions";
+import { OZELLIKLER } from "./lib/icerik";
+import { dersBul } from "./dersler";
+
+// MatStudio yalnızca açan pratikte ayrı parça olarak indirilir (editör ve yorumlayıcı)
+const MatStudio = lazy(() => import("./pages/MatStudio").then((m) => ({ default: m.Sandbox })));
 import { Progress } from "./pages/Progress";
 import { Tekrar } from "./pages/Tekrar";
 import { About } from "./pages/About";
@@ -33,10 +38,11 @@ import type { Topic } from "../shared/api";
 function baslik(route: Route, topicTitle?: string): string {
   switch (route.page) {
     case "pratik": return "KARMA TEST - Karışık sorular, karışık şıklar";
+    case "matstudio": return "MatStudio";
     case "lab": return route.deney ? `SANAL LAB - ${deneyBul(route.deney)?.ad ?? "Deney"}` : "SANAL LAB";
     case "cikmis": return route.sinav ? `ÇIKMIŞ SORULAR - ${sinavBul(route.sinav)?.ad ?? "Sınav"}` : "ÇIKMIŞ SORULAR";
     case "sorular": return `SORU HAVUZU - ${topicTitle ?? (route.hafta ? `${route.hafta}. ünite` : "Tüm sorular")}`;
-    case "ders": return route.hafta ? `KONU ANLATIMI - ${route.hafta}. ünite` : "KONU ANLATIMLARI";
+    case "ders": return route.hafta ? `KONU ANLATIMI - ${dersBul(route.hafta)?.proje ? "Proje" : uniteYazi(route.hafta)}` : "KONU ANLATIMLARI";
     case "ilerleme": return "İLERLEME - Konu bazlı durum";
     case "tekrar": return "TEKRAR - Aralıklı tekrar";
     case "hakkinda": return "HAKKINDA";
@@ -112,8 +118,14 @@ function PratikApp() {
     );
   }, []);
 
-  // Soru havuzu başka bir sayfaya geçilince kapanmaz, gizlenir:
-  // soruların cevapları ve kaydırma yeri korunur
+  // Soru havuzu ve MatStudio başka bir sayfaya geçilince kapanmaz, gizlenir:
+  // soruların cevapları, yazılan kod ve kaydırma yeri korunur
+  const [status, setStatus] = useState("Hazır");
+  const matstudioVar = OZELLIKLER.matstudio;
+  const [matstudioAcildi, setMatstudioAcildi] = useState(route.page === "matstudio");
+  useEffect(() => {
+    if (route.page === "matstudio") setMatstudioAcildi(true);
+  }, [route]);
   const [sonSorular, setSonSorular] = useState<{ topic?: string; hafta?: number } | null>(null);
   useEffect(() => {
     if (route.page === "sorular") setSonSorular({ topic: route.topic, hafta: route.hafta });
@@ -129,8 +141,15 @@ function PratikApp() {
 
   return (
     <OturumSaglayici>
-      <Shell route={route} currentWeek={currentWeek} title={title} status="Hazır" duyuru={duyuru}>
-        <OlcekliSayfa gizli={false}>
+      <Shell route={route} currentWeek={currentWeek} title={title} status={status} duyuru={duyuru}>
+        {matstudioVar && matstudioAcildi && (
+          <div className="sayfa-tut" hidden={route.page !== "matstudio"}>
+            <Suspense fallback={<p className="empty">MatStudio yükleniyor…</p>}>
+              <MatStudio onStatus={setStatus} aktif={route.page === "matstudio"} />
+            </Suspense>
+          </div>
+        )}
+        <OlcekliSayfa gizli={route.page === "matstudio"}>
           {route.page === "pratik" && <Karma topics={topics} />}
           {sorularProps && (
             <div className="sayfa-tut" hidden={route.page !== "sorular"}>

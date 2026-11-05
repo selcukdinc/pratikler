@@ -16,6 +16,7 @@ import { parolaDogru, parolaOzeti, yinelemeSayisi } from "./parola";
 import { COOKIE, cerezAlani, endSession, loadUser, otherSessionsQuery, sha256, startSession, type Env } from "./session";
 import { DAKIKA, SAAT, sinirAsildi, sinirDolu, sinirSifirla } from "./sinir";
 import { HEDEF_SECENEKLERI } from "../shared/motivasyon";
+import { duzenleriDenetle } from "../shared/duzen";
 
 const hesap = new Hono<Env>();
 
@@ -366,6 +367,28 @@ async function dersIlerlemeleri(db: D1Database, kullanici: string): Promise<Reco
     return {};
   }
 }
+
+// MatStudio pencere düzenleri (DSP); kişiye aittir
+ayarlar.get("/duzenler", async (c) => {
+  const r = await c.env.DB.prepare("SELECT lab_duzenleri FROM users WHERE id = ?").bind(c.get("me")!.id)
+    .first<{ lab_duzenleri: string | null }>();
+  let kayitli: unknown = [];
+  try {
+    kayitli = JSON.parse(r?.lab_duzenleri ?? "[]");
+  } catch {
+    // bozuk kayıt boş liste sayılır
+  }
+  const d = duzenleriDenetle(kayitli);
+  return c.json("duzenler" in d ? d.duzenler : []);
+});
+
+ayarlar.put("/duzenler", async (c) => {
+  const b = await govde<{ duzenler: unknown }>(c);
+  const d = duzenleriDenetle(b.duzenler);
+  if ("hata" in d) return hata(c, 400, d.hata);
+  await c.env.DB.prepare("UPDATE users SET lab_duzenleri = ? WHERE id = ?").bind(JSON.stringify(d.duzenler), c.get("me")!.id).run();
+  return c.json(d.duzenler);
+});
 
 ayarlar.get("/ders-ilerleme", async (c) => {
   const hepsi = await dersIlerlemeleri(c.env.DB, c.get("me")!.id);

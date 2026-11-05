@@ -16,6 +16,14 @@ export type Donem = "vize" | "final";
 export const DONEM_ADI: Record<Donem, string> = { vize: "Vize", final: "Final" };
 export const DONEMLER: Donem[] = ["vize", "final"];
 
+// Bölümde tarayıcıda çalışan küçük bir MatStudio örneği (DSP)
+export interface MiniMatlab {
+  // Bölümde çalıştırılacak MatStudio betiği
+  kod: string;
+  // Öğrenciye kodda ne değiştirip deneyeceğini söyleyen kısa görev
+  gorev?: string;
+}
+
 export interface DersBolumu {
   baslik: string;
   metin: string;
@@ -24,6 +32,7 @@ export interface DersBolumu {
   // Bölümün sonundaki "Kendini dene": soru havuzundan 1-2 soru (konu sonu
   // testindekilerden farklı)
   dene?: string[];
+  matlab?: MiniMatlab;
 }
 
 export interface Ders {
@@ -35,6 +44,8 @@ export interface Ders {
   bolumler: DersBolumu[];
   // Konu sonu testi: soru havuzundaki kimlikler
   test: string[];
+  // Proje haftası: soru havuzu ve konu sonu testi yoktur, listede "Proje" diye görünür
+  proje?: boolean;
 }
 
 export const md = (s: string) => s.replace(/~/g, "`").replace(/¬/g, "~").trim();

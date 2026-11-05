@@ -14,6 +14,15 @@ export interface Yenilik {
 
 export const YENILIKLER: Yenilik[] = [
   {
+    pr: 7,
+    tarih: "2026-11-05",
+    baslik: "DSP Pratik platforma geliyor: haftalık dersler, etkileşimli şekiller ve MatStudio",
+    maddeler: [
+      "DSP Pratik'in sekiz haftalık dersleri, etkileşimli şekilleri, proje rehberi ve 476 sorusu platforma taşındı.",
+      "Tarayıcıda çalışan MatStudio artık platformda: menüdeki MatStudio sayfasında betik yazıp çalıştırabilir, derslerdeki örnekleri değiştirip deneyebilirsin. Daha önce yazdığın betikler aynı tarayıcıda yerinde durur.",
+    ],
+  },
+  {
     pr: 6,
     tarih: "2026-11-04",
     baslik: "Her pratiğin ilerlemesi ve günlük hedefi artık kendine ait",

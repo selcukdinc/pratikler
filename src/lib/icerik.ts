@@ -12,6 +12,8 @@ import { KAVRAM_BOLUMU } from "../dersler/bolumBul";
 import { GORSELLER } from "../gorseller";
 import { DENEYLER } from "../lab/deneyler";
 import { SINAVLAR } from "../cikmis/sinavlar";
+import type { ComponentType } from "react";
+import { ETKILESIMLER } from "../components/etkilesim";
 
 export interface PratikIstemciIcerigi {
   dersler?: Ders[];
@@ -20,7 +22,14 @@ export interface PratikIstemciIcerigi {
   gorseller?: Gorsel[];
   deneyler?: Deney[];
   sinavlar?: CikmisSinav[];
+  // Etkileşimli şekiller: Gorsel.etkilesim adı -> bileşen
+  etkilesimler?: Record<string, ComponentType<{ g: Gorsel }>>;
+  // MatStudio (tarayıcıda çalışan betik ortamı): menüde sayfası, derslerde örnekleri
+  matstudio?: boolean;
 }
+
+// Açık pratiğin özellikleri; menü ve sayfalar buna bakar
+export const OZELLIKLER = { matstudio: false };
 
 const MODULLER = import.meta.glob<{ default: PratikIstemciIcerigi }>("../../icerik/*/istemci/index.ts");
 
@@ -32,6 +41,9 @@ export function icerigiKur(i: PratikIstemciIcerigi) {
   GORSELLER.splice(0, GORSELLER.length, ...(i.gorseller ?? []));
   DENEYLER.splice(0, DENEYLER.length, ...(i.deneyler ?? []));
   SINAVLAR.splice(0, SINAVLAR.length, ...(i.sinavlar ?? []));
+  for (const k of Object.keys(ETKILESIMLER)) delete ETKILESIMLER[k];
+  Object.assign(ETKILESIMLER, i.etkilesimler ?? {});
+  OZELLIKLER.matstudio = i.matstudio ?? false;
 }
 
 export async function icerikYukle(pratikId: string | null): Promise<void> {

@@ -251,8 +251,8 @@ code { background: var(--code-bg); padding: 0 3px; border-radius: 3px; }
 .tok-string { color: var(--cm-string); }
 .tok-number { color: var(--cm-number); }
 .tok-comment { color: var(--cm-comment); font-style: italic; }
-.cm-line.cm-mark-error { background: var(--mark-error); box-shadow: inset 3px 0 var(--error); }
-.cm-line.cm-mark-warning { background: var(--mark-warning); box-shadow: inset 3px 0 var(--warning); }
+.cm-line.cm-mark-error { background: var(--mark-error-satir); box-shadow: inset 3px 0 var(--error); }
+.cm-line.cm-mark-warning { background: var(--mark-warning-satir); box-shadow: inset 3px 0 var(--warning); }
 .waves { background: #000; }
 .tabs { display: flex; background: var(--tab-bar); border-bottom: 1px solid var(--border); }
 .tabs button { border: none; border-right: 1px solid var(--border); border-radius: 0; background: none; padding: 4px 14px; }
@@ -1307,3 +1307,210 @@ body.boyutlaniyor-dikey { cursor: ns-resize; user-select: none; }
 .orbital-kutu.dolu { background: var(--active); }
 
 .lab-bagi { border-left: 4px solid var(--green); background: var(--panel); padding: 6px 12px; border-radius: 4px; }
+
+/* ---- DSP Pratik'ten (Faz 3): MatStudio, ders örnekleri ve etkileşimli şekiller ---- */
+:root {
+  --mark-error-satir: rgba(204, 26, 26, 0.13); --mark-warning-satir: rgba(214, 140, 0, 0.16);
+  --ok-0: #2563eb; --ok-1: #dc2626; --ok-2: #059669; --ok-3: #d97706; --ok-4: #7c3aed; --ok-5: #db2777; --ok-6: #0891b2; --ok-7: #65a30d;
+}
+:root[data-theme="dark"] {
+  --mark-error-satir: rgba(240, 96, 96, 0.22); --mark-warning-satir: rgba(240, 180, 60, 0.2);
+  --ok-0: #60a5fa; --ok-1: #f87171; --ok-2: #34d399; --ok-3: #fbbf24; --ok-4: #a78bfa; --ok-5: #f472b6; --ok-6: #22d3ee; --ok-7: #a3e635;
+}
+.calisma-paneli { overflow: auto; }
+
+.matlab-editor { flex: 1; min-height: 0; overflow: hidden; }
+
+.matlab-editor .cm-editor { height: 100%; font-size: 13px; }
+
+.matlab-editor .cm-scroller { font-family: var(--mono); }
+
+.matlab-editor .cm-editor { background: var(--panel); color: var(--text); }
+
+.matlab-editor .cm-gutters { background: var(--cm-gutter); color: var(--cm-gutter-text); border-right: 1px solid var(--border-soft); }
+
+.matlab-editor .cm-activeLine { background: var(--cm-active-line); }
+
+.matlab-editor .cm-activeLineGutter { background: var(--cm-active-line); }
+
+.matlab-editor .cm-content { caret-color: var(--cm-cursor); }
+
+.matlab-editor .cm-cursor { border-left-color: var(--cm-cursor); }
+
+.matlab-editor .cm-selectionBackground, .matlab-editor .cm-focused .cm-selectionBackground { background: var(--selection) !important; }
+
+.kod-editor .matlab-editor { flex: 1; min-height: 0; }
+
+.g-seri-c { fill: none; stroke: var(--green); stroke-width: 2.5; }
+
+.g-seri-d { fill: none; stroke: var(--warning); stroke-width: 2.5; }
+
+.g-ince { stroke-width: 1.4; }
+
+.g-ok-0 { stroke: var(--ok-0); }
+
+polygon.g-ok-0 { fill: var(--ok-0); stroke: none; }
+
+.g-ok-1 { stroke: var(--ok-1); }
+
+polygon.g-ok-1 { fill: var(--ok-1); stroke: none; }
+
+.g-ok-2 { stroke: var(--ok-2); }
+
+polygon.g-ok-2 { fill: var(--ok-2); stroke: none; }
+
+.g-ok-3 { stroke: var(--ok-3); }
+
+polygon.g-ok-3 { fill: var(--ok-3); stroke: none; }
+
+.g-ok-4 { stroke: var(--ok-4); }
+
+polygon.g-ok-4 { fill: var(--ok-4); stroke: none; }
+
+.g-ok-5 { stroke: var(--ok-5); }
+
+polygon.g-ok-5 { fill: var(--ok-5); stroke: none; }
+
+.g-ok-6 { stroke: var(--ok-6); }
+
+polygon.g-ok-6 { fill: var(--ok-6); stroke: none; }
+
+.g-ok-7 { stroke: var(--ok-7); }
+
+polygon.g-ok-7 { fill: var(--ok-7); stroke: none; }
+
+.g-eksen { stroke: var(--muted); stroke-width: 1.1; }
+
+.g-izgara { fill: none; stroke: var(--border-soft); stroke-width: 1; }
+
+.g-stem { stroke-width: 1.6; }
+
+.g-stem-a { stroke: var(--link); fill: var(--link); }
+
+.g-stem-b { stroke: var(--error); fill: var(--error); }
+
+.g-stem-c { stroke: var(--green); fill: var(--green); }
+
+.g-stem-d { stroke: var(--warning); fill: var(--warning); }
+
+.g-stem-uc { stroke-width: 1; }
+
+.g-cubuk-a { fill: var(--section-header); stroke: var(--link); stroke-width: 1; }
+
+.g-cubuk-b { fill: var(--mark-error); stroke: var(--error); stroke-width: 1; }
+
+.g-dolgu-a { fill: var(--link); opacity: .18; stroke: none; }
+
+.g-dolgu-b { fill: var(--error); opacity: .18; stroke: none; }
+
+.g-dolgu-c { fill: var(--green); opacity: .18; stroke: none; }
+
+.etkilesim-kaydiricilar { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 10px 18px; margin-top: 8px; }
+
+.etkilesim-kaydiricilar label { display: flex; flex-direction: column; gap: 2px; font-size: 12px; color: var(--muted); }
+
+.etkilesim-kaydiricilar label b { color: var(--text); font-family: var(--mono); font-weight: 600; }
+
+.etkilesim-kaydiricilar input[type=range] { width: 100%; }
+
+.etkilesim-olcumler { display: flex; flex-wrap: wrap; gap: 6px 16px; margin-top: 8px; font-family: var(--mono); font-size: 12.5px; }
+
+.betik-sekmeleri { overflow-x: auto; scrollbar-width: thin; }
+
+.betik-sekmeleri button { white-space: nowrap; font-family: var(--mono); font-size: 12px; padding: 3px 10px; }
+
+.betik-sekmeleri .icon { border-right: 0; font-family: inherit; }
+
+.figure .sekil-alani { flex: 1; min-height: 0; position: relative; overflow: hidden; background: #fff; }
+
+.sekil-kutusu { width: 100%; }
+
+.sekil-kutusu svg { display: block; }
+
+.komut-penceresi { flex: 1; min-height: 0; display: flex; flex-direction: column; font-family: var(--mono); font-size: calc(12.5px * var(--yazi-olcek, 1)); cursor: text; }
+
+.komut-gecmisi { flex: 1; min-height: 0; overflow: auto; padding: 6px 8px 0; }
+
+.komut-gecmisi pre { margin: 0 0 2px; white-space: pre-wrap; word-break: break-word; font: inherit; }
+
+.komut-girdi { color: var(--muted); }
+
+.komut-hata { color: var(--error); }
+
+.komut-bilgi { color: var(--muted); font-family: var(--sans, inherit); }
+
+.komut-satiri { display: flex; gap: 6px; align-items: center; padding: 4px 8px 6px; }
+
+.komut-satiri span { color: var(--muted); }
+
+.komut-satiri input { flex: 1; min-width: 0; border: 0; outline: 0; background: transparent; color: var(--text); font: inherit; padding: 2px 0; }
+
+.calisma-alani { border-collapse: collapse; width: 100%; font-size: 12px; }
+
+.calisma-alani th { position: sticky; top: 0; background: var(--tab-bar); text-align: left; font-weight: 600; }
+
+.calisma-alani th, .calisma-alani td { padding: 3px 8px; border-bottom: 1px solid var(--border-soft); white-space: nowrap; max-width: 180px; overflow: hidden; text-overflow: ellipsis; }
+
+.mini-matlab .mini-cikti { margin: 0; padding: 8px 10px; max-height: 260px; overflow: auto; background: var(--input, var(--panel)); border: 1px solid var(--border); border-radius: 4px; font-size: 12.5px; white-space: pre-wrap; }
+
+.mini-matlab .mini-sekil { border: 1px solid var(--border); border-radius: 4px; overflow: hidden; background: #fff; }
+
+.mini-gorev p { margin: 0; }
+
+.kayit-kodu { height: 320px; }
+
+.etiketli > .etiket { font-weight: 600; }
+
+.kod-editor.tam .matlab-editor { flex: none; }
+
+.kod-editor.tam .matlab-editor .cm-editor { height: auto; }
+
+.sandbox .matlab-editor .cm-editor { font-size: calc(13px * var(--yazi-olcek)); }
+
+.mini-gecmis { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; font-size: 12px; }
+
+.mini-gecmis-ad { color: var(--muted); font-weight: 600; }
+
+.mini-gecmis-liste { display: inline-flex; flex-wrap: wrap; gap: 4px; }
+
+.mini-gecmis-dugmeler { display: inline-flex; gap: 4px; margin-left: auto; }
+
+.mini-gecmis button.cip { cursor: pointer; font: inherit; font-size: 12px; }
+
+.mini-karsi { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 8px; align-items: start; }
+
+.mini-sutun { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+
+.mini-sutun-baslik { display: flex; flex-direction: column; gap: 1px; font-size: 12px; min-width: 0; }
+
+.mini-sutun-baslik .hint { font-family: var(--mono); font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.mini-sutun.onceki .mini-cikti { border-style: dashed; }
+
+.mini-sutun.onceki .mini-sekil { opacity: .85; }
+
+.mini-cikti .farkli { background: var(--mark-warning-satir); border-radius: 2px; }
+
+.mini-cip { display: inline-flex; align-items: center; gap: 2px; padding: 0 2px 0 0; touch-action: none; user-select: none; cursor: grab; }
+
+.mini-cip .cip-ad { border: 0; background: none; color: inherit; font: inherit; font-size: 12px; padding: 2px 4px 2px 10px; cursor: inherit; border-radius: 12px; }
+
+.mini-cip .cip-ad small { color: var(--muted); font-size: 11px; }
+
+.mini-cip .cip-sil { border: 0; background: none; color: var(--muted); font: inherit; font-size: 13px; line-height: 1; width: 18px; height: 18px; padding: 0; border-radius: 50%; cursor: pointer; }
+
+.mini-cip .cip-sil:hover, .mini-cip .cip-sil:focus-visible { background: var(--mark-error); color: var(--error); }
+
+.mini-cip.simdi { border-style: dashed; }
+
+.mini-cip.secili { background: var(--active); border-color: var(--btn-primary-border); font-weight: 600; }
+
+.mini-cip .cip-girdi { font: inherit; font-size: 12px; border: 0; outline: 0; background: transparent; color: var(--text); padding: 2px 4px 2px 10px; min-width: 4ch; }
+
+.mini-gecmis-liste.surukleniyor, .mini-gecmis-liste.surukleniyor .mini-cip { cursor: grabbing; }
+
+.mini-cip.suruklenen { opacity: .45; }
+
+.mini-cip.birak-once { box-shadow: -3px 0 0 var(--link); }
+
+.mini-cip.birak-sonra { box-shadow: 3px 0 0 var(--link); }

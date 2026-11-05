@@ -2,11 +2,11 @@
 // havuzundan seçilmiş konu sonu testi. Anlatımı olmayan üniteler "Yakında"
 // etiketiyle görünür; ünitelerin dönemi varsa liste vize ve final diye ayrılır.
 
-import { useEffect, useRef, useState } from "react";
+import { Suspense, lazy, useEffect, useRef, useState } from "react";
 import { api } from "../lib/api";
 import { href } from "../lib/router";
 import { Markdown, inline } from "../components/Markdown";
-import { PRATIK, uniteBul, uniteYazi } from "../lib/pratik";
+import { PRATIK, uniteBul, uniteYazi as uniteNo } from "../lib/pratik";
 import { QuestionCard } from "./Questions";
 import { bolumId } from "../dersler/bolumBul";
 import { DERSLER, dersBul, doneminiBul, donemliMi } from "../dersler";
@@ -14,6 +14,12 @@ import { DONEM_ADI, DONEMLER } from "../dersler/tipler";
 import { DENEYLER, deneyBul } from "../lab/deneyler";
 import type { Ders as DersVerisi } from "../dersler/tipler";
 import type { Question, SoruDurumlari } from "../../shared/api";
+
+// Bölümdeki MatStudio örneği (DSP): editör ve yorumlayıcı ayrı parça olarak yüklenir
+const MiniMatlab = lazy(() => import("../components/MiniMatlab").then((m) => ({ default: m.MiniMatlab })));
+
+// Ünitenin listede ve başlıklarda adı: "3. hafta" ya da proje haftası için "Proje"
+const uniteYazi = (no: number) => (dersBul(no)?.proje ? "Proje" : uniteNo(no));
 import { useDersIlerleme } from "../lib/dersIlerleme";
 import { bolumBittiMi, type DersIlerleme } from "../../shared/dersIlerleme";
 
@@ -59,6 +65,7 @@ function UniteSatiri({ no, ilerleme }: { no: number; ilerleme: DersIlerleme }) {
         <span className="ders-etiketler">
           <span className="tag">{d.bolumler.length} bölüm</span>
           {lab > 0 && <span className="tag">{lab} lab deneyi</span>}
+          {d.bolumler.some((b) => b.matlab) && <span className="tag">{d.bolumler.filter((b) => b.matlab).length} MatStudio örneği</span>}
           {d.test.length > 0 && <span className="tag">{d.test.length} soruluk test</span>}
         </span>
         {biten > 0 && <IlerlemeCubugu biten={biten} toplam={d.bolumler.length} />}
@@ -211,6 +218,11 @@ function DersSayfasi({ ders }: { ders: DersVerisi }) {
         <section key={b.baslik} id={bolumId(i)} className="ders-bolum">
           <h3>{inline(b.baslik, true)}</h3>
           <Markdown text={b.metin} terim />
+          {b.matlab && (
+            <Suspense fallback={<p className="hint">MatStudio örneği yükleniyor…</p>}>
+              <MiniMatlab key={`${ders.hafta}-${i}`} veri={b.matlab} />
+            </Suspense>
+          )}
           {b.lab && <LabBagi id={b.lab} />}
           {b.dene && <KendiniDene ids={b.dene} sorular={sorular} durumlar={durumlar} />}
           <BolumSonu
