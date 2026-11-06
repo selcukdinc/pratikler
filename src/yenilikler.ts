@@ -14,6 +14,15 @@ export interface Yenilik {
 
 export const YENILIKLER: Yenilik[] = [
   {
+    pr: 13,
+    tarih: "2026-11-06",
+    baslik: "Mesajların ve soru önerilerin yöneticiye anında ulaşıyor",
+    maddeler: [
+      "Yöneticiye yazdığın mesajlar, cevapların ve soru önerilerin artık yöneticiye e-postayla da iletiliyor; daha hızlı cevap alırsın.",
+      "Yönetici e-postadan cevap verirse cevap doğrudan hesabındaki e-posta adresine gelir.",
+    ],
+  },
+  {
     pr: 12,
     tarih: "2026-11-06",
     baslik: "Yeni pratik: Biyomedikal",

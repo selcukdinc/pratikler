@@ -6,6 +6,8 @@ export interface EpostaEnv {
   RESEND_API_KEY?: string;
   MAIL_FROM?: string;
   EPOSTA_KONSOL?: string;
+  // Kullanıcı mesajları ve soru önerileri bu adrese iletilir; tanımlı değilse iletim kapalıdır
+  YONETICI_EPOSTA?: string;
 }
 
 export const epostaAcik = (env: EpostaEnv) => !!env.RESEND_API_KEY || env.EPOSTA_KONSOL === "1";
@@ -64,6 +66,41 @@ export async function bildirimGonder(env: EpostaEnv, alici: string, konu: string
     method: "POST",
     headers: { Authorization: `Bearer ${env.RESEND_API_KEY}`, "Content-Type": "application/json" },
     body: JSON.stringify({ from: env.MAIL_FROM || GONDEREN, to: [alici], subject: konu, text: metin }),
+  });
+  if (!res.ok) throw new Error(`Resend ${res.status}: ${(await res.text()).slice(0, 200)}`);
+}
+
+// Kullanıcıdan yöneticiye gelen bir mesajın (yazışma, cevap, soru önerisi) e-posta kopyası.
+// reply_to kullanıcının adresidir: e-postada "Yanıtla" doğrudan kullanıcıya gider.
+export interface YoneticiIletisi {
+  konu: string;
+  // Kim, hangi pratikten, ne yazdı; düz metin
+  metin: string;
+  // Paneldeki ilgili sayfa
+  baglanti: string;
+  yanitla?: string | null;
+}
+
+export function yoneticiIletisiGovdesi(env: EpostaEnv, i: YoneticiIletisi) {
+  return {
+    from: env.MAIL_FROM || GONDEREN,
+    to: [env.YONETICI_EPOSTA!],
+    subject: i.konu,
+    text: `${i.metin}\n\nPanelde aç: ${i.baglanti}`,
+    ...(i.yanitla ? { reply_to: i.yanitla } : {}),
+  };
+}
+
+export async function yoneticiyeIlet(env: EpostaEnv, i: YoneticiIletisi): Promise<void> {
+  if (!env.YONETICI_EPOSTA) return;
+  if (!env.RESEND_API_KEY) {
+    if (env.EPOSTA_KONSOL === "1") console.log(`[eposta] ${env.YONETICI_EPOSTA} · ${i.konu}`);
+    return;
+  }
+  const res = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: { Authorization: `Bearer ${env.RESEND_API_KEY}`, "Content-Type": "application/json" },
+    body: JSON.stringify(yoneticiIletisiGovdesi(env, i)),
   });
   if (!res.ok) throw new Error(`Resend ${res.status}: ${(await res.text()).slice(0, 200)}`);
 }
