@@ -120,6 +120,16 @@ async function denemeKaydet(c: Context<Env>, userId: string, soruId: string, cor
     .run();
 }
 
+// Yazma (klasik) sorusunun örnek çözümü: öğrenci cevabını yazdıktan sonra
+// kendini değerlendirmek için görür. Kapalı uçlu sorularda cevap gizli kalır.
+app.get("/questions/:id/cozum", async (c) => {
+  const q = await yayindakiSoru(c, c.req.param("id"));
+  if (!q || q.type !== "yaz") return c.json({ error: "soru bulunamadı" }, 404);
+  return c.json({ cozum: q.explanation ?? "" });
+});
+
+const OZLER = new Set(["dogru", "kismen", "yanlis"]);
+
 app.post("/questions/:id/answer", async (c) => {
   const body = await c.req.json<{ answer: Answer }>().catch(() => null);
   if (!body?.answer || typeof body.answer !== "object") return c.json({ error: "geçersiz cevap" }, 400);
@@ -127,6 +137,11 @@ app.post("/questions/:id/answer", async (c) => {
   const q = await yayindakiSoru(c, c.req.param("id"));
   if (!q) return c.json({ error: "soru bulunamadı" }, 404);
   if (q.type === "code" || q.type === "wave") return c.json({ error: "bu soru tipi bu yoldan cevaplanmaz" }, 400);
+  if (q.type === "yaz") {
+    const a = body.answer as { oz?: unknown; yazi?: unknown };
+    if (typeof a.oz !== "string" || !OZLER.has(a.oz)) return c.json({ error: "geçersiz cevap" }, 400);
+    body.answer = { oz: a.oz as "dogru", ...(typeof a.yazi === "string" ? { yazi: a.yazi.slice(0, 4000) } : {}) };
+  }
 
   const beklenen = JSON.parse(q.answer);
   const correct = grade(q.type, beklenen, body.answer);

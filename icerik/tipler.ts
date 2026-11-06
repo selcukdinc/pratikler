@@ -109,10 +109,14 @@ interface Ortak {
 export type Soru =
   | (Ortak & { tip: "tf"; dogru: boolean })
   | (Ortak & { tip: "mcq"; secenekler: string[]; dogru: number })
-  | (Ortak & { tip: "fill"; bosluklar: string[][] })
+  // semboller: cevap kutusunun altında mantık ve küme sembol klavyesi çıkar (Ayrık)
+  | (Ortak & { tip: "fill"; bosluklar: string[][]; semboller?: true })
   // Sayısal soru: her boşluğun kabul ettiği sayı belirtimleri (shared/grade.ts):
   // "1.48", "1.48±0.01", "[1 2 -1]", "[0.5 0.25]±0.01"
-  | (Ortak & { tip: "num"; bosluklar: string[][] });
+  | (Ortak & { tip: "num"; bosluklar: string[][] })
+  // Yazma (klasik): öğrenci cevabını yazar, aciklama'daki örnek çözümle
+  // karşılaştırıp kendini değerlendirir (Ayrık)
+  | (Ortak & { tip: "yaz" });
 
 export interface PratikSorulari {
   konular: Konu[];

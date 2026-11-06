@@ -13,4 +13,4 @@ export const GORSELLER: Gorsel[] = [];
 export const gorselBul = (kod: string) => GORSELLER.find((g) => g.kod === kod);
 
 // Ders metninde tek başına duran şekil işareti
-export const SEKIL_DESENI = /^\[\[(G-H\d+-\d+)\]\]$/;
+export const SEKIL_DESENI = /^\[\[(G-[HS]\d+-\d+)\]\]$/;

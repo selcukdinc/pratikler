@@ -42,7 +42,8 @@ export interface Question {
   type: QuestionType;
   source: "original" | "derived";
   prompt: string;
-  payload: { choices?: string[]; blanks?: number; sabit?: boolean };
+  // semboller: boşluk doldurmada mantık ve küme sembol klavyesi (Ayrık)
+  payload: { choices?: string[]; blanks?: number; sabit?: boolean; semboller?: boolean };
   etiketler: Etiket[];
   difficulty: number;
   sourceRef: string | null;

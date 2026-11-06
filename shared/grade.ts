@@ -1,19 +1,24 @@
 // Kapalı uçlu soruların puanlaması. Sunucuda çalışır; doğru cevaplar
 // istemciye hiç gönderilmez.
 
-export type QuestionType = "tf" | "mcq" | "fill" | "num" | "code" | "wave";
+export type QuestionType = "tf" | "mcq" | "fill" | "num" | "yaz" | "code" | "wave";
+
+// yaz (klasik) sorularında öğrenci cevabını yazar, örnek çözümü görür ve kendini değerlendirir
+export type OzDegerlendirme = "dogru" | "kismen" | "yanlis";
 
 export type Answer =
   | { value: boolean }
   | { index: number }
-  | { blanks: string[] };
+  | { blanks: string[] }
+  | { oz: OzDegerlendirme; yazi?: string };
 
 // fill ve num sorularında her boşluk için kabul edilen yazımlar. num
 // sorularında her yazım bir sayı belirtimidir (bkz. sayiBelirtimi).
 type Expected =
   | { value: boolean }
   | { index: number }
-  | { blanks: string[][] };
+  | { blanks: string[][] }
+  | Record<string, never>;
 
 // Büyük/küçük harf, boşluklar, noktalama ve Türkçe karakterler önemsizdir
 // (Türkçe klavyesi olmayan da "ozyeterlilik" yazabilsin)
@@ -24,7 +29,55 @@ export function normalize(s: string): string {
     .replace(/[çğıöşüâîû]/g, (c) => TR[c] ?? c)
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
+    .replace(/−/g, "-")
     .replace(/[\s.,;:!?'"’()]+/g, "");
+}
+
+// ---- Mantık ve küme ifadeleri (Ayrık) ----
+//
+// Mantık ve küme sembolleri klavyede kolay yazılan karşılıklarıyla da kabul edilir
+// (p -> q, p <-> q, ~p, p ^ q, p | q). Beklenen cevapta böyle bir sembol ya da bir
+// küme ({1, 3, 0}) varsa cevaplar bu kurallarla karşılaştırılır; diğer cevaplar
+// yukarıdaki normalize ile, eskisi gibi.
+const SEMBOLLER: [RegExp, string][] = [
+  [/<->|<=>|⇔/g, "↔"],
+  [/->|=>|⇒/g, "→"],
+  [/[~!¬]/g, "¬"],
+  [/[\^&]|∧/g, "∧"],
+  [/\|\||\||∨/g, "∨"],
+  [/≡/g, "≡"],
+];
+export function sembolleriDuzelt(s: string): string {
+  return SEMBOLLER.reduce((m, [d, y]) => m.replace(d, y), s);
+}
+
+// Mantık ya da küme ifadesinde parantez anlamı değiştirir: ¬(p∧q) ile ¬p∧q aynı değildir
+const IFADE = /[¬∧∨→↔∀∃∩∪⊆⊂∈×]/;
+const KUME = /^\{[^{}]*\}$/;
+
+function ifadeNormalize(s: string): string {
+  const d = sembolleriDuzelt(s);
+  const atilan = IFADE.test(d) ? /[\s.,;:?'"’]+/g : /[\s.,;:!?'"’()]+/g;
+  return d
+    .toLocaleLowerCase("tr-TR")
+    .replace(/[çğıöşüâîû]/g, (c) => TR[c] ?? c)
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/−/g, "-")
+    .replace(atilan, "");
+}
+
+// İç içe olmayan bir küme ({1, 3, 0} gibi) eleman sırasından bağımsız karşılaştırılır
+function cevapAnahtari(s: string): string {
+  const t = s.trim();
+  if (!KUME.test(t) || /[()]/.test(t)) return ifadeNormalize(s);
+  const ogeler = t.slice(1, -1).split(",").map(ifadeNormalize).filter(Boolean);
+  return `{${[...new Set(ogeler)].sort().join(",")}}`;
+}
+
+export function metinEslesir(beklenen: string, cevap: string): boolean {
+  if (IFADE.test(sembolleriDuzelt(beklenen)) || KUME.test(beklenen.trim())) return cevapAnahtari(beklenen) === cevapAnahtari(cevap);
+  return normalize(beklenen) === normalize(cevap);
 }
 
 // ---- Sayısal cevaplar ----
@@ -153,7 +206,7 @@ export function boslukSonuclari(expected: Expected, answer: Answer, tur: Questio
   const want = expected.blanks as string[][];
   const got = answer.blanks as string[];
   if (!Array.isArray(got) || got.length !== want.length) return null;
-  const esit = tur === "num" ? sayiEslesir : (o: string, y: string) => normalize(o) === normalize(y);
+  const esit = tur === "num" ? sayiEslesir : metinEslesir;
   return want.map((options, i) => options.some((o) => esit(o, String(got[i] ?? ""))));
 }
 
@@ -166,6 +219,8 @@ export function grade(type: QuestionType, expected: Expected, answer: Answer): b
     case "fill":
     case "num":
       return boslukSonuclari(expected, answer, type)?.every(Boolean) ?? false;
+    case "yaz":
+      return "oz" in answer && answer.oz === "dogru";
     default:
       // code ve wave soruları tohumlu iz karşılaştırmasıyla puanlanacak
       return false;

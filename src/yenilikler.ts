@@ -14,6 +14,17 @@ export interface Yenilik {
 
 export const YENILIKLER: Yenilik[] = [
   {
+    pr: 8,
+    tarih: "2026-11-06",
+    baslik: "Fizik ve Ayrık platforma geliyor: adım adım çözümler, yazma soruları ve sembol klavyesi",
+    maddeler: [
+      "Fizik'in 233 ve Ayrık'ın 334 sorusu, şekilleriyle birlikte platforma taşındı.",
+      "Çok adımlı çözümler artık adım adım açılır: \"Sonraki adım\" ile çözümü kendi hızında takip edebilirsin.",
+      "Yeni soru türü: yazma (klasik). Cevabını yazıp örnek çözümü açıyorsun, sonra \"Doğru yaptım\", \"Kısmen\" ya da \"Yapamadım\" diye kendini değerlendiriyorsun; doğru yapamadığın sorular tekrar listene eklenir.",
+      "Mantık ve küme cevapları için sembol klavyesi geldi. `p -> q`, `~p`, `p ^ q` gibi klavye yazımları da kabul edilir, kümelerde elemanların sırası önemli değildir.",
+    ],
+  },
+  {
     pr: 7,
     tarih: "2026-11-05",
     baslik: "DSP Pratik platforma geliyor: haftalık dersler, etkileşimli şekiller ve MatStudio",

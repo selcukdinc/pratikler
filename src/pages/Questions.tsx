@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { Cozum } from "../components/Cozum";
 import { PRATIK, uniteBul } from "../lib/pratik";
 import { doneminiBul, donemliMi } from "../dersler";
 import { DONEM_ADI, DONEMLER } from "../dersler/tipler";
@@ -12,7 +13,8 @@ import { sonucCumlesi } from "../lib/sonuc";
 import { bolumId, soruBolumu } from "../dersler/bolumBul";
 import { benzerleriAyikla } from "../../shared/benzerler";
 import type { AnswerResult, Etiket, Question, SoruDurumlari, SoruIstatistigi, Topic } from "../../shared/api";
-import type { Answer } from "../../shared/grade";
+import type { Answer, OzDegerlendirme } from "../../shared/grade";
+import { SembolKlavyesi, sembolEkle } from "../components/SembolKlavyesi";
 
 // dersBagi: kartın başlığında sorunun anlatıldığı ders bölümüne bağlantı
 // (ders sayfasının kendisinde gereksiz olduğu için kapatılır).
@@ -100,6 +102,13 @@ function KapaliKart({ q, n, dersBagi, durum, onSonuc }: IcOzellikler) {
   const girdiler = useRef<(HTMLInputElement | null)[]>([]);
   // "Tekrar dene"den sonra imlecin gideceği ilk yanlış boşluk
   const [odak, setOdak] = useState<number | null>(null);
+  // Sembol klavyesinin yazacağı son boşluk (Ayrık)
+  const sonBosluk = useRef(0);
+  // Yazma (klasik) sorusu: öğrencinin cevabı, örnek çözüm ve öz değerlendirme
+  const [yazi, setYazi] = useState("");
+  const [cozum, setCozum] = useState<string | null>(null);
+  const [oz, setOz] = useState<OzDegerlendirme | null>(null);
+  const yaziKutusu = useRef<HTMLTextAreaElement | null>(null);
 
   useEffect(() => {
     if (odak === null) return;
@@ -113,12 +122,12 @@ function KapaliKart({ q, n, dersBagi, durum, onSonuc }: IcOzellikler) {
     : q.type === "fill" || q.type === "num" ? (blanks.every((b) => b.trim()) ? { blanks } : null)
     : null;
 
-  const submit = async () => {
-    if (!answer) return;
+  const submit = async (gonderilen: Answer | null = answer) => {
+    if (!gonderilen) return;
     setSending(true);
     setError(null);
     try {
-      const r = await api.answer(q.id, answer);
+      const r = await api.answer(q.id, gonderilen);
       setResult(r);
       onSonuc?.(r.correct);
     } catch (e) {
@@ -126,6 +135,22 @@ function KapaliKart({ q, n, dersBagi, durum, onSonuc }: IcOzellikler) {
     } finally {
       setSending(false);
     }
+  };
+
+  const cozumuGoster = async () => {
+    setSending(true);
+    setError(null);
+    try {
+      setCozum((await api.cozum(q.id)).cozum);
+    } catch (e) {
+      setError(String(e));
+    } finally {
+      setSending(false);
+    }
+  };
+  const degerlendir = (d: OzDegerlendirme) => {
+    setOz(d);
+    void submit({ oz: d, ...(yazi.trim() ? { yazi } : {}) });
   };
 
   // Boşluk doldurmada doğru boşluklar yerinde kalır, yalnızca yanlışlar
@@ -136,6 +161,8 @@ function KapaliKart({ q, n, dersBagi, durum, onSonuc }: IcOzellikler) {
     setTf(null);
     setChoice(null);
     setSira(sikSirasi());
+    setCozum(null);
+    setOz(null);
     if (bosSonuc && !result?.correct && bosSonuc.length === blanks.length) {
       setBlanks(blanks.map((b, i) => (bosSonuc[i] ? b : "")));
       setOdak(Math.max(0, bosSonuc.indexOf(false)));
@@ -194,6 +221,7 @@ function KapaliKart({ q, n, dersBagi, durum, onSonuc }: IcOzellikler) {
                 value={b}
                 aria-invalid={bosSonuc ? !bosSonuc[i] : undefined}
                 disabled={!!result}
+                onFocus={() => { sonBosluk.current = i; }}
                 onChange={(e) => setBlanks(blanks.map((x, j) => (j === i ? e.target.value : x)))}
                 onKeyDown={(e) => e.key === "Enter" && submit()}
                 inputMode={q.type === "num" ? "text" : undefined}
@@ -202,6 +230,37 @@ function KapaliKart({ q, n, dersBagi, durum, onSonuc }: IcOzellikler) {
               />
             </label>
           ))}
+          {q.payload.semboller && (
+            <SembolKlavyesi
+              disabled={!!result}
+              onSembol={(sb) => {
+                const i = sonBosluk.current;
+                sembolEkle(girdiler.current[i] ?? null, sb, (v) => setBlanks((eski) => eski.map((x, j) => (j === i ? v : x))));
+              }}
+            />
+          )}
+        </div>
+      )}
+
+      {q.type === "yaz" && (
+        <div className="yaz">
+          <label className="yaz-etiket" htmlFor={`yaz-${q.id}`}>Cevabın (istersen kâğıtta çöz, burayı boş bırak)</label>
+          <textarea
+            id={`yaz-${q.id}`}
+            ref={yaziKutusu}
+            className="yaz-alan"
+            rows={5}
+            value={yazi}
+            readOnly={cozum !== null}
+            onChange={(e) => setYazi(e.target.value)}
+          />
+          {cozum === null && <SembolKlavyesi onSembol={(sb) => sembolEkle(yaziKutusu.current, sb, setYazi)} />}
+          {cozum !== null && (
+            <div className="yaz-cozum">
+              <h4>Örnek çözüm</h4>
+              <Markdown text={cozum} terim />
+            </div>
+          )}
         </div>
       )}
 
@@ -215,13 +274,26 @@ function KapaliKart({ q, n, dersBagi, durum, onSonuc }: IcOzellikler) {
       <footer>
         {result ? (
           <>
-            <strong className={result.correct ? "ok" : "bad"}>{sonucCumlesi(q.type, result.correct, tf, bosSonuc, dogruBosluk)}</strong>
-            {result.explanation && <Markdown text={result.explanation} terim />}
+            <strong className={result.correct ? "ok" : "bad"}>{sonucCumlesi(q.type, result.correct, tf, bosSonuc, dogruBosluk, oz)}</strong>
+            {result.explanation && q.type !== "yaz" && <Cozum key={result.explanation} text={result.explanation} />}
             {result.istatistik && <Istatistik i={result.istatistik} secilen={choice} sira={sira} />}
             <button onClick={reset}>{!result.correct && dogruBosluk > 0 ? "Yanlış boşlukları düzelt" : "Tekrar dene"}</button>
           </>
+        ) : q.type === "yaz" ? (
+          cozum === null ? (
+            <button className="primary" onClick={cozumuGoster} disabled={sending}>
+              {sending ? "Yükleniyor…" : "Çözümü göster"}
+            </button>
+          ) : (
+            <div className="oz-degerlendirme">
+              <span>Çözümle karşılaştır, kendini değerlendir:</span>
+              <button className="primary" onClick={() => degerlendir("dogru")} disabled={sending}>Doğru yaptım</button>
+              <button onClick={() => degerlendir("kismen")} disabled={sending}>Kısmen</button>
+              <button onClick={() => degerlendir("yanlis")} disabled={sending}>Yapamadım</button>
+            </div>
+          )
         ) : (
-          <button className="primary" onClick={submit} disabled={!answer || sending}>
+          <button className="primary" onClick={() => submit()} disabled={!answer || sending}>
             {sending ? "Gönderiliyor…" : "Cevabı kontrol et"}
           </button>
         )}
@@ -314,7 +386,7 @@ type Durum = "tumu" | "cozulmemis" | "yanlis" | "dogru";
 const DURUMLAR: [Durum, string][] = [["cozulmemis", "Çözmediklerim"], ["tumu", "Tümü"], ["yanlis", "Yanlışlarım"], ["dogru", "Doğrularım"]];
 // Havuz açılınca çözülen sorular gizlenir; derste ya da tekrarda çözülenler de sayılır
 const VARSAYILAN_DURUM: Durum = "cozulmemis";
-const TURLER: [string, string][] = [["", "Tüm türler"], ["tf", "Doğru/Yanlış"], ["mcq", "Çoktan seçmeli"], ["fill", "Boşluk doldurma"], ["num", "Sayısal"]];
+const TURLER: [string, string][] = [["", "Tüm türler"], ["tf", "Doğru/Yanlış"], ["mcq", "Çoktan seçmeli"], ["fill", "Boşluk doldurma"], ["num", "Sayısal"], ["yaz", "Yazma (klasik)"]];
 
 // Kaynak süzgeci: "gercek" kitabın ve çıkmış sınavların sorularıdır (türetilmişler hariç)
 export type KaynakSecimi = "" | "gercek" | Etiket;

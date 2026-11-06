@@ -17,19 +17,26 @@ if (!pratik || !hedef) {
 }
 const { konular, sorular } = SORULAR[pratik.id]!;
 
-// MatStudio'nun ~ işleci (~=, ~x) için ¬ yazılır
-const md = (s: string) => s.replace(/~/g, "`").replace(/¬/g, "~");
+// DSP kaynaklarında MatStudio'nun ~ işleci (~=, ~x) için ¬ yazılır; Ayrık'ta ¬ gerçek
+// mantık sembolüdür, o yüzden bu dönüşüm yalnızca DSP'de yapılır
+const md = (s: string) => {
+  const t = s.replace(/~/g, "`");
+  return pratik.id === "dsp" ? t.replace(/¬/g, "~") : t;
+};
 const q = (s: string | null) => (s === null ? "NULL" : `'${s.replace(/'/g, "''")}'`);
 
 function payload(s: Soru): object {
   if (s.tip === "mcq") return { choices: s.secenekler.map(md), ...(s.sabit ? { sabit: true } : {}) };
-  if (s.tip === "fill" || s.tip === "num") return { blanks: s.bosluklar.length };
+  if (s.tip === "fill") return { blanks: s.bosluklar.length, ...(s.semboller ? { semboller: true } : {}) };
+  if (s.tip === "num") return { blanks: s.bosluklar.length };
   return {};
 }
 
 function cevap(s: Soru): object {
   if (s.tip === "tf") return { value: s.dogru };
   if (s.tip === "mcq") return { index: s.dogru };
+  // Yazma sorusunda cevap anahtarı yoktur; öğrenci örnek çözümle kendini değerlendirir
+  if (s.tip === "yaz") return {};
   return { blanks: s.bosluklar };
 }
 
@@ -58,6 +65,7 @@ for (const s of sorular) {
   if (s.tip === "mcq" && !(s.dogru >= 0 && s.dogru < s.secenekler.length)) throw new Error(`${s.id}: geçersiz doğru şık`);
   if ((s.tip === "fill" || s.tip === "num") && s.bosluklar.some((b) => b.length === 0)) throw new Error(`${s.id}: boş cevap listesi`);
   if (s.tip === "num" && s.bosluklar.flat().some((b) => !sayiBelirtimi(b))) throw new Error(`${s.id}: geçersiz sayı belirtimi`);
+  if (s.tip === "yaz" && s.aciklama.trim().length < 20) throw new Error(`${s.id}: yazma sorusunun örnek çözümü yok`);
   if (!pratik.kavramlar[s.kavram]) throw new Error(`${s.id}: kavramı yok (icerik/${pratik.id}/meta.ts)`);
   if (!s.etiketler.length) throw new Error(`${s.id}: etiketi yok`);
   for (const e of s.etiketler) if (!etiketler.has(e)) throw new Error(`${s.id}: bilinmeyen etiket ${e}`);
