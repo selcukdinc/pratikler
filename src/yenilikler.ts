@@ -14,6 +14,18 @@ export interface Yenilik {
 
 export const YENILIKLER: Yenilik[] = [
   {
+    pr: 20,
+    tarih: "2026-11-06",
+    baslik: "Sınavda A, B, C, D grupları, cevap anahtarı ve Word çıktısı",
+    maddeler: [
+      "Sınav kağıdının **Gruplar** sekmesinden 2, 3 ya da 4 grup seçiliyor. **Aynı sorular, karışık** kipinde her grupta soruların sırası ve şıkların yeri değişiyor; **Benzer ama farklı sorular** kipinde B, C ve D gruplarına aynı kavramdan başka sorular geliyor.",
+      "Ortak metinler (\"1-5. soruları parçaya göre cevaplayınız\") yerinde kalıyor, sorular kendi bölümünde karışıyor; başka şıklara atıf yapan soruların şıklarına dokunulmuyor.",
+      "Şıklar A grubunda da karışıyor, böylece doğru cevaplar aynı harfte toplanmıyor. **Yeniden karıştır** ile yeni bir dağılım alınıyor.",
+      "Önizlemede her grup, **Cevap anahtarı** ve **Hepsi** ayrı ayrı görülüp PDF olarak basılabiliyor.",
+      "**Word indir** bütün grupları ve cevap anahtarını tek bir .docx dosyasında veriyor; formüller düz metin olarak yazılıyor, şekilli sorularda PDF önerilir.",
+    ],
+  },
+  {
     pr: 19,
     tarih: "2026-11-06",
     baslik: "Akademisyenler için sınav hazırlama",
