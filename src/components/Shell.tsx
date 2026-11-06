@@ -181,6 +181,7 @@ export function HesapAlani({ route }: { route: Route }) {
         <a role="menuitem" href="/mesajlar">Mesajlarım {rozet(okunmamis.mesaj)}</a>
         {PRATIK_YA_DA_KATALOG && <a role="menuitem" href="/oner">Soru öner {rozet(okunmamis.oneri)}</a>}
         <a role="menuitem" href="/ayarlar">Ayarlar</a>
+        {PRATIK_YA_DA_KATALOG && (me.role === "admin" || me.role === "akademisyen") && <a role="menuitem" href="/sinavlar">Sınav hazırla</a>}
         {me.role === "admin" && <a role="menuitem" href="/yonetim" data-tam-sayfa>Yönetim paneli</a>}
         <button role="menuitem" onClick={cikis}>Çıkış yap</button>
       </div>

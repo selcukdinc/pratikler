@@ -9,6 +9,7 @@ import { kutlamaBildir } from "./kutlama";
 import type { TekrarCevabi } from "../../shared/tekrar";
 import type { KatalogPratik, PratikIlerlemesi } from "../../shared/api";
 import { PRATIK_YA_DA_KATALOG } from "./pratik";
+import type { Sinav, SinavBelgesi, SinavOzeti, SinavSorusu } from "../../shared/sinav";
 
 // Canlıda pratik alan adından anlaşılır; yerelde ve workers.dev'de bu başlıkla bildirilir
 const PRATIK_BASLIGI: Record<string, string> = PRATIK_YA_DA_KATALOG ? { "X-Pratik": PRATIK_YA_DA_KATALOG.id } : {};
@@ -69,6 +70,14 @@ export const api = {
     if (!r.ok) throw new Error(r.hata.error);
     kutlamaBildir(r.data.gunluk);
     return r.data;
+  },
+  sinav: {
+    liste: () => get<SinavOzeti[]>("/sinavlar"),
+    sorular: () => get<SinavSorusu[]>("/sinavlar/sorular"),
+    al: (id: string) => get<Sinav>(`/sinavlar/${encodeURIComponent(id)}`),
+    yeni: (kopya?: string) => post<{ id: string }>("/sinavlar", kopya ? { kopya } : {}),
+    kaydet: (id: string, belge: SinavBelgesi, onceki: number) => post<{ guncellendi: number }>(`/sinavlar/${encodeURIComponent(id)}`, { belge, onceki }, "PUT"),
+    sil: (id: string) => post<{ ok: true }>(`/sinavlar/${encodeURIComponent(id)}`, {}, "DELETE"),
   },
   uye: {
     oneriler: () => get<Oneri[]>("/uye/oneriler"),
