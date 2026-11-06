@@ -61,6 +61,13 @@ describe("taşıma planı", () => {
     expect(p.sql).toContain("INSERT INTO settings (key, value) VALUES ('kimya:current_week', '4')");
   });
 
+  it("eski sorunun kendi etiketleri varsa (girişimcilik) onlar kullanılır", () => {
+    const eski = bos();
+    eski.questions.push({ id: "eski-y", topic_id: "k1", week: 1, type: "mcq", source: "original", prompt: "p", payload: "{}", answer: "{}", active: 1, etiketler: "ges,cikmis" });
+    const p = tasimaPlani(eski, bos(), ayar, pratik);
+    expect(p.sql).toMatch(/'km-eski-y'.*'ges,cikmis'\);/);
+  });
+
   it("ders ilerlemesi pratiğin anahtarına yazılır", () => {
     const eski = bos();
     eski.users.push({ ...uye("e1", "ali", "ali@a.com"), ders_ilerleme: '{"bitenler":{"1":[0]},"son":null}' });

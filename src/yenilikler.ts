@@ -14,6 +14,15 @@ export interface Yenilik {
 
 export const YENILIKLER: Yenilik[] = [
   {
+    pr: 10,
+    tarih: "2026-11-06",
+    baslik: "Girişimcilik platforma geliyor: hesabın, misafir ilerlemen ve denemelerin seninle",
+    maddeler: [
+      "Girişimcilik Pratik'in 280 sorusu platforma taşındı.",
+      "Eski sitedeki hesabın, misafir olarak çözdüğün sorular, aralıklı tekrar kutuların ve günlük hedefin aynen geliyor. Yeniden giriş yapman gerekmez; eski parolan da geçerli.",
+    ],
+  },
+  {
     pr: 9,
     tarih: "2026-11-06",
     baslik: "FPGA platforma geliyor: tarayıcıda VHDL simülasyonu ve otomatik sınanan kod soruları",

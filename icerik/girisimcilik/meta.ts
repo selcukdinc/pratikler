@@ -1,6 +1,6 @@
 // Girişimcilik Pratik (girisimcilik.selcukdinc.dev): KOSGEB Girişimcilik El Kitabı.
-// Site bugün kendi deposunda (selcukdinc/girisimcilik-pratik) yayında; buradaki kopya
-// platformun ikinci kiracısıdır ve Faz 3'teki taşımaya kadar yayına alınmaz (yayinda: false).
+// Sorular selcukdinc/girisimcilik-pratik deposundan alındı; kimlikler "gr-" önekini alır
+// (sorular/index.ts). Üyeler, misafirler ve denemeleri `npm run tasi` ile taşınır (docs/tasima.md).
 import type { PratikMeta } from "../tipler.ts";
 
 export const girisimcilik: PratikMeta = {
@@ -26,6 +26,7 @@ export const girisimcilik: PratikMeta = {
   uniteAdi: "ünite",
   uniteKisa: "Ü",
   yayinda: false,
+  logo: "/logolar/girisimcilik.svg",
   latex: false,
   etiketler: [
     { id: "ges", ad: "GES", renk: "kitap", gercek: true, aciklama: "Girişimcilik El Kitabı'nın bölüm sonu sorusu (Kendimizi Sınayalım)" },
@@ -154,7 +155,7 @@ export const girisimcilik: PratikMeta = {
   { tr: "talep", en: "demand", aciklama: "Satın alma gücüyle desteklenen istek" },
   ],
   benzerler: [
-  ["u1-k02", "u1-t-icsel-amac"],
-  ["u1-k07", "u1-t-surec-sira"],
+  ["gr-u1-k02", "gr-u1-t-icsel-amac"],
+  ["gr-u1-k07", "gr-u1-t-surec-sira"],
   ],
 };
