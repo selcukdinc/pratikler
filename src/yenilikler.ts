@@ -14,6 +14,15 @@ export interface Yenilik {
 
 export const YENILIKLER: Yenilik[] = [
   {
+    pr: 14,
+    tarih: "2026-11-06",
+    baslik: "Telefonda daha derli toplu bir üst çubuk",
+    maddeler: [
+      "Telefonda Giriş ve Kayıt ol düğmeleri artık alt satıra kaymıyor, üst çubuk tek satırda kalıyor.",
+      "Metin boyutu ve tema seçimi telefonda **Aa** düğmesinin altında toplandı.",
+    ],
+  },
+  {
     pr: 12,
     tarih: "2026-11-06",
     baslik: "Yeni pratik: Biyomedikal",

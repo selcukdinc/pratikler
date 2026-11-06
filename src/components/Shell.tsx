@@ -104,6 +104,41 @@ export function TemaDugmesi() {
   );
 }
 
+// Dar ekranda metin boyutu ve tema başlıkta yer kaplamasın diye tek bir
+// "Görünüm" menüsüne toplanır; geniş ekranda ikisi başlıkta açık durur.
+function GorunumAyarlari({ route }: { route: Route }) {
+  const menu = useRef<HTMLDetailsElement>(null);
+  useEffect(() => {
+    if (menu.current) menu.current.open = false;
+  }, [route]);
+  useEffect(() => {
+    const kapat = (e: PointerEvent) => {
+      if (menu.current?.open && !menu.current.contains(e.target as Node)) menu.current.open = false;
+    };
+    document.addEventListener("pointerdown", kapat);
+    return () => document.removeEventListener("pointerdown", kapat);
+  }, []);
+  return (
+    <>
+      <span className="gorunum-satir">
+        <OlcekDugmeleri />
+        <TemaDugmesi />
+      </span>
+      <details className="gorunum-menu" ref={menu}>
+        <summary aria-label="Görünüm: metin boyutu ve tema" title="Görünüm">
+          <span aria-hidden="true">Aa</span>
+        </summary>
+        <div className="gorunum-menu-liste">
+          <span className="gorunum-etiket">Metin boyutu</span>
+          <OlcekDugmeleri />
+          <span className="gorunum-etiket">Tema</span>
+          <TemaDugmesi />
+        </div>
+      </details>
+    </>
+  );
+}
+
 export function HesapAlani({ route }: { route: Route }) {
   const { me, yuklendi, setMe, epostaAcik } = useOturum();
   const menu = useRef<HTMLDetailsElement>(null);
@@ -235,7 +270,7 @@ export function Shell({ route, currentWeek, title, status, duyuru, children }: P
         </button>
         <a className="brand" href="/pratik">
           <img src={LOGO} alt="" width={18} height={18} />
-          {SITE_ADI}
+          <span className="brand-ad">{SITE_ADI}</span>
         </a>
         <span className="topbar-status">{status}</span>
         {yeniSayisi > 0 && route.page !== "yenilikler" && (
@@ -243,8 +278,7 @@ export function Shell({ route, currentWeek, title, status, duyuru, children }: P
             Yeni <span className="sayi-rozeti">{yeniSayisi}</span>
           </a>
         )}
-        <OlcekDugmeleri />
-        <TemaDugmesi />
+        <GorunumAyarlari route={route} />
         <HesapAlani route={route} />
       </header>
 

@@ -159,7 +159,9 @@ code { background: var(--code-bg); padding: 0 3px; border-radius: 3px; }
   background: var(--topbar);
   border-bottom: 1px solid var(--border);
 }
-.brand { display: flex; gap: 8px; align-items: center; font-weight: 600; color: var(--text); text-decoration: none; }
+.brand { display: flex; gap: 8px; align-items: center; min-width: 0; font-weight: 600; color: var(--text); text-decoration: none; }
+.brand img { flex-shrink: 0; }
+.brand-ad { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .topbar-status { margin-left: auto; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .menu-dugmesi { display: none; padding: 2px 4px; color: var(--text); }
 
@@ -1093,6 +1095,28 @@ body.boyutlaniyor-dikey { cursor: ns-resize; user-select: none; }
 .olcek-dugmeleri button:last-child { font-size: 14px; }
 .olcek-yuzde { min-width: 46px; }
 @media (max-width: 600px) { .olcek-yuzde, .tema-adi { display: none; } }
+
+/* Görünüm ayarları: geniş ekranda başlıkta, dar ekranda tek menüde */
+.gorunum-satir { display: inline-flex; align-items: center; gap: 16px; }
+.gorunum-menu { display: none; position: relative; }
+.gorunum-menu summary { list-style: none; cursor: pointer; padding: 2px 6px; border: 1px solid var(--border); border-radius: 4px; font-weight: 600; font-size: 13px; }
+.gorunum-menu summary::-webkit-details-marker { display: none; }
+.gorunum-menu-liste {
+  position: absolute; right: 0; top: calc(100% + 4px); z-index: 10;
+  display: flex; flex-direction: column; align-items: flex-start; gap: 6px;
+  min-width: 170px; padding: 10px 12px;
+  background: var(--panel); border: 1px solid var(--border); border-radius: 4px; box-shadow: 0 4px 14px rgb(0 0 0 / 0.18);
+}
+.gorunum-etiket { color: var(--muted); font-size: 12px; }
+.gorunum-menu-liste .olcek-yuzde, .gorunum-menu-liste .tema-adi { display: revert; }
+@media (max-width: 600px) {
+  /* Marka kalan yeri alıp gerekirse kısalır; böylece düğmeler alt satıra düşmez */
+  .topbar { gap: 6px 10px; padding: 6px 12px; }
+  .brand { flex: 1 1 0; }
+  .gorunum-satir { display: none; }
+  .gorunum-menu { display: block; }
+  .hesap-alani { flex-shrink: 0; gap: 10px; }
+}
 
 /* Geniş ekranda kod içeren sorular iki sütun: solda soru ve cevap, sağda kod */
 /* Bütün kartlar aynı genişlikte; kodsuz kartlarda satırlar okunur uzunlukta kalır */
