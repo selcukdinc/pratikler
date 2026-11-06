@@ -45,6 +45,7 @@ export const api = {
   katalog: () => get<KatalogPratik[]>("/katalog"),
   katalogIlerleme: () => get<PratikIlerlemesi[]>("/katalog/ilerleme"),
   topics: () => get<{ currentWeek: number; topics: Topic[]; announcement: string | null }>("/topics"),
+  cozum: (id: string) => get<{ cozum: string }>(`/questions/${encodeURIComponent(id)}/cozum`),
   questions: (topic?: string) => get<Question[]>(topic ? `/questions?topic=${encodeURIComponent(topic)}` : "/questions"),
   progress: () => get<TopicProgress[]>("/progress"),
   ilerlemeAyrintisi: () => get<IlerlemeAyrintisi>("/progress/ayrinti"),

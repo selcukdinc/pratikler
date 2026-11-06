@@ -119,6 +119,12 @@ function blok(p: string, key: string, terim: boolean): ReactNode {
   if (satirlar.every((l) => /^\d+\. /.test(l))) {
     return <ol key={key}>{satirlar.map((l, k) => <li key={k}>{inline(l.replace(/^\d+\. /, ""), terim)}</li>)}</ol>;
   }
+  // "a) ...", "b) ...", "I. ..." gibi şıklı satırlar paragrafın içinde de alt alta kalır;
+  // diğer tek satır sonları eskisi gibi boşluk sayılır
+  const siklar = p.split(/\n(?=\s*(?:\(?[a-zA-Z]\)|[IVX]+[.)]) )/);
+  if (siklar.length > 1) {
+    return <p key={key}>{siklar.map((l, k) => <Fragment key={k}>{k > 0 && <br />}{inline(l.trim(), terim)}</Fragment>)}</p>;
+  }
   return <p key={key}>{inline(p, terim)}</p>;
 }
 

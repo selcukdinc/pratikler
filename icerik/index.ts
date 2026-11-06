@@ -4,11 +4,13 @@ import type { PratikMeta } from "./tipler.ts";
 import { girisimcilik } from "./girisimcilik/meta.ts";
 import { kimya } from "./kimya/meta.ts";
 import { dsp } from "./dsp/meta.ts";
+import { fizik } from "./fizik/meta.ts";
+import { ayrik } from "./ayrik/meta.ts";
 import { tipElektronigi } from "./tip-elektronigi/meta.ts";
 
 export type { PratikMeta } from "./tipler.ts";
 
-export const PRATIKLER: PratikMeta[] = [tipElektronigi, kimya, dsp, girisimcilik];
+export const PRATIKLER: PratikMeta[] = [tipElektronigi, kimya, dsp, fizik, ayrik, girisimcilik];
 
 // Çatı sitesinin alt alan adı (katalog, tek hesap)
 export const CATI_ALT = "pratikler";

@@ -5,7 +5,8 @@ const sorular = Object.values(SORULAR).flatMap((p) => p.sorular);
 
 // Şıklar ekranda karıştırıldığı için açıklama doğru şıkkı harfiyle anamaz;
 // başka şıklara atıf yapan ya da "Hepsi/Hiçbiri" gibi şıklar varsa soru sabit olmalı.
-const HARF_ATIF = /\*\*[A-E]\*\*|\b[A-E]\)|\b[A-E] şıkkı|\b[A-Ea-e] seçeneği/;
+// "A)" yalnızca cümle başında şık harfidir; "(4 ∉ B)" gibi küme adlarına takılmaz
+const HARF_ATIF = /\*\*[A-E]\*\*|(?:^|[.:;!?]\s+)[A-E]\)|\b[A-E] şıkkı|\b[A-Ea-e] seçeneği/;
 const ATIFLI_SIK = /^(hepsi|hepsine|hiçbiri|yukarıdakilerin hepsi|[a-e] ve [a-e])\.?$/i;
 
 describe("şık sırası", () => {

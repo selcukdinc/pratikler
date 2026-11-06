@@ -7,7 +7,7 @@ export function Sekil({ kod }: { kod: string }) {
   if (!g) return null;
   const Etkilesim = g.etkilesim ? ETKILESIMLER[g.etkilesim] : undefined;
   return (
-    <figure className="sekil" id={`sekil-${kod}`}>
+    <figure className={`sekil${kod.startsWith("G-S") ? " soru-sekli" : ""}`} id={`sekil-${kod}`}>
       <div className="sekil-kutu">
         {Etkilesim ? (
           <Etkilesim g={g} />
@@ -16,7 +16,7 @@ export function Sekil({ kod }: { kod: string }) {
         )}
       </div>
       <figcaption>
-        <span className="sekil-kod">{g.kod}</span> {g.baslik}
+        {!kod.startsWith("G-S") && <span className="sekil-kod">{g.kod}</span>} {g.baslik}
         {Etkilesim && <span className="tag">etkileşimli</span>}
       </figcaption>
     </figure>

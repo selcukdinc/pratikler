@@ -1,5 +1,6 @@
 // Yazılmakta olan bir sorunun sitede nasıl görüneceği: panelde ve soru öner sayfasında.
 
+import { Cozum } from "./Cozum";
 import type { ReactNode } from "react";
 import { Markdown, inline } from "./Markdown";
 import { boslukEtiketi, bosluklariAyir } from "../lib/bosluk";
@@ -50,7 +51,7 @@ export function SoruOnizleme({ type, prompt, choices, dogruSik, bosluk, explanat
       {explanation && (
         <footer>
           {aciklamaBasligi && <strong>{aciklamaBasligi}</strong>}
-          <Markdown text={explanation} />
+          <Cozum key={explanation} text={explanation} tumu />
         </footer>
       )}
     </article>

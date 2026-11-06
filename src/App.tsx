@@ -41,7 +41,7 @@ function baslik(route: Route, topicTitle?: string): string {
     case "matstudio": return "MatStudio";
     case "lab": return route.deney ? `SANAL LAB - ${deneyBul(route.deney)?.ad ?? "Deney"}` : "SANAL LAB";
     case "cikmis": return route.sinav ? `ÇIKMIŞ SORULAR - ${sinavBul(route.sinav)?.ad ?? "Sınav"}` : "ÇIKMIŞ SORULAR";
-    case "sorular": return `SORU HAVUZU - ${topicTitle ?? (route.hafta ? `${route.hafta}. ünite` : "Tüm sorular")}`;
+    case "sorular": return `SORU HAVUZU - ${topicTitle ?? (route.hafta ? uniteYazi(route.hafta) : "Tüm sorular")}`;
     case "ders": return route.hafta ? `KONU ANLATIMI - ${dersBul(route.hafta)?.proje ? "Proje" : uniteYazi(route.hafta)}` : "KONU ANLATIMLARI";
     case "ilerleme": return "İLERLEME - Konu bazlı durum";
     case "tekrar": return "TEKRAR - Aralıklı tekrar";

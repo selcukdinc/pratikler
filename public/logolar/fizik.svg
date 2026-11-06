@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3949AB"/>
+      <stop offset="1" stop-color="#1A237E"/>
+    </linearGradient>
+  </defs>
+  <rect x="100" y="100" width="824" height="824" rx="185" fill="url(#bg)"/>
+  <!-- eğik atış: zemin, parabol yörünge ve ilk hız vektörü -->
+  <path d="M220 760 L804 760" stroke="#FFFFFF" stroke-width="36" stroke-linecap="round"/>
+  <path d="M250 740 Q500 140 760 740" fill="none" stroke="#FFFFFF" stroke-width="30" stroke-dasharray="2 70" stroke-linecap="round"/>
+  <path d="M250 740 L410 420" stroke="#FFD54F" stroke-width="44" stroke-linecap="round"/>
+  <path d="M330 440 L420 400 L440 500" fill="none" stroke="#FFD54F" stroke-width="44" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="250" cy="740" r="46" fill="#FFD54F"/>
+</svg>

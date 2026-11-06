@@ -1514,3 +1514,41 @@ polygon.g-ok-7 { fill: var(--ok-7); stroke: none; }
 .mini-cip.birak-once { box-shadow: -3px 0 0 var(--link); }
 
 .mini-cip.birak-sonra { box-shadow: 3px 0 0 var(--link); }
+
+/* ---- Fizik ve Ayrık Pratik'ten (Faz 3): adım adım çözüm, soru şekilleri, yazma soruları, sembol klavyesi ---- */
+.question footer .md, .question footer .cozum { flex-basis: 100%; }
+.cozum { display: flex; flex-direction: column; gap: 6px; }
+.cozum-adimlar h4 { margin: 6px 0; font-size: 13px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+.cozum-adimlar ol { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.cozum-adim { border: 1px solid var(--border); border-left: 4px solid var(--link); border-radius: 4px; padding: 6px 10px; background: var(--panel); }
+.cozum-adim .md p { margin: 4px 0; }
+.cozum-no { display: inline-block; font-size: 11px; font-weight: 700; color: var(--link); text-transform: uppercase; letter-spacing: 0.04em; }
+.cozum-dugmeler { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 8px; }
+.sekil.soru-sekli svg { min-width: 0; max-width: 460px; }
+.sekil.soru-sekli figcaption::after { content: none; }
+.sk-c { stroke: var(--sk-cizgi); stroke-width: 2; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+.sk-ince { stroke-width: 1.2; }
+.sk-kesik { stroke-dasharray: 5 4; stroke: var(--sk-soluk); stroke-width: 1.4; fill: none; }
+.sk-zemin { fill: var(--sk-zemin); stroke: var(--sk-cizgi); stroke-width: 1.5; }
+.sk-kutu { fill: var(--sk-kutu); stroke: var(--sk-cizgi); stroke-width: 1.5; }
+.sk-kutu2 { fill: var(--sk-kutu2); stroke: var(--sk-cizgi); stroke-width: 1.5; }
+.sk-y { fill: var(--sk-cizgi); stroke: none; font-size: 15px; }
+.sk-y-k { fill: var(--sk-cizgi); stroke: none; font-size: 12px; }
+.sk-mavi { stroke: var(--sk-mavi); fill: none; stroke-width: 2.5; }
+.sk-mavi-d { fill: var(--sk-mavi); stroke: none; }
+.sk-kirmizi { stroke: var(--sk-kirmizi); fill: none; stroke-width: 2.5; }
+:root { --tag-sunu-bg: #dcebfb; --tag-sunu-text: #13457f; --sk-cizgi: #1f1f1f; --sk-soluk: #8a8f98; --sk-kutu: #f6c27a; --sk-kutu2: #9cc3ec; --sk-zemin: #d7dbe2; --sk-mavi: #1565c0; --sk-kirmizi: #c62828; --sk-yesil: #2e7d32; --sk-turuncu: #e65100; }
+:root[data-theme="dark"] { --tag-sunu-bg: #1f3a5c; --tag-sunu-text: #b9d6f7; --sk-cizgi: #e3e3e3; --sk-soluk: #8e949e; --sk-kutu: #8a5a1c; --sk-kutu2: #2c5786; --sk-zemin: #3a3d44; --sk-mavi: #64b5f6; --sk-kirmizi: #ef7a7a; --sk-yesil: #81c784; --sk-turuncu: #ffb74d; }
+.sembol-klavyesi { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
+.sembol-klavyesi .sembol { min-width: 32px; min-height: 32px; padding: 0 6px; font-size: 16px; line-height: 1; }
+.yaz { display: flex; flex-direction: column; gap: 6px; margin: 8px 0; }
+.yaz-etiket { color: var(--muted); font-size: 0.9em; }
+.yaz-alan {
+  width: 100%; box-sizing: border-box; min-height: 110px; resize: vertical; font: inherit;
+  border: 1px solid var(--border); border-radius: 3px; padding: 6px 8px; background: var(--input); color: var(--text);
+}
+.yaz-cozum { border-left: 3px solid var(--border); padding: 4px 0 4px 10px; }
+.yaz-cozum h4 { margin: 0 0 4px; font-size: 0.95em; }
+.oz-degerlendirme { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+:root { --tag-rosen-bg: #dcebfb; --tag-rosen-text: #13457f; }
+:root[data-theme="dark"] { --tag-rosen-bg: #1f3a5c; --tag-rosen-text: #b9d6f7; }

@@ -1,5 +1,6 @@
 // Panelde soru ekleme ve düzenleme. Sağda sitede nasıl görüneceği önizlenir.
 
+import { Cozum } from "../components/Cozum";
 import { useEffect, useId, useState, type FormEvent, type ReactNode } from "react";
 import { api } from "../lib/api";
 import { href, navigate } from "../lib/router";
@@ -335,7 +336,7 @@ function KodSoruBilgisi({ s, onDegisti }: { s: PanelSoru; onDegisti: (s: PanelSo
         <article className="question">
           <Markdown text={s.prompt} />
           <footer>
-            <Markdown text={s.explanation} />
+            <Cozum key={s.explanation} text={s.explanation} tumu />
           </footer>
         </article>
       </aside>

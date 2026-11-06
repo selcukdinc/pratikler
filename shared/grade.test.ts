@@ -89,3 +89,32 @@ describe("sayısal cevaplar", () => {
     expect(grade("num", want, { blanks: ["7.0", "[1 2 1]"] })).toBe(true);
   });
 });
+
+// Ayrık Pratik'ten: mantık ve küme ifadeleri, yazma soruları
+describe("mantık ve küme cevapları", () => {
+  it("mantık sembolleri klavye karşılıklarıyla yazılabilir", () => {
+    const want = { blanks: [["¬p ∨ q"], ["p ↔ q"], ["¬(p ∧ q)"]] };
+    expect(grade("fill", want, { blanks: ["~p | q", "p <-> q", "!(p ^ q)"] })).toBe(true);
+    expect(grade("fill", want, { blanks: ["¬p∨q", "p<->q", "~(p & q)"] })).toBe(true);
+    // Parantez mantık ifadesinde önemlidir
+    expect(grade("fill", want, { blanks: ["~p | q", "p <-> q", "~p ^ q"] })).toBe(false);
+    expect(grade("fill", { blanks: [["p → q"]] }, { blanks: ["p -> q"] })).toBe(true);
+    expect(grade("fill", { blanks: [["p → q"]] }, { blanks: ["q -> p"] })).toBe(false);
+  });
+
+  it("küme cevabında eleman sırası ve eksi işareti önemsiz", () => {
+    const e = { blanks: [["{−1, 1}"], ["{0, 1, 3}"]] };
+    expect(grade("fill", e, { blanks: ["{1,-1}", "{3, 0, 1}"] })).toBe(true);
+    expect(grade("fill", e, { blanks: ["{1}", "{0, 1, 3}"] })).toBe(false);
+  });
+
+  it("sembolsüz cevaplar eskisi gibi karşılaştırılır", () => {
+    expect(grade("fill", { blanks: [["Öz yeterlilik"]] }, { blanks: ["ozyeterlilik!"] })).toBe(true);
+  });
+
+  it("yazma sorusu öz değerlendirmeyle puanlanır", () => {
+    expect(grade("yaz", {}, { oz: "dogru", yazi: "..." })).toBe(true);
+    expect(grade("yaz", {}, { oz: "kismen" })).toBe(false);
+    expect(grade("yaz", {}, { oz: "yanlis" })).toBe(false);
+  });
+});
