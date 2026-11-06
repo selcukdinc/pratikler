@@ -14,6 +14,23 @@ export interface Yenilik {
 
 export const YENILIKLER: Yenilik[] = [
   {
+    pr: 17,
+    tarih: "2026-11-06",
+    baslik: "Yönetim panelinde Claude işleri canlı izleniyor",
+    maddeler: [
+      "Yönetim panelinin **Claude** sekmesinde bir iş seçilince yerel ajanın ne yaptığı canlı akıyor: Claude'un yazdıkları, okuduğu ve değiştirdiği dosyalar, çalıştırdığı komutlar ve denetimlerin sonucu.",
+      "Hazırlık, Claude, Denetim ve PR aşamaları bir çubukta görünüyor; iş bitince süre ve maliyet de yazılıyor.",
+      "Çalışan bir iş panelden **Durdur** ile birkaç saniye içinde durdurulabiliyor.",
+    ],
+  },  {
+    pr: 16,
+    tarih: "2026-11-06",
+    baslik: "Yeni tema: Kahve",
+    maddeler: [
+      "Aydınlık ve Karanlık temanın yanına sıcak krem ve kahve tonlarında **Kahve** teması geldi; uzun çalışmalarda gözü yormayan yumuşak bir görünüm.",
+      "Tema artık üst çubuktaki listeden seçiliyor: Sistem, Aydınlık, Karanlık ya da Kahve. Seçimin bu cihazda hatırlanır.",
+    ],
+  },  {
     pr: 15,
     tarih: "2026-11-06",
     baslik: "Pratikler'in yeni logosu, kartlarda pratik logoları ve daha akıcı yükleme",

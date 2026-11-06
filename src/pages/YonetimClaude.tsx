@@ -2,11 +2,12 @@
 // iş o pratiğe verilir; çatı panelinde (pratikler.) yeni pratik açılır.
 // İşleri yöneticinin bilgisayarındaki yerel ajan yapar (ajan/pratikler-ajan.mjs).
 
-import { useEffect, useState, type ComponentProps, type FormEvent } from "react";
+import { useEffect, useRef, useState, type ComponentProps, type FormEvent } from "react";
 import { api } from "../lib/api";
 import { PRATIK_YA_DA_KATALOG } from "../lib/pratik";
 import { FormHatasi } from "../components/Form";
-import { CLAUDE_ISTEK_EN_UZUN, type AjanDurumu, type ClaudeIsi, type YeniPratikGirdi } from "../../shared/yonetim";
+import { href } from "../lib/router";
+import { CLAUDE_ISTEK_EN_UZUN, type AjanDurumu, type ClaudeIsi, type ClaudeOlayi, type YeniPratikGirdi } from "../../shared/yonetim";
 
 const zaman = (ms: number) =>
   new Date(ms).toLocaleString("tr-TR", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
@@ -250,7 +251,151 @@ function isBasligi(i: ClaudeIsi): string {
   return i.istek;
 }
 
-export function ClaudeIsleri() {
+const bitti = (d: ClaudeIsi["durum"]) => d !== "bekliyor" && d !== "calisiyor";
+const sure = (ms: number) => {
+  const sn = Math.max(0, Math.round(ms / 1000));
+  return sn < 60 ? `${sn} sn` : `${Math.floor(sn / 60)} dk ${sn % 60} sn`;
+};
+const saat = (ms: number) => new Date(ms).toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+
+// Ajanın geçtiği aşamalar; günlükteki "asama" olaylarından hangisinde olunduğu çıkarılır
+const ASAMALAR = [
+  { ad: "Hazırlık", anahtar: "Çalışma kopyası" },
+  { ad: "Claude", anahtar: "Claude" },
+  { ad: "Denetim", anahtar: "Denetimler" },
+  { ad: "PR", anahtar: "Commit" },
+] as const;
+function asamaNo(olaylar: ClaudeOlayi[], is: ClaudeIsi): number {
+  if (is.durum === "pr" || is.durum === "tamam") return ASAMALAR.length;
+  let no = -1;
+  for (const o of olaylar) {
+    if (o.tur !== "asama") continue;
+    const i = ASAMALAR.findIndex((a) => o.metin.startsWith(a.anahtar));
+    if (i > no) no = i;
+  }
+  return no;
+}
+
+const OLAY_ISARETI: Record<ClaudeOlayi["tur"], string> = { asama: "▸", metin: "", arac: "⚙", sonuc: "↳", cikti: "", bilgi: "ℹ", hata: "✗" };
+
+// Seçili işin canlı günlüğü: çalışırken 1,5 sn'de bir yalnızca yeni olaylar çekilir
+function IsGunlugu({ id, degisti }: { id: string; degisti: () => void }) {
+  const [is, setIs] = useState<ClaudeIsi | null>(null);
+  const [olaylar, setOlaylar] = useState<ClaudeOlayi[]>([]);
+  const [iptalIstendi, setIptalIstendi] = useState(false);
+  const [hata, setHata] = useState<string | null>(null);
+  const [takip, setTakip] = useState(true);
+  const [ayrinti, setAyrinti] = useState(false);
+  const [simdi, setSimdi] = useState(Date.now());
+  const son = useRef(0);
+  const kutu = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    setIs(null);
+    setOlaylar([]);
+    son.current = 0;
+    let dur = false;
+    let zaman: ReturnType<typeof setTimeout>;
+    let onceki: ClaudeIsi["durum"] | null = null;
+    const cek = async () => {
+      try {
+        const r = await api.yonetim.claudeGunluk(id, son.current);
+        if (dur) return;
+        setIs(r.is);
+        setIptalIstendi(r.iptalIstendi);
+        setHata(null);
+        if (r.olaylar.length) {
+          son.current = r.olaylar[r.olaylar.length - 1]!.id;
+          setOlaylar((o) => [...o, ...r.olaylar]);
+        }
+        if (onceki && onceki !== r.is.durum) degisti();
+        onceki = r.is.durum;
+        // 500'den çok olay birikmişse hemen devam; bitmiş işte bir kez daha bakıp durur
+        if (r.olaylar.length >= 500) zaman = setTimeout(cek, 0);
+        else if (!bitti(r.is.durum)) zaman = setTimeout(cek, r.is.durum === "calisiyor" ? 1500 : 5000);
+      } catch (e) {
+        if (dur) return;
+        setHata(String(e));
+        zaman = setTimeout(cek, 5000);
+      }
+    };
+    void cek();
+    const saniye = setInterval(() => setSimdi(Date.now()), 1000);
+    return () => {
+      dur = true;
+      clearTimeout(zaman);
+      clearInterval(saniye);
+    };
+  }, [id]);
+
+  // Takip açıkken yeni satırlar gelince en alta kaydır
+  useEffect(() => {
+    if (takip && kutu.current) kutu.current.scrollTop = kutu.current.scrollHeight;
+  }, [olaylar, takip, ayrinti]);
+
+  if (!is) return <section className="is-gunlugu"><p className="empty">{hata ?? "Günlük açılıyor…"}</p></section>;
+  const asama = asamaNo(olaylar, is);
+  const gorunen = ayrinti ? olaylar : olaylar.filter((o) => o.tur !== "cikti" && o.tur !== "sonuc");
+  const durdur = async () => {
+    const r = await api.yonetim.claudeIptal(is.id);
+    if (r.ok) setIptalIstendi(true);
+    else setHata(r.hata.error);
+  };
+  const baslangic = olaylar[0]?.zaman ?? is.guncellendi;
+
+  return (
+    <section className="is-gunlugu" aria-label="İşin canlı günlüğü">
+      <header className="is-gunlugu-ust">
+        <div>
+          <strong className={`is-durum is-durum-${is.durum}`}>{IS_DURUMU[is.durum]}</strong>
+          {is.durum === "calisiyor" && <span className="canli-nokta" title="Canlı" />}
+          <span className="soluk"> · {bitti(is.durum) ? sure(is.guncellendi - baslangic) : is.durum === "calisiyor" ? sure(simdi - baslangic) : "sırada"}</span>
+        </div>
+        <p className="is-gunlugu-istek">{isBasligi(is)}</p>
+        <div className="is-gunlugu-dugmeler">
+          {is.prUrl && <a className="pr-baglanti" href={is.prUrl} target="_blank" rel="noreferrer">PR'ı aç</a>}
+          {!bitti(is.durum) && (
+            <button onClick={durdur} disabled={iptalIstendi}>{iptalIstendi ? "Durduruluyor…" : is.durum === "bekliyor" ? "İptal et" : "Durdur"}</button>
+          )}
+          <label><input type="checkbox" checked={ayrinti} onChange={(e) => setAyrinti(e.target.checked)} /> Komut çıktıları</label>
+          <label><input type="checkbox" checked={takip} onChange={(e) => setTakip(e.target.checked)} /> Otomatik kaydır</label>
+        </div>
+        {is.tur !== "test" && (
+          <ol className="asama-cubugu" aria-label="Aşamalar">
+            {ASAMALAR.map((a, i) => (
+              <li key={a.ad} className={i < asama || (i === asama && bitti(is.durum)) ? "tamam" : i === asama ? (is.durum === "hata" ? "hata" : "simdi") : ""}>{a.ad}</li>
+            ))}
+          </ol>
+        )}
+      </header>
+      <div className="terminal" ref={kutu} role="log" aria-live="polite"
+        onScroll={(e) => {
+          const k = e.currentTarget;
+          const altta = k.scrollHeight - k.scrollTop - k.clientHeight < 24;
+          if (altta !== takip) setTakip(altta);
+        }}>
+        {gorunen.length === 0 ? (
+          <p className="terminal-bos">{is.durum === "bekliyor" ? "Ajan işi alınca adımlar burada akacak." : bitti(is.durum) ? "Bu iş için günlük yok (canlı günlükten önce yapılmış olabilir)." : "Bekleniyor…"}</p>
+        ) : gorunen.map((o) => (
+          <div key={o.id} className={`terminal-satir t-${o.tur}`}>
+            <span className="t-saat">{saat(o.zaman)}</span>
+            <span className="t-isaret" aria-hidden="true">{OLAY_ISARETI[o.tur]}</span>
+            <span className="t-metin">{o.metin}</span>
+          </div>
+        ))}
+      </div>
+      {is.sonuc && bitti(is.durum) && (
+        <details open={is.tur === "test" || is.durum === "hata"}>
+          <summary>{is.tur === "test" ? "Ajanın cevabı" : is.durum === "hata" ? "Hata ayrıntısı" : "Claude'un özeti"}</summary>
+          <pre className="code">{is.sonuc}</pre>
+        </details>
+      )}
+      <FormHatasi hata={hata} />
+    </section>
+  );
+}
+
+export function ClaudeIsleri({ secili }: { secili?: string }) {
   const [liste, setListe] = useState<ClaudeIsi[] | null>(null);
   const [hata, setHata] = useState<string | null>(null);
   const yukle = () => api.yonetim.claudeIsleri().then(setListe, (e) => setHata(String(e)));
@@ -264,6 +409,8 @@ export function ClaudeIsleri() {
     if (!r.ok) setHata(r.hata.error);
     void yukle();
   };
+  // Seçili iş yoksa çalışan iş, o da yoksa en son verilen iş açılır
+  const acik = secili ?? (liste?.find((i) => i.durum === "calisiyor") ?? liste?.[0])?.id;
 
   return (
     <div className="panel-genel">
@@ -273,17 +420,19 @@ export function ClaudeIsleri() {
       <section className="ayar-bolum">
         <h3>İşler</h3>
         {!liste ? <p className="empty">Yükleniyor…</p> : liste.length === 0 ? <p className="empty">Henüz iş yok.</p> : (
-          <ul className="claude-isleri">
-            {liste.map((i) => (
-              <li key={i.id}>
-                <div><strong>{IS_DURUMU[i.durum]}</strong> · {zaman(i.olusturuldu)}{i.olusturan ? ` · ${i.olusturan}` : ""}</div>
-                <p>{isBasligi(i)}</p>
-                {i.prUrl && <a href={i.prUrl} target="_blank" rel="noreferrer">{i.prUrl.replace("https://github.com/", "")}</a>}
-                {i.sonuc && (i.tur === "test" ? <pre className="code">{i.sonuc}</pre> : <details><summary>Ajanın notu</summary><pre className="code">{i.sonuc}</pre></details>)}
-                {i.durum === "bekliyor" && <button onClick={() => api.yonetim.claudeIptal(i.id).then(() => yukle())}>İptal et</button>}
-              </li>
-            ))}
-          </ul>
+          <div className="claude-calisma">
+            <ul className="claude-isleri">
+              {liste.map((i) => (
+                <li key={i.id} className={i.id === acik ? "secili" : undefined}>
+                  <a href={href({ page: "yonetim", bolum: "claude", alt: i.id })} aria-current={i.id === acik ? "true" : undefined}>
+                    <span><strong className={`is-durum is-durum-${i.durum}`}>{IS_DURUMU[i.durum]}</strong>{i.durum === "calisiyor" && <span className="canli-nokta" />} · {zaman(i.olusturuldu)}{i.olusturan ? ` · ${i.olusturan}` : ""}</span>
+                    <span className="is-ozet">{isBasligi(i)}</span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+            {acik ? <IsGunlugu key={acik} id={acik} degisti={() => void yukle()} /> : <p className="empty is-gunlugu">Canlı günlüğünü görmek için bir iş seç.</p>}
+          </div>
         )}
       </section>
     </div>

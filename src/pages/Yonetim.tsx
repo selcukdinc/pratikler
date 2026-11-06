@@ -625,7 +625,7 @@ export function Yonetim({ bolum, soru, alt }: { bolum: YonetimBolumu; soru?: str
       </nav>
       {bolum === "genel" && (cati ? <Pratikler /> : <Genel />)}
       {bolum === "pratikler" && <Pratikler />}
-      {bolum === "claude" && <ClaudeIsleri />}
+      {bolum === "claude" && <ClaudeIsleri secili={alt} />}
       {bolum === "sorular" && (soru ? <SoruDuzenle id={soru} /> : <SoruListesi />)}
       {bolum === "oneriler" && (alt ? <OneriDetay id={alt} /> : <OneriListesi />)}
       {bolum === "mesajlar" && <PanelMesajlar id={alt} />}
