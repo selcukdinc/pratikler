@@ -90,6 +90,26 @@ export interface Sinav extends SinavOzeti {
   belge: SinavBelgesi;
 }
 
+// Öğrenci soru havuzu (/havuz/<kod>)
+export interface HavuzOzeti {
+  kod: string;
+  ad: string;
+  sonTarih: string | null;
+  sinavId: string | null;
+  soruSayisi: number;
+  guncellendi: number;
+}
+// Bağlantıyı açan herkese giden bilgi (cevapsız); cozulen yalnızca üyeye
+export interface HavuzBilgisi {
+  kod: string;
+  ad: string;
+  hoca: string | null;
+  sonTarih: string | null;
+  soruSayisi: number;
+  cozulen: number | null;
+}
+export const HAVUZ_SORU_EN_COK = 2000;
+
 // Sınav hazırlarken soru havuzu: cevap ve açıklamayla (yalnızca yetkili kişiye gider)
 export interface SinavSorusu extends Question {
   answer: unknown;

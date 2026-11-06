@@ -9,10 +9,12 @@ import { kutlamaBildir } from "./kutlama";
 import type { TekrarCevabi } from "../../shared/tekrar";
 import type { KatalogPratik, PratikIlerlemesi } from "../../shared/api";
 import { PRATIK_YA_DA_KATALOG } from "./pratik";
-import type { Sinav, SinavBelgesi, SinavOzeti, SinavSorusu } from "../../shared/sinav";
+import type { HavuzBilgisi, HavuzOzeti, Sinav, SinavBelgesi, SinavOzeti, SinavSorusu } from "../../shared/sinav";
+import { havuzBasligi } from "./havuz";
 
 // Canlıda pratik alan adından anlaşılır; yerelde ve workers.dev'de bu başlıkla bildirilir
-const PRATIK_BASLIGI: Record<string, string> = PRATIK_YA_DA_KATALOG ? { "X-Pratik": PRATIK_YA_DA_KATALOG.id } : {};
+// Öğrenci bir soru havuzundaysa X-Havuz başlığı da eklenir (src/lib/havuz.ts)
+const PRATIK_BASLIGI: Record<string, string> = { ...(PRATIK_YA_DA_KATALOG ? { "X-Pratik": PRATIK_YA_DA_KATALOG.id } : {}), ...havuzBasligi() };
 
 async function get<T>(path: string): Promise<T> {
   const res = await fetch(`/api${path}`, { credentials: "same-origin", headers: PRATIK_BASLIGI });
@@ -78,6 +80,12 @@ export const api = {
     yeni: (kopya?: string) => post<{ id: string }>("/sinavlar", kopya ? { kopya } : {}),
     kaydet: (id: string, belge: SinavBelgesi, onceki: number) => post<{ guncellendi: number }>(`/sinavlar/${encodeURIComponent(id)}`, { belge, onceki }, "PUT"),
     sil: (id: string) => post<{ ok: true }>(`/sinavlar/${encodeURIComponent(id)}`, {}, "DELETE"),
+  },
+  havuz: {
+    bilgi: (kod: string) => get<HavuzBilgisi>(`/havuzlar/${encodeURIComponent(kod)}`),
+    liste: () => get<HavuzOzeti[]>("/havuzlar"),
+    ac: (g: { ad: string; sonTarih: string | null; sorular: string[]; sinav?: string }) => post<HavuzOzeti>("/havuzlar", g),
+    sil: (kod: string) => post<{ ok: true }>(`/havuzlar/${encodeURIComponent(kod)}`, {}, "DELETE"),
   },
   uye: {
     oneriler: () => get<Oneri[]>("/uye/oneriler"),

@@ -14,6 +14,17 @@ export interface Yenilik {
 
 export const YENILIKLER: Yenilik[] = [
   {
+    pr: 21,
+    tarih: "2026-11-06",
+    baslik: "Hocanın seçtiği sorularla çalışma: soru havuzu bağlantısı",
+    maddeler: [
+      "Akademisyenler sınav kağıdının **Gruplar ve havuz** sekmesinden öğrencilere \"sınav bu sorulardan gelecek\" bağlantısı açabiliyor: yalnızca sınavdaki sorular ya da sınavın kavramlarındaki bütün sorular.",
+      "Bağlantıyı açan öğrenci **Çalışmaya başla** deyince Soru havuzu, Karma test ve Tekrar yalnızca o sorularla çalışıyor; üstteki şeritten istediği an bütün sorulara dönebiliyor. Cevaplar ve sınav kağıdı görünmüyor.",
+      "Havuz sayfası kaç sorunun doğru çözüldüğünü bir ilerleme çubuğuyla gösteriyor; hesap açmadan da çalışılabiliyor.",
+      "**Sınavlarım** sayfasında açılan havuzlar listeleniyor; bağlantı kopyalanıp havuz kaldırılabiliyor.",
+    ],
+  },
+  {
     pr: 20,
     tarih: "2026-11-06",
     baslik: "Sınavda A, B, C, D grupları, cevap anahtarı ve Word çıktısı",

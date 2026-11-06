@@ -1,3 +1,4 @@
+import { aktifHavuz, havuzdanCik } from "../lib/havuz";
 import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import { LOGO, PRATIK, PRATIK_YA_DA_KATALOG, SITE_ADI } from "../lib/pratik";
 import { DERSLER } from "../dersler";
@@ -218,6 +219,18 @@ function TanitimSeridi({ route }: { route: Route }) {
   );
 }
 
+// Öğrenci bir hocanın soru havuzundaysa her sayfanın üstünde görünür
+function HavuzSeridi() {
+  const h = aktifHavuz();
+  if (!h) return null;
+  return (
+    <div className="havuz-seridi" role="status">
+      <span>Havuz: <a href={href({ page: "havuz", kod: h.kod })}><strong>{h.ad}</strong></a>. Sorular, karma test ve tekrar yalnızca bu havuzdan.</span>
+      <button onClick={() => havuzdanCik()}>Havuzdan çık</button>
+    </div>
+  );
+}
+
 export function Shell({ route, currentWeek, title, status, duyuru, children }: Props) {
   const [dar, setDar] = useState(darOku);
   const [menuAcik, setMenuAcik] = useState(false);
@@ -324,6 +337,7 @@ export function Shell({ route, currentWeek, title, status, duyuru, children }: P
       </aside>
 
       <main className="workspace">
+        <HavuzSeridi />
         {duyuru && (
           <div className="duyuru" role="status">
             {inline(duyuru)}

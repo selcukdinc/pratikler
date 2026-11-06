@@ -10,10 +10,11 @@ import { yonetim } from "./yonetim";
 import { sosyal } from "./sosyal";
 import { tekrar, tekrarIsle } from "./tekrar";
 import { DAKIKA, SAAT, sinirAsildi } from "./sinir";
-import { GUN_MS, SORU_SUTUNLARI, TR_FARK, bugunBasi, currentWeek, gorunurKosul, pratikKosulu, setting, showOriginal, soruyaCevir, type SoruListeSatiri } from "./ortak";
+import { GUN_MS, SORU_SUTUNLARI, TR_FARK, bugunBasi, currentWeek, gorunurKosul, havuzKosulu, pratikKosulu, setting, showOriginal, soruyaCevir, type SoruListeSatiri } from "./ortak";
 import { pid, pratikAyarla, pratikGerekli } from "./pratik";
 import { katalog } from "./katalog";
 import { sinav } from "./sinav";
+import { havuz, havuzAyarla } from "./havuz";
 import { ajan } from "./claude";
 import { IZ_SINIRI, TB_ADI, testbenchUret, type KodBilgisi, type KodSonucu, type Sinama, type Vektor } from "../shared/kod";
 import { MODELLER, degerlendir, vektorUret } from "./modeller";
@@ -37,6 +38,7 @@ app.use("*", async (c, next) => {
   c.set("me", await loadMe(c));
   await next();
 });
+app.use("*", havuzAyarla);
 
 // Çatı uçları (her alan adında çalışır): katalog ve bütün pratiklerdeki ilerleme
 app.route("/katalog", katalog);
@@ -50,7 +52,7 @@ const PRATIGE_OZGU = [
   "/topics", "/questions", "/questions/*", "/sinama/*", "/progress", "/progress/*", "/profil/*", "/tekrar", "/tekrar/*",
   "/uye/oneriler", "/uye/oneriler/*", "/hesap/ayarlar/ders-ilerleme",
   "/yonetim/ozet", "/yonetim/pano", "/yonetim/ayarlar", "/yonetim/konular", "/yonetim/sorular", "/yonetim/sorular/*",
-  "/yonetim/oneriler", "/yonetim/oneriler/*", "/sinavlar", "/sinavlar/*",
+  "/yonetim/oneriler", "/yonetim/oneriler/*", "/sinavlar", "/sinavlar/*", "/havuzlar", "/havuzlar/*",
 ];
 for (const yol of PRATIGE_OZGU) {
   app.use(yol, pratikGerekli);
@@ -61,6 +63,7 @@ app.route("/yonetim", yonetim);
 app.route("/uye", sosyal);
 app.route("/tekrar", tekrar);
 app.route("/sinavlar", sinav);
+app.route("/havuzlar", havuz);
 
 app.get("/me", (c) => {
   const me = c.get("me");
@@ -68,6 +71,15 @@ app.get("/me", (c) => {
 });
 
 app.get("/topics", async (c) => {
+  const kod = c.get("havuz");
+  if (kod) {
+    // Havuzda yalnızca havuz sorularının konuları; ünite sınırı yok
+    const { results } = await c.env.DB.prepare(
+      `SELECT t.id, t.title, t.week FROM topics t WHERE ${pratikKosulu(pid(c), "t")}
+       AND EXISTS (SELECT 1 FROM questions q WHERE q.topic_id = t.id AND ${havuzKosulu(kod)}) ORDER BY t.week, t.sort`,
+    ).all<Topic>();
+    return c.json({ currentWeek: Math.max(1, ...results.map((t) => t.week)), topics: results, announcement: null });
+  }
   const week = await currentWeek(c.env.DB, pid(c));
   const { results } = await c.env.DB.prepare(
     "SELECT id, title, week FROM topics WHERE practice_id = ? AND week <= ? ORDER BY week, sort",
@@ -78,6 +90,18 @@ app.get("/topics", async (c) => {
 });
 
 app.get("/questions", async (c) => {
+  const kod = c.get("havuz");
+  if (kod) {
+    const topic = c.req.query("topic");
+    const stmt = c.env.DB.prepare(
+      `SELECT ${SORU_SUTUNLARI}
+       FROM questions q JOIN topics t ON t.id = q.topic_id LEFT JOIN users u ON u.id = q.suggested_by
+       WHERE ${await gorunurKosul(c.env.DB, pid(c), kod)}${topic ? " AND q.topic_id = ?" : ""}
+       ORDER BY q.week, t.sort, q.difficulty, q.rowid`,
+    );
+    const { results } = await (topic ? stmt.bind(topic) : stmt).all<SoruListeSatiri>();
+    return c.json<Question[]>(results.map(soruyaCevir));
+  }
   const week = await currentWeek(c.env.DB, pid(c));
   const original = await showOriginal(c.env.DB, pid(c));
   const topic = c.req.query("topic");
@@ -95,6 +119,14 @@ type SoruSatiri = { type: QuestionType; source: string; payload: string; answer:
 
 // Sitede görünen (yayında, gizli değil, haftası gelmiş) bir soruyu getirir
 async function yayindakiSoru(c: Context<Env>, id: string): Promise<SoruSatiri | null> {
+  const kod = c.get("havuz");
+  // Havuzdaki soru, ünitesi açılmamış ya da kitap sorusu olsa da cevaplanabilir
+  if (kod) {
+    const h = await c.env.DB.prepare(
+      `SELECT type, source, payload, answer, explanation FROM questions q WHERE q.id = ? AND ${await gorunurKosul(c.env.DB, pid(c), kod)}`,
+    ).bind(id).first<SoruSatiri>();
+    if (h) return h;
+  }
   const q = await c.env.DB.prepare(
     "SELECT type, source, payload, answer, explanation FROM questions WHERE id = ? AND practice_id = ? AND active = 1 AND status = 'published' AND week <= ?",
   )

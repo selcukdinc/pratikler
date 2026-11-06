@@ -30,6 +30,7 @@ export type Route =
   | { page: "mesajlar"; id?: string }
   | { page: "yonetim"; bolum: YonetimBolumu; soru?: string; alt?: string }
   | { page: "sinavlar"; id?: string }
+  | { page: "havuz"; kod: string }
   | { page: "bulunamadi" };
 
 export type AyarSekmesi = "profil" | "hesap" | "bildirimler" | "sil";
@@ -93,6 +94,8 @@ export function parsePath(path: string, search = ""): Route {
       return arg ? { page: "mesajlar", id: parca(arg) } : { page: "mesajlar" };
     case "sinavlar":
       return arg ? { page: "sinavlar", id: parca(arg) } : { page: "sinavlar" };
+    case "havuz":
+      return arg ? { page: "havuz", kod: parca(arg)!.toLowerCase() } : { page: "bulunamadi" };
     case "giris": {
       // Yalnızca site içi bir yola geri dönülür
       const sonra = new URLSearchParams(search).get("sonra") ?? undefined;
@@ -141,6 +144,8 @@ export function href(route: Route): string {
       return route.id ? `/mesajlar/${encodeURIComponent(route.id)}` : "/mesajlar";
     case "sinavlar":
       return route.id ? `/sinavlar/${encodeURIComponent(route.id)}` : "/sinavlar";
+    case "havuz":
+      return `/havuz/${encodeURIComponent(route.kod)}`;
     case "giris":
       return route.sonra ? `/giris?sonra=${encodeURIComponent(route.sonra)}` : "/giris";
     case "bulunamadi":

@@ -14,10 +14,11 @@ export type Izin =
   | "mesaj.cevapla"
   | "bildirim.yonet"
   | "kullanici.yonet"
-  | "sinav.hazirla";
+  | "sinav.hazirla"
+  | "havuz.ac";
 
-// Akademisyen yalnızca sınav hazırlar; yönetim paneline girmez
-const AKADEMISYEN: Izin[] = ["sinav.hazirla"];
+// Akademisyen yalnızca sınav hazırlar ve öğrencilere soru havuzu açar; yönetim paneline girmez
+const AKADEMISYEN: Izin[] = ["sinav.hazirla", "havuz.ac"];
 
 export function yetkisiVar(me: Me | null, izin: Izin): boolean {
   if (me?.kind !== "member") return false;

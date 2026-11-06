@@ -8,7 +8,8 @@ import { useOturum } from "../lib/oturum";
 import { PRATIK } from "../lib/pratik";
 import { FormHatasi } from "../components/Form";
 import { Iskelet } from "../components/Iskelet";
-import type { SinavOzeti } from "../../shared/sinav";
+import { havuzBaglantisi } from "../lib/havuz";
+import type { HavuzOzeti, SinavOzeti } from "../../shared/sinav";
 
 const tarih = (ms: number) => new Date(ms).toLocaleString("tr-TR", { day: "numeric", month: "long", hour: "2-digit", minute: "2-digit" });
 
@@ -19,9 +20,13 @@ export function Sinavlar() {
   const [liste, setListe] = useState<SinavOzeti[] | null>(null);
   const [hata, setHata] = useState<string | null>(null);
   const [mesgul, setMesgul] = useState(false);
+  const [havuzlar, setHavuzlar] = useState<HavuzOzeti[]>([]);
   const yetkili = sinavYetkisi(me?.role);
 
-  const yukle = () => api.sinav.liste().then(setListe, (e) => setHata(String(e)));
+  const yukle = () => {
+    api.havuz.liste().then(setHavuzlar, () => setHavuzlar([]));
+    return api.sinav.liste().then(setListe, (e) => setHata(String(e)));
+  };
   useEffect(() => {
     if (yetkili) void yukle();
   }, [yetkili]);
@@ -80,6 +85,30 @@ export function Sinavlar() {
             </li>
           ))}
         </ul>
+      )}
+      {havuzlar.length > 0 && (
+        <section className="havuz-listesi">
+          <h3>Öğrencilere açtığın soru havuzları</h3>
+          <ul className="sinav-listesi">
+            {havuzlar.map((h) => (
+              <li key={h.kod}>
+                <a href={href({ page: "havuz", kod: h.kod })}>
+                  <strong>{h.ad}</strong>
+                  <span className="soluk">{h.soruSayisi} soru · {havuzBaglantisi(h.kod)}</span>
+                </a>
+                <span className="sinav-listesi-dugmeler">
+                  <button onClick={() => void navigator.clipboard?.writeText(havuzBaglantisi(h.kod))}>Bağlantıyı kopyala</button>
+                  <button onClick={async () => {
+                    if (!confirm(`"${h.ad}" havuzu kaldırılsın mı? Bağlantı artık açılmaz.`)) return;
+                    const r = await api.havuz.sil(h.kod);
+                    if (!r.ok) return setHata(r.hata.error);
+                    void yukle();
+                  }}>Kaldır</button>
+                </span>
+              </li>
+            ))}
+          </ul>
+        </section>
       )}
     </div>
   );

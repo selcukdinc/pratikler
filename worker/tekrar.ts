@@ -99,7 +99,7 @@ tekrar.get("/", async (c) => {
   const db = c.env.DB;
   const simdi = Date.now();
   const bugun = bugunBasi();
-  const gorunur = await gorunurKosul(db, pid(c));
+  const gorunur = await gorunurKosul(db, pid(c), c.get("havuz"));
   const bu = pratikKosulu(pid(c));
   const yapilan = (await db.prepare("SELECT COUNT(*) AS n FROM tekrarlar WHERE user_id = ? AND son_tekrar >= ?").bind(me.id, bugun)
     .first<{ n: number }>())?.n ?? 0;
@@ -153,7 +153,7 @@ tekrar.get("/sayi", async (c) => {
   const r = await db.prepare(
     `SELECT (SELECT COUNT(*) FROM tekrarlar y WHERE y.user_id = ?1 AND y.son_tekrar >= ?3) AS yapilan,
             (SELECT COUNT(*) FROM tekrarlar t JOIN questions q ON q.id = t.question_id
-             WHERE t.user_id = ?1 AND t.kutu <= ${SON_KUTU} AND t.sonraki <= ?2 AND ${await gorunurKosul(db, pid(c))}) AS bekleyen`,
+             WHERE t.user_id = ?1 AND t.kutu <= ${SON_KUTU} AND t.sonraki <= ?2 AND ${await gorunurKosul(db, pid(c), c.get("havuz"))}) AS bekleyen`,
   ).bind(me.id, Date.now(), bugunBasi()).first<{ yapilan: number; bekleyen: number }>();
   const kalan = kalanHesapla(secenekler(c).gunluk, r?.yapilan ?? 0, 0);
   return c.json({ n: Math.min(r?.bekleyen ?? 0, kalan) });

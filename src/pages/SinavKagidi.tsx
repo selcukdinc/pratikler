@@ -9,13 +9,14 @@ import { api } from "../lib/api";
 import { useOturum } from "../lib/oturum";
 import { PRATIK, uniteYazi } from "../lib/pratik";
 import { href } from "../lib/router";
+import { havuzBaglantisi } from "../lib/havuz";
 import { Markdown } from "../components/Markdown";
 import { FormHatasi } from "../components/Form";
 import { Iskelet } from "../components/Iskelet";
 import { sinavYetkisi } from "./Sinavlar";
 import {
   GRUP_ADLARI, SIK_HARFLERI, cevapYazisi, grupKagidi, kagitMm, sayfala, toplamPuan, varsayilanGruplar,
-  type GrupAyari, type GrupOgesi, type GrupSorusu, type SinavAyari, type SinavBelgesi, type SinavOgesi, type SinavSorusu,
+  type GrupAyari, type GrupOgesi, type GrupSorusu, type HavuzOzeti, type SinavAyari, type SinavBelgesi, type SinavOgesi, type SinavSorusu,
 } from "../../shared/sinav";
 
 // CSS'te 1 mm = 96 / 25.4 px
@@ -432,7 +433,7 @@ function GrupAyarlari({ ayar, degistir, gruplar }: { ayar: GrupAyari; degistir: 
   // Benzer kipte yerine başka soru bulunamayan sorular (B grubuna bakılır)
   const ayni = ayar.kip === "benzer" && gruplar[1] ? gruplar[1].filter((o) => o.tur === "soru" && o.duzenli).length : 0;
   return (
-    <div className="kagit-ayarlari">
+    <>
       <fieldset>
         <legend>Gruplar</legend>
         <label>Grup sayısı
@@ -459,7 +460,83 @@ function GrupAyarlari({ ayar, degistir, gruplar }: { ayar: GrupAyari; degistir: 
         <p className="soluk ayar-aciklama">A grubu kağıttaki soru sırasıyla basılır. Ortak metinler yerinde kalır, aralarındaki sorular kendi içinde karışır. Başka şıklara atıf yapan sorularda şıklar karışmaz.</p>
         <button type="button" onClick={() => degistir({ tohum: (ayar.tohum % 1_000_000) + 1 })} disabled={ayar.sayi === 1 && ayar.sikKaristir === false}>Yeniden karıştır</button>
       </fieldset>
-    </div>
+    </>
+  );
+}
+
+// ---- Öğrencilere soru havuzu ----
+function HavuzPaneli({ sinavId, belge, gruplar, sorular }: { sinavId: string; belge: SinavBelgesi; gruplar: GrupOgesi[][]; sorular: SinavSorusu[] }) {
+  const [havuz, setHavuz] = useState<HavuzOzeti | null | undefined>(undefined);
+  const [ad, setAd] = useState(belge.ayar.sinavAdi || belge.ad);
+  const [sonTarih, setSonTarih] = useState(belge.ayar.tarih);
+  const [kapsam, setKapsam] = useState<"sinav" | "kavram">("sinav");
+  const [mesgul, setMesgul] = useState(false);
+  const [hata, setHata] = useState<string | null>(null);
+  const [kopyalandi, setKopyalandi] = useState(false);
+  useEffect(() => {
+    api.havuz.liste().then((l) => {
+      const h = l.find((x) => x.sinavId === sinavId) ?? null;
+      setHavuz(h);
+      if (h) {
+        setAd(h.ad);
+        setSonTarih(h.sonTarih ?? "");
+      }
+    }, () => setHavuz(null));
+  }, [sinavId]);
+
+  // Sınavdaki bütün gruplardaki sorular; istenirse aynı kavramlardaki bütün sorular
+  const sinavdakiler = new Set(gruplar.flat().flatMap((o) => (o.tur === "soru" ? [o.soru.id] : [])));
+  const kavramlar = new Set(sorular.filter((q) => sinavdakiler.has(q.id)).map((q) => q.kavram ?? `konu:${q.topicId}`));
+  const genis = sorular.filter((q) => sinavdakiler.has(q.id) || kavramlar.has(q.kavram ?? `konu:${q.topicId}`)).map((q) => q.id);
+  const secilen = kapsam === "sinav" ? [...sinavdakiler] : genis;
+
+  const ac = async () => {
+    setMesgul(true);
+    setHata(null);
+    const r = await api.havuz.ac({ ad, sonTarih: sonTarih || null, sorular: secilen, sinav: sinavId });
+    setMesgul(false);
+    if (!r.ok) return setHata(r.hata.error);
+    setHavuz(r.data);
+  };
+  const kaldir = async () => {
+    if (!havuz || !confirm("Havuz kaldırılsın mı? Bağlantı artık açılmaz.")) return;
+    const r = await api.havuz.sil(havuz.kod);
+    if (!r.ok) return setHata(r.hata.error);
+    setHavuz(null);
+  };
+  const baglanti = havuz ? havuzBaglantisi(havuz.kod) : "";
+  return (
+    <fieldset className="havuz-paneli">
+      <legend>Öğrencilere soru havuzu</legend>
+      <p className="soluk ayar-aciklama" style={{ marginLeft: 0 }}>
+        Öğrencilere "sınav bu sorulardan gelecek" diye bir bağlantı ver. Bağlantıyı açan öğrenci sitede yalnızca bu soruları çözer; cevaplar ve kağıdın kendisi görünmez.
+      </p>
+      <label>Havuzun adı<input value={ad} maxLength={120} onChange={(e) => setAd(e.target.value)} /></label>
+      <label>Sınav tarihi (isteğe bağlı)<input type="date" value={sonTarih} onChange={(e) => setSonTarih(e.target.value)} /></label>
+      <label className="ayar-kutu"><input type="radio" name="havuz-kapsam" checked={kapsam === "sinav"} onChange={() => setKapsam("sinav")} />
+        Sınavdaki sorular ({sinavdakiler.size})
+      </label>
+      <label className="ayar-kutu"><input type="radio" name="havuz-kapsam" checked={kapsam === "kavram"} onChange={() => setKapsam("kavram")} />
+        Sınavın kavramlarındaki bütün sorular ({genis.length})
+      </label>
+      <button type="button" className="primary" onClick={ac} disabled={mesgul || !ad.trim() || secilen.length === 0 || havuz === undefined}>
+        {havuz ? "Havuzu güncelle" : "Havuzu aç"}
+      </button>
+      {hata && <p className="ayar-uyari">{hata}</p>}
+      {havuz && (
+        <>
+          <span className="soluk" style={{ fontSize: 12 }}>{havuz.soruSayisi} soru · bağlantı:</span>
+          <div className="havuz-baglanti">
+            <input readOnly value={baglanti} onFocus={(e) => e.currentTarget.select()} aria-label="Havuz bağlantısı" />
+            <button type="button" onClick={() => void navigator.clipboard?.writeText(baglanti).then(() => {
+              setKopyalandi(true);
+              setTimeout(() => setKopyalandi(false), 1500);
+            })}>{kopyalandi ? "Kopyalandı" : "Kopyala"}</button>
+          </div>
+          <button type="button" onClick={kaldir}>Havuzu kaldır</button>
+        </>
+      )}
+    </fieldset>
   );
 }
 
@@ -625,7 +702,7 @@ export function SinavKagidi({ id }: { id: string }) {
           <div className="tabs" role="tablist">
             <button role="tab" aria-selected={sekme === "sorular"} className={sekme === "sorular" ? "active" : ""} onClick={() => setSekme("sorular")}>Sorular</button>
             <button role="tab" aria-selected={sekme === "kagit"} className={sekme === "kagit" ? "active" : ""} onClick={() => setSekme("kagit")}>Kağıt ve başlık</button>
-            <button role="tab" aria-selected={sekme === "gruplar"} className={sekme === "gruplar" ? "active" : ""} onClick={() => setSekme("gruplar")}>Gruplar</button>
+            <button role="tab" aria-selected={sekme === "gruplar"} className={sekme === "gruplar" ? "active" : ""} onClick={() => setSekme("gruplar")}>Gruplar ve havuz</button>
           </div>
           {sekme === "sorular" ? (
             <>
@@ -635,7 +712,10 @@ export function SinavKagidi({ id }: { id: string }) {
           ) : sekme === "kagit" ? (
             <KagitAyarlari ayar={belge.ayar} degistir={ayarDegistir} puanDagit={puanDagit} />
           ) : (
-            <GrupAyarlari ayar={grupAyari} degistir={gruplariDegistir} gruplar={gruplar} />
+            <div className="kagit-ayarlari">
+              <GrupAyarlari ayar={grupAyari} degistir={gruplariDegistir} gruplar={gruplar} />
+              <HavuzPaneli sinavId={id} belge={belge} gruplar={gruplar} sorular={sorular} />
+            </div>
           )}
         </aside>
         <div className="sinav-onizleme-kap">

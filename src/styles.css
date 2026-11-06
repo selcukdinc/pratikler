@@ -1809,3 +1809,20 @@ polygon.g-ok-7 { fill: var(--ok-7); stroke: none; }
 .kagit-anahtar th, .kagit-anahtar td { border: 1px solid #111; padding: 1mm 4mm; text-align: center; }
 @media (max-width: 800px) { .sinav-onizleme-kap { min-height: 70vh; } }
 .kagit-baslik:has(.kagit-grup) { padding-inline: 17mm; }
+
+/* Öğrenci soru havuzu */
+.havuz-seridi { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; padding: 5px 12px; background: var(--tag-ges-bg); color: var(--tag-ges-text); border-bottom: 1px solid var(--border); }
+.havuz-seridi a { color: inherit; }
+.havuz-seridi button { padding: 2px 10px; }
+.havuz-giris { max-width: 640px; padding: 16px; }
+.havuz-giris h2 { margin: 2px 0 8px; }
+.havuz-giris > p.soluk { margin: 0; }
+.havuz-ilerleme { display: flex; flex-direction: column; gap: 4px; margin: 10px 0; }
+.havuz-cubuk { height: 10px; background: var(--border-soft); border: 1px solid var(--border); border-radius: 5px; overflow: hidden; }
+.havuz-cubuk span { display: block; height: 100%; background: var(--green); }
+.havuz-dugmeler { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+.havuz-paneli { display: flex; flex-direction: column; gap: 6px; }
+.havuz-baglanti { display: flex; gap: 6px; align-items: center; }
+.havuz-baglanti input { flex: 1; min-width: 0; font-family: ui-monospace, monospace; font-size: 12px; }
+.havuz-listesi { margin-top: 18px; }
+.havuz-listesi h3 { margin: 0 0 6px; }

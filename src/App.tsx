@@ -25,6 +25,7 @@ const MatStudio = lazy(() => import("./pages/MatStudio").then((m) => ({ default:
 const Simulasyon = lazy(() => import("./pages/Simulasyon").then((m) => ({ default: m.Sandbox })));
 // Sınav hazırlama yalnızca akademisyen ve yöneticiye açılır; ayrı parça olarak yüklenir
 const Sinavlar = lazy(() => import("./pages/Sinavlar").then((m) => ({ default: m.Sinavlar })));
+const HavuzGiris = lazy(() => import("./pages/HavuzGiris").then((m) => ({ default: m.HavuzGiris })));
 const SinavKagidi = lazy(() => import("./pages/SinavKagidi").then((m) => ({ default: m.SinavKagidi })));
 import { Progress } from "./pages/Progress";
 import { Tekrar } from "./pages/Tekrar";
@@ -66,6 +67,7 @@ function baslik(route: Route, topicTitle?: string): string {
     case "mesajlar": return "MESAJLAR - Yöneticiyle yazışmalar";
     case "yonetim": return "YÖNETİM";
     case "sinavlar": return route.id ? "SINAV HAZIRLA - Kağıt" : "SINAV HAZIRLA - Sınavlarım";
+    case "havuz": return "SORU HAVUZU - Hocanın seçtiği sorular";
     case "bulunamadi": return "SAYFA BULUNAMADI";
   }
 }
@@ -197,6 +199,11 @@ function PratikApp() {
           {route.page === "sinavlar" && (
             <Suspense fallback={<p className="empty">Yükleniyor…</p>}>
               {route.id ? <SinavKagidi id={route.id} /> : <Sinavlar />}
+            </Suspense>
+          )}
+          {route.page === "havuz" && (
+            <Suspense fallback={<p className="empty">Yükleniyor…</p>}>
+              <HavuzGiris kod={route.kod} />
             </Suspense>
           )}
           {route.page === "bulunamadi" && (
