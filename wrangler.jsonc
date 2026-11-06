@@ -62,6 +62,10 @@
 		{
 			"pattern": "girisimcilik.selcukdinc.dev",
 			"custom_domain": true
+		},
+		{
+			"pattern": "isingilizcesi.selcukdinc.dev",
+			"custom_domain": true
 		}
 	],
 	"observability": {
