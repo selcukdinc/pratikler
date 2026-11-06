@@ -13,8 +13,14 @@ export type Izin =
   | "oneri.yonet"
   | "mesaj.cevapla"
   | "bildirim.yonet"
-  | "kullanici.yonet";
+  | "kullanici.yonet"
+  | "sinav.hazirla"
+  | "havuz.ac";
 
-export function yetkisiVar(me: Me | null, _izin: Izin): boolean {
-  return me?.kind === "member" && me.role === "admin";
+// Akademisyen yalnızca sınav hazırlar ve öğrencilere soru havuzu açar; yönetim paneline girmez
+const AKADEMISYEN: Izin[] = ["sinav.hazirla", "havuz.ac"];
+
+export function yetkisiVar(me: Me | null, izin: Izin): boolean {
+  if (me?.kind !== "member") return false;
+  return me.role === "admin" || (me.role === "akademisyen" && AKADEMISYEN.includes(izin));
 }

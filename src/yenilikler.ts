@@ -14,6 +14,42 @@ export interface Yenilik {
 
 export const YENILIKLER: Yenilik[] = [
   {
+    pr: 21,
+    tarih: "2026-11-06",
+    baslik: "Soru havuzu bağlantısı, ortak tema ve Pratikler düğmesi",
+    maddeler: [
+      "Akademisyenler sınav kağıdının **Gruplar ve havuz** sekmesinden öğrencilere \"sınav bu sorulardan gelecek\" bağlantısı açabiliyor: yalnızca sınavdaki sorular ya da sınavın kavramlarındaki bütün sorular.",
+      "Bağlantıyı açan öğrenci **Çalışmaya başla** deyince Soru havuzu, Karma test ve Tekrar yalnızca o sorularla çalışıyor; üstteki şeritten istediği an bütün sorulara dönebiliyor. Cevaplar ve sınav kağıdı görünmüyor.",
+      "Havuz sayfası kaç sorunun doğru çözüldüğünü bir ilerleme çubuğuyla gösteriyor; hesap açmadan da çalışılabiliyor.",
+      "**Sınavlarım** sayfasında açılan havuzlar listeleniyor; bağlantı kopyalanıp havuz kaldırılabiliyor.",
+      "Tema artık bütün pratiklerde ortak: hangi pratikte seçersen seç, son seçtiğin tema diğer pratiklerde ve Pratikler ana sayfasında da geçerli.",
+      "Üst çubuktaki **Pratikler** düğmesi ve menüdeki **Bütün pratikler** bağlantısıyla herhangi bir pratikten tek tıkla pratikler.selcukdinc.dev'e geçiliyor.",
+    ],
+  },
+  {
+    pr: 20,
+    tarih: "2026-11-06",
+    baslik: "Sınavda A, B, C, D grupları, cevap anahtarı ve Word çıktısı",
+    maddeler: [
+      "Sınav kağıdının **Gruplar** sekmesinden 2, 3 ya da 4 grup seçiliyor. **Aynı sorular, karışık** kipinde her grupta soruların sırası ve şıkların yeri değişiyor; **Benzer ama farklı sorular** kipinde B, C ve D gruplarına aynı kavramdan başka sorular geliyor.",
+      "Ortak metinler (\"1-5. soruları parçaya göre cevaplayınız\") yerinde kalıyor, sorular kendi bölümünde karışıyor; başka şıklara atıf yapan soruların şıklarına dokunulmuyor.",
+      "Şıklar A grubunda da karışıyor, böylece doğru cevaplar aynı harfte toplanmıyor. **Yeniden karıştır** ile yeni bir dağılım alınıyor.",
+      "Önizlemede her grup, **Cevap anahtarı** ve **Hepsi** ayrı ayrı görülüp PDF olarak basılabiliyor.",
+      "**Word indir** bütün grupları ve cevap anahtarını tek bir .docx dosyasında veriyor; formüller düz metin olarak yazılıyor, şekilli sorularda PDF önerilir.",
+    ],
+  },
+  {
+    pr: 19,
+    tarih: "2026-11-06",
+    baslik: "Akademisyenler için sınav hazırlama",
+    maddeler: [
+      "Yeni **Akademisyen** hesabıyla hesap menüsündeki **Sınav hazırla** bölümü açılıyor: sitedeki sorulardan ünite, tür ve aramayla seçip kendi sınav kağıdını hazırlıyorsun.",
+      "Kağıt gerçek boyutunda canlı görünüyor; başlık, soru metni ve şıklar kağıdın üzerinde tıklanıp yerinde düzenleniyor, sorular sıralanıp puanlanıyor, ortak metin ve yönerge eklenebiliyor.",
+      "A4 ya da A3, dikey ya da yatay kağıt, tek, iki ya da üç sütun, yazı boyutu, kenar boşluğu ve 4 ya da 5 şık seçilebiliyor; üniversite, fakülte ve ders bilgileri bir sonraki sınava kendiliğinden geliyor, tarih ve süre ayarlanıyor.",
+      "Değişiklikler kendiliğinden kaydediliyor; başka bir cihazdan girince sınava kaldığın yerden devam ediyorsun. **PDF indir** kağıdı önizlemede gördüğün gibi basıyor.",
+    ],
+  },
+  {
     pr: 17,
     tarih: "2026-11-06",
     baslik: "Yönetim panelinde Claude işleri canlı izleniyor",
@@ -22,7 +58,8 @@ export const YENILIKLER: Yenilik[] = [
       "Hazırlık, Claude, Denetim ve PR aşamaları bir çubukta görünüyor; iş bitince süre ve maliyet de yazılıyor.",
       "Çalışan bir iş panelden **Durdur** ile birkaç saniye içinde durdurulabiliyor.",
     ],
-  },  {
+  },
+  {
     pr: 16,
     tarih: "2026-11-06",
     baslik: "Yeni tema: Kahve",
@@ -30,7 +67,8 @@ export const YENILIKLER: Yenilik[] = [
       "Aydınlık ve Karanlık temanın yanına sıcak krem ve kahve tonlarında **Kahve** teması geldi; uzun çalışmalarda gözü yormayan yumuşak bir görünüm.",
       "Tema artık üst çubuktaki listeden seçiliyor: Sistem, Aydınlık, Karanlık ya da Kahve. Seçimin bu cihazda hatırlanır.",
     ],
-  },  {
+  },
+  {
     pr: 15,
     tarih: "2026-11-06",
     baslik: "Pratikler'in yeni logosu, kartlarda pratik logoları ve daha akıcı yükleme",
@@ -39,7 +77,8 @@ export const YENILIKLER: Yenilik[] = [
       "Ana sayfadaki her pratik kartında o pratiğin logosu var, aradığını bir bakışta bulursun. Tıp Elektroniği'nin de artık kendi logosu var.",
       "Sorular, karma test, tekrar ve ilerleme sayfası yüklenirken düz \"Yükleniyor…\" yazısı yerine sayfanın taslağı görünüyor.",
     ],
-  },  {
+  },
+  {
     pr: 14,
     tarih: "2026-11-06",
     baslik: "Telefonda daha derli toplu bir üst çubuk",

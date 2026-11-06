@@ -32,7 +32,8 @@ const MAX_AGE_S = 60 * 60 * 24 * 180;
 export type Env = {
   Bindings: EpostaEnv & AccessEnv & { DB: D1Database; PBKDF2_ITER?: string; COOKIE_DOMAIN?: string; AJAN_TOKEN?: string };
   // pratik: isteğin geldiği pratik (worker/pratik.ts); çatı sitesinde null
-  Variables: { me: Me | null; pratik: PratikMeta | null };
+  // havuz: X-Havuz başlığıyla seçilmiş öğrenci soru havuzunun kodu (worker/havuz.ts)
+  Variables: { me: Me | null; pratik: PratikMeta | null; havuz: string | null };
 };
 
 export async function sha256(text: string): Promise<string> {

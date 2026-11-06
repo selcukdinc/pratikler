@@ -45,9 +45,10 @@ export function Gizlilik() {
 
       <h3>Çerezler ve takip</h3>
       <p>
-        Sitede reklam, analitik ya da üçüncü taraf takip çerezi yoktur. Kullanılan tek çerez oturum çerezidir ve
-        sitenin çalışması için zorunludur. Tema tercihin ve karma test ayarların yalnızca
-        senin tarayıcında (localStorage) durur, sunucuya gönderilmez. Günlük tekrar sayın misafirken tarayıcında,
+        Sitede reklam, analitik ya da üçüncü taraf takip çerezi yoktur. Oturum çerezi
+        sitenin çalışması için zorunludur. Tema tercihin, bütün pratiklerde aynı görünsün diye "tema" adlı bir
+        tercih çerezinde de durur (yalnızca seçtiğin temanın adı); karma test ayarların yalnızca senin
+        tarayıcında (localStorage) durur. Günlük tekrar sayın misafirken tarayıcında,
         giriş yapmışken hesabında tutulur.
       </p>
 

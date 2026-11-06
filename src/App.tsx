@@ -23,6 +23,10 @@ import { dersBul } from "./dersler";
 const MatStudio = lazy(() => import("./pages/MatStudio").then((m) => ({ default: m.Sandbox })));
 // VHDL simülasyon alanı (FPGA) da öyle: editör ve NVC yalnızca açılınca indirilir
 const Simulasyon = lazy(() => import("./pages/Simulasyon").then((m) => ({ default: m.Sandbox })));
+// Sınav hazırlama yalnızca akademisyen ve yöneticiye açılır; ayrı parça olarak yüklenir
+const Sinavlar = lazy(() => import("./pages/Sinavlar").then((m) => ({ default: m.Sinavlar })));
+const HavuzGiris = lazy(() => import("./pages/HavuzGiris").then((m) => ({ default: m.HavuzGiris })));
+const SinavKagidi = lazy(() => import("./pages/SinavKagidi").then((m) => ({ default: m.SinavKagidi })));
 import { Progress } from "./pages/Progress";
 import { Tekrar } from "./pages/Tekrar";
 import { About } from "./pages/About";
@@ -62,6 +66,8 @@ function baslik(route: Route, topicTitle?: string): string {
     case "oner": return "SORU ÖNER";
     case "mesajlar": return "MESAJLAR - Yöneticiyle yazışmalar";
     case "yonetim": return "YÖNETİM";
+    case "sinavlar": return route.id ? "SINAV HAZIRLA - Kağıt" : "SINAV HAZIRLA - Sınavlarım";
+    case "havuz": return "SORU HAVUZU - Hocanın seçtiği sorular";
     case "bulunamadi": return "SAYFA BULUNAMADI";
   }
 }
@@ -190,6 +196,16 @@ function PratikApp() {
           {route.page === "oner" && <Oner />}
           {route.page === "mesajlar" && <Mesajlar id={route.id} />}
           {route.page === "yonetim" && <Yonetim bolum={route.bolum} soru={route.soru} alt={route.alt} />}
+          {route.page === "sinavlar" && (
+            <Suspense fallback={<p className="empty">Yükleniyor…</p>}>
+              {route.id ? <SinavKagidi id={route.id} /> : <Sinavlar />}
+            </Suspense>
+          )}
+          {route.page === "havuz" && (
+            <Suspense fallback={<p className="empty">Yükleniyor…</p>}>
+              <HavuzGiris kod={route.kod} />
+            </Suspense>
+          )}
           {route.page === "bulunamadi" && (
             <p className="empty">
               Bu adreste bir sayfa yok. <a href="/sorular">Sorulara git</a>

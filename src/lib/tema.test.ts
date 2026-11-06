@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import { TEMA_ADI, TEMA_SIRASI, temaDegeri } from "./tema";
+import { TEMA_ADI, TEMA_SIRASI, cerezAlani, cerezdenTema, temaDegeri } from "./tema";
 
 const css = readFileSync(new URL("../styles.css", import.meta.url), "utf8");
 const html = readFileSync(new URL("../../index.html", import.meta.url), "utf8");
@@ -51,4 +51,19 @@ describe("temalar", () => {
       }
     });
   }
+});
+
+describe("ortak tema çerezi", () => {
+  it("bütün pratiklerde aynı alan, yerelde alansız", () => {
+    expect(cerezAlani("tipelektronigi.selcukdinc.dev")).toBe(".selcukdinc.dev");
+    expect(cerezAlani("pratikler.selcukdinc.dev")).toBe(".selcukdinc.dev");
+    expect(cerezAlani("localhost")).toBeNull();
+    expect(cerezAlani("selcukdinc.dev.example.com")).toBeNull();
+  });
+  it("çerezden tema okunur, geçersiz değer yok sayılır", () => {
+    expect(cerezdenTema("pratikler_oturum=abc; tema=kahve")).toBe("kahve");
+    expect(cerezdenTema("tema=sistem")).toBe("sistem");
+    expect(cerezdenTema("eskitema=koyu; tema=mor")).toBeNull();
+    expect(cerezdenTema("")).toBeNull();
+  });
 });

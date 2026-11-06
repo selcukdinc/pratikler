@@ -1,5 +1,6 @@
+import { aktifHavuz, havuzdanCik } from "../lib/havuz";
 import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
-import { LOGO, PRATIK, PRATIK_YA_DA_KATALOG, SITE_ADI } from "../lib/pratik";
+import { LOGO, PRATIK, PRATIK_YA_DA_KATALOG, SITE_ADI, catiBaglantisi } from "../lib/pratik";
 import { DERSLER } from "../dersler";
 import { DENEYLER } from "../lab/deneyler";
 import { SINAVLAR } from "../cikmis/sinavlar";
@@ -181,6 +182,7 @@ export function HesapAlani({ route }: { route: Route }) {
         <a role="menuitem" href="/mesajlar">Mesajlarım {rozet(okunmamis.mesaj)}</a>
         {PRATIK_YA_DA_KATALOG && <a role="menuitem" href="/oner">Soru öner {rozet(okunmamis.oneri)}</a>}
         <a role="menuitem" href="/ayarlar">Ayarlar</a>
+        {PRATIK_YA_DA_KATALOG && (me.role === "admin" || me.role === "akademisyen") && <a role="menuitem" href="/sinavlar">Sınav hazırla</a>}
         {me.role === "admin" && <a role="menuitem" href="/yonetim" data-tam-sayfa>Yönetim paneli</a>}
         <button role="menuitem" onClick={cikis}>Çıkış yap</button>
       </div>
@@ -213,6 +215,18 @@ function TanitimSeridi({ route }: { route: Route }) {
       <span>Siteye yeni misin? Neler yapabileceğini iki dakikada gör:</span>
       <a href={href({ page: "tanitim" })} onClick={kapat}>Nasıl kullanılır</a>
       <button className="icon" aria-label="Kapat" onClick={kapat}>×</button>
+    </div>
+  );
+}
+
+// Öğrenci bir hocanın soru havuzundaysa her sayfanın üstünde görünür
+function HavuzSeridi() {
+  const h = aktifHavuz();
+  if (!h) return null;
+  return (
+    <div className="havuz-seridi" role="status">
+      <span>Havuz: <a href={href({ page: "havuz", kod: h.kod })}><strong>{h.ad}</strong></a>. Sorular, karma test ve tekrar yalnızca bu havuzdan.</span>
+      <button onClick={() => havuzdanCik()}>Havuzdan çık</button>
     </div>
   );
 }
@@ -265,6 +279,12 @@ export function Shell({ route, currentWeek, title, status, duyuru, children }: P
         <button className="menu-dugmesi icon" onClick={() => setMenuAcik(!menuAcik)} aria-expanded={menuAcik} aria-controls="ana-menu" aria-label="Menü">
           <Ikon ad="menu" boyut={20} />
         </button>
+        {PRATIK_YA_DA_KATALOG && (
+          <a className="cati-dugmesi" href={catiBaglantisi()} title="Bütün pratikler (pratikler.selcukdinc.dev)" aria-label="Bütün pratikler">
+            <img src="/logolar/pratikler.svg" alt="" width={18} height={18} />
+            <span>Pratikler</span>
+          </a>
+        )}
         <a className="brand" href="/pratik">
           <img src={LOGO} alt="" width={18} height={18} />
           <span className="brand-ad">{SITE_ADI}</span>
@@ -288,6 +308,12 @@ export function Shell({ route, currentWeek, title, status, duyuru, children }: P
           </button>
         </div>
 
+        {PRATIK_YA_DA_KATALOG && (
+          <a className="nav-link" href={catiBaglantisi()} title="Bütün pratikler">
+            <img className="nav-cati-logo" src="/logolar/pratikler.svg" alt="" width={16} height={16} />
+            <span className="nav-ad">Bütün pratikler</span>
+          </a>
+        )}
         <div className="nav-section">PRATİK</div>
         {DENEYLER.length > 0 && <NavLink to={{ page: "lab" }} current={route} ikon="lab">Sanal Lab</NavLink>}
         {OZELLIKLER.matstudio && <NavLink to={{ page: "matstudio" }} current={route} ikon="matstudio">MatStudio</NavLink>}
@@ -323,6 +349,7 @@ export function Shell({ route, currentWeek, title, status, duyuru, children }: P
       </aside>
 
       <main className="workspace">
+        <HavuzSeridi />
         {duyuru && (
           <div className="duyuru" role="status">
             {inline(duyuru)}

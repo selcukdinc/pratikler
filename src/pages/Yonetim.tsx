@@ -359,6 +359,7 @@ function Kullanicilar() {
                     <select value={u.role} disabled={u.id === me?.id} onChange={(e) => rol(u, e.target.value)} aria-label={`${u.username} rolü`}>
                       <option value="user">Üye</option>
                       <option value="admin">Yönetici</option>
+                      <option value="akademisyen">Akademisyen</option>
                     </select>
                   </td>
                   <td className="islemler">

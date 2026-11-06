@@ -30,9 +30,20 @@ export function pratikKosulu(pratik: string, tablo = "q"): string {
   return `${tablo}.practice_id = '${pratik}'`;
 }
 
-// Sitede görünen soruların koşulu; sorguda questions tablosu q diye anılmalı
-export async function gorunurKosul(db: D1Database, pratik: string): Promise<string> {
+// Öğrenci soru havuzunun kodu (worker/havuz.ts); SQL'e gömüldüğü için biçimi sınırlıdır
+export const HAVUZ_KODU = /^[a-z0-9]{6,12}$/;
+export function havuzKosulu(kod: string, tablo = "q"): string {
+  if (!HAVUZ_KODU.test(kod)) throw new Error(`geçersiz havuz kodu: ${kod}`);
+  return `${tablo}.id IN (SELECT question_id FROM havuz_sorulari WHERE kod = '${kod}')`;
+}
+
+// Sitede görünen soruların koşulu; sorguda questions tablosu q diye anılmalı.
+// Havuz açıksa yalnızca havuzdaki sorular görünür; hocanın seçtiği soru, ünitesi
+// açılmamış ya da yedekte olsa da görünür.
+export async function gorunurKosul(db: D1Database, pratik: string, havuz?: string | null): Promise<string> {
   const original = await showOriginal(db, pratik);
+  // Kitap soruları sitede gizliyse havuzda da gizlidir
+  if (havuz) return `${pratikKosulu(pratik)} AND q.active = 1 AND q.status = 'published' AND ${havuzKosulu(havuz)}${original ? "" : " AND q.source = 'derived'"}`;
   return `${pratikKosulu(pratik)} AND q.active = 1 AND q.status = 'published' AND q.week <= ${await currentWeek(db, pratik)}${original ? "" : " AND q.source = 'derived'"}`;
 }
 
