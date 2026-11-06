@@ -4,7 +4,7 @@ import type { DuzenAlaniAdi, KayitliDuzen } from "../../shared/duzen";
 import type { Answer } from "../../shared/grade";
 import type { KodSonucu, Sinama } from "../../shared/kod";
 import type { Okunmamis, Oneri, OneriGirdi, PanelOneri, Yazisma, YazismaOzeti } from "../../shared/sosyal";
-import type { AjanDurumu, ClaudeIsi, YeniPratikGirdi, PanelPratik, PanelAyarlar, PanelKayit, PanelKullanici, PanelOzet, PanelPano, PanelSoru, SoruGirdi } from "../../shared/yonetim";
+import type { AjanDurumu, ClaudeIsi, ClaudeIsGunlugu, YeniPratikGirdi, PanelPratik, PanelAyarlar, PanelKayit, PanelKullanici, PanelOzet, PanelPano, PanelSoru, SoruGirdi } from "../../shared/yonetim";
 import { kutlamaBildir } from "./kutlama";
 import type { TekrarCevabi } from "../../shared/tekrar";
 import type { KatalogPratik, PratikIlerlemesi } from "../../shared/api";
@@ -116,6 +116,7 @@ export const api = {
     claudeTest: () => post<{ id: string }>("/yonetim/claude/test"),
     ajan: () => get<AjanDurumu>("/yonetim/ajan"),
     claudeIptal: (id: string) => post<{ ok: true }>(`/yonetim/claude/${encodeURIComponent(id)}/iptal`),
+    claudeGunluk: (id: string, sonra: number) => get<ClaudeIsGunlugu>(`/yonetim/claude/${encodeURIComponent(id)}/olaylar?sonra=${sonra}`),
     ayarlar: (b: Partial<PanelAyarlar>) => post<PanelAyarlar>("/yonetim/ayarlar", b),
     konular: () => get<Topic[]>("/yonetim/konular"),
     sorular: (f: Record<string, string>) => {

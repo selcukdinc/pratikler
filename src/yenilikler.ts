@@ -14,6 +14,15 @@ export interface Yenilik {
 
 export const YENILIKLER: Yenilik[] = [
   {
+    pr: 17,
+    tarih: "2026-11-06",
+    baslik: "Yönetim panelinde Claude işleri canlı izleniyor",
+    maddeler: [
+      "Yönetim panelinin **Claude** sekmesinde bir iş seçilince yerel ajanın ne yaptığı canlı akıyor: Claude'un yazdıkları, okuduğu ve değiştirdiği dosyalar, çalıştırdığı komutlar ve denetimlerin sonucu.",
+      "Hazırlık, Claude, Denetim ve PR aşamaları bir çubukta görünüyor; iş bitince süre ve maliyet de yazılıyor.",
+      "Çalışan bir iş panelden **Durdur** ile birkaç saniye içinde durdurulabiliyor.",
+    ],
+  },  {
     pr: 16,
     tarih: "2026-11-06",
     baslik: "Yeni tema: Kahve",

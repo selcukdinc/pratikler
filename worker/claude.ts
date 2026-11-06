@@ -4,7 +4,10 @@
 // Ajan uçları oturumla değil AJAN_TOKEN gizli anahtarıyla korunur; anahtar
 // tanımlı değilse bu uçlar kapalıdır.
 import { Hono } from "hono";
-import type { AjanNabzi, ClaudeIsDurumu, ClaudeIsi, ClaudeIsTuru } from "../shared/yonetim";
+import {
+  CLAUDE_OLAY_TURLERI, IS_BASINA_OLAY, OLAY_GONDERIM, OLAY_UZUNLUK,
+  type AjanNabzi, type ClaudeIsDurumu, type ClaudeIsi, type ClaudeIsTuru, type ClaudeOlayTuru,
+} from "../shared/yonetim";
 import type { Env } from "./session";
 
 type Satir = {
@@ -47,15 +50,46 @@ ajan.post("/sonraki", async (c) => {
      RETURNING id`,
   ).bind(simdi).first<{ id: string }>();
   if (!r) return c.json(null);
+  // Yeni iş başlarken 30 günden eski bitmiş işlerin günlükleri silinir
+  await db.prepare(
+    `DELETE FROM claude_is_olaylari WHERE is_id IN (SELECT id FROM claude_isleri WHERE durum NOT IN ('bekliyor', 'calisiyor') AND updated_at < ?)`,
+  ).bind(simdi - 30 * 24 * 60 * 60 * 1000).run();
   const is = await db.prepare(`${IS_SQL} WHERE i.id = ?`).bind(r.id).first<Satir>();
   return c.json(is ? isSatiri(is) : null);
 });
 
-// Ajan sonucu bildirir: pr (pr_url ile), hata ya da yeniden bekliyor
+// Ajan çalışırken günlüğü toplu olarak yollar. Cevaptaki iptal: panelden durdurma
+// istendi; ajan alt süreci durdurur ve işi "iptal" olarak bildirir.
+export function olaylariTemizle(gelen: unknown): { tur: ClaudeOlayTuru; metin: string }[] {
+  if (!Array.isArray(gelen)) return [];
+  return gelen
+    .slice(0, OLAY_GONDERIM)
+    .filter((o): o is { tur: ClaudeOlayTuru; metin: string } =>
+      !!o && typeof o === "object" && CLAUDE_OLAY_TURLERI.includes((o as { tur: ClaudeOlayTuru }).tur) && typeof (o as { metin: unknown }).metin === "string")
+    .map((o) => ({ tur: o.tur, metin: o.metin.slice(0, OLAY_UZUNLUK) }));
+}
+
+ajan.post("/isler/:id/olaylar", async (c) => {
+  const db = c.env.DB;
+  const id = c.req.param("id");
+  const is = await db.prepare(
+    "SELECT durum, iptal_istendi, (SELECT COUNT(*) FROM claude_is_olaylari WHERE is_id = ?1) AS sayi FROM claude_isleri WHERE id = ?1",
+  ).bind(id).first<{ durum: ClaudeIsDurumu; iptal_istendi: number; sayi: number }>();
+  if (!is || is.durum !== "calisiyor") return c.json({ error: "Çalışan böyle bir iş yok." }, 404);
+  const b = await c.req.json<{ olaylar?: unknown }>().catch(() => ({}) as { olaylar?: unknown });
+  const olaylar = olaylariTemizle(b.olaylar).slice(0, Math.max(0, IS_BASINA_OLAY - is.sayi));
+  if (olaylar.length) {
+    const simdi = Date.now();
+    await db.batch(olaylar.map((o) => db.prepare("INSERT INTO claude_is_olaylari (is_id, tur, metin, zaman) VALUES (?, ?, ?, ?)").bind(id, o.tur, o.metin, simdi)));
+  }
+  return c.json({ iptal: is.iptal_istendi === 1 });
+});
+
+// Ajan sonucu bildirir: pr (pr_url ile), hata, iptal ya da yeniden bekliyor
 ajan.post("/isler/:id", async (c) => {
   const b = await c.req.json<{ durum?: string; sonuc?: string; prUrl?: string }>().catch(() => ({}) as Record<string, string>);
-  const durumlar: ClaudeIsDurumu[] = ["bekliyor", "pr", "tamam", "hata"];
-  if (!durumlar.includes(b.durum as ClaudeIsDurumu)) return c.json({ error: "durum bekliyor, pr, tamam ya da hata olmalı" }, 400);
+  const durumlar: ClaudeIsDurumu[] = ["bekliyor", "pr", "tamam", "hata", "iptal"];
+  if (!durumlar.includes(b.durum as ClaudeIsDurumu)) return c.json({ error: "durum bekliyor, pr, tamam, hata ya da iptal olmalı" }, 400);
   if (b.prUrl && !/^https:\/\/github\.com\/[\w.-]+\/[\w.-]+\/pull\/\d+$/.test(b.prUrl)) return c.json({ error: "geçersiz PR adresi" }, 400);
   const r = await c.env.DB.prepare(
     "UPDATE claude_isleri SET durum = ?, sonuc = ?, pr_url = COALESCE(?, pr_url), updated_at = ? WHERE id = ? AND durum = 'calisiyor'",
