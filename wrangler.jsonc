@@ -24,7 +24,9 @@
 	],
 	"vars": {
 		// Oturum çerezi bütün *.selcukdinc.dev alt alan adlarında geçerli olsun (tek hesap)
-		"COOKIE_DOMAIN": ".selcukdinc.dev"
+		"COOKIE_DOMAIN": ".selcukdinc.dev",
+		// Kullanıcı mesajları ve soru önerileri bu adrese e-postayla iletilir (worker/eposta.ts)
+		"YONETICI_EPOSTA": "selcukdinc2508@hotmail.com"
 	},
 	"routes": [
 		{
