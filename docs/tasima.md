@@ -43,7 +43,13 @@ cp tasima/ornek.json tasima/<pratik>.json   # pratik, önek ve hesap eşlemesi
 npm run tasi -- tasima/<pratik>.json tasima/<pratik>-eski.sql tasima/pratikler.sql
 ```
 
-Eski veritabanının adı, eski deponun `wrangler.jsonc` dosyasındaki `database_name` alanıdır (kimya: `kimya-pratik`).
+Eski veritabanının adı, eski deponun `wrangler.jsonc` dosyasındaki `database_name` alanıdır (kimya: `kimya-pratik`, girişimcilik: `girisimcilik-pratik`).
+
+Girişimcilik için ayar dosyası şudur; eski soruların kendi etiketleri (`ges`, `cikmis`, `turetilmis`) olduğu gibi taşınır:
+
+```json
+{ "pratik": "girisimcilik", "onek": "gr-" }
+```
 
 Araç `tasima/<pratik>-tasima.sql` dosyasını yazar ve bir rapor basar. Raporda şunlar var:
 

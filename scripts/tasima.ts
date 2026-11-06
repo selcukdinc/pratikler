@@ -41,7 +41,8 @@ export interface TasimaAyari {
   // Eski kullanıcı adı ya da e-posta -> çatıdaki kullanıcı adı ya da e-posta.
   // Aynı kişinin farklı sitelerdeki hesaplarını tek hesapta toplar.
   hesaplar?: Record<string, string>;
-  // Eski "source" alanına göre etiket (çatıdaki questions.etiketler)
+  // Eski "source" alanına göre etiket (çatıdaki questions.etiketler); eski sorunun
+  // kendi etiketler sütunu varsa (girişimcilik) o kullanılır
   etiketler?: { original: string; derived: string };
 }
 
@@ -252,7 +253,7 @@ export function tasimaPlani(eski: Tablolar, hedef: Tablolar, ayar: TasimaAyari, 
         prompt: s.prompt, payload: s.payload, answer: s.answer, explanation: s.explanation, active: panelden ? s.active : 0,
         difficulty: s.difficulty ?? 1, source_ref: s.source_ref, created_by: kisi(s.created_by), status: s.status ?? "published",
         updated_at: s.updated_at ?? null, updated_by: kisi(s.updated_by), suggested_by: kisi(s.suggested_by),
-        kavram: kavram(s.kavram, s.week), yedek: s.yedek ?? 0, etiketler: s.source === "original" ? etiket.original : etiket.derived,
+        kavram: kavram(s.kavram, s.week), yedek: s.yedek ?? 0, etiketler: typeof s.etiketler === "string" && s.etiketler ? s.etiketler : s.source === "original" ? etiket.original : etiket.derived,
       }, { veyaGec: true }),
     );
     tasinanSoru.add(yeni);
