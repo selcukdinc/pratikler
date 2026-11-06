@@ -1,9 +1,9 @@
-// Tema tercihi: sistem, açık ya da koyu. index.html'deki küçük betik ilk çizimden
+// Tema tercihi: sistem, açık, koyu ya da kahve. index.html'deki küçük betik ilk çizimden
 // önce aynı kuralı uygular; bu modül sonradan yapılan seçimleri yönetir.
 
 import { useEffect, useState } from "react";
 
-export type Tema = "sistem" | "acik" | "koyu";
+export type Tema = "sistem" | "acik" | "koyu" | "kahve";
 
 const ANAHTAR = "tema";
 const sistemKoyu = () => matchMedia("(prefers-color-scheme: dark)");
@@ -11,20 +11,25 @@ const sistemKoyu = () => matchMedia("(prefers-color-scheme: dark)");
 function oku(): Tema {
   try {
     const t = localStorage.getItem(ANAHTAR);
-    if (t === "acik" || t === "koyu") return t;
+    if (t === "acik" || t === "koyu" || t === "kahve") return t;
   } catch {
     // Gizli pencere ya da kapalı depolama: sistem ayarıyla devam
   }
   return "sistem";
 }
 
-function uygula(t: Tema) {
-  const koyu = t === "koyu" || (t === "sistem" && sistemKoyu().matches);
-  document.documentElement.dataset.theme = koyu ? "dark" : "light";
+// html data-theme değeri; renkler src/styles.css'te bu değere göre tanımlıdır
+export function temaDegeri(t: Tema, sistemdeKoyu: boolean): "light" | "dark" | "kahve" {
+  if (t === "kahve") return "kahve";
+  return t === "koyu" || (t === "sistem" && sistemdeKoyu) ? "dark" : "light";
 }
 
-export const TEMA_SIRASI: Tema[] = ["sistem", "acik", "koyu"];
-export const TEMA_ADI: Record<Tema, string> = { sistem: "Sistem", acik: "Aydınlık", koyu: "Karanlık" };
+function uygula(t: Tema) {
+  document.documentElement.dataset.theme = temaDegeri(t, sistemKoyu().matches);
+}
+
+export const TEMA_SIRASI: Tema[] = ["sistem", "acik", "koyu", "kahve"];
+export const TEMA_ADI: Record<Tema, string> = { sistem: "Sistem", acik: "Aydınlık", koyu: "Karanlık", kahve: "Kahve" };
 
 export function useTema(): [Tema, (t: Tema) => void] {
   const [tema, setTema] = useState<Tema>(oku);
