@@ -8,10 +8,12 @@
     <title>Pratikler</title>
     <script>
       // Tema sayfa çizilmeden seçilir, böylece karanlık temada beyaz parlama olmaz.
-      // Tercih yalnızca localStorage'da durur, çerez kullanılmaz.
+      // Ortak "tema" çerezi (bütün pratikler, src/lib/tema.ts) önce, sonra localStorage.
       (function () {
         var t = "sistem";
-        try { t = localStorage.getItem("tema") || "sistem"; } catch (e) {}
+        var c = /(?:^|;\s*)tema=([a-z]+)/.exec(document.cookie);
+        if (c) t = c[1];
+        else try { t = localStorage.getItem("tema") || "sistem"; } catch (e) {}
         var koyu = t === "koyu" || (t !== "acik" && matchMedia("(prefers-color-scheme: dark)").matches);
         document.documentElement.dataset.theme = t === "kahve" ? "kahve" : koyu ? "dark" : "light";
         // Metin boyutu da ilk çizimden önce uygulanır (src/lib/olcek.ts ile aynı anahtar)

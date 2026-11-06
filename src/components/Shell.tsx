@@ -1,6 +1,6 @@
 import { aktifHavuz, havuzdanCik } from "../lib/havuz";
 import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
-import { LOGO, PRATIK, PRATIK_YA_DA_KATALOG, SITE_ADI } from "../lib/pratik";
+import { LOGO, PRATIK, PRATIK_YA_DA_KATALOG, SITE_ADI, catiBaglantisi } from "../lib/pratik";
 import { DERSLER } from "../dersler";
 import { DENEYLER } from "../lab/deneyler";
 import { SINAVLAR } from "../cikmis/sinavlar";
@@ -279,6 +279,12 @@ export function Shell({ route, currentWeek, title, status, duyuru, children }: P
         <button className="menu-dugmesi icon" onClick={() => setMenuAcik(!menuAcik)} aria-expanded={menuAcik} aria-controls="ana-menu" aria-label="Menü">
           <Ikon ad="menu" boyut={20} />
         </button>
+        {PRATIK_YA_DA_KATALOG && (
+          <a className="cati-dugmesi" href={catiBaglantisi()} title="Bütün pratikler (pratikler.selcukdinc.dev)" aria-label="Bütün pratikler">
+            <img src="/logolar/pratikler.svg" alt="" width={18} height={18} />
+            <span>Pratikler</span>
+          </a>
+        )}
         <a className="brand" href="/pratik">
           <img src={LOGO} alt="" width={18} height={18} />
           <span className="brand-ad">{SITE_ADI}</span>
@@ -302,6 +308,12 @@ export function Shell({ route, currentWeek, title, status, duyuru, children }: P
           </button>
         </div>
 
+        {PRATIK_YA_DA_KATALOG && (
+          <a className="nav-link" href={catiBaglantisi()} title="Bütün pratikler">
+            <img className="nav-cati-logo" src="/logolar/pratikler.svg" alt="" width={16} height={16} />
+            <span className="nav-ad">Bütün pratikler</span>
+          </a>
+        )}
         <div className="nav-section">PRATİK</div>
         {DENEYLER.length > 0 && <NavLink to={{ page: "lab" }} current={route} ikon="lab">Sanal Lab</NavLink>}
         {OZELLIKLER.matstudio && <NavLink to={{ page: "matstudio" }} current={route} ikon="matstudio">MatStudio</NavLink>}
