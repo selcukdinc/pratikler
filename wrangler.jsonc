@@ -54,6 +54,10 @@
 		{
 			"pattern": "fpga.selcukdinc.dev",
 			"custom_domain": true
+		},
+		{
+			"pattern": "girisimcilik.selcukdinc.dev",
+			"custom_domain": true
 		}
 	],
 	"observability": {

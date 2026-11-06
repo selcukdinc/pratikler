@@ -25,7 +25,7 @@ export const girisimcilik: PratikMeta = {
   },
   uniteAdi: "ünite",
   uniteKisa: "Ü",
-  yayinda: false,
+  yayinda: true,
   logo: "/logolar/girisimcilik.svg",
   latex: false,
   etiketler: [
