@@ -6,7 +6,7 @@ import { SINAVLAR } from "../cikmis/sinavlar";
 import { OZELLIKLER } from "../lib/icerik";
 import { href, navigate, type Route } from "../lib/router";
 import { api } from "../lib/api";
-import { TEMA_ADI, TEMA_SIRASI, useTema } from "../lib/tema";
+import { TEMA_ADI, TEMA_SIRASI, useTema, type Tema } from "../lib/tema";
 import { uye, useOturum } from "../lib/oturum";
 import { Avatar } from "./Avatar";
 import { inline } from "./Markdown";
@@ -87,20 +87,17 @@ function darOku(): boolean {
   }
 }
 
-const TEMA_ISARETI = { sistem: "◐", acik: "☀", koyu: "☾" } as const;
+const TEMA_ISARETI = { sistem: "◐", acik: "☀", koyu: "☾", kahve: "☕" } as const;
 
+// Dört seçenekte döngü düğmesi yorucu olduğu için tema bir açılır listeden seçilir
 export function TemaDugmesi() {
   const [tema, sec] = useTema();
-  const sonraki = TEMA_SIRASI[(TEMA_SIRASI.indexOf(tema) + 1) % TEMA_SIRASI.length]!;
   return (
-    <button
-      className="tema-dugmesi"
-      onClick={() => sec(sonraki)}
-      title={`Tema: ${TEMA_ADI[tema]}. Tıkla: ${TEMA_ADI[sonraki]}`}
-      aria-label={`Tema: ${TEMA_ADI[tema]}. ${TEMA_ADI[sonraki]} temaya geç`}
-    >
-      <span aria-hidden="true">{TEMA_ISARETI[tema]}</span> <span className="tema-adi">{TEMA_ADI[tema]}</span>
-    </button>
+    <select className="tema-secici" value={tema} onChange={(e) => sec(e.target.value as Tema)} aria-label="Tema" title="Tema">
+      {TEMA_SIRASI.map((t) => (
+        <option key={t} value={t}>{TEMA_ISARETI[t]} {TEMA_ADI[t]}</option>
+      ))}
+    </select>
   );
 }
 

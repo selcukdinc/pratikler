@@ -13,7 +13,7 @@
         var t = "sistem";
         try { t = localStorage.getItem("tema") || "sistem"; } catch (e) {}
         var koyu = t === "koyu" || (t !== "acik" && matchMedia("(prefers-color-scheme: dark)").matches);
-        document.documentElement.dataset.theme = koyu ? "dark" : "light";
+        document.documentElement.dataset.theme = t === "kahve" ? "kahve" : koyu ? "dark" : "light";
         // Metin boyutu da ilk çizimden önce uygulanır (src/lib/olcek.ts ile aynı anahtar)
         var o = 0;
         try { o = Number(localStorage.getItem("pratik:yazi-olcek")); } catch (e) {}
