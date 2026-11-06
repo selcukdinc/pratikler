@@ -28,7 +28,7 @@ export const fizik: PratikMeta = {
   },
   uniteAdi: "bölüm",
   uniteKisa: "B",
-  yayinda: false,
+  yayinda: true,
   latex: true,
   logo: "/logolar/fizik.svg",
   etiketler: [

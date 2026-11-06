@@ -29,7 +29,7 @@ export const fpga: PratikMeta = {
   },
   uniteAdi: "hafta",
   uniteKisa: "H",
-  yayinda: false,
+  yayinda: true,
   latex: false,
   anaSayfa: "simulasyon",
   logo: "/logolar/fpga.svg",

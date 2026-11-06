@@ -30,7 +30,7 @@ export const ayrik: PratikMeta = {
   },
   uniteAdi: "ünite",
   uniteKisa: "Ü",
-  yayinda: false,
+  yayinda: true,
   latex: false,
   logo: "/logolar/ayrik.svg",
   etiketler: [

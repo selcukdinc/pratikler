@@ -42,6 +42,18 @@
 		{
 			"pattern": "dsp.selcukdinc.dev",
 			"custom_domain": true
+		},
+		{
+			"pattern": "fizik.selcukdinc.dev",
+			"custom_domain": true
+		},
+		{
+			"pattern": "ayrik.selcukdinc.dev",
+			"custom_domain": true
+		},
+		{
+			"pattern": "fpga.selcukdinc.dev",
+			"custom_domain": true
 		}
 	],
 	"observability": {
