@@ -7,6 +7,15 @@ import { PRATIKLER } from "../../icerik/index";
 import { api } from "../lib/api";
 import { pratikBaglantisi } from "../lib/pratik";
 import { useOturum } from "../lib/oturum";
+import { KartIskeleti } from "../components/Iskelet";
+
+// Pratiğin logosu; logosu yoksa adın baş harfi
+function KartLogosu({ id }: { id: string }) {
+  const p = PRATIKLER.find((x) => x.id === id)!;
+  return p.logo
+    ? <img className="katalog-logo" src={p.logo} alt="" width={48} height={48} loading="lazy" />
+    : <span className="katalog-logo katalog-harf" aria-hidden="true">{p.ad.charAt(0)}</span>;
+}
 
 const tarih = (ms: number) => new Date(ms).toLocaleDateString("tr-TR", { day: "numeric", month: "long" });
 
@@ -32,7 +41,10 @@ export function Katalog() {
   return (
     <div className="katalog">
       <section className="katalog-giris">
-        <h1>Pratikler</h1>
+        <h1 className="katalog-baslik">
+          <img src="/logolar/pratikler.svg" alt="" width={44} height={44} />
+          Pratikler
+        </h1>
         <p>
           Ders ve kitaplar için ücretsiz, açık kaynaklı soru çalışma siteleri. Tek hesapla hepsinde ilerlemen kaydedilir;
           hesap açmadan da misafir olarak çözebilirsin.
@@ -47,12 +59,15 @@ export function Katalog() {
               const p = meta(r.id);
               return (
                 <a key={r.id} className="katalog-kart" href={pratikBaglantisi(p)}>
-                  <strong>{p.ad}</strong>
-                  <span className="katalog-sayilar">
-                    {r.denenen} soru denendi · %{r.denenen ? Math.round((100 * r.dogru) / r.denenen) : 0} doğru
+                  <KartLogosu id={r.id} />
+                  <span className="katalog-govde">
+                    <strong>{p.ad}</strong>
+                    <span className="katalog-sayilar">
+                      {r.denenen} soru denendi · %{r.denenen ? Math.round((100 * r.dogru) / r.denenen) : 0} doğru
+                    </span>
+                    {r.bekleyen > 0 && <span className="nav-rozet tekrar-rozet">Bugün {r.bekleyen} tekrar</span>}
+                    <span className="katalog-son">Son çalışma: {tarih(r.son)}</span>
                   </span>
-                  {r.bekleyen > 0 && <span className="nav-rozet tekrar-rozet">Bugün {r.bekleyen} tekrar</span>}
-                  <span className="katalog-son">Son çalışma: {tarih(r.son)}</span>
                 </a>
               );
             })}
@@ -61,7 +76,7 @@ export function Katalog() {
       )}
 
       {liste === null ? (
-        <p className="empty">Yükleniyor…</p>
+        <KartIskeleti />
       ) : (
         alanlar.map((alan) => (
           <section key={alan} aria-labelledby={`alan-${alan}`}>
@@ -69,10 +84,13 @@ export function Katalog() {
             <div className="katalog-izgara">
               {liste.filter((p) => p.alan === alan).map((k) => (
                 <a key={k.id} className="katalog-kart" href={pratikBaglantisi(meta(k.id))}>
-                  <strong>{k.ad}</strong>
-                  <span>{k.aciklama}</span>
-                  <span className="katalog-sayilar">
-                    {k.unite} {meta(k.id).uniteAdi}{k.soru ? ` · ${k.soru} soru` : ""}
+                  <KartLogosu id={k.id} />
+                  <span className="katalog-govde">
+                    <strong>{k.ad}</strong>
+                    <span>{k.aciklama}</span>
+                    <span className="katalog-sayilar">
+                      {k.unite} {meta(k.id).uniteAdi}{k.soru ? ` · ${k.soru} soru` : ""}
+                    </span>
                   </span>
                 </a>
               ))}

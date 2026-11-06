@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- Pratikler: üst üste duran pratik kartları, en öndekinde doğru işareti -->
+  <rect width="32" height="32" rx="7" fill="#3949ab"/>
+  <rect x="11" y="5" width="15" height="15" rx="3" fill="#9fa8da"/>
+  <rect x="8.5" y="8" width="15" height="15" rx="3" fill="#c5cae9"/>
+  <rect x="6" y="11" width="15" height="15" rx="3" fill="#fff"/>
+  <path d="M9.6 18.6l2.8 2.8 5.2-5.6" fill="none" stroke="#3949ab" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

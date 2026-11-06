@@ -86,7 +86,7 @@ function CatiApp() {
       <div className="cati">
         <header className="topbar katalog-ust">
           <a className="brand" href="/">
-            <img src="/favicon.svg" alt="" width={18} height={18} />
+            <img src="/logolar/pratikler.svg" alt="" width={18} height={18} />
             <span className="brand-ad">{SITE_ADI}</span>
           </a>
           <span className="bosluk" />

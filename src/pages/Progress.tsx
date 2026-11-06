@@ -5,6 +5,7 @@ import { uye, useOturum } from "../lib/oturum";
 import { basamak } from "../lib/ilerleme";
 import { ALEV, KIVILCIM, PARILTI, gunSusu, rozetler } from "../../shared/motivasyon";
 import type { IlerlemeAyrintisi, TopicProgress } from "../../shared/api";
+import { TabloIskeleti } from "../components/Iskelet";
 
 type Gun = IlerlemeAyrintisi["takvim"][number];
 
@@ -127,7 +128,7 @@ export function Progress() {
   }, []);
 
   if (error) return <p className="empty">İlerleme yüklenemedi: {error}</p>;
-  if (!rows || !ayrinti) return <p className="empty">Yükleniyor…</p>;
+  if (!rows || !ayrinti) return <TabloIskeleti />;
 
   const toplam = rows.reduce((s, r) => s + r.total, 0);
   const dogru = rows.reduce((s, r) => s + r.correct, 0);

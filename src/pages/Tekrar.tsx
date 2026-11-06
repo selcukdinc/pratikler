@@ -11,6 +11,7 @@ import {
   ARALIKLAR, EK_TEKRAR, GUNLUK_SECENEKLERI, GUNLUK_TEKRAR, TAKVIM_GUN, sonrakiKutu,
   type TakvimSorusu, type TekrarCevabi, type TekrarSorusu,
 } from "../../shared/tekrar";
+import { SoruIskeleti } from "../components/Iskelet";
 
 const GUNLER = ["Pazar", "Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi"];
 const AYLAR = ["Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran", "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"];
@@ -123,7 +124,7 @@ export function Tekrar() {
   }, [yenileme, gunluk, ek, hafta, yanlis]);
 
   if (hata) return <p className="empty">Tekrar listesi yüklenemedi: {hata}</p>;
-  if (!d) return <p className="empty">Yükleniyor…</p>;
+  if (!d) return <SoruIskeleti adet={2} />;
 
   const kutudaki = d.kutular.reduce((a, b) => a + b, 0);
   const kalan = d.bekleyen - d.bugun.length;
