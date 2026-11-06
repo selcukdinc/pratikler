@@ -8,6 +8,7 @@ import {
 } from "../shared/sosyal";
 import type { Env } from "./session";
 import { pid } from "./pratik";
+import { yoneticiyeIlet } from "./eposta";
 
 type C = Context<Env>;
 const GUN = 24 * 60 * 60 * 1000;
@@ -22,6 +23,25 @@ sosyal.use("*", async (c, next) => {
 async function govde<T>(c: C): Promise<Partial<T>> {
   const b = await c.req.json<T>().catch(() => null);
   return b && typeof b === "object" ? b : {};
+}
+
+// Yöneticiye e-posta kopyası; cevabı bekletmez, gönderilemezse yalnızca günlüğe yazılır
+function yoneticiyeBildir(c: C, i: { konu: string; metin: string; yol: string }) {
+  const me = c.get("me")!;
+  if (me.role === "admin") return;
+  const pratik = c.get("pratik")?.ad ?? "Pratikler";
+  const kim = me.displayName && me.username && me.displayName !== me.username ? `${me.displayName} (@${me.username})` : `@${me.username ?? me.id}`;
+  const gonder = yoneticiyeIlet(c.env, {
+    konu: `[${pratik}] ${i.konu}`,
+    metin: `${kim}${me.email ? ` <${me.email}>` : ""} · ${pratik}\n\n${i.metin}`,
+    baglanti: `${new URL(c.req.url).origin}${i.yol}`,
+    yanitla: me.email,
+  }).catch((e) => console.log(`[eposta] yönetici iletisi gönderilemedi: ${String(e)}`));
+  try {
+    c.executionCtx.waitUntil(gonder);
+  } catch {
+    // executionCtx yoksa (testler) gönderim kendi hızında sürer
+  }
 }
 
 export const susturuldu = (mutedUntil: number | null) => !!mutedUntil && mutedUntil > Date.now();
@@ -82,6 +102,11 @@ sosyal.post("/oneriler", async (c) => {
     JSON.stringify(g.type === "mcq" ? { choices: g.choices!.map((x) => x.trim()) } : g.type === "fill" ? { blanks: (g.answer as { blanks: string[][] }).blanks.length } : {}),
     JSON.stringify(kapali ? g.answer : {}), g.explanation!.trim(), g.showName ? 1 : 0, Date.now(),
   ).run();
+  yoneticiyeBildir(c, {
+    konu: "Yeni soru önerisi",
+    metin: [g.prompt!.trim(), ...(g.type === "mcq" ? g.choices!.map((x, i) => `${"ABCDEFGH"[i]}) ${x.trim()}`) : []), "", `Açıklama: ${g.explanation!.trim()}`].join("\n"),
+    yol: "/yonetim/oneriler",
+  });
   return c.json({ id });
 });
 
@@ -138,6 +163,7 @@ sosyal.post("/yazismalar", async (c) => {
     ),
     c.env.DB.prepare("INSERT INTO thread_messages (thread_id, body, created_at) VALUES (?, ?, ?)").bind(id, b.body!.trim(), simdi),
   ]);
+  yoneticiyeBildir(c, { konu: `Yeni mesaj: ${b.subject!.trim()}`, metin: b.body!.trim(), yol: `/yonetim/mesajlar/${id}` });
   return c.json({ id });
 });
 
@@ -156,7 +182,7 @@ sosyal.post("/yazismalar/:id", async (c) => {
   const b = await govde<{ body: string }>(c);
   const h = mesajHatasi(b.body);
   if (h) return c.json({ error: h }, 400);
-  const r = await db.prepare("SELECT id, status FROM threads WHERE id = ? AND user_id = ?").bind(c.req.param("id"), me.id).first<{ id: string; status: string }>();
+  const r = await db.prepare("SELECT id, status, subject FROM threads WHERE id = ? AND user_id = ?").bind(c.req.param("id"), me.id).first<{ id: string; status: string; subject: string }>();
   if (!r) return c.json({ error: "yazışma bulunamadı" }, 404);
   if (r.status === "closed") return c.json({ error: "Bu yazışma kapatıldı. Yeni bir mesaj başlatabilirsin." }, 409);
   if (await gunlukMesajDolu(db, me.id)) return c.json({ error: COK_MESAJ }, 429);
@@ -165,6 +191,7 @@ sosyal.post("/yazismalar/:id", async (c) => {
     db.prepare("INSERT INTO thread_messages (thread_id, body, created_at) VALUES (?, ?, ?)").bind(r.id, b.body!.trim(), simdi),
     db.prepare("UPDATE threads SET updated_at = ?, admin_unread = 1 WHERE id = ?").bind(simdi, r.id),
   ]);
+  yoneticiyeBildir(c, { konu: `Cevap: ${r.subject}`, metin: b.body!.trim(), yol: `/yonetim/mesajlar/${r.id}` });
   return c.json({ ok: true });
 });
 
