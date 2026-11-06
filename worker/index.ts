@@ -13,6 +13,7 @@ import { DAKIKA, SAAT, sinirAsildi } from "./sinir";
 import { GUN_MS, SORU_SUTUNLARI, TR_FARK, bugunBasi, currentWeek, gorunurKosul, pratikKosulu, setting, showOriginal, soruyaCevir, type SoruListeSatiri } from "./ortak";
 import { pid, pratikAyarla, pratikGerekli } from "./pratik";
 import { katalog } from "./katalog";
+import { sinav } from "./sinav";
 import { ajan } from "./claude";
 import { IZ_SINIRI, TB_ADI, testbenchUret, type KodBilgisi, type KodSonucu, type Sinama, type Vektor } from "../shared/kod";
 import { MODELLER, degerlendir, vektorUret } from "./modeller";
@@ -49,7 +50,7 @@ const PRATIGE_OZGU = [
   "/topics", "/questions", "/questions/*", "/sinama/*", "/progress", "/progress/*", "/profil/*", "/tekrar", "/tekrar/*",
   "/uye/oneriler", "/uye/oneriler/*", "/hesap/ayarlar/ders-ilerleme",
   "/yonetim/ozet", "/yonetim/pano", "/yonetim/ayarlar", "/yonetim/konular", "/yonetim/sorular", "/yonetim/sorular/*",
-  "/yonetim/oneriler", "/yonetim/oneriler/*",
+  "/yonetim/oneriler", "/yonetim/oneriler/*", "/sinavlar", "/sinavlar/*",
 ];
 for (const yol of PRATIGE_OZGU) {
   app.use(yol, pratikGerekli);
@@ -59,6 +60,7 @@ app.route("/hesap", hesap);
 app.route("/yonetim", yonetim);
 app.route("/uye", sosyal);
 app.route("/tekrar", tekrar);
+app.route("/sinavlar", sinav);
 
 app.get("/me", (c) => {
   const me = c.get("me");

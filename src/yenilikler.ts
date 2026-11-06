@@ -14,6 +14,17 @@ export interface Yenilik {
 
 export const YENILIKLER: Yenilik[] = [
   {
+    pr: 18,
+    tarih: "2026-11-06",
+    baslik: "Akademisyenler için sınav hazırlama",
+    maddeler: [
+      "Yeni **Akademisyen** hesabıyla hesap menüsündeki **Sınav hazırla** bölümü açılıyor: sitedeki sorulardan ünite, tür ve aramayla seçip kendi sınav kağıdını hazırlıyorsun.",
+      "Kağıt gerçek boyutunda canlı görünüyor; başlık, soru metni ve şıklar kağıdın üzerinde tıklanıp yerinde düzenleniyor, sorular sıralanıp puanlanıyor, ortak metin ve yönerge eklenebiliyor.",
+      "A4 ya da A3, dikey ya da yatay kağıt, tek, iki ya da üç sütun, yazı boyutu, kenar boşluğu ve 4 ya da 5 şık seçilebiliyor; üniversite, fakülte ve ders bilgileri bir sonraki sınava kendiliğinden geliyor, tarih ve süre ayarlanıyor.",
+      "Değişiklikler kendiliğinden kaydediliyor; başka bir cihazdan girince sınava kaldığın yerden devam ediyorsun. **PDF indir** kağıdı önizlemede gördüğün gibi basıyor.",
+    ],
+  },
+  {
     pr: 17,
     tarih: "2026-11-06",
     baslik: "Yönetim panelinde Claude işleri canlı izleniyor",
@@ -22,7 +33,8 @@ export const YENILIKLER: Yenilik[] = [
       "Hazırlık, Claude, Denetim ve PR aşamaları bir çubukta görünüyor; iş bitince süre ve maliyet de yazılıyor.",
       "Çalışan bir iş panelden **Durdur** ile birkaç saniye içinde durdurulabiliyor.",
     ],
-  },  {
+  },
+  {
     pr: 16,
     tarih: "2026-11-06",
     baslik: "Yeni tema: Kahve",
@@ -30,7 +42,8 @@ export const YENILIKLER: Yenilik[] = [
       "Aydınlık ve Karanlık temanın yanına sıcak krem ve kahve tonlarında **Kahve** teması geldi; uzun çalışmalarda gözü yormayan yumuşak bir görünüm.",
       "Tema artık üst çubuktaki listeden seçiliyor: Sistem, Aydınlık, Karanlık ya da Kahve. Seçimin bu cihazda hatırlanır.",
     ],
-  },  {
+  },
+  {
     pr: 15,
     tarih: "2026-11-06",
     baslik: "Pratikler'in yeni logosu, kartlarda pratik logoları ve daha akıcı yükleme",
@@ -39,7 +52,8 @@ export const YENILIKLER: Yenilik[] = [
       "Ana sayfadaki her pratik kartında o pratiğin logosu var, aradığını bir bakışta bulursun. Tıp Elektroniği'nin de artık kendi logosu var.",
       "Sorular, karma test, tekrar ve ilerleme sayfası yüklenirken düz \"Yükleniyor…\" yazısı yerine sayfanın taslağı görünüyor.",
     ],
-  },  {
+  },
+  {
     pr: 14,
     tarih: "2026-11-06",
     baslik: "Telefonda daha derli toplu bir üst çubuk",

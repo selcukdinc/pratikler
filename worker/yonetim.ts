@@ -434,7 +434,7 @@ yonetim.get("/kullanicilar", izin("kullanici.yonet"), async (c) => {
 yonetim.post("/kullanicilar/:id/rol", izin("kullanici.yonet"), async (c) => {
   const id = c.req.param("id");
   const { role } = (await c.req.json<{ role?: string }>().catch(() => ({}))) as { role?: string };
-  if (role !== "user" && role !== "admin") return c.json({ error: "Rol geçersiz." }, 400);
+  if (role !== "user" && role !== "admin" && role !== "akademisyen") return c.json({ error: "Rol geçersiz." }, 400);
   // Kendini yöneticilikten çıkarıp panele kilitlenmeyi önler
   if (id === c.get("me")!.id && role !== "admin") return c.json({ error: "Kendi yönetici rolünü kaldıramazsın." }, 400);
   const u = await c.env.DB.prepare("SELECT username FROM users WHERE id = ? AND kind = 'member'").bind(id).first<{ username: string }>();
