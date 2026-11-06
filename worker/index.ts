@@ -14,6 +14,8 @@ import { GUN_MS, SORU_SUTUNLARI, TR_FARK, bugunBasi, currentWeek, gorunurKosul, 
 import { pid, pratikAyarla, pratikGerekli } from "./pratik";
 import { katalog } from "./katalog";
 import { ajan } from "./claude";
+import { IZ_SINIRI, TB_ADI, testbenchUret, type KodBilgisi, type KodSonucu, type Sinama, type Vektor } from "../shared/kod";
+import { MODELLER, degerlendir, vektorUret } from "./modeller";
 import { ALEV, VARSAYILAN_HEDEF, seriler, type GunlukDurum } from "../shared/motivasyon";
 
 const app = new Hono<Env>().basePath("/api");
@@ -44,7 +46,7 @@ app.route("/ajan", ajan);
 // Hesap, mesajlar, kullanıcılar, işlem kaydı, pratikler tablosu ve Claude/ajan uçları
 // çatı adresinde de çalışır; soru, ilerleme, öneri ve pratik ayarları pratik ister.
 const PRATIGE_OZGU = [
-  "/topics", "/questions", "/questions/*", "/progress", "/progress/*", "/profil/*", "/tekrar", "/tekrar/*",
+  "/topics", "/questions", "/questions/*", "/sinama/*", "/progress", "/progress/*", "/profil/*", "/tekrar", "/tekrar/*",
   "/uye/oneriler", "/uye/oneriler/*", "/hesap/ayarlar/ders-ilerleme",
   "/yonetim/ozet", "/yonetim/pano", "/yonetim/ayarlar", "/yonetim/konular", "/yonetim/sorular", "/yonetim/sorular/*",
   "/yonetim/oneriler", "/yonetim/oneriler/*",
@@ -153,6 +155,83 @@ app.post("/questions/:id/answer", async (c) => {
   if (q.type === "fill" || q.type === "num") result.bosluklar = boslukSonuclari(beklenen, body.answer, q.type) ?? undefined;
   if (correct) result.gunluk = await gunlukDurum(c.env.DB, pid(c), me.id, me.gunlukHedef);
   return c.json(result);
+});
+
+// ---- Kod soruları (FPGA) ----
+//
+// Sunucu her denemede rastgele giriş vektörleri seçip tek kullanımlık bir sınama
+// açar ve bu vektörleri içeren testbench'i döner. Tarayıcı öğrencinin tasarımını
+// testbench'le NVC'de çalıştırır, yalnızca testbench'in bastığı çıkışları (iz)
+// geri yollar; beklenen çıkışlar worker/modeller.ts'den hesaplanır ve istemciye gitmez.
+
+const SINAMA_OMRU_MS = 30 * DAKIKA;
+
+const kodModeli = (id: string, q: SoruSatiri) => {
+  const bilgi = (JSON.parse(q.payload) as { kod?: KodBilgisi }).kod;
+  const model = MODELLER[(JSON.parse(q.answer) as { model?: string }).model ?? id];
+  return bilgi && model ? { bilgi, model } : null;
+};
+
+app.post("/questions/:id/sinama", async (c) => {
+  const id = c.req.param("id");
+  const q = await yayindakiSoru(c, id);
+  const km = q?.type === "code" ? kodModeli(id, q) : null;
+  if (!q || !km) return c.json({ error: "soru bulunamadı" }, 404);
+
+  const me = await ensureGuest(c);
+  if (await sinirAsildi(c.env.DB, `sinama:${me.id}`, 120, SAAT)) {
+    return c.json({ error: "Bir saatte çok fazla deneme yaptın. Biraz ara verip tekrar dene." }, 429);
+  }
+  const rastgele = () => crypto.getRandomValues(new Uint32Array(1))[0]! / 2 ** 32;
+  const vektorler = vektorUret(km.bilgi, km.model, rastgele);
+  const tb = testbenchUret(km.bilgi, vektorler);
+  const simdi = Date.now();
+  const sinamaId = crypto.randomUUID();
+  await c.env.DB.batch([
+    c.env.DB.prepare("DELETE FROM sinamalar WHERE expires_at < ?").bind(simdi),
+    c.env.DB.prepare(
+      "INSERT INTO sinamalar (id, user_id, question_id, vectors, created_at, expires_at) VALUES (?, ?, ?, ?, ?, ?)",
+    ).bind(sinamaId, me.id, id, JSON.stringify(vektorler), simdi, simdi + SINAMA_OMRU_MS),
+  ]);
+  return c.json<Sinama>({
+    id: sinamaId, testbench: tb.metin, top: TB_ADI, stopTime: tb.stopTime, adet: vektorler.length, bitis: simdi + SINAMA_OMRU_MS,
+  });
+});
+
+// Tarayıcıdaki benzetimin izini alır, referans modelle karşılaştırır. Sınama bir kez kullanılır.
+app.post("/sinama/:id", async (c) => {
+  const body = await c.req.json<{ iz?: unknown }>().catch(() => null);
+  const iz = body?.iz;
+  if (!Array.isArray(iz) || iz.length > IZ_SINIRI || !iz.every((x) => typeof x === "string" && x.length <= 200)) {
+    return c.json({ error: "geçersiz iz" }, 400);
+  }
+  const me = c.get("me");
+  const s = me
+    ? await c.env.DB.prepare("SELECT question_id, vectors, expires_at FROM sinamalar WHERE id = ? AND user_id = ?")
+        .bind(c.req.param("id"), me.id)
+        .first<{ question_id: string; vectors: string; expires_at: number }>()
+    : null;
+  if (!me || !s || s.expires_at < Date.now()) return c.json({ error: "Bu sınama artık geçerli değil (süresi dolmuş ya da kullanılmış). Yeniden sına." }, 410);
+
+  const q = await yayindakiSoru(c, s.question_id);
+  const km = q && kodModeli(s.question_id, q);
+  if (!q || !km) return c.json({ error: "soru bulunamadı" }, 404);
+
+  const vektorler = JSON.parse(s.vectors) as Vektor[];
+  const d = degerlendir(km.bilgi, km.model, vektorler, iz as string[]);
+  const correct = d.gecen === d.toplam;
+  await c.env.DB.batch([
+    c.env.DB.prepare("DELETE FROM sinamalar WHERE id = ?").bind(c.req.param("id")),
+    c.env.DB.prepare(
+      "INSERT INTO attempts (user_id, question_id, correct, answer, created_at) VALUES (?, ?, ?, ?, ?)",
+    ).bind(me.id, s.question_id, correct ? 1 : 0, JSON.stringify({ gecen: d.gecen, toplam: d.toplam, ilkHata: d.ilkHata }), Date.now()),
+  ]);
+  await tekrarIsle(c.env.DB, pid(c), me.id, s.question_id, correct);
+  return c.json<KodSonucu>({
+    correct, gecen: d.gecen, toplam: d.toplam, rapor: d.rapor, ipucu: d.ipucu,
+    explanation: correct ? q.explanation : null,
+    gunluk: correct ? await gunlukDurum(c.env.DB, pid(c), me.id, me.gunlukHedef) : undefined,
+  });
 });
 
 // Her kişinin bu sorudaki ilk denemesi üzerinden anonim toplamlar

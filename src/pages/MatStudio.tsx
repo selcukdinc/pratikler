@@ -328,7 +328,7 @@ export function Sandbox({ onStatus, aktif = true }: Props) {
   const sekiller = cizim.sekiller;
   const gosterilen = sekiller[Math.min(sekilSekme, sekiller.length - 1)];
 
-  const paneller: Record<PanelId, PanelTanimi> = {
+  const paneller: Partial<Record<PanelId, PanelTanimi>> = {
     editor: {
       ad: "Editör",
       sinif: "editor",

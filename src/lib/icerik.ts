@@ -26,10 +26,12 @@ export interface PratikIstemciIcerigi {
   etkilesimler?: Record<string, ComponentType<{ g: Gorsel }>>;
   // MatStudio (tarayıcıda çalışan betik ortamı): menüde sayfası, derslerde örnekleri
   matstudio?: boolean;
+  // VHDL simülasyon alanı ve kod soruları (FPGA): menüde Simülasyon sayfası
+  vhdl?: boolean;
 }
 
 // Açık pratiğin özellikleri; menü ve sayfalar buna bakar
-export const OZELLIKLER = { matstudio: false };
+export const OZELLIKLER = { matstudio: false, vhdl: false };
 
 const MODULLER = import.meta.glob<{ default: PratikIstemciIcerigi }>("../../icerik/*/istemci/index.ts");
 
@@ -44,6 +46,7 @@ export function icerigiKur(i: PratikIstemciIcerigi) {
   for (const k of Object.keys(ETKILESIMLER)) delete ETKILESIMLER[k];
   Object.assign(ETKILESIMLER, i.etkilesimler ?? {});
   OZELLIKLER.matstudio = i.matstudio ?? false;
+  OZELLIKLER.vhdl = i.vhdl ?? false;
 }
 
 export async function icerikYukle(pratikId: string | null): Promise<void> {

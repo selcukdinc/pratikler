@@ -368,25 +368,30 @@ async function dersIlerlemeleri(db: D1Database, kullanici: string): Promise<Reco
   }
 }
 
-// MatStudio pencere düzenleri (DSP); kişiye aittir
+// Pencere düzenleri kişiye aittir: MatStudio (DSP) lab_duzenleri'nde, VHDL simülasyon alanı (FPGA) sim_duzenleri'nde
+const duzenAlani = (c: { req: { query: (k: string) => string | undefined } }) => (c.req.query("alan") === "vhdl" ? "vhdl" : "matstudio");
+const DUZEN_SUTUNU = { matstudio: "lab_duzenleri", vhdl: "sim_duzenleri" } as const;
+
 ayarlar.get("/duzenler", async (c) => {
-  const r = await c.env.DB.prepare("SELECT lab_duzenleri FROM users WHERE id = ?").bind(c.get("me")!.id)
-    .first<{ lab_duzenleri: string | null }>();
+  const alan = duzenAlani(c);
+  const r = await c.env.DB.prepare(`SELECT ${DUZEN_SUTUNU[alan]} AS d FROM users WHERE id = ?`).bind(c.get("me")!.id)
+    .first<{ d: string | null }>();
   let kayitli: unknown = [];
   try {
-    kayitli = JSON.parse(r?.lab_duzenleri ?? "[]");
+    kayitli = JSON.parse(r?.d ?? "[]");
   } catch {
     // bozuk kayıt boş liste sayılır
   }
-  const d = duzenleriDenetle(kayitli);
+  const d = duzenleriDenetle(kayitli, alan);
   return c.json("duzenler" in d ? d.duzenler : []);
 });
 
 ayarlar.put("/duzenler", async (c) => {
+  const alan = duzenAlani(c);
   const b = await govde<{ duzenler: unknown }>(c);
-  const d = duzenleriDenetle(b.duzenler);
+  const d = duzenleriDenetle(b.duzenler, alan);
   if ("hata" in d) return hata(c, 400, d.hata);
-  await c.env.DB.prepare("UPDATE users SET lab_duzenleri = ? WHERE id = ?").bind(JSON.stringify(d.duzenler), c.get("me")!.id).run();
+  await c.env.DB.prepare(`UPDATE users SET ${DUZEN_SUTUNU[alan]} = ? WHERE id = ?`).bind(JSON.stringify(d.duzenler), c.get("me")!.id).run();
   return c.json(d.duzenler);
 });
 

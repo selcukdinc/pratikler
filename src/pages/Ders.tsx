@@ -17,6 +17,8 @@ import type { Question, SoruDurumlari } from "../../shared/api";
 
 // Bölümdeki MatStudio örneği (DSP): editör ve yorumlayıcı ayrı parça olarak yüklenir
 const MiniMatlab = lazy(() => import("../components/MiniMatlab").then((m) => ({ default: m.MiniMatlab })));
+// Bölümdeki küçük VHDL benzetimi (FPGA): editör ve NVC ayrı parça olarak yüklenir
+const MiniSim = lazy(() => import("../components/MiniSim").then((m) => ({ default: m.MiniSim })));
 
 // Ünitenin listede ve başlıklarda adı: "3. hafta" ya da proje haftası için "Proje"
 const uniteYazi = (no: number) => (dersBul(no)?.proje ? "Proje" : uniteNo(no));
@@ -66,6 +68,7 @@ function UniteSatiri({ no, ilerleme }: { no: number; ilerleme: DersIlerleme }) {
           <span className="tag">{d.bolumler.length} bölüm</span>
           {lab > 0 && <span className="tag">{lab} lab deneyi</span>}
           {d.bolumler.some((b) => b.matlab) && <span className="tag">{d.bolumler.filter((b) => b.matlab).length} MatStudio örneği</span>}
+          {d.bolumler.some((b) => b.sim) && <span className="tag">{d.bolumler.filter((b) => b.sim).length} benzetim</span>}
           {d.test.length > 0 && <span className="tag">{d.test.length} soruluk test</span>}
         </span>
         {biten > 0 && <IlerlemeCubugu biten={biten} toplam={d.bolumler.length} />}
@@ -221,6 +224,11 @@ function DersSayfasi({ ders }: { ders: DersVerisi }) {
           {b.matlab && (
             <Suspense fallback={<p className="hint">MatStudio örneği yükleniyor…</p>}>
               <MiniMatlab key={`${ders.hafta}-${i}`} veri={b.matlab} />
+            </Suspense>
+          )}
+          {b.sim && (
+            <Suspense fallback={<p className="hint">Simülasyon yükleniyor…</p>}>
+              <MiniSim key={`${ders.hafta}-${i}`} sim={b.sim} />
             </Suspense>
           )}
           {b.lab && <LabBagi id={b.lab} />}

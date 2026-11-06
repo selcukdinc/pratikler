@@ -6,6 +6,6 @@ describe("alan adından pratik", () => {
     expect(hosttanPratik("tipelektronigi.selcukdinc.dev")?.id).toBe("tip-elektronigi");
     expect(hosttanPratik("TipElektronigi.selcukdinc.dev:443")?.id).toBe("tip-elektronigi");
     expect(hosttanPratik("pratikler.selcukdinc.dev")).toBeNull();
-    expect(hosttanPratik("fpga.selcukdinc.dev")).toBeNull();
+    expect(hosttanPratik("yok.selcukdinc.dev")).toBeNull();
   });
 });

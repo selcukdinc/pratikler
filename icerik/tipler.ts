@@ -1,3 +1,5 @@
+import type { KodBilgisi } from "../shared/kod.ts";
+
 // Pratiklerin ortak tipleri. Her pratik `icerik/<id>/` altında bir meta dosyası
 // (meta.ts: ad, üniteler, etiketler, kavramlar, terimler) ve soru dosyalarından
 // (sorular/*.ts) oluşur. Kod bütün pratikler için ortaktır; yeni pratik açmak bu
@@ -63,8 +65,8 @@ export interface PratikMeta {
   yayinda: boolean;
   // $...$ ve $$...$$ formülleri KaTeX ile çizilir, A_x / m^2 indisleri dizilir
   latex: boolean;
-  // Alan adının kökünde açılan sayfa: karma test (varsayılan) ya da Sanal Lab
-  anaSayfa?: "pratik" | "lab";
+  // Alan adının kökünde açılan sayfa: karma test (varsayılan), Sanal Lab ya da VHDL simülasyon alanı
+  anaSayfa?: "pratik" | "lab" | "simulasyon";
   // Sekme simgesi ve menüdeki logo (public/ altındaki yol); yoksa /favicon.svg
   logo?: string;
   etiketler: EtiketTanim[];
@@ -116,7 +118,10 @@ export type Soru =
   | (Ortak & { tip: "num"; bosluklar: string[][] })
   // Yazma (klasik): öğrenci cevabını yazar, aciklama'daki örnek çözümle
   // karşılaştırıp kendini değerlendirir (Ayrık)
-  | (Ortak & { tip: "yaz" });
+  | (Ortak & { tip: "yaz" })
+  // Kod yazma (FPGA): öğrenci şablondaki mimariyi yazar, tasarımı tarayıcıda gizli
+  // bir testbench'e karşı çalışır; çıkışlar worker/modeller.ts'deki `model` ile karşılaştırılır
+  | (Ortak & { tip: "code"; kod: KodBilgisi; model: string });
 
 export interface PratikSorulari {
   konular: Konu[];

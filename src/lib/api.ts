@@ -1,7 +1,8 @@
 import type { AnswerResult, ApiHata, IlerlemeAyrintisi, Me, Profil, Question, SoruDurumlari, Topic, TopicProgress } from "../../shared/api";
 import type { DersIlerleme } from "../../shared/dersIlerleme";
-import type { KayitliDuzen } from "../../shared/duzen";
+import type { DuzenAlaniAdi, KayitliDuzen } from "../../shared/duzen";
 import type { Answer } from "../../shared/grade";
+import type { KodSonucu, Sinama } from "../../shared/kod";
 import type { Okunmamis, Oneri, OneriGirdi, PanelOneri, Yazisma, YazismaOzeti } from "../../shared/sosyal";
 import type { AjanDurumu, ClaudeIsi, YeniPratikGirdi, PanelPratik, PanelAyarlar, PanelKayit, PanelKullanici, PanelOzet, PanelPano, PanelSoru, SoruGirdi } from "../../shared/yonetim";
 import { kutlamaBildir } from "./kutlama";
@@ -46,6 +47,13 @@ export const api = {
   katalogIlerleme: () => get<PratikIlerlemesi[]>("/katalog/ilerleme"),
   topics: () => get<{ currentWeek: number; topics: Topic[]; announcement: string | null }>("/topics"),
   cozum: (id: string) => get<{ cozum: string }>(`/questions/${encodeURIComponent(id)}/cozum`),
+  // Kod soruları (FPGA): tek kullanımlık sınama ve tarayıcıdaki benzetimin izi
+  sinama: (id: string) => post<Sinama>(`/questions/${encodeURIComponent(id)}/sinama`),
+  async sinamaGonder(id: string, iz: string[]) {
+    const r = await post<KodSonucu>(`/sinama/${encodeURIComponent(id)}`, { iz });
+    if (r.ok) kutlamaBildir(r.data.gunluk);
+    return r;
+  },
   questions: (topic?: string) => get<Question[]>(topic ? `/questions?topic=${encodeURIComponent(topic)}` : "/questions"),
   progress: () => get<TopicProgress[]>("/progress"),
   ilerlemeAyrintisi: () => get<IlerlemeAyrintisi>("/progress/ayrinti"),
@@ -92,8 +100,9 @@ export const api = {
     hesabiSil: (parola: string) => post<{ ok: true }>("/hesap/ayarlar/hesabi-sil", { parola }),
     gorunum: (yaziOlcek: number | null) => post<Me>("/hesap/ayarlar/gorunum", { yaziOlcek }, "PUT"),
     gunlukTekrar: (gunlukTekrar: number | null) => post<Me>("/hesap/ayarlar/gunluk-tekrar", { gunlukTekrar }, "PUT"),
-    duzenler: () => get<KayitliDuzen[]>("/hesap/ayarlar/duzenler"),
-    duzenleriKaydet: (duzenler: KayitliDuzen[]) => post<KayitliDuzen[]>("/hesap/ayarlar/duzenler", { duzenler }, "PUT"),
+    duzenler: (alan: DuzenAlaniAdi = "matstudio") => get<KayitliDuzen[]>(`/hesap/ayarlar/duzenler?alan=${alan}`),
+    duzenleriKaydet: (duzenler: KayitliDuzen[], alan: DuzenAlaniAdi = "matstudio") =>
+      post<KayitliDuzen[]>(`/hesap/ayarlar/duzenler?alan=${alan}`, { duzenler }, "PUT"),
     dersIlerleme: () => get<DersIlerleme>("/hesap/ayarlar/ders-ilerleme"),
     dersIlerlemeKaydet: (ilerleme: DersIlerleme) => post<DersIlerleme>("/hesap/ayarlar/ders-ilerleme", { ilerleme }, "PUT"),
   },

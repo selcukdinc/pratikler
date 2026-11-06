@@ -16,6 +16,17 @@ export type Donem = "vize" | "final";
 export const DONEM_ADI: Record<Donem, string> = { vize: "Vize", final: "Final" };
 export const DONEMLER: Donem[] = ["vize", "final"];
 
+// Bölümde tarayıcıda çalışan küçük bir VHDL benzetimi (FPGA)
+export interface MiniSim {
+  // Tasarım ve testbench'i birlikte içeren tek VHDL dosyası
+  kod: string;
+  // En üst birim, genellikle "tb"
+  top: string;
+  sure: string;
+  // Öğrenciye kodda ne değiştirip deneyeceğini söyleyen kısa görev
+  gorev?: string;
+}
+
 // Bölümde tarayıcıda çalışan küçük bir MatStudio örneği (DSP)
 export interface MiniMatlab {
   // Bölümde çalıştırılacak MatStudio betiği
@@ -33,6 +44,7 @@ export interface DersBolumu {
   // testindekilerden farklı)
   dene?: string[];
   matlab?: MiniMatlab;
+  sim?: MiniSim;
 }
 
 export interface Ders {
@@ -49,3 +61,6 @@ export interface Ders {
 }
 
 export const md = (s: string) => s.replace(/~/g, "`").replace(/¬/g, "~").trim();
+
+// VHDL örneklerinin ortak başlığı (FPGA dersleri)
+export const UST = "library ieee;\nuse ieee.std_logic_1164.all;\nuse ieee.numeric_std.all;\n";

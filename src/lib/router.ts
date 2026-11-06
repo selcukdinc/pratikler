@@ -9,6 +9,7 @@ export type Route =
   | { page: "pratik" }
   | { page: "lab"; deney?: string }
   | { page: "matstudio" }
+  | { page: "simulasyon" }
   | { page: "cikmis"; sinav?: string }
   | { page: "sorular"; topic?: string; hafta?: number }
   | { page: "ders"; hafta?: number }
@@ -50,13 +51,18 @@ export function parsePath(path: string, search = ""): Route {
   switch (page) {
     case "":
       // Pratiğin açılış sayfası (meta.anaSayfa); varsayılan karma test
-      return PRATIK_YA_DA_KATALOG?.anaSayfa === "lab" ? { page: "lab" } : { page: "pratik" };
+      {
+      const ana = PRATIK_YA_DA_KATALOG?.anaSayfa;
+      return ana === "lab" ? { page: "lab" } : ana === "simulasyon" ? { page: "simulasyon" } : { page: "pratik" };
+    }
     case "pratik":
       return { page: "pratik" };
     case "lab":
       return arg ? { page: "lab", deney: parca(arg) } : { page: "lab" };
     case "matstudio":
       return { page: "matstudio" };
+    case "simulasyon":
+      return { page: "simulasyon" };
     case "cikmis":
       return arg ? { page: "cikmis", sinav: parca(arg) } : { page: "cikmis" };
     case "sorular": {
