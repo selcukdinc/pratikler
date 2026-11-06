@@ -1576,3 +1576,34 @@ polygon.g-ok-7 { fill: var(--ok-7); stroke: none; }
 .oz-degerlendirme { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
 :root { --tag-rosen-bg: #dcebfb; --tag-rosen-text: #13457f; }
 :root[data-theme="dark"] { --tag-rosen-bg: #1f3a5c; --tag-rosen-text: #b9d6f7; }
+
+/* Yükleme iskeleti (src/components/Iskelet.tsx). Renk metin renginden türer, her temada uyar. */
+.iskelet {
+  position: relative; overflow: hidden; display: block; height: 0.9em; border-radius: 4px;
+  background: color-mix(in srgb, var(--text) 9%, transparent);
+}
+.iskelet::after {
+  content: ""; position: absolute; inset: 0; transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--panel) 55%, transparent), transparent);
+  animation: iskelet-parla 1.4s ease-in-out infinite;
+}
+@keyframes iskelet-parla { to { transform: translateX(100%); } }
+@media (prefers-reduced-motion: reduce) { .iskelet::after { animation: none; display: none; } }
+.iskelet-sayfa { display: grid; gap: 12px; padding: 12px 0; }
+.iskelet-blok { display: grid; gap: 10px; padding: 8px 0; }
+.iskelet-soru { display: grid; gap: 10px; }
+.iskelet-siklar { display: grid; gap: 8px; padding-left: 12px; }
+.iskelet-kutular { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.iskelet-kart { pointer-events: none; }
+.questions > .iskelet-kap, .tekrar > .iskelet-kap { padding: 0 2px; }
+
+/* Katalog kartı: solda logo, sağda ad ve açıklama */
+.katalog-kart { flex-direction: row; align-items: flex-start; gap: 14px; }
+.katalog-logo { flex-shrink: 0; width: 48px; height: 48px; border-radius: 10px; }
+.katalog-harf { display: grid; place-items: center; color: #fff; font-weight: 700; font-size: 22px; background: var(--link); }
+.katalog-govde { display: flex; flex-direction: column; gap: 6px; min-width: 0; flex: 1; }
+.katalog-kart:focus-visible { outline: 2px solid var(--link); outline-offset: 2px; }
+.katalog-kart:hover .katalog-logo { transform: scale(1.04); }
+.katalog-logo { transition: transform 0.15s ease; }
+@media (prefers-reduced-motion: reduce) { .katalog-logo { transition: none; } }
+.katalog-baslik { display: flex; align-items: center; gap: 12px; }

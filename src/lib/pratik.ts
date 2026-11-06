@@ -37,7 +37,7 @@ export const PRATIK_YA_DA_KATALOG: PratikMeta | null = bul();
 // Pratik sayfalarında kullanılır; katalogda bu sayfalar çizilmez
 export const PRATIK: PratikMeta = PRATIK_YA_DA_KATALOG ?? PRATIKLER[0]!;
 // Pratiğin kendi logosu (eski sitesindeki yeşil kimya şişesi gibi); çatıda ortak logo
-export const LOGO = (PRATIK_YA_DA_KATALOG && PRATIK.logo) || "/favicon.svg";
+export const LOGO = (PRATIK_YA_DA_KATALOG && PRATIK.logo) || "/logolar/pratikler.svg";
 export const SITE_ADI = PRATIK_YA_DA_KATALOG ? `${PRATIK.ad} Pratik` : "Pratikler";
 
 export const uniteBul = (no: number) => PRATIK.uniteler.find((u) => u.no === no);

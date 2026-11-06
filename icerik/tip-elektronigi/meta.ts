@@ -32,6 +32,7 @@ export const tipElektronigi: PratikMeta = {
   uniteKisa: "Ü",
   yayinda: true,
   latex: true,
+  logo: "/logolar/tip-elektronigi.svg",
   etiketler: [
     { id: "ders", ad: "Ders notu", renk: "ders", aciklama: "Tıp Elektroniği ders notlarındaki bilgiden türetilmiş soru" },
     { id: "kitap", ad: "Kitap", renk: "kitap", aciklama: "Dersin kaynak kitaplarından (Semmlow, Subasi) türetilmiş soru" },

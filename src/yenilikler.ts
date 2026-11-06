@@ -14,6 +14,15 @@ export interface Yenilik {
 
 export const YENILIKLER: Yenilik[] = [
   {
+    pr: 15,
+    tarih: "2026-11-06",
+    baslik: "Pratikler'in yeni logosu, kartlarda pratik logoları ve daha akıcı yükleme",
+    maddeler: [
+      "Pratikler artık kendi logosuyla geliyor; tarayıcı sekmesinde de onu görürsün.",
+      "Ana sayfadaki her pratik kartında o pratiğin logosu var, aradığını bir bakışta bulursun. Tıp Elektroniği'nin de artık kendi logosu var.",
+      "Sorular, karma test, tekrar ve ilerleme sayfası yüklenirken düz \"Yükleniyor…\" yazısı yerine sayfanın taslağı görünüyor.",
+    ],
+  },  {
     pr: 14,
     tarih: "2026-11-06",
     baslik: "Telefonda daha derli toplu bir üst çubuk",
