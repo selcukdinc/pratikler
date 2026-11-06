@@ -14,6 +14,16 @@ export interface Yenilik {
 
 export const YENILIKLER: Yenilik[] = [
   {
+    pr: 12,
+    tarih: "2026-11-06",
+    baslik: "Yeni pratik: Biyomedikal",
+    maddeler: [
+      "Biyomedikal Pratik açıldı: biyomedikal.selcukdinc.dev. Biyomedikal Veri İşleme Teknikleri dersinin altı sunumu sekiz üniteye ayrıldı: EKG, EEG ve uyku, EMG, tıbbi görüntüleme ve genomik veri, veri ön işleme, görüntü ön işleme, Fourier ve dalgacık dönüşümü. Toplam 268 soru var.",
+      "Her ünitenin şekilli bir konu anlatımı var: Einthoven üçgeni, EKG kağıdından kalp hızı, EEG bantları, uyku döngüleri, IQR kutu grafiği, histogram eşitleme, FFT spektrumu, Mallat filtre bankası gibi 38 şekil. Her bölümün sonunda bir \"Kendini dene\" sorusu, her ünitenin sonunda konu sonu testi var.",
+      "Sayısal sorularda (kalp hızı, IQR, z-skor, gri dönüşüm, Fourier genliği, DWT katsayı sayısı) cevabını sayı olarak yazarsın; açıklama hesabı adım adım gösterir.",
+    ],
+  },
+  {
     pr: 11,
     tarih: "2026-11-06",
     baslik: "Yeni pratik: İş İngilizcesi",
