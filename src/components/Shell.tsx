@@ -29,6 +29,7 @@ const IKONLAR = {
   pratik: "M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6M4 4l5 5",
   lab: "M9 3h6M10 3v6l-5.5 9.5A1.7 1.7 0 006 21h12a1.7 1.7 0 001.5-2.5L14 9V3M7.5 15h9",
   matstudio: "M7 5l12 7-12 7z",
+  simulasyon: "M3 12h3l2-6 4 12 2-6h7",
   cikmis: "M6 3h9l4 4v14H6zM14 3v5h5M9 13h7M9 17h5",
   ders: "M4 5a2 2 0 012-2h13v16H6a2 2 0 00-2 2zM4 5v16M8 7h7M8 11h7",
   sorular: "M9 6h11M9 12h11M9 18h11M4 6h.01M4 12h.01M4 18h.01",
@@ -59,6 +60,7 @@ const ETKIN: Partial<Record<Route["page"], Route["page"][]>> = {
   sorular: ["sorular"],
   lab: ["lab"],
   matstudio: ["matstudio"],
+  simulasyon: ["simulasyon"],
   cikmis: ["cikmis"],
 };
 
@@ -258,6 +260,7 @@ export function Shell({ route, currentWeek, title, status, duyuru, children }: P
         <div className="nav-section">PRATİK</div>
         {DENEYLER.length > 0 && <NavLink to={{ page: "lab" }} current={route} ikon="lab">Sanal Lab</NavLink>}
         {OZELLIKLER.matstudio && <NavLink to={{ page: "matstudio" }} current={route} ikon="matstudio">MatStudio</NavLink>}
+        {OZELLIKLER.vhdl && <NavLink to={{ page: "simulasyon" }} current={route} ikon="simulasyon">Simülasyon alanı</NavLink>}
         <NavLink to={{ page: "pratik" }} current={route} ikon="pratik">Karma test</NavLink>
 
         <div className="nav-section">ÇALIŞ</div>

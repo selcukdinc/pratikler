@@ -1,4 +1,4 @@
-// MatStudio'nun "Düzen" menüsü: varsayılana dönme, düzeni adıyla kaydetme
+// MatStudio'nun ve VHDL simülasyon alanının "Düzen" menüsü: varsayılana dönme, düzeni adıyla kaydetme
 // ve kayıtlı düzenleri uygulama. Misafirin düzenleri bu tarayıcıda, üyeninkiler
 // hesabında saklanır. O anki düzen her durumda bu tarayıcıda hatırlanır.
 
@@ -6,11 +6,12 @@ import { useEffect, useRef, useState, type FormEvent } from "react";
 import { api } from "../lib/api";
 import { uye, useOturum } from "../lib/oturum";
 import {
-  DUZEN_ADI_UZUNLUK, EN_COK_DUZEN, VARSAYILAN_DUZEN, duzenDuzelt, duzenleriDenetle, type Duzen, type KayitliDuzen,
+  DUZEN_ADI_UZUNLUK, EN_COK_DUZEN, VARSAYILAN_DUZENLER, duzenDuzelt, duzenleriDenetle, type Duzen, type DuzenAlaniAdi, type KayitliDuzen,
 } from "../../shared/duzen";
 
-const AKTIF = "dsp-pratik:lab-duzen";
-const YEREL_LISTE = "dsp-pratik:lab-duzenleri";
+// Tarayıcıdaki anahtarlar eski sitelerinkiyle aynıdır
+const AKTIF: Record<DuzenAlaniAdi, string> = { matstudio: "dsp-pratik:lab-duzen", vhdl: "fpga-pratik:sim-duzen" };
+const YEREL_LISTE: Record<DuzenAlaniAdi, string> = { matstudio: "dsp-pratik:lab-duzenleri", vhdl: "fpga-pratik:sim-duzenleri" };
 
 function oku<T>(anahtar: string, varsayilan: T): T {
   try {
@@ -29,13 +30,13 @@ function yaz(anahtar: string, v: unknown) {
   }
 }
 
-export function useDuzen() {
-  const [duzen, setDuzen] = useState<Duzen>(() => duzenDuzelt(oku<unknown>(AKTIF, VARSAYILAN_DUZEN)));
-  useEffect(() => yaz(AKTIF, duzen), [duzen]);
+export function useDuzen(alan: DuzenAlaniAdi = "matstudio") {
+  const [duzen, setDuzen] = useState<Duzen>(() => duzenDuzelt(oku<unknown>(AKTIF[alan], VARSAYILAN_DUZENLER[alan]), alan));
+  useEffect(() => yaz(AKTIF[alan], duzen), [duzen, alan]);
   return [duzen, setDuzen] as const;
 }
 
-function useKayitliDuzenler() {
+function useKayitliDuzenler(alan: DuzenAlaniAdi) {
   const { me } = useOturum();
   const hesapta = uye(me);
   const [liste, setListe] = useState<KayitliDuzen[] | null>(null);
@@ -44,21 +45,21 @@ function useKayitliDuzenler() {
   useEffect(() => {
     setListe(null);
     if (hesapta) {
-      api.ayarlar.duzenler().then(setListe, () => (setListe([]), setHata("Kayıtlı düzenler yüklenemedi.")));
+      api.ayarlar.duzenler(alan).then(setListe, () => (setListe([]), setHata("Kayıtlı düzenler yüklenemedi.")));
     } else {
-      const d = duzenleriDenetle(oku<unknown>(YEREL_LISTE, []));
+      const d = duzenleriDenetle(oku<unknown>(YEREL_LISTE[alan], []), alan);
       setListe("duzenler" in d ? d.duzenler : []);
     }
-  }, [hesapta]);
+  }, [hesapta, alan]);
 
   const kaydet = async (yeni: KayitliDuzen[]): Promise<boolean> => {
     setHata(null);
     if (!hesapta) {
-      yaz(YEREL_LISTE, yeni);
+      yaz(YEREL_LISTE[alan], yeni);
       setListe(yeni);
       return true;
     }
-    const r = await api.ayarlar.duzenleriKaydet(yeni);
+    const r = await api.ayarlar.duzenleriKaydet(yeni, alan);
     if (!r.ok) {
       setHata(r.hata.error);
       return false;
@@ -74,13 +75,14 @@ interface Props {
   duzen: Duzen;
   uygula: (d: Duzen) => void;
   durum: (s: string) => void;
+  alan?: DuzenAlaniAdi;
 }
 
-export function DuzenMenusu({ duzen, uygula, durum }: Props) {
+export function DuzenMenusu({ duzen, uygula, durum, alan = "matstudio" }: Props) {
   const [acik, setAcik] = useState(false);
   const [ad, setAd] = useState("");
   const kutu = useRef<HTMLDivElement>(null);
-  const { liste, kaydet, hata, hesapta } = useKayitliDuzenler();
+  const { liste, kaydet, hata, hesapta } = useKayitliDuzenler(alan);
 
   useEffect(() => {
     if (!acik) return;
@@ -122,7 +124,7 @@ export function DuzenMenusu({ duzen, uygula, durum }: Props) {
           <button
             className="duzen-varsayilan"
             onClick={() => {
-              uygula(VARSAYILAN_DUZEN);
+              uygula(VARSAYILAN_DUZENLER[alan]);
               durum("Varsayılan pencere düzenine dönüldü");
             }}
           >

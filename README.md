@@ -77,3 +77,6 @@ Sorular değiştiyse PR bir migration içerir; birleştirdikten sonra `npm run d
 ## Lisans
 
 [GPL-3.0-or-later](LICENSE). Sorular ilgili ders notlarına ve kitaplara dayanır; bu proje dersleri veren kurumlarla bağlantılı değildir.
+
+FPGA'nın VHDL simülatörü olarak [NVC](https://github.com/nickg/nvc) (Nick Gasson ve katkıcıları, GPL-3.0) kullanılır.
+WebAssembly derlemesinin kaynağı ve yamaları `sim/nvc-wasm/` altındadır.

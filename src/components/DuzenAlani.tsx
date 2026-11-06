@@ -18,7 +18,7 @@ export interface PanelTanimi {
 interface Props {
   duzen: Duzen;
   degistir: (d: Duzen) => void;
-  paneller: Record<PanelId, PanelTanimi>;
+  paneller: Partial<Record<PanelId, PanelTanimi>>;
   menuAc: (x: number, y: number, ogeler: { etiket: string; yap?: () => void; pasif?: boolean; ayrac?: boolean }[]) => void;
 }
 
@@ -109,6 +109,7 @@ export function DuzenAlani({ duzen, degistir, paneller, menuAc }: Props) {
       <div className="duzen-satir" style={{ flexGrow: yukseklik }} data-satir={satir}>
         {s.map((p, i) => {
           const t = paneller[p.id];
+          if (!t) return null;
           const cizgi = birakma?.satir === satir ? (birakma.indeks === i ? " birak-sol" : birakma.indeks === i + 1 ? " birak-sag" : "") : "";
           return [
             i > 0 && (

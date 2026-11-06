@@ -21,6 +21,8 @@ import { dersBul } from "./dersler";
 
 // MatStudio yalnızca açan pratikte ayrı parça olarak indirilir (editör ve yorumlayıcı)
 const MatStudio = lazy(() => import("./pages/MatStudio").then((m) => ({ default: m.Sandbox })));
+// VHDL simülasyon alanı (FPGA) da öyle: editör ve NVC yalnızca açılınca indirilir
+const Simulasyon = lazy(() => import("./pages/Simulasyon").then((m) => ({ default: m.Sandbox })));
 import { Progress } from "./pages/Progress";
 import { Tekrar } from "./pages/Tekrar";
 import { About } from "./pages/About";
@@ -39,6 +41,7 @@ function baslik(route: Route, topicTitle?: string): string {
   switch (route.page) {
     case "pratik": return "KARMA TEST - Karışık sorular, karışık şıklar";
     case "matstudio": return "MatStudio";
+    case "simulasyon": return "SİMÜLASYON ALANI - VHDL yaz, benzetimini çalıştır";
     case "lab": return route.deney ? `SANAL LAB - ${deneyBul(route.deney)?.ad ?? "Deney"}` : "SANAL LAB";
     case "cikmis": return route.sinav ? `ÇIKMIŞ SORULAR - ${sinavBul(route.sinav)?.ad ?? "Sınav"}` : "ÇIKMIŞ SORULAR";
     case "sorular": return `SORU HAVUZU - ${topicTitle ?? (route.hafta ? uniteYazi(route.hafta) : "Tüm sorular")}`;
@@ -126,6 +129,11 @@ function PratikApp() {
   useEffect(() => {
     if (route.page === "matstudio") setMatstudioAcildi(true);
   }, [route]);
+  const vhdlVar = OZELLIKLER.vhdl;
+  const [simAcildi, setSimAcildi] = useState(route.page === "simulasyon");
+  useEffect(() => {
+    if (route.page === "simulasyon") setSimAcildi(true);
+  }, [route]);
   const [sonSorular, setSonSorular] = useState<{ topic?: string; hafta?: number } | null>(null);
   useEffect(() => {
     if (route.page === "sorular") setSonSorular({ topic: route.topic, hafta: route.hafta });
@@ -149,7 +157,14 @@ function PratikApp() {
             </Suspense>
           </div>
         )}
-        <OlcekliSayfa gizli={route.page === "matstudio"}>
+        {vhdlVar && simAcildi && (
+          <div className="sayfa-tut" hidden={route.page !== "simulasyon"}>
+            <Suspense fallback={<p className="empty">Simülasyon alanı yükleniyor…</p>}>
+              <Simulasyon onStatus={setStatus} aktif={route.page === "simulasyon"} />
+            </Suspense>
+          </div>
+        )}
+        <OlcekliSayfa gizli={route.page === "matstudio" || route.page === "simulasyon"}>
           {route.page === "pratik" && <Karma topics={topics} />}
           {sorularProps && (
             <div className="sayfa-tut" hidden={route.page !== "sorular"}>

@@ -1,10 +1,17 @@
-// MatStudio'nun pencere düzeni. Paneller iki satıra dizilir; her panelin
-// satırdaki payı (oran) ve üst satırın yükseklik payı (ustOran) saklanır.
-// Kayıtlı düzenler misafirde tarayıcıda, üyede hesapta tutulur.
+// MatStudio'nun (DSP) ve VHDL simülasyon alanının (FPGA) pencere düzeni.
+// Paneller iki satıra dizilir; her panelin satırdaki payı (oran) ve üst satırın
+// yükseklik payı (ustOran) saklanır. Kayıtlı düzenler misafirde tarayıcıda,
+// üyede hesapta tutulur; her alanın düzenleri ayrıdır.
 
-// editor: betik, figure: grafik penceresi, command: komut penceresi, workspace: değişkenler
-export type PanelId = "editor" | "figure" | "command" | "workspace";
-export const PANELLER: PanelId[] = ["editor", "figure", "command", "workspace"];
+// MatStudio: editor betik, figure grafik penceresi, command komut penceresi, workspace değişkenler
+// VHDL: sources dosyalar, editor kod, waves dalga ekranı, bottom mesajlar ve günlük
+export type DuzenAlaniAdi = "matstudio" | "vhdl";
+export type PanelId = "editor" | "figure" | "command" | "workspace" | "sources" | "waves" | "bottom";
+export const ALAN_PANELLERI: Record<DuzenAlaniAdi, PanelId[]> = {
+  matstudio: ["editor", "figure", "command", "workspace"],
+  vhdl: ["sources", "editor", "waves", "bottom"],
+};
+export const PANELLER = ALAN_PANELLERI.matstudio;
 
 export interface PanelYeri {
   id: PanelId;
@@ -34,6 +41,25 @@ export const VARSAYILAN_DUZEN: Duzen = {
   ustOran: 0.62,
 };
 
+export const VARSAYILAN_DUZENLER: Record<DuzenAlaniAdi, Duzen> = {
+  matstudio: VARSAYILAN_DUZEN,
+  vhdl: {
+    ust: [
+      { id: "sources", oran: 0.18 },
+      { id: "editor", oran: 0.41 },
+      { id: "waves", oran: 0.41 },
+    ],
+    alt: [{ id: "bottom", oran: 1 }],
+    ustOran: 0.72,
+  },
+};
+
+// Düzende geçen panellerden hangi alana ait olduğunu bulur (editor ikisinde de var)
+function alanBul(d: Partial<Duzen>): DuzenAlaniAdi {
+  const idler = [...(Array.isArray(d.ust) ? d.ust : []), ...(Array.isArray(d.alt) ? d.alt : [])].map((p) => (p as PanelYeri | null)?.id);
+  return idler.some((id) => id === "sources" || id === "waves" || id === "bottom") ? "vhdl" : "matstudio";
+}
+
 export const EN_COK_DUZEN = 10;
 export const DUZEN_ADI_UZUNLUK = 40;
 
@@ -41,9 +67,12 @@ const sinirla = (x: number, a: number, b: number) => Math.min(b, Math.max(a, x))
 
 // Bozuk ya da eksik bir düzeni kullanılabilir hale getirir: her panel tam bir kez
 // yer alır, oranlar pozitiftir. Hiçbir şey kurtarılamazsa varsayılan döner.
-export function duzenDuzelt(d: unknown): Duzen {
-  if (!d || typeof d !== "object") return VARSAYILAN_DUZEN;
+export function duzenDuzelt(d: unknown, alan?: DuzenAlaniAdi): Duzen {
+  if (!d || typeof d !== "object") return VARSAYILAN_DUZENLER[alan ?? "matstudio"];
   const g = d as Partial<Duzen>;
+  const a = alan ?? alanBul(g);
+  const PANELLER = ALAN_PANELLERI[a];
+  const VARSAYILAN_DUZEN = VARSAYILAN_DUZENLER[a];
   const gorulen = new Set<PanelId>();
   const satir = (s: unknown): PanelYeri[] => {
     const out: PanelYeri[] = [];
@@ -72,7 +101,7 @@ export function duzenDuzelt(d: unknown): Duzen {
 }
 
 // Sunucuya gelen kayıtlı düzen listesini denetler; hata yoksa düzeltilmiş listeyi döner
-export function duzenleriDenetle(v: unknown): { hata: string } | { duzenler: KayitliDuzen[] } {
+export function duzenleriDenetle(v: unknown, alan: DuzenAlaniAdi = "matstudio"): { hata: string } | { duzenler: KayitliDuzen[] } {
   if (!Array.isArray(v)) return { hata: "Düzen listesi bekleniyordu." };
   if (v.length > EN_COK_DUZEN) return { hata: `En fazla ${EN_COK_DUZEN} düzen kaydedebilirsin.` };
   const adlar = new Set<string>();
@@ -83,7 +112,7 @@ export function duzenleriDenetle(v: unknown): { hata: string } | { duzenler: Kay
     if (ad.length > DUZEN_ADI_UZUNLUK) return { hata: `Düzen adı en fazla ${DUZEN_ADI_UZUNLUK} karakter olabilir.` };
     if (adlar.has(ad.toLocaleLowerCase("tr"))) return { hata: `"${ad}" adında iki düzen var.` };
     adlar.add(ad.toLocaleLowerCase("tr"));
-    duzenler.push({ ad, duzen: duzenDuzelt(x.duzen) });
+    duzenler.push({ ad, duzen: duzenDuzelt(x.duzen, alan) });
   }
   return { duzenler };
 }

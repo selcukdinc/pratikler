@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { Suspense, lazy, useEffect, useMemo, useRef, useState } from "react";
 import { Cozum } from "../components/Cozum";
 import { PRATIK, uniteBul } from "../lib/pratik";
 import { doneminiBul, donemliMi } from "../dersler";
@@ -16,6 +16,9 @@ import type { AnswerResult, Etiket, Question, SoruDurumlari, SoruIstatistigi, To
 import type { Answer, OzDegerlendirme } from "../../shared/grade";
 import { SembolKlavyesi, sembolEkle } from "../components/SembolKlavyesi";
 
+// Kod soruları (FPGA) editörü ve simülatörüyle ayrı parça olarak yalnızca gerektiğinde indirilir
+const KodSorusu = lazy(() => import("../components/KodSorusu").then((m) => ({ default: m.KodSorusu })));
+
 // dersBagi: kartın başlığında sorunun anlatıldığı ders bölümüne bağlantı
 // (ders sayfasının kendisinde gereksiz olduğu için kapatılır).
 // durum: kişinin bu soruyu daha önce (havuzda, derste ya da tekrarda) çözüp çözmediği
@@ -29,6 +32,7 @@ interface KartOzellikleri {
 }
 
 export function QuestionCard({ q, n, dersBagi = true, durum, onSonuc }: KartOzellikleri) {
+  if (q.type === "code" && q.payload.kod) return <KodKarti q={q} n={n} dersBagi={dersBagi} durum={durum} onSonuc={onSonuc} />;
   return <KapaliKart q={q} n={n} dersBagi={dersBagi} durum={durum} onSonuc={onSonuc} />;
 }
 
@@ -48,6 +52,7 @@ function Baslik({ q, n, dersBagi, durum }: IcOzellikler) {
       <EtiketRozetleri q={q} />
       <span className="tag" title={`${q.week}. ünite`}>Ü{q.week}</span>
       {q.type === "num" && <span className="tag">Sayısal</span>}
+      {q.type === "code" && <span className="tag">Kod</span>}
       {durum === "dogru" && <span className="tag tag-cozuldu" title="Bu soruyu daha önce doğru çözdün">✓ Çözdün</span>}
       {durum === "yanlis" && <span className="tag tag-yanlisti" title="Bu soruyu denedin ama henüz doğru çözmedin">Yanlış yapmıştın</span>}
       <span className="tag" title={`Zorluk ${q.difficulty}/3`}>{"★".repeat(q.difficulty)}{"☆".repeat(3 - q.difficulty)}</span>
@@ -55,6 +60,24 @@ function Baslik({ q, n, dersBagi, durum }: IcOzellikler) {
       {q.source === "original" && q.sourceRef && <span className="q-ref">{q.sourceRef}</span>}
       {q.oneren && <span className="q-ref">Öneren: <a href={`/profil/${encodeURIComponent(q.oneren)}`}>@{q.oneren}</a></span>}
     </header>
+  );
+}
+
+// Kod yazma sorusu: öğrenci mimariyi yazar, tasarım tarayıcıda gizli bir testbench'le sınanır
+function KodKarti({ q, n, dersBagi, durum, onSonuc }: IcOzellikler) {
+  const [dogru, setDogru] = useState<boolean | null>(null);
+  const sonuc = (d: boolean | null) => {
+    setDogru(d);
+    if (d !== null) onSonuc?.(d);
+  };
+  return (
+    <article className={`question kod kodlu${dogru === null ? "" : dogru ? " correct" : " wrong"}`} data-soru={q.id} id={`soru-${q.id}`}>
+      <Baslik q={q} n={n} dersBagi={dersBagi} durum={durum} onSonuc={onSonuc} />
+      <div className="q-metin"><Markdown text={q.prompt} terim /></div>
+      <Suspense fallback={<p className="empty">Kod editörü yükleniyor…</p>}>
+        <KodSorusu id={q.id} bilgi={q.payload.kod!} onSonuc={sonuc} />
+      </Suspense>
+    </article>
   );
 }
 
@@ -386,7 +409,7 @@ type Durum = "tumu" | "cozulmemis" | "yanlis" | "dogru";
 const DURUMLAR: [Durum, string][] = [["cozulmemis", "Çözmediklerim"], ["tumu", "Tümü"], ["yanlis", "Yanlışlarım"], ["dogru", "Doğrularım"]];
 // Havuz açılınca çözülen sorular gizlenir; derste ya da tekrarda çözülenler de sayılır
 const VARSAYILAN_DURUM: Durum = "cozulmemis";
-const TURLER: [string, string][] = [["", "Tüm türler"], ["tf", "Doğru/Yanlış"], ["mcq", "Çoktan seçmeli"], ["fill", "Boşluk doldurma"], ["num", "Sayısal"], ["yaz", "Yazma (klasik)"]];
+const TURLER: [string, string][] = [["", "Tüm türler"], ["tf", "Doğru/Yanlış"], ["mcq", "Çoktan seçmeli"], ["fill", "Boşluk doldurma"], ["num", "Sayısal"], ["yaz", "Yazma (klasik)"], ["code", "Kod"]];
 
 // Kaynak süzgeci: "gercek" kitabın ve çıkmış sınavların sorularıdır (türetilmişler hariç)
 export type KaynakSecimi = "" | "gercek" | Etiket;

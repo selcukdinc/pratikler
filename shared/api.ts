@@ -1,3 +1,4 @@
+import type { KodBilgisi } from "./kod";
 // İstemci ile Worker arasındaki veri tipleri
 
 import type { QuestionType } from "./grade";
@@ -43,7 +44,7 @@ export interface Question {
   source: "original" | "derived";
   prompt: string;
   // semboller: boşluk doldurmada mantık ve küme sembol klavyesi (Ayrık)
-  payload: { choices?: string[]; blanks?: number; sabit?: boolean; semboller?: boolean };
+  payload: { choices?: string[]; blanks?: number; sabit?: boolean; semboller?: boolean; kod?: KodBilgisi };
   etiketler: Etiket[];
   difficulty: number;
   sourceRef: string | null;

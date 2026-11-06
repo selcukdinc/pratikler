@@ -14,6 +14,17 @@ export interface Yenilik {
 
 export const YENILIKLER: Yenilik[] = [
   {
+    pr: 9,
+    tarih: "2026-11-06",
+    baslik: "FPGA platforma geliyor: tarayıcıda VHDL simülasyonu ve otomatik sınanan kod soruları",
+    maddeler: [
+      "FPGA Pratik'in altı haftalık dersleri, şekilleri, etkileşimli şekilleri ve 376 sorusu platforma taşındı.",
+      "Simülasyon alanı geldi: tarayıcında VHDL yaz, sözdizimini denetle, benzetimi çalıştır ve sinyalleri dalga ekranında incele. Daha önce eski sitede açtığın proje aynı tarayıcıda yerinde durur.",
+      "Kod sorularında yazdığın tasarım her denemede rastgele girişlerle üretilen gizli bir testbench'e karşı tarayıcında çalışır; takıldığın yerde beklenen ve senin çıkışın yan yana gösterilir.",
+      "Derslerdeki küçük benzetimleri değiştirip yeniden çalıştırabilirsin.",
+    ],
+  },
+  {
     pr: 8,
     tarih: "2026-11-06",
     baslik: "Fizik ve Ayrık platforma geliyor: adım adım çözümler, yazma soruları ve sembol klavyesi",
