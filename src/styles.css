@@ -1289,7 +1289,46 @@ body.boyutlaniyor-dikey { cursor: ns-resize; user-select: none; }
 .cati { display: grid; grid-template-rows: 36px 1fr; height: 100%; }
 .cati > main { overflow: auto; }
 .claude-isleri { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; }
-.claude-isleri li { border: 1px solid var(--border); border-radius: 6px; padding: 10px; background: var(--panel); }
+.claude-isleri li { border: 1px solid var(--border); border-radius: 6px; background: var(--panel); }
+.claude-isleri li > a { display: flex; flex-direction: column; gap: 4px; padding: 10px; color: var(--text); text-decoration: none; }
+.claude-isleri li:hover { background: var(--hover); }
+.claude-isleri li.secili { border-color: var(--btn-primary-border); box-shadow: inset 3px 0 0 var(--link); }
+.claude-isleri .is-ozet { color: var(--muted); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+/* Claude işleri: solda liste, sağda seçili işin canlı günlüğü */
+.claude-calisma { display: grid; gap: 14px; }
+.claude-calisma .claude-isleri { max-height: 260px; overflow: auto; gap: 6px; }
+.is-gunlugu { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.is-gunlugu-ust { display: flex; flex-direction: column; gap: 6px; }
+.is-gunlugu-istek { margin: 0; white-space: pre-wrap; }
+.is-gunlugu-dugmeler { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; }
+.pr-baglanti { font-weight: 600; }
+.soluk { color: var(--muted); }
+.is-durum-calisiyor { color: var(--link); }
+.is-durum-pr, .is-durum-tamam { color: var(--green); }
+.is-durum-hata { color: var(--error); }
+.canli-nokta { display: inline-block; width: 8px; height: 8px; margin-left: 6px; border-radius: 50%; background: var(--green); animation: canli 1.2s ease-in-out infinite; vertical-align: middle; }
+@keyframes canli { 50% { opacity: 0.25; } }
+@media (prefers-reduced-motion: reduce) { .canli-nokta { animation: none; } }
+.asama-cubugu { display: flex; list-style: none; margin: 0; padding: 0; gap: 4px; counter-reset: asama; }
+.asama-cubugu li { flex: 1; padding: 3px 8px; border-radius: 3px; background: var(--panel-header); color: var(--muted); font-size: 12px; text-align: center; }
+.asama-cubugu li.tamam { background: color-mix(in srgb, var(--green) 22%, transparent); color: var(--text); }
+.asama-cubugu li.simdi { background: color-mix(in srgb, var(--link) 25%, transparent); color: var(--text); font-weight: 600; }
+.asama-cubugu li.hata { background: color-mix(in srgb, var(--error) 25%, transparent); color: var(--text); }
+.terminal {
+  height: min(60vh, 560px); overflow: auto; padding: 8px 10px; border-radius: 6px;
+  background: #16171a; color: #d8d8d8; font: 12px/1.55 var(--mono);
+}
+.terminal-bos { color: #8a8a8a; margin: 4px 0; }
+.terminal-satir { display: grid; grid-template-columns: auto 1.3em 1fr; gap: 6px; }
+.t-saat { color: #6b6f76; }
+.t-isaret { text-align: center; }
+.t-metin { white-space: pre-wrap; word-break: break-word; }
+.t-asama { color: #7fb8ff; font-weight: 700; margin-top: 6px; }
+.t-arac .t-metin { color: #e0c27a; }
+.t-sonuc .t-metin, .t-cikti .t-metin { color: #9a9ea6; }
+.t-bilgi .t-metin { color: #8fd18f; }
+.t-hata .t-metin, .t-hata .t-isaret { color: #ff8a80; }
 .claude-isleri p { margin: 6px 0; white-space: pre-wrap; }
 .claude-isleri pre { max-height: 240px; overflow: auto; white-space: pre-wrap; }
 .ajan-karti .ok { color: var(--green); }

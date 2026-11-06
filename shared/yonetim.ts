@@ -174,6 +174,26 @@ export interface ClaudeIsi {
 }
 export const CLAUDE_ISTEK_EN_UZUN = 4000;
 
+// Bir işin canlı günlüğündeki tek satır (ajan/olaylar.mjs üretir)
+export type ClaudeOlayTuru = "asama" | "metin" | "arac" | "sonuc" | "cikti" | "bilgi" | "hata";
+export const CLAUDE_OLAY_TURLERI: ClaudeOlayTuru[] = ["asama", "metin", "arac", "sonuc", "cikti", "bilgi", "hata"];
+export interface ClaudeOlayi {
+  id: number;
+  tur: ClaudeOlayTuru;
+  metin: string;
+  zaman: number;
+}
+// Panelin canlı günlük isteğinin cevabı: işin son hali ve "sonra"dan sonraki olaylar
+export interface ClaudeIsGunlugu {
+  is: ClaudeIsi;
+  iptalIstendi: boolean;
+  olaylar: ClaudeOlayi[];
+}
+// Sınırlar: bir gönderimde en çok 50 olay, olay başına 4000 karakter, iş başına 3000 olay
+export const OLAY_GONDERIM = 50;
+export const OLAY_UZUNLUK = 4000;
+export const IS_BASINA_OLAY = 3000;
+
 // Yeni pratik isteği (çatı paneli). Ajan bunu Claude'a ayrıntılı bir isteğe çevirir.
 export interface YeniPratikGirdi {
   ad: string;

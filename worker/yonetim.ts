@@ -6,7 +6,7 @@ import { Hono, type Context } from "hono";
 import type { Me } from "../shared/api";
 import {
   soruGirdisiHatasi, soruSutunlari,
-  CLAUDE_ISTEK_EN_UZUN, yeniPratikHatasi, type AjanDurumu, type ClaudeIsi, type ClaudeIsTuru, type PanelPratik, type YeniPratikGirdi,
+  CLAUDE_ISTEK_EN_UZUN, yeniPratikHatasi, type AjanDurumu, type ClaudeIsi, type ClaudeIsGunlugu, type ClaudeOlayi, type ClaudeIsTuru, type PanelPratik, type YeniPratikGirdi,
   type PanelAyarlar, type PanelKayit, type PanelPano, type PanelKullanici, type PanelOzet, type PanelSoru, type SoruGirdi,
 } from "../shared/yonetim";
 import type { PanelOneri, Yazisma } from "../shared/sosyal";
@@ -218,13 +218,30 @@ yonetim.get("/ajan", async (c) =>
   c.json<AjanDurumu>({ anahtarTanimli: !!c.env.AJAN_TOKEN, nabiz: await nabizOku(c.env.DB) }),
 );
 
-// Ajan almadan önce iptal; çalışan iş ajan tarafında durdurulur
+// Bekleyen iş hemen iptal olur; çalışan işte durdurma istenir, ajan bir sonraki
+// günlük gönderiminde (en geç birkaç saniye) görüp durur.
 yonetim.post("/claude/:id/iptal", izin("soru.ekle"), async (c) => {
-  const r = await c.env.DB.prepare(
-    "UPDATE claude_isleri SET durum = 'iptal', updated_at = ? WHERE id = ? AND practice_id = ? AND durum = 'bekliyor'",
-  ).bind(Date.now(), c.req.param("id"), kapsam(c)).run();
-  if (!r.meta.changes) return c.json({ error: "Bekleyen böyle bir iş yok." }, 404);
+  const db = c.env.DB;
+  const [bekleyen, calisan] = await db.batch([
+    db.prepare("UPDATE claude_isleri SET durum = 'iptal', updated_at = ? WHERE id = ? AND practice_id = ? AND durum = 'bekliyor'")
+      .bind(Date.now(), c.req.param("id"), kapsam(c)),
+    db.prepare("UPDATE claude_isleri SET iptal_istendi = 1 WHERE id = ? AND practice_id = ? AND durum = 'calisiyor'")
+      .bind(c.req.param("id"), kapsam(c)),
+  ]);
+  if (!bekleyen!.meta.changes && !calisan!.meta.changes) return c.json({ error: "Bekleyen ya da çalışan böyle bir iş yok." }, 404);
   return c.json({ ok: true });
+});
+
+// Canlı günlük: işin son hali ve "sonra" kimliğinden sonraki olaylar (en çok 500)
+yonetim.get("/claude/:id/olaylar", async (c) => {
+  const db = c.env.DB;
+  const is = await db.prepare(`${IS_SQL} WHERE i.id = ? AND i.practice_id = ?`).bind(c.req.param("id"), kapsam(c))
+    .first<Parameters<typeof isSatiri>[0] & { iptal_istendi: number }>();
+  if (!is) return c.json({ error: "iş bulunamadı" }, 404);
+  const sonra = Math.max(0, Number(c.req.query("sonra")) || 0);
+  const { results } = await db.prepare("SELECT id, tur, metin, zaman FROM claude_is_olaylari WHERE is_id = ? AND id > ? ORDER BY id LIMIT 500")
+    .bind(is.id, sonra).all<ClaudeOlayi>();
+  return c.json<ClaudeIsGunlugu>({ is: isSatiri(is), iptalIstendi: is.iptal_istendi === 1, olaylar: results });
 });
 
 yonetim.post("/ayarlar", izin("ayar.duzenle"), async (c) => {
