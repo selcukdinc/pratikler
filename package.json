@@ -26,6 +26,7 @@
     "@codemirror/state": "^6.7.6",
     "@codemirror/view": "^6.43.15",
     "@lezer/highlight": "^1.2.5",
+    "docx": "^9.5.1",
     "hono": "^4.13.13",
     "katex": "^0.16.47",
     "react": "^19.3.1",

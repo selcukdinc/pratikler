@@ -14,8 +14,8 @@ import { FormHatasi } from "../components/Form";
 import { Iskelet } from "../components/Iskelet";
 import { sinavYetkisi } from "./Sinavlar";
 import {
-  SIK_HARFLERI, kagitMm, numaralar, sayfala, sikIndir, toplamPuan,
-  type SinavAyari, type SinavBelgesi, type SinavOgesi, type SinavSorusu,
+  GRUP_ADLARI, SIK_HARFLERI, cevapYazisi, grupKagidi, kagitMm, sayfala, toplamPuan, varsayilanGruplar,
+  type GrupAyari, type GrupOgesi, type GrupSorusu, type SinavAyari, type SinavBelgesi, type SinavOgesi, type SinavSorusu,
 } from "../../shared/sinav";
 
 // CSS'te 1 mm = 96 / 25.4 px
@@ -90,37 +90,36 @@ function Duzenlenir({ deger, onDegis, markdown = true, cok = true, bos = "Yazmak
 // ---- Kağıttaki bir soru ----
 type Degistir = (id: string, f: (o: SinavOgesi) => SinavOgesi) => void;
 
-function sorununSiklari(o: Extract<SinavOgesi, { tur: "soru" }>, q: SinavSorusu, n: number) {
-  const asil = q.payload.choices ?? [];
-  const dogru = (q.answer as { index?: number })?.index ?? null;
-  return o.siklar ?? sikIndir(asil, dogru, n, q.payload.sabit).siklar;
-}
-
-function SoruBlogu({ o, q, no, ayar, degistir, araclar }: {
-  o: Extract<SinavOgesi, { tur: "soru" }>; q: SinavSorusu | undefined; no: number; ayar: SinavAyari; degistir?: Degistir; araclar?: ReactNode;
+function SoruBlogu({ s, no, ayar, degistir, araclar }: {
+  s: GrupSorusu; no: number; ayar: SinavAyari; degistir?: Degistir; araclar?: ReactNode;
 }) {
-  if (!q) return <div className="kagit-soru kagit-eksik">{no}. Bu soru artık sitede yok; kağıttan çıkarabilirsin.{araclar}</div>;
-  const metin = o.metin ?? q.prompt;
-  const siklar = q.type === "mcq" ? sorununSiklari(o, q, ayar.sikSayisi) : [];
-  const metniDegistir = degistir && ((s: string) => degistir(o.id, (x) => ({ ...x, metin: s }) as SinavOgesi));
-  const sikDegistir = degistir && ((i: number, s: string) => degistir(o.id, (x) => ({ ...x, siklar: siklar.map((k, j) => (j === i ? s : k)) }) as SinavOgesi));
+  const q = s.soru;
+  // Yalnızca kağıttaki (A grubu) soru yerinde düzenlenir
+  const d = s.duzenli ? degistir : undefined;
+  const metniDegistir = d && ((m: string) => d(s.ogeId, (x) => ({ ...x, metin: m }) as SinavOgesi));
+  // Şıklar karışık görünür ama kağıtta asıl sırasıyla saklanır
+  const sikDegistir = d && ((i: number, m: string) => d(s.ogeId, (x) => {
+    const asil: string[] = [];
+    s.sira.forEach((k, j) => (asil[k] = j === i ? m : s.siklar[j]!));
+    return { ...x, siklar: asil } as SinavOgesi;
+  }));
   return (
     <div className="kagit-soru">
       {araclar}
       <div className="kagit-soru-govde">
         <span className="kagit-no">{no}.</span>
         <div className="kagit-soru-metin">
-          {ayar.puanGoster && o.puan ? <span className="kagit-puan">({o.puan} puan)</span> : null}
+          {ayar.puanGoster && s.puan ? <span className="kagit-puan">({s.puan} puan)</span> : null}
           {q.type === "tf" && <span className="kagit-dy">(&nbsp;&nbsp;&nbsp;&nbsp;) </span>}
-          <Duzenlenir deger={metin} onDegis={metniDegistir} />
+          <Duzenlenir deger={s.metin} onDegis={metniDegistir} />
         </div>
       </div>
-      {siklar.length > 0 && (
+      {s.siklar.length > 0 && (
         <ol className="kagit-siklar">
-          {siklar.map((s, i) => (
+          {s.siklar.map((m, i) => (
             <li key={i}>
               <span className="kagit-harf">{SIK_HARFLERI[i]})</span>
-              <Duzenlenir deger={s} onDegis={sikDegistir && ((x) => sikDegistir(i, x))} />
+              <Duzenlenir deger={m} onDegis={sikDegistir && ((x) => sikDegistir(i, x))} />
             </li>
           ))}
         </ol>
@@ -130,23 +129,24 @@ function SoruBlogu({ o, q, no, ayar, degistir, araclar }: {
   );
 }
 
-function MetinBlogu({ o, degistir, araclar }: { o: Extract<SinavOgesi, { tur: "metin" }>; degistir?: Degistir; araclar?: ReactNode }) {
+function MetinBlogu({ o, degistir, araclar }: { o: Extract<GrupOgesi, { tur: "metin" }>; degistir?: Degistir; araclar?: ReactNode }) {
   return (
     <div className="kagit-ortak">
       {araclar}
-      <Duzenlenir deger={o.metin} onDegis={degistir && ((s) => degistir(o.id, (x) => ({ ...x, metin: s }) as SinavOgesi))} bos="Ortak metin ya da yönerge" />
+      <Duzenlenir deger={o.metin} onDegis={degistir && ((s) => degistir(o.ogeId, (x) => ({ ...x, metin: s }) as SinavOgesi))} bos="Ortak metin ya da yönerge" />
     </div>
   );
 }
 
 // ---- Kağıt başlığı (ilk sayfa) ----
-function Baslik({ ayar, toplam, ayarDegistir }: { ayar: SinavAyari; toplam: number; ayarDegistir?: (a: Partial<SinavAyari>) => void }) {
+function Baslik({ ayar, toplam, grup, ayarDegistir }: { ayar: SinavAyari; toplam: number; grup?: string; ayarDegistir?: (a: Partial<SinavAyari>) => void }) {
   const alan = (k: "universite" | "fakulte" | "ders" | "sinavAdi", bos: string) => (
     <Duzenlenir deger={ayar[k]} markdown={false} cok={false} bos={bos} onDegis={ayarDegistir && ((s) => ayarDegistir({ [k]: s }))} />
   );
   const bilgi = [ayar.tarih && `Tarih: ${tarihYazi(ayar.tarih)}`, ayar.sure > 0 && `Süre: ${ayar.sure} dakika`, ayar.puanGoster && toplam > 0 && `Toplam: ${toplam} puan`].filter(Boolean);
   return (
     <header className="kagit-baslik">
+      {grup && <div className="kagit-grup" aria-label={`${grup} grubu`}><small>GRUP</small>{grup}</div>}
       <div className="kagit-baslik-ust">{alan("universite", "Üniversite")}{alan("fakulte", "Fakülte / bölüm")}</div>
       <div className="kagit-baslik-ad">{alan("ders", "Ders adı")}{alan("sinavAdi", "Sınav: ör. 2026-2027 Güz Vize")}</div>
       {bilgi.length > 0 && <div className="kagit-bilgi">{bilgi.join("   ·   ")}</div>}
@@ -167,16 +167,17 @@ function Baslik({ ayar, toplam, ayarDegistir }: { ayar: SinavAyari; toplam: numb
 }
 
 // ---- Kağıt: ölçüm, sayfalama, çizim ----
-function Kagit({ belge, sorular, degistir, ayarDegistir, oge }: {
-  belge: SinavBelgesi; sorular: Map<string, SinavSorusu>; degistir: Degistir; ayarDegistir: (a: Partial<SinavAyari>) => void;
-  oge: (o: SinavOgesi) => { araclar: ReactNode };
+function Kagit({ belge, ogeler, grup, degistir, ayarDegistir, oge }: {
+  belge: SinavBelgesi; ogeler: GrupOgesi[]; grup?: string; degistir?: Degistir; ayarDegistir?: (a: Partial<SinavAyari>) => void;
+  oge?: (o: GrupOgesi) => ReactNode;
 }) {
-  const { ayar, ogeler } = belge;
+  const { ayar } = belge;
   const mm = kagitMm(ayar);
   const icEn = mm.en - 2 * ayar.kenar;
   const sutunEn = (icEn - (ayar.sutun - 1) * SUTUN_ARASI_MM) / ayar.sutun;
   const icBoy = mm.boy - 2 * ayar.kenar - 8; // altbilgi için 8 mm
-  const no = numaralar(ogeler);
+  const no = new Map<string, number>();
+  ogeler.forEach((o) => o.tur === "soru" && no.set(o.id, no.size + 1));
   const toplam = toplamPuan(belge);
 
   // Görünmeyen ölçüm alanı: her öğe sütun genişliğinde çizilip yüksekliği okunur
@@ -196,7 +197,7 @@ function Kagit({ belge, sorular, degistir, ayarDegistir, oge }: {
     const ro = new ResizeObserver(olc);
     ro.observe(kok);
     return () => ro.disconnect();
-  }, [belge, sorular]);
+  }, [belge, ogeler]);
 
   const duzen = useMemo(() => {
     if (!boylar) return null;
@@ -208,11 +209,11 @@ function Kagit({ belge, sorular, degistir, ayarDegistir, oge }: {
     });
   }, [boylar, ogeler, icBoy, ayar.sutun]);
 
-  const blok = (o: SinavOgesi, duzenle: boolean) =>
+  const blok = (o: GrupOgesi, duzenle: boolean) =>
     o.tur === "soru" ? (
-      <SoruBlogu o={o} q={sorular.get(o.soruId)} no={no.get(o.id)!} ayar={ayar} degistir={duzenle ? degistir : undefined} araclar={duzenle ? oge(o).araclar : undefined} />
+      <SoruBlogu s={o} no={no.get(o.id)!} ayar={ayar} degistir={duzenle ? degistir : undefined} araclar={duzenle ? oge?.(o) : undefined} />
     ) : (
-      <MetinBlogu o={o} degistir={duzenle ? degistir : undefined} araclar={duzenle ? oge(o).araclar : undefined} />
+      <MetinBlogu o={o} degistir={duzenle ? degistir : undefined} araclar={duzenle ? oge?.(o) : undefined} />
     );
   const kagitStil = { fontSize: `${ayar.yazi}pt`, "--sutun-arasi": `${SUTUN_ARASI_MM}mm`, "--oge-arasi": `${OGE_ARASI_MM}mm` } as CSSProperties;
   const ogeMap = new Map(ogeler.map((o) => [o.id, o]));
@@ -220,7 +221,7 @@ function Kagit({ belge, sorular, degistir, ayarDegistir, oge }: {
   return (
     <>
       <div className="kagit kagit-olcum" ref={olcum} style={{ ...kagitStil, width: `${icEn}mm` }} aria-hidden="true">
-        <div data-baslik><Baslik ayar={ayar} toplam={toplam} /></div>
+        <div data-baslik><Baslik ayar={ayar} toplam={toplam} grup={grup} /></div>
         <div style={{ width: `${sutunEn}mm` }}>
           {ogeler.map((o) => <div key={o.id} data-oge={o.id}>{blok(o, false)}</div>)}
         </div>
@@ -228,7 +229,7 @@ function Kagit({ belge, sorular, degistir, ayarDegistir, oge }: {
       <div className="kagit-sayfalar">
         {(duzen?.sayfalar ?? [[[]]]).map((sayfa, si, hepsi) => (
           <section key={si} className="kagit kagit-sayfa" style={{ ...kagitStil, width: `${mm.en}mm`, height: `${mm.boy}mm`, padding: `${ayar.kenar}mm` }}>
-            {si === 0 && <Baslik ayar={ayar} toplam={toplam} ayarDegistir={ayarDegistir} />}
+            {si === 0 && <Baslik ayar={ayar} toplam={toplam} grup={grup} ayarDegistir={ayarDegistir} />}
             <div className={`kagit-sutunlar sutun-${ayar.sutun}`}>
               {Array.from({ length: ayar.sutun }, (_, i) => (
                 <div key={i} className="kagit-sutun" style={{ width: `${sutunEn}mm` }}>
@@ -240,13 +241,42 @@ function Kagit({ belge, sorular, degistir, ayarDegistir, oge }: {
               ))}
             </div>
             <footer className="kagit-alt">
-              {[ayar.ders, ayar.sinavAdi].filter(Boolean).join(" · ")}
+              {[ayar.ders, ayar.sinavAdi, grup && `${grup} grubu`].filter(Boolean).join(" · ")}
               <span>Sayfa {si + 1} / {hepsi.length}</span>
             </footer>
           </section>
         ))}
       </div>
     </>
+  );
+}
+
+// Bütün grupların cevap anahtarı: tek sayfada, grup başına bir sütun
+function CevapAnahtari({ belge, gruplar }: { belge: SinavBelgesi; gruplar: GrupOgesi[][] }) {
+  const { ayar } = belge;
+  const mm = kagitMm({ ...ayar, yon: "dikey" });
+  const sorular = gruplar.map((g) => g.filter((o): o is GrupSorusu => o.tur === "soru"));
+  const n = Math.max(0, ...sorular.map((l) => l.length));
+  return (
+    <div className="kagit-sayfalar">
+      <section className="kagit kagit-sayfa kagit-anahtar" style={{ width: `${mm.en}mm`, minHeight: `${mm.boy}mm`, padding: `${ayar.kenar}mm`, fontSize: "11pt" }}>
+        <h3>Cevap anahtarı</h3>
+        <p>{[ayar.ders, ayar.sinavAdi, belge.ad].filter(Boolean).join(" · ")}</p>
+        <table>
+          <thead>
+            <tr><th>Soru</th>{sorular.map((_, g) => <th key={g}>{sorular.length > 1 ? `${GRUP_ADLARI[g]} grubu` : "Cevap"}</th>)}</tr>
+          </thead>
+          <tbody>
+            {Array.from({ length: n }, (_, i) => (
+              <tr key={i}>
+                <td>{i + 1}</td>
+                {sorular.map((l, g) => <td key={g}>{l[i] ? cevapYazisi(l[i]!) : ""}</td>)}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </section>
+    </div>
   );
 }
 
@@ -258,7 +288,9 @@ function yazdir(kok: HTMLElement | null, ayar: SinavAyari, ad: string) {
   document.body.append(cerceve);
   const d = cerceve.contentDocument!;
   const stiller = [...document.querySelectorAll('style, link[rel="stylesheet"]')].map((e) => e.outerHTML).join("\n");
-  const kopya = kok.cloneNode(true) as HTMLElement;
+  const kopya = document.createElement("div");
+  kopya.className = "kagit-sayfalar";
+  kok.querySelectorAll(".kagit-sayfalar .kagit-sayfa").forEach((e) => kopya.append(e.cloneNode(true)));
   kopya.querySelectorAll(".kagit-arac, .kagit-ipucu").forEach((e) => e.remove());
   const mm = kagitMm(ayar);
   d.open();
@@ -395,6 +427,42 @@ function KagitAyarlari({ ayar, degistir, puanDagit }: { ayar: SinavAyari; degist
   );
 }
 
+// ---- Grup ayarları ----
+function GrupAyarlari({ ayar, degistir, gruplar }: { ayar: GrupAyari; degistir: (g: Partial<GrupAyari>) => void; gruplar: GrupOgesi[][] }) {
+  // Benzer kipte yerine başka soru bulunamayan sorular (B grubuna bakılır)
+  const ayni = ayar.kip === "benzer" && gruplar[1] ? gruplar[1].filter((o) => o.tur === "soru" && o.duzenli).length : 0;
+  return (
+    <div className="kagit-ayarlari">
+      <fieldset>
+        <legend>Gruplar</legend>
+        <label>Grup sayısı
+          <select value={ayar.sayi} onChange={(e) => degistir({ sayi: Number(e.target.value) as GrupAyari["sayi"] })}>
+            <option value={1}>Tek grup</option>
+            <option value={2}>A ve B</option>
+            <option value={3}>A, B ve C</option>
+            <option value={4}>A, B, C ve D</option>
+          </select>
+        </label>
+        <label className="ayar-kutu"><input type="radio" name="grup-kip" checked={ayar.kip === "karisik"} onChange={() => degistir({ kip: "karisik" })} />
+          Aynı sorular, karışık
+        </label>
+        <p className="soluk ayar-aciklama">Her grupta aynı sorular var; soruların sırası ve şıkların yeri değişir.</p>
+        <label className="ayar-kutu"><input type="radio" name="grup-kip" checked={ayar.kip === "benzer"} onChange={() => degistir({ kip: "benzer" })} />
+          Benzer ama farklı sorular
+        </label>
+        <p className="soluk ayar-aciklama">B, C ve D gruplarında her sorunun yerine aynı kavramdan başka bir soru gelir, sonra karıştırılır.</p>
+        {ayni > 0 && <p className="ayar-uyari">{ayni} sorunun benzeri yok; bu sorular gruplarda aynı kalıp yalnızca karıştırılıyor.</p>}
+        <label className="ayar-kutu"><input type="checkbox" checked={ayar.sikKaristir !== false} onChange={(e) => degistir({ sikKaristir: e.target.checked })} />
+          Şıkları A grubunda da karıştır
+        </label>
+        <p className="soluk ayar-aciklama">Sitedeki sorularda doğru cevap çoğu zaman aynı harflerde toplanır; açık kalması önerilir.</p>
+        <p className="soluk ayar-aciklama">A grubu kağıttaki soru sırasıyla basılır. Ortak metinler yerinde kalır, aralarındaki sorular kendi içinde karışır. Başka şıklara atıf yapan sorularda şıklar karışmaz.</p>
+        <button type="button" onClick={() => degistir({ tohum: (ayar.tohum % 1_000_000) + 1 })} disabled={ayar.sayi === 1 && ayar.sikKaristir === false}>Yeniden karıştır</button>
+      </fieldset>
+    </div>
+  );
+}
+
 // ---- Sayfa ----
 type KayitDurumu = "kayitli" | "bekliyor" | "kaydediliyor" | "hata";
 
@@ -404,7 +472,9 @@ export function SinavKagidi({ id }: { id: string }) {
   const [sorular, setSorular] = useState<SinavSorusu[] | null>(null);
   const [hata, setHata] = useState<string | null>(null);
   const [durum, setDurum] = useState<KayitDurumu>("kayitli");
-  const [sekme, setSekme] = useState<"sorular" | "kagit">("sorular");
+  const [sekme, setSekme] = useState<"sorular" | "kagit" | "gruplar">("sorular");
+  // Önizlemede görünen: grup sırası (0 = A), cevap anahtarı ya da hepsi
+  const [gorunum, setGorunum] = useState<number | "anahtar" | "hepsi">(0);
   const [olcek, setOlcek] = useState(0.8);
   const guncellendi = useRef(0);
   const ilk = useRef(true);
@@ -452,6 +522,12 @@ export function SinavKagidi({ id }: { id: string }) {
   }, [durum]);
 
   const soruMap = useMemo(() => new Map((sorular ?? []).map((q) => [q.id, q])), [sorular]);
+  const grupAyari = belge?.gruplar ?? varsayilanGruplar();
+  const gruplar = useMemo(
+    () => (belge ? Array.from({ length: grupAyari.sayi }, (_, g) => grupKagidi(belge, soruMap, g)) : []),
+    [belge, soruMap, grupAyari.sayi],
+  );
+  const [wordHazirlaniyor, setWordHazirlaniyor] = useState(false);
 
   if (!yuklendi) return <Iskelet />;
   if (!yetkili) return <p className="empty">Bu sayfa akademisyen hesapları içindir. <a href="/sinavlar">Ayrıntı</a></p>;
@@ -481,8 +557,12 @@ export function SinavKagidi({ id }: { id: string }) {
     return { ...b, ogeler: b.ogeler.map((o) => (o.tur === "soru" ? { ...o, puan: taban + (artan-- > 0 ? 1 : 0) } : o)) };
   });
 
-  const oge = (o: SinavOgesi) => ({
-    araclar: (
+  const gruplariDegistir = (g: Partial<GrupAyari>) => guncelle((b) => ({ ...b, gruplar: { ...(b.gruplar ?? varsayilanGruplar()), ...g } }));
+  const ogeBul = new Map(belge.ogeler.map((o) => [o.id, o]));
+  const oge = (go: GrupOgesi) => {
+    const o = ogeBul.get(go.ogeId);
+    if (!o) return null;
+    return (
       <span className="kagit-arac">
         {o.tur === "soru" && (
           <label title="Puan">
@@ -497,8 +577,26 @@ export function SinavKagidi({ id }: { id: string }) {
         <button onClick={() => tasi(o.id, 1)} title="Aşağı taşı" aria-label="Aşağı taşı">↓</button>
         <button onClick={() => sil(o.id)} title="Kağıttan çıkar" aria-label="Kağıttan çıkar">✕</button>
       </span>
-    ),
-  });
+    );
+  };
+  const grupAdi = (g: number) => (grupAyari.sayi > 1 ? GRUP_ADLARI[g] : undefined);
+  const gorunen = typeof gorunum === "number" && gorunum >= grupAyari.sayi ? 0 : gorunum;
+  const wordIndir = async () => {
+    setWordHazirlaniyor(true);
+    try {
+      const { sinaviWordeCevir } = await import("../lib/sinav-word");
+      const blob = await sinaviWordeCevir(belge, gruplar);
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = `${(belge.ad || "sinav").replace(/[\\/:*?"<>|]/g, "-")}.docx`;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+    } catch (e) {
+      setHata(`Word dosyası hazırlanamadı: ${String(e)}`);
+    } finally {
+      setWordHazirlaniyor(false);
+    }
+  };
 
   const DURUM_YAZI: Record<KayitDurumu, string> = { kayitli: "Kaydedildi", bekliyor: "Değişiklik var…", kaydediliyor: "Kaydediliyor…", hata: "Kaydedilemedi" };
 
@@ -512,8 +610,12 @@ export function SinavKagidi({ id }: { id: string }) {
         <label className="olcek-secici">Yakınlık
           <input type="range" min={0.4} max={1.2} step={0.05} value={olcek} onChange={(e) => setOlcek(Number(e.target.value))} />
         </label>
-        <button className="primary" onClick={() => yazdir(sayfalar.current?.querySelector(".kagit-sayfalar") ?? null, belge.ayar, belge.ad)}
-          title="Yazdırma penceresinde hedef olarak 'PDF olarak kaydet'i seç">
+        <button onClick={wordIndir} disabled={wordHazirlaniyor || belge.ogeler.length === 0}
+          title="Bütün gruplar ve cevap anahtarı tek Word dosyasında">
+          {wordHazirlaniyor ? "Hazırlanıyor…" : "Word indir"}
+        </button>
+        <button className="primary" onClick={() => yazdir(sayfalar.current, belge.ayar, belge.ad)}
+          title="Önizlemede görüneni basar. Yazdırma penceresinde hedef olarak 'PDF olarak kaydet'i seç">
           PDF indir / yazdır
         </button>
       </div>
@@ -523,19 +625,45 @@ export function SinavKagidi({ id }: { id: string }) {
           <div className="tabs" role="tablist">
             <button role="tab" aria-selected={sekme === "sorular"} className={sekme === "sorular" ? "active" : ""} onClick={() => setSekme("sorular")}>Sorular</button>
             <button role="tab" aria-selected={sekme === "kagit"} className={sekme === "kagit" ? "active" : ""} onClick={() => setSekme("kagit")}>Kağıt ve başlık</button>
+            <button role="tab" aria-selected={sekme === "gruplar"} className={sekme === "gruplar" ? "active" : ""} onClick={() => setSekme("gruplar")}>Gruplar</button>
           </div>
           {sekme === "sorular" ? (
             <>
               <SoruSecici sorular={sorular} ogeler={belge.ogeler} ekle={ekle} cikar={cikar} />
               <button className="ortak-metin-dugme" onClick={ortakMetin}>+ Ortak metin ya da yönerge ekle</button>
             </>
-          ) : (
+          ) : sekme === "kagit" ? (
             <KagitAyarlari ayar={belge.ayar} degistir={ayarDegistir} puanDagit={puanDagit} />
+          ) : (
+            <GrupAyarlari ayar={grupAyari} degistir={gruplariDegistir} gruplar={gruplar} />
           )}
         </aside>
-        <div className="sinav-onizleme" ref={sayfalar} style={{ "--kagit-olcek": olcek } as CSSProperties}>
-          {belge.ogeler.length === 0 && <p className="sinav-ipucu">Soldan soru ekledikçe kağıt burada oluşur. Başlıktaki yazılara tıklayıp düzenleyebilirsin.</p>}
-          <Kagit belge={belge} sorular={soruMap} degistir={degistir} ayarDegistir={ayarDegistir} oge={oge} />
+        <div className="sinav-onizleme-kap">
+          <div className="sinav-gorunum" role="tablist" aria-label="Önizleme">
+            {gruplar.map((_, g) => (
+              <button key={g} role="tab" aria-selected={gorunen === g} onClick={() => setGorunum(g)}>
+                {grupAyari.sayi > 1 ? `${GRUP_ADLARI[g]} grubu` : "Kağıt"}
+              </button>
+            ))}
+            <button role="tab" aria-selected={gorunen === "anahtar"} onClick={() => setGorunum("anahtar")}>Cevap anahtarı</button>
+            {grupAyari.sayi > 1 && <button role="tab" aria-selected={gorunen === "hepsi"} onClick={() => setGorunum("hepsi")}>Hepsi</button>}
+            {typeof gorunen === "number" && gorunen > 0 && <span className="soluk">Bu grup A'dan üretilir; düzenlemeyi A grubunda yap.</span>}
+          </div>
+          <div className="sinav-onizleme" ref={sayfalar} style={{ "--kagit-olcek": olcek } as CSSProperties}>
+            {belge.ogeler.length === 0 && <p className="sinav-ipucu">Soldan soru ekledikçe kağıt burada oluşur. Başlıktaki yazılara tıklayıp düzenleyebilirsin.</p>}
+            {gorunen === "anahtar" ? (
+              <CevapAnahtari belge={belge} gruplar={gruplar} />
+            ) : gorunen === "hepsi" ? (
+              <>
+                {gruplar.map((g, i) => <Kagit key={i} belge={belge} ogeler={g} grup={grupAdi(i)} />)}
+                <CevapAnahtari belge={belge} gruplar={gruplar} />
+              </>
+            ) : gorunen === 0 ? (
+              <Kagit belge={belge} ogeler={gruplar[0] ?? []} grup={grupAdi(0)} degistir={degistir} ayarDegistir={ayarDegistir} oge={oge} />
+            ) : (
+              <Kagit key={gorunen} belge={belge} ogeler={gruplar[gorunen] ?? []} grup={grupAdi(gorunen)} />
+            )}
+          </div>
         </div>
       </div>
     </div>

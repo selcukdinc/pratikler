@@ -1792,3 +1792,20 @@ polygon.g-ok-7 { fill: var(--ok-7); stroke: none; }
 .kagit-arac button { padding: 1px 6px; font-size: 12px; min-width: 0; }
 .kagit-arac input { width: 52px; font-size: 12px; padding: 1px 3px; }
 @media print { .kagit-arac, .kagit-ipucu { display: none !important; } .kagit-tikla:hover { outline: 0; background: none; } }
+
+/* Gruplar ve cevap anahtarı */
+.sinav-onizleme-kap { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.sinav-gorunum { flex: none; display: flex; flex-wrap: wrap; align-items: center; gap: 4px; padding: 5px 8px; border-bottom: 1px solid var(--border); background: var(--panel); }
+.sinav-gorunum button[aria-selected="true"] { background: var(--active); border-color: var(--btn-primary-border); font-weight: 600; }
+.sinav-gorunum .soluk { font-size: 12px; margin-left: 6px; }
+.ayar-aciklama { margin: -2px 0 4px 22px; font-size: 12px; }
+.ayar-uyari { margin: 0; font-size: 12px; color: var(--warning); }
+.kagit-baslik { position: relative; }
+.kagit-grup { position: absolute; right: 2.5mm; top: 2.5mm; width: 13mm; height: 13mm; border: 1.5px solid #111; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 1.7em; font-weight: 700; line-height: 1; }
+.kagit-grup small { font-size: 0.32em; letter-spacing: 0.05em; margin-bottom: 0.5mm; }
+.kagit-anahtar { height: auto !important; }
+.kagit-anahtar h3 { margin: 0 0 2mm; font-size: 1.4em; }
+.kagit-anahtar table { border-collapse: collapse; margin-top: 4mm; }
+.kagit-anahtar th, .kagit-anahtar td { border: 1px solid #111; padding: 1mm 4mm; text-align: center; }
+@media (max-width: 800px) { .sinav-onizleme-kap { min-height: 70vh; } }
+.kagit-baslik:has(.kagit-grup) { padding-inline: 17mm; }

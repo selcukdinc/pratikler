@@ -59,10 +59,23 @@ export type SinavOgesi =
       metin: string;
     };
 
+// A-B-C-D grupları. "karisik": aynı sorular, soru sırası ve şıklar karışık.
+// "benzer": her soru yerine aynı kavramdan ve türden başka bir soru gelir, sonra karıştırılır.
+// A grubu kağıttaki soru sırasıyla basılır (şıkları sikKaristir ile karışır); tohum değişince yeniden karışır.
+export type GrupKipi = "karisik" | "benzer";
+export interface GrupAyari {
+  sayi: 1 | 2 | 3 | 4;
+  kip: GrupKipi;
+  tohum: number;
+  // Şıklar A grubunda da karışsın mı (yoksa doğru cevaplar sitedeki sırayla yığılabilir); varsayılan evet
+  sikKaristir?: boolean;
+}
+
 export interface SinavBelgesi {
   ad: string;
   ayar: SinavAyari;
   ogeler: SinavOgesi[];
+  gruplar?: GrupAyari;
 }
 
 export interface SinavOzeti {
@@ -135,6 +148,12 @@ export function sinavBelgesiHatasi(b: unknown): string | null {
   for (const k of ["universite", "fakulte", "ders", "sinavAdi", "tarih"] as const) if (!metinMi(ayar[k], 200)) return "Başlık bilgileri en fazla 200 karakter olabilir.";
   if (!metinMi(ayar.yonerge, 2000)) return "Yönerge en fazla 2000 karakter olabilir.";
   if (!(Number.isInteger(ayar.sure) && ayar.sure >= 0 && ayar.sure <= 600)) return "Süre 0 ile 600 dakika arasında olmalı.";
+  const g = (b as Partial<SinavBelgesi>).gruplar;
+  if (g !== undefined) {
+    if (!g || typeof g !== "object" || ![1, 2, 3, 4].includes(g.sayi) || (g.kip !== "karisik" && g.kip !== "benzer") || !Number.isInteger(g.tohum) || (g.sikKaristir !== undefined && typeof g.sikKaristir !== "boolean")) {
+      return "Grup ayarları geçersiz.";
+    }
+  }
   if (!Array.isArray(ogeler) || ogeler.length > SINAV_OGE_EN_COK) return `Bir sınavda en çok ${SINAV_OGE_EN_COK} öğe olabilir.`;
   for (const o of ogeler) {
     if (!o || typeof o !== "object" || !metinMi(o.id, 40)) return "Sınav öğesi okunamadı.";
@@ -210,4 +229,124 @@ export function sayfala(
 export function kagitMm(a: Pick<SinavAyari, "boyut" | "yon">): { en: number; boy: number } {
   const k = KAGIT_MM[a.boyut];
   return a.yon === "dikey" ? k : { en: k.boy, boy: k.en };
+}
+
+// ---- Gruplar ----
+
+export const GRUP_ADLARI = ["A", "B", "C", "D"] as const;
+export const varsayilanGruplar = (): GrupAyari => ({ sayi: 1, kip: "karisik", tohum: 1 });
+
+// Tohumlu, her yerde aynı sonucu veren rastgele sayı üreteci (mulberry32)
+export function rastgele(tohum: number): () => number {
+  let a = tohum >>> 0;
+  return () => {
+    a = (a + 0x6d2b79f5) >>> 0;
+    let t = a;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+function karistir<T>(l: T[], r: () => number): T[] {
+  const k = [...l];
+  for (let i = k.length - 1; i > 0; i--) {
+    const j = Math.floor(r() * (i + 1));
+    [k[i], k[j]] = [k[j]!, k[i]!];
+  }
+  return k;
+}
+
+// Kağıda basılacak hali hesaplanmış soru: metin, şıklar ve doğru şıkkın yeri
+export interface GrupSorusu {
+  tur: "soru";
+  id: string;
+  // Kağıttaki öğe (A grubundaki karşılığı); benzer kipte soru değişmiş olabilir
+  ogeId: string;
+  soru: SinavSorusu;
+  metin: string;
+  siklar: string[];
+  // siklar[i], kağıttaki (indirilmiş) şık listesinin sira[i]. elemanıdır; yerinde düzenlemede kullanılır
+  sira: number[];
+  dogru: number | null;
+  puan?: number;
+  // Soru, kağıttaki düzenlemeyle mi basılıyor (A'daki metin ve şıklar)
+  duzenli: boolean;
+}
+export type GrupOgesi = GrupSorusu | { tur: "metin"; id: string; ogeId: string; metin: string };
+
+// Bir sorunun kağıttaki şıkları ve doğru şıkkı (şık sayısına indirilmiş, düzenlemeler uygulanmış)
+export function soruSiklari(o: { siklar?: string[] } | null, q: SinavSorusu, n: number): { siklar: string[]; dogru: number | null } {
+  if (q.type !== "mcq") return { siklar: [], dogru: null };
+  const asil = q.payload.choices ?? [];
+  const dogru = (q.answer as { index?: number } | null)?.index ?? null;
+  const ind = sikIndir(asil, dogru, n, q.payload.sabit);
+  return o?.siklar ? { siklar: o.siklar, dogru: ind.dogru } : ind;
+}
+
+// Benzer soru: aynı kavram ve türden, yoksa aynı konu ve türden; bu grupta henüz kullanılmamış
+function benzerSoru(q: SinavSorusu, havuz: SinavSorusu[], kullanilan: Set<string>, r: () => number): SinavSorusu {
+  const uygun = (f: (x: SinavSorusu) => boolean) => havuz.filter((x) => x.type === q.type && !kullanilan.has(x.id) && f(x));
+  let aday = q.kavram ? uygun((x) => x.kavram === q.kavram) : [];
+  if (!aday.length) aday = uygun((x) => x.topicId === q.topicId);
+  return aday.length ? aday[Math.floor(r() * aday.length)]! : q;
+}
+
+// Grubun kağıdı. Ortak metinler yerinde kalır; aralarındaki sorular kendi içinde karışır
+// (böylece "1-5. soruları parçaya göre" gibi yönergeler yine doğru sorulara düşer).
+export function grupKagidi(belge: SinavBelgesi, sorular: Map<string, SinavSorusu>, grup: number): GrupOgesi[] {
+  const g = belge.gruplar ?? varsayilanGruplar();
+  const n = belge.ayar.sikSayisi;
+  const r = rastgele(g.tohum * 7919 + grup * 104729);
+  const havuz = [...sorular.values()];
+  // Benzer kipte kağıttaki bütün sorular diğer gruplarda tekrar seçilmesin diye dışarıda tutulur
+  const kagittakiler = new Set(belge.ogeler.flatMap((o) => (o.tur === "soru" ? [o.soruId] : [])));
+  const kullanilan = new Set(kagittakiler);
+
+  const cevir = (o: Extract<SinavOgesi, { tur: "soru" }>): GrupSorusu | null => {
+    const asil = sorular.get(o.soruId);
+    if (!asil) return null;
+    const q = grup > 0 && g.kip === "benzer" ? benzerSoru(asil, havuz, kullanilan, r) : asil;
+    kullanilan.add(q.id);
+    const duzenli = q === asil;
+    let { siklar, dogru } = soruSiklari(duzenli ? o : null, q, n);
+    let sira = siklar.map((_, i) => i);
+    if ((grup > 0 || g.sikKaristir !== false) && !q.payload.sabit && siklar.length > 1) {
+      sira = karistir(sira, r);
+      const eski = siklar;
+      siklar = sira.map((i) => eski[i]!);
+      dogru = dogru === null ? null : sira.indexOf(dogru);
+    }
+    return { tur: "soru", id: `${o.id}-${grup}`, ogeId: o.id, soru: q, metin: (duzenli ? o.metin : undefined) ?? q.prompt, siklar, sira, dogru, puan: o.puan, duzenli };
+  };
+
+  const sonuc: GrupOgesi[] = [];
+  let parca: GrupSorusu[] = [];
+  const bosalt = () => {
+    sonuc.push(...(grup > 0 ? karistir(parca, r) : parca));
+    parca = [];
+  };
+  for (const o of belge.ogeler) {
+    if (o.tur === "metin") {
+      bosalt();
+      sonuc.push({ tur: "metin", id: `${o.id}-${grup}`, ogeId: o.id, metin: o.metin });
+    } else {
+      const c = cevir(o);
+      if (c) parca.push(c);
+    }
+  }
+  bosalt();
+  return sonuc;
+}
+
+// Cevap anahtarı satırı: "C", "D" / "Y", boşluk cevapları ya da yazılı soru için "—"
+export function cevapYazisi(s: GrupSorusu): string {
+  const a = s.soru.answer as { index?: number; value?: boolean; blanks?: string[][] } | null;
+  switch (s.soru.type) {
+    case "mcq": return s.dogru === null ? "—" : SIK_HARFLERI[s.dogru]!;
+    case "tf": return a?.value === undefined ? "—" : a.value ? "D" : "Y";
+    case "fill":
+    case "num": return a?.blanks?.map((b) => b[0] ?? "").join("; ") || "—";
+    default: return "—";
+  }
 }
