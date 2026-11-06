@@ -36,6 +36,10 @@
 			"custom_domain": true
 		},
 		{
+			"pattern": "isingilizcesi.selcukdinc.dev",
+			"custom_domain": true
+		},
+		{
 			"pattern": "kimya.selcukdinc.dev",
 			"custom_domain": true
 		},

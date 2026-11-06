@@ -7,9 +7,11 @@ import * as fpga from "./fpga/sorular/index.ts";
 import * as girisimcilik from "./girisimcilik/sorular/index.ts";
 import * as kimya from "./kimya/sorular/index.ts";
 import * as tipElektronigi from "./tip-elektronigi/sorular/index.ts";
+import * as isIngilizcesi from "./is-ingilizcesi/sorular/index.ts";
 
 export const SORULAR: Record<string, PratikSorulari> = {
   "tip-elektronigi": tipElektronigi,
+  "is-ingilizcesi": isIngilizcesi,
   kimya,
   dsp,
   fizik,

@@ -8,10 +8,11 @@ import { fizik } from "./fizik/meta.ts";
 import { ayrik } from "./ayrik/meta.ts";
 import { fpga } from "./fpga/meta.ts";
 import { tipElektronigi } from "./tip-elektronigi/meta.ts";
+import { isIngilizcesi } from "./is-ingilizcesi/meta.ts";
 
 export type { PratikMeta } from "./tipler.ts";
 
-export const PRATIKLER: PratikMeta[] = [tipElektronigi, kimya, dsp, fizik, ayrik, fpga, girisimcilik];
+export const PRATIKLER: PratikMeta[] = [tipElektronigi, isIngilizcesi, kimya, dsp, fizik, ayrik, fpga, girisimcilik];
 
 // Çatı sitesinin alt alan adı (katalog, tek hesap)
 export const CATI_ALT = "pratikler";

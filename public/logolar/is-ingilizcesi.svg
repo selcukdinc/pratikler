@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#26A69A"/>
+      <stop offset="1" stop-color="#00695C"/>
+    </linearGradient>
+  </defs>
+  <rect x="100" y="100" width="824" height="824" rx="185" fill="url(#bg)"/>
+  <!-- konuşma balonu ve şimşek: elektrik-elektronik için İngilizce -->
+  <path d="M250 260 H774 a60 60 0 0 1 60 60 V620 a60 60 0 0 1 -60 60 H470 L330 790 L360 680 H250 a60 60 0 0 1 -60 -60 V320 a60 60 0 0 1 60 -60 Z" fill="#FFFFFF"/>
+  <path d="M560 320 L420 490 H510 L470 630 L620 440 H525 Z" fill="#FFC107"/>
+</svg>

@@ -14,6 +14,16 @@ export interface Yenilik {
 
 export const YENILIKLER: Yenilik[] = [
   {
+    pr: 11,
+    tarih: "2026-11-06",
+    baslik: "Yeni pratik: İş İngilizcesi",
+    maddeler: [
+      "İş İngilizcesi Pratik açıldı: isingilizcesi.selcukdinc.dev. Elektrik motorları, elektrikli araçlar, gömülü sistemler ve IoT, güneş enerjisi ve iş ilanları olmak üzere beş ünitede 167 soru var.",
+      "26.10.2026 quizinin Grup A ve Grup B soruları cevaplarıyla birlikte **Quiz** etiketiyle geldi. Diğer sorular aynı beş kalıpla yazıldı: kelimenin anlamı, cümleyi tamamlayan kelime, paragrafa uymayan cümle, Türkçe çeviri ve İngilizce çeviri.",
+      "Terimler sayfasında her ünitenin hedef kelimeleri Türkçe karşılıklarıyla bir arada.",
+    ],
+  },
+  {
     pr: 10,
     tarih: "2026-11-06",
     baslik: "Girişimcilik platforma geliyor: hesabın, misafir ilerlemen ve denemelerin seninle",
