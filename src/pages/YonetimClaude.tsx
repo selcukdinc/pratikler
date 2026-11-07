@@ -6,6 +6,7 @@ import { useEffect, useRef, useState, type ComponentProps, type FormEvent } from
 import { api } from "../lib/api";
 import { PRATIK_YA_DA_KATALOG } from "../lib/pratik";
 import { FormHatasi } from "../components/Form";
+import { Daktilo, hareketAzaltilmis, useDaktilo } from "../components/Daktilo";
 import { href } from "../lib/router";
 import { CLAUDE_ISTEK_EN_UZUN, type AjanDurumu, type ClaudeIsi, type ClaudeOlayi, type YeniPratikGirdi } from "../../shared/yonetim";
 
@@ -79,7 +80,7 @@ function AjanKarti({ onTest }: { onTest: () => void }) {
       // yalnızca bu oturum
     }
   };
-  if (!d) return <section className="ayar-bolum"><p className="empty">Ajan durumu yükleniyor…</p></section>;
+  if (!d) return <section className="ajan-serit"><span className="parilti">Ajan durumu soruluyor</span></section>;
 
   const n = d.nabiz;
   const gecen = n ? Math.round((simdi - n.zaman) / 1000) : null;
@@ -92,31 +93,32 @@ function AjanKarti({ onTest }: { onTest: () => void }) {
     a.click();
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   };
+  const durum = !d.anahtarTanimli ? "kurulmamis" : acik ? "acik" : "kapali";
+  const kurulumAcik = !acik || ayrinti;
 
   return (
-    <section className="ayar-bolum ajan-karti">
-      <h3>
-        Yerel ajan:{" "}
-        {!d.anahtarTanimli ? <span className="bad">kurulmamış</span> : acik ? <span className="ok">açık</span> : <span className="bad">kapalı</span>}
-      </h3>
-      {n && (
-        <p className="hint">
-          Son yoklama {gecen! < 90 ? `${gecen} sn` : `${Math.round(gecen! / 60)} dk`} önce, {n.makine} ({n.depo}).
-          Claude: {n.claude ?? "bulunamadı"} · gh: {n.gh ?? "bulunamadı"} · Node {n.node} · {n.aralikSn} sn arayla yokluyor.
-        </p>
-      )}
-      {!n && d.anahtarTanimli && <p className="hint">Ajan bu sunucuya hiç bağlanmadı.</p>}
-      {acik ? (
-        <button type="button" onClick={onTest}>Ajanı dene</button>
-      ) : null}
-      <p className="hint">
-        {acik
-          ? "\"Ajanı dene\" Claude'u çalıştırmadan ajanın makinesindeki claude, gh ve depo durumunu aşağıdaki işler listesine yazar."
-          : "Ajan kapalıyken işler kuyrukta bekler. Açmak için:"}
-        {acik && " "}
-        {acik && <button type="button" className="baglanti-dugme" onClick={() => setAyrinti(!ayrinti)}>{ayrinti ? "Kurulumu gizle" : "Kurulumu göster"}</button>}
-      </p>
-      {(!acik || ayrinti) && (
+    <section className={`ajan-serit ajan-${durum}`} aria-label="Yerel ajan">
+      <div className="ajan-serit-ust">
+        <span className="ajan-isik" aria-hidden="true" />
+        <div className="ajan-serit-metin">
+          <strong>
+            {durum === "acik" ? "Ajan açık, işleri alıyor" : durum === "kapali" ? "Ajan kapalı; işler sırada bekler" : "Ajan henüz kurulmadı"}
+          </strong>
+          <span className="hint">
+            {n
+              ? `${n.makine} üzerinde, son yoklama ${gecen! < 90 ? `${gecen} sn` : `${Math.round(gecen! / 60)} dk`} önce. Claude ${n.claude ?? "bulunamadı"}, gh ${n.gh ?? "bulunamadı"}, Node ${n.node}; ${n.aralikSn} sn arayla yokluyor.`
+              : d.anahtarTanimli
+                ? "Ajan bu sunucuya hiç bağlanmadı. Aşağıdaki adımlarla bilgisayarında başlat."
+                : "İşleri senin bilgisayarındaki ajan yapar. Bir kez kurman yeterli."}
+          </span>
+        </div>
+        <div className="ajan-serit-dugmeler">
+          {acik && <button type="button" onClick={onTest} title="Claude'u çalıştırmadan ajanın makinesindeki claude, gh ve depo durumunu işler listesine yazar">Ajanı dene</button>}
+          {acik && <button type="button" onClick={() => setAyrinti(!ayrinti)} aria-expanded={ayrinti}>{ayrinti ? "Kurulumu gizle" : "Kurulum"}</button>}
+        </div>
+      </div>
+      {kurulumAcik && (
+        <div className="ajan-kurulum">
         <ol className="ajan-adimlar">
           {!d.anahtarTanimli && (
             <li>
@@ -142,6 +144,7 @@ function AjanKarti({ onTest }: { onTest: () => void }) {
             Terminal'den elle: <Kopyala metin={`cd ${depo || "<depo klasörü>"} && npm run ajan`} />
           </li>
         </ol>
+        </div>
       )}
     </section>
   );
@@ -179,8 +182,8 @@ function YeniPratikFormu({ eklendi }: { eklendi: () => void }) {
     </label>
   );
   return (
-    <section className="ayar-bolum">
-      <h3>Claude ile yeni pratik aç</h3>
+    <section className="claude-yazici" aria-labelledby="yeni-pratik-baslik">
+      <h3 id="yeni-pratik-baslik">Claude ile yeni pratik aç</h3>
       <p className="hint">
         Kaynakları (.md'ye çevrilmiş ders notları, kitap bölümleri) bilgisayarında bir klasöre koy ve yolunu yaz. Ajan
         Claude'a o klasörü okutur; meta bilgisini, üniteleri, soruları, alan adı satırını ve migration'ları hazırlatıp
@@ -199,18 +202,44 @@ function YeniPratikFormu({ eklendi }: { eklendi: () => void }) {
           <textarea rows={3} maxLength={2000} value={g.notlar} onChange={(e) => setG({ ...g, notlar: e.target.value })}
             placeholder="Örnek: haftalar ünite olsun; 1-4. hafta notları var; formüller LaTeX ile yazılsın." />
         </label>
-        {g.alt && <p className="hint tam">Adres: {g.alt}.selcukdinc.dev · konu kimlikleri {g.onek || "?"}-u1, {g.onek || "?"}-u2…</p>}
-        <div className="tam"><button type="submit" className="primary" disabled={mesgul || !g.ad.trim()}>Pratiği kuyruğa ekle</button></div>
+        <div className="tam claude-yazici-alt">
+          <p className="hint">
+            {g.alt ? <>Adres <strong>{g.alt}.selcukdinc.dev</strong> olacak; konu kimlikleri {g.onek || "?"}-u1, {g.onek || "?"}-u2 diye gider.</> : "Adı yazınca kimlik, alan adı ve önek kendiliğinden dolar; istersen değiştir."}
+          </p>
+          <button type="submit" className="primary" disabled={mesgul || !g.ad.trim()}>{mesgul ? "Ekleniyor…" : "Pratiği sıraya ekle"}</button>
+        </div>
       </form>
       <FormHatasi hata={hata} />
     </section>
   );
 }
 
+const ORNEK_ISLER = [
+  "3. üniteye Wheatstone köprüsü çıkış gerilimi hesabıyla ilgili iki soru ekle.",
+  "2. ünitedeki türetilmiş soruların açıklamalarını kısalt, kaynağı belirt.",
+  "Doğru şıkkı diğerlerinden uzun kalan soruları bul ve düzelt.",
+  "Terimler sayfasına EKG ile ilgili eksik kavramları ekle.",
+];
+
+// Kutu boşken ve odakta değilken örnek istekleri daktiloyla yazan yer tutucu
+function DaktiloYerTutucu({ goster }: { goster: boolean }) {
+  const [i, setI] = useState(0);
+  const { metin, bitti } = useDaktilo(goster ? ORNEK_ISLER[i]! : "", { hiz: 28, silmeHizi: 10 });
+  useEffect(() => {
+    if (!goster || !bitti || hareketAzaltilmis()) return;
+    const t = setTimeout(() => setI((x) => (x + 1) % ORNEK_ISLER.length), 2600);
+    return () => clearTimeout(t);
+  }, [goster, bitti]);
+  if (!goster) return null;
+  return <Daktilo className="daktilo-yer-tutucu" metin={metin} />;
+}
+
 function PratikIsFormu({ eklendi }: { eklendi: () => void }) {
   const [istek, setIstek] = useState("");
+  const [odak, setOdak] = useState(false);
   const [hata, setHata] = useState<string | null>(null);
   const [mesgul, setMesgul] = useState(false);
+  const kutu = useRef<HTMLTextAreaElement>(null);
   const gonder = async (e: FormEvent) => {
     e.preventDefault();
     setHata(null);
@@ -222,16 +251,27 @@ function PratikIsFormu({ eklendi }: { eklendi: () => void }) {
     eklendi();
   };
   return (
-    <section className="ayar-bolum">
-      <h3>{PRATIK_YA_DA_KATALOG!.ad} için Claude'a iş ver</h3>
-      <p className="hint">
-        Ajan işi alır, Claude Code ile depoda değişikliği yapar, yerel denetimlerden (tsc, testler, build) geçerse bir PR
-        açar. Birleştirmek ve yayına almak sende.
-      </p>
+    <section className="claude-yazici" aria-labelledby="claude-yazici-baslik">
+      <h3 id="claude-yazici-baslik">{PRATIK_YA_DA_KATALOG!.ad} için Claude'a ne yaptırmak istiyorsun?</h3>
       <form onSubmit={gonder}>
-        <textarea rows={4} maxLength={CLAUDE_ISTEK_EN_UZUN} value={istek} onChange={(e) => setIstek(e.target.value)}
-          placeholder="Örnek: 3. üniteye Wheatstone köprüsü çıkış gerilimi hesabıyla ilgili iki soru ekle." />
-        <button type="submit" className="primary" disabled={mesgul || istek.trim().length < 10}>İşi kuyruğa ekle</button>
+        <div className="claude-kutu">
+          <textarea ref={kutu} rows={4} maxLength={CLAUDE_ISTEK_EN_UZUN} value={istek} onChange={(e) => setIstek(e.target.value)}
+            onFocus={() => setOdak(true)} onBlur={() => setOdak(false)} aria-label="Claude'a verilecek iş"
+            aria-describedby="claude-yazici-not" placeholder={odak ? ORNEK_ISLER[0] : undefined} />
+          <DaktiloYerTutucu goster={!istek && !odak} />
+        </div>
+        <div className="claude-ornekler" aria-label="Örnek istekler">
+          {ORNEK_ISLER.slice(0, 3).map((o) => (
+            <button key={o} type="button" onClick={() => { setIstek(o); kutu.current?.focus(); }}>{o}</button>
+          ))}
+        </div>
+        <div className="claude-yazici-alt">
+          <p id="claude-yazici-not" className="hint">
+            Ajan işi alır, değişikliği yapar, denetimlerden (tsc, testler, build) geçerse PR açar. Birleştirmek ve yayına almak sende.
+          </p>
+          <span className="hint sayac">{istek.length} / {CLAUDE_ISTEK_EN_UZUN}</span>
+          <button type="submit" className="primary" disabled={mesgul || istek.trim().length < 10}>{mesgul ? "Ekleniyor…" : "İşi sıraya ekle"}</button>
+        </div>
       </form>
       <FormHatasi hata={hata} />
     </section>
@@ -347,9 +387,11 @@ function IsGunlugu({ id, degisti }: { id: string; degisti: () => void }) {
     <section className="is-gunlugu" aria-label="İşin canlı günlüğü">
       <header className="is-gunlugu-ust">
         <div>
-          <strong className={`is-durum is-durum-${is.durum}`}>{IS_DURUMU[is.durum]}</strong>
+          <strong className={`is-durum is-durum-${is.durum}${is.durum === "calisiyor" ? " parilti" : ""}`}>{IS_DURUMU[is.durum]}</strong>
           {is.durum === "calisiyor" && <span className="canli-nokta" title="Canlı" />}
-          <span className="soluk"> · {bitti(is.durum) ? sure(is.guncellendi - baslangic) : is.durum === "calisiyor" ? sure(simdi - baslangic) : "sırada"}</span>
+          {(olaylar.length > 0 || !bitti(is.durum)) && (
+            <span className="soluk">, {bitti(is.durum) ? `${sure(is.guncellendi - baslangic)} sürdü` : is.durum === "calisiyor" ? sure(simdi - baslangic) : "sırada"}</span>
+          )}
         </div>
         <p className="is-gunlugu-istek">{isBasligi(is)}</p>
         <div className="is-gunlugu-dugmeler">
@@ -363,12 +405,15 @@ function IsGunlugu({ id, degisti }: { id: string; degisti: () => void }) {
         {is.tur !== "test" && (
           <ol className="asama-cubugu" aria-label="Aşamalar">
             {ASAMALAR.map((a, i) => (
-              <li key={a.ad} className={i < asama || (i === asama && bitti(is.durum)) ? "tamam" : i === asama ? (is.durum === "hata" ? "hata" : "simdi") : ""}>{a.ad}</li>
+              <li key={a.ad} className={i < asama || (i === asama && bitti(is.durum)) ? "tamam" : i === asama ? (is.durum === "hata" ? "hata" : "simdi") : ""}>
+                <span className="asama-isaret" aria-hidden="true">{i + 1}</span>
+                <span className={i === asama && is.durum === "calisiyor" ? "parilti" : undefined}>{a.ad}</span>
+              </li>
             ))}
           </ol>
         )}
       </header>
-      <div className="terminal" ref={kutu} role="log" aria-live="polite"
+      <div className={`terminal${gorunen.length === 0 ? " terminal-kisa" : ""}`} ref={kutu} role="log" aria-live="polite"
         onScroll={(e) => {
           const k = e.currentTarget;
           const altta = k.scrollHeight - k.scrollTop - k.clientHeight < 24;
@@ -413,20 +458,24 @@ export function ClaudeIsleri({ secili }: { secili?: string }) {
   const acik = secili ?? (liste?.find((i) => i.durum === "calisiyor") ?? liste?.[0])?.id;
 
   return (
-    <div className="panel-genel">
+    <div className="panel-genel panel-genis claude-paneli">
       <AjanKarti onTest={test} />
       {PRATIK_YA_DA_KATALOG ? <PratikIsFormu eklendi={yukle} /> : <YeniPratikFormu eklendi={yukle} />}
       <FormHatasi hata={hata} />
-      <section className="ayar-bolum">
-        <h3>İşler</h3>
-        {!liste ? <p className="empty">Yükleniyor…</p> : liste.length === 0 ? <p className="empty">Henüz iş yok.</p> : (
+      <section className="claude-isler" aria-labelledby="isler-baslik">
+        <h3 id="isler-baslik">İşler{liste && liste.length > 0 ? <span className="soluk"> ({liste.length})</span> : null}</h3>
+        {!liste ? <p className="empty">Yükleniyor…</p> : liste.length === 0 ? <p className="empty">Henüz iş yok. Yukarıya ilk isteğini yaz; ajan alınca adımları burada canlı izlersin.</p> : (
           <div className="claude-calisma">
             <ul className="claude-isleri">
               {liste.map((i) => (
                 <li key={i.id} className={i.id === acik ? "secili" : undefined}>
                   <a href={href({ page: "yonetim", bolum: "claude", alt: i.id })} aria-current={i.id === acik ? "true" : undefined}>
-                    <span><strong className={`is-durum is-durum-${i.durum}`}>{IS_DURUMU[i.durum]}</strong>{i.durum === "calisiyor" && <span className="canli-nokta" />} · {zaman(i.olusturuldu)}{i.olusturan ? ` · ${i.olusturan}` : ""}</span>
                     <span className="is-ozet">{isBasligi(i)}</span>
+                    <span className="is-meta">
+                      <span className={`is-nokta is-nokta-${i.durum}`} aria-hidden="true" />
+                      <strong className={`is-durum is-durum-${i.durum}${i.durum === "calisiyor" ? " parilti" : ""}`}>{IS_DURUMU[i.durum]}</strong>
+                      <span className="soluk">{zaman(i.olusturuldu)}{i.olusturan ? `, ${i.olusturan}` : ""}</span>
+                    </span>
                   </a>
                 </li>
               ))}
