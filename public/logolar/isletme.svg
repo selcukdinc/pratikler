@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#8D6E63"/>
+      <stop offset="1" stop-color="#4E342E"/>
+    </linearGradient>
+  </defs>
+  <rect x="100" y="100" width="824" height="824" rx="185" fill="url(#bg)"/>
+  <!-- evrak çantası ve yükselen çubuklar: işletme -->
+  <path d="M400 330 V290 a40 40 0 0 1 40 -40 H584 a40 40 0 0 1 40 40 V330 H700 a50 50 0 0 1 50 50 V690 a50 50 0 0 1 -50 50 H324 a50 50 0 0 1 -50 -50 V380 a50 50 0 0 1 50 -50 Z M450 330 H574 V300 H450 Z" fill="#FFFFFF" fill-rule="evenodd"/>
+  <rect x="370" y="560" width="70" height="120" rx="10" fill="#FFB300"/>
+  <rect x="477" y="500" width="70" height="180" rx="10" fill="#FFB300"/>
+  <rect x="584" y="430" width="70" height="250" rx="10" fill="#FFB300"/>
+</svg>

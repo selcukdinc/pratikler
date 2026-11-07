@@ -14,6 +14,16 @@ export interface Yenilik {
 
 export const YENILIKLER: Yenilik[] = [
   {
+    pr: 25,
+    tarih: "2026-11-07",
+    baslik: "Yeni pratik: İşletme",
+    maddeler: [
+      "İşletme Pratik açıldı: isletme.selcukdinc.dev. İşletme Bilimine Giriş dersinin ilk iki bölümünden 236 çoktan seçmeli soru.",
+      "Sorular on üniteye ayrıldı: ihtiyaçlar ve Maslow, üretim faktörleri, verimlilik ve rantabilite, işletmenin çevresi, işletmelerin sınıflandırılması ve KOBİ'ler, şirket türleri ve kooperatifler, büyüme stratejileri, kartel-tröst-holding gibi birlikler, kapasite ve başabaş noktası, kuruluş yeri seçimi.",
+      "Verimlilik, rantabilite, kapasite kullanım oranı, atıl kapasite ve başabaş noktası için hesap soruları var; açıklamalar çözümü adım adım gösterir.",
+    ],
+  },
+  {
     pr: 24,
     tarih: "2026-11-07",
     baslik: "Yeni pratik: 6. Sınıf Türkçe",
