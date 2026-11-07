@@ -5,7 +5,7 @@ import { DERSLER } from "../dersler";
 import { DENEYLER } from "../lab/deneyler";
 import { SINAVLAR } from "../cikmis/sinavlar";
 import { OZELLIKLER } from "../lib/icerik";
-import { href, navigate, type Route } from "../lib/router";
+import { href, navigate, type Route, tabanaEkle } from "../lib/router";
 import { api } from "../lib/api";
 import { TEMA_ADI, TEMA_SIRASI, useTema, type Tema } from "../lib/tema";
 import { uye, useOturum } from "../lib/oturum";
@@ -155,7 +155,7 @@ export function HesapAlani({ route }: { route: Route }) {
     return (
       <span className="hesap-alani">
         <a href={href({ page: "giris", sonra })}>Giriş</a>
-        {epostaAcik && <a className="kayit-link" href="/kayit">Kayıt ol</a>}
+        {epostaAcik && <a className="kayit-link" href={tabanaEkle("/kayit")}>Kayıt ol</a>}
       </span>
     );
   }
@@ -179,11 +179,11 @@ export function HesapAlani({ route }: { route: Route }) {
       <div className="hesap-menu-liste" role="menu">
         {/* Profil ve soru önerisi pratiğe özgü; çatı sitesinde yok */}
         {PRATIK_YA_DA_KATALOG && <a role="menuitem" href={href({ page: "profil", ad: me.username })}>Profilim</a>}
-        <a role="menuitem" href="/mesajlar">Mesajlarım {rozet(okunmamis.mesaj)}</a>
-        {PRATIK_YA_DA_KATALOG && <a role="menuitem" href="/oner">Soru öner {rozet(okunmamis.oneri)}</a>}
-        <a role="menuitem" href="/ayarlar">Ayarlar</a>
-        {PRATIK_YA_DA_KATALOG && (me.role === "admin" || me.role === "akademisyen") && <a role="menuitem" href="/sinavlar">Sınav hazırla</a>}
-        {me.role === "admin" && <a role="menuitem" href="/yonetim" data-tam-sayfa>Yönetim paneli</a>}
+        <a role="menuitem" href={tabanaEkle("/mesajlar")}>Mesajlarım {rozet(okunmamis.mesaj)}</a>
+        {PRATIK_YA_DA_KATALOG && <a role="menuitem" href={tabanaEkle("/oner")}>Soru öner {rozet(okunmamis.oneri)}</a>}
+        <a role="menuitem" href={tabanaEkle("/ayarlar")}>Ayarlar</a>
+        {PRATIK_YA_DA_KATALOG && (me.role === "admin" || me.role === "akademisyen") && <a role="menuitem" href={tabanaEkle("/sinavlar")}>Sınav hazırla</a>}
+        {me.role === "admin" && <a role="menuitem" href={tabanaEkle("/yonetim")} data-tam-sayfa>Yönetim paneli</a>}
         <button role="menuitem" onClick={cikis}>Çıkış yap</button>
       </div>
     </details>
@@ -285,13 +285,13 @@ export function Shell({ route, currentWeek, title, status, duyuru, children }: P
             <span>Pratikler</span>
           </a>
         )}
-        <a className="brand" href="/pratik">
+        <a className="brand" href={tabanaEkle("/pratik")}>
           <img src={LOGO} alt="" width={18} height={18} />
           <span className="brand-ad">{SITE_ADI}</span>
         </a>
         <span className="topbar-status">{status}</span>
         {yeniSayisi > 0 && route.page !== "yenilikler" && (
-          <a className="yeni-isareti" href="/yenilikler" title="Son ziyaretinden sonra eklenenler">
+          <a className="yeni-isareti" href={tabanaEkle("/yenilikler")} title="Son ziyaretinden sonra eklenenler">
             Yeni <span className="sayi-rozeti">{yeniSayisi}</span>
           </a>
         )}

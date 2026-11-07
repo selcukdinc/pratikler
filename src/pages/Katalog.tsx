@@ -4,10 +4,10 @@
 
 import { useEffect, useState } from "react";
 import type { KatalogPratik, PratikIlerlemesi } from "../../shared/api";
-import { PRATIKLER } from "../../icerik/index";
+import { KADEMELER, PRATIKLER, kademeBul, kademeninPratikleri } from "../../icerik/index";
 import { api } from "../lib/api";
 import { pratikBaglantisi } from "../lib/pratik";
-import { href } from "../lib/router";
+import { href, tabanaEkle } from "../lib/router";
 import { useOturum } from "../lib/oturum";
 import { KartIskeleti } from "../components/Iskelet";
 import { Daktilo, hareketAzaltilmis, useDaktilo } from "../components/Daktilo";
@@ -146,7 +146,10 @@ export function Katalog() {
   }, [me?.id]);
 
   const meta = (id: string) => PRATIKLER.find((p) => p.id === id)!;
-  const alanlar = [...new Set((liste ?? []).map((p) => p.alan))];
+  // Kademe dersleri (6. sınıf Türkçe) rafta tek tek değil, kademe kartıyla görünür
+  const raf = (liste ?? []).filter((p) => !meta(p.id).yol);
+  const alanlar = [...new Set(raf.map((p) => p.alan))];
+  const kademeler = KADEMELER.filter((k) => (liste ?? []).some((p) => meta(p.id).yol?.split("/")[0] === k.id));
 
   return (
     <div className="katalog">
@@ -189,7 +192,7 @@ export function Katalog() {
             <section key={alan} className="raf-alan" aria-labelledby={`alan-${alan}`}>
               <h3 id={`alan-${alan}`}>{alan}</h3>
               <ul className="raf-liste">
-                {liste.filter((p) => p.alan === alan).map((k) => (
+                {raf.filter((p) => p.alan === alan).map((k) => (
                   <li key={k.id}>
                     <a href={pratikBaglantisi(meta(k.id))}>
                       <KartLogosu id={k.id} />
@@ -207,6 +210,28 @@ export function Katalog() {
             </section>
           ))
         )}
+        {kademeler.length > 0 && (
+          <section className="raf-alan" aria-labelledby="alan-okul">
+            <h3 id="alan-okul">Okul</h3>
+            <ul className="raf-liste">
+              {kademeler.map((k) => {
+                const dersler = (liste ?? []).filter((p) => meta(p.id).yol?.split("/")[0] === k.id);
+                return (
+                  <li key={k.id}>
+                    <a href={href({ page: "kademe", id: k.id })}>
+                      <span className="raf-logo raf-harf" aria-hidden="true">{k.ad.charAt(0)}</span>
+                      <span className="raf-govde">
+                        <strong>{k.ad}</strong>
+                        <span className="raf-aciklama">{k.aciklama}</span>
+                        <span className="raf-sayilar">{dersler.map((d) => d.ad.replace(`${k.ad} `, "")).join(", ")}</span>
+                      </span>
+                    </a>
+                  </li>
+                );
+              })}
+            </ul>
+          </section>
+        )}
       </section>
 
       <footer className="cati-alt">
@@ -217,9 +242,55 @@ export function Katalog() {
         <nav aria-label="Alt bağlantılar">
           <a href={href({ page: "gizlilik" })}>Gizlilik</a>
           <a href="https://github.com/selcukdinc/pratikler" target="_blank" rel="noreferrer">Kaynak kodu</a>
-          <a href="/mesajlar">Yöneticiye yaz</a>
+          <a href={tabanaEkle("/mesajlar")}>Yöneticiye yaz</a>
         </nav>
       </footer>
+    </div>
+  );
+}
+
+// Bir kademenin (6. sınıf) sayfası: /sinif6. Dersler pratiklerin yolunda açılır.
+export function KademeSayfasi({ id }: { id: string }) {
+  const k = kademeBul(id)!;
+  const [liste, setListe] = useState<KatalogPratik[] | null>(null);
+  useEffect(() => {
+    const yolda = new Set(kademeninPratikleri(id).map((p) => p.id));
+    api.katalog().then(
+      (l) => setListe(l.filter((p) => yolda.has(p.id))),
+      () => setListe(kademeninPratikleri(id).filter((p) => p.yayinda).map((p) => ({ id: p.id, alt: p.alt, ad: p.ad, alan: p.alan, aciklama: p.aciklama, unite: p.uniteler.length, soru: 0 }))),
+    );
+  }, [id]);
+  const meta = (pid: string) => PRATIKLER.find((p) => p.id === pid)!;
+  return (
+    <div className="katalog">
+      <section className="raf" aria-labelledby="kademe-baslik">
+        <div className="raf-ust">
+          <h2 id="kademe-baslik">{k.ad}</h2>
+          <p>{k.aciklama}</p>
+        </div>
+        {liste === null ? (
+          <KartIskeleti />
+        ) : liste.length === 0 ? (
+          <p className="empty">Bu sınıfın dersleri hazırlanıyor.</p>
+        ) : (
+          <ul className="raf-liste">
+            {liste.map((d) => (
+              <li key={d.id}>
+                <a href={pratikBaglantisi(meta(d.id))}>
+                  <KartLogosu id={d.id} />
+                  <span className="raf-govde">
+                    <strong>{d.ad}</strong>
+                    <span className="raf-aciklama">{d.aciklama}</span>
+                    <span className="raf-sayilar">
+                      {d.unite} {meta(d.id).uniteAdi}{d.soru ? `, ${sayi(d.soru)} soru` : ""}
+                    </span>
+                  </span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
     </div>
   );
 }

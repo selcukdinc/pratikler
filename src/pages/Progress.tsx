@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { api } from "../lib/api";
-import { href } from "../lib/router";
+import { href, tabanaEkle } from "../lib/router";
 import { uye, useOturum } from "../lib/oturum";
 import { basamak } from "../lib/ilerleme";
 import { ALEV, KIVILCIM, PARILTI, gunSusu, rozetler } from "../../shared/motivasyon";
@@ -88,7 +88,7 @@ function Bugun({ dogru, hedef, uyeMi }: { dogru: number; hedef: number; uyeMi: b
   if (!hedef) {
     return (
       <p className="hint bugun">
-        Bugün {dogru} doğru. Günlük hedefin kapalı; <a href="/ayarlar">Ayarlar</a>'dan açabilirsin.
+        Bugün {dogru} doğru. Günlük hedefin kapalı; <a href={tabanaEkle("/ayarlar")}>Ayarlar</a>'dan açabilirsin.
       </p>
     );
   }
@@ -107,7 +107,7 @@ function Bugun({ dogru, hedef, uyeMi }: { dogru: number; hedef: number; uyeMi: b
         <div style={{ width: `${Math.min(100, Math.round((dogru / hedef) * 100))}%` }} />
       </div>
       <span className="hint">
-        {uyeMi ? <a href="/ayarlar">Hedefi değiştir</a> : <><a href="/kayit">Hesap açarsan</a> hedefini değiştirebilirsin.</>}
+        {uyeMi ? <a href={tabanaEkle("/ayarlar")}>Hedefi değiştir</a> : <><a href={tabanaEkle("/kayit")}>Hesap açarsan</a> hedefini değiştirebilirsin.</>}
       </span>
     </div>
   );
@@ -152,7 +152,7 @@ export function Progress() {
     <div className="progress">
       {!uye(me) && (
         <p className="hint">
-          İlerlemen bu tarayıcıda misafir olarak saklanıyor. <a href="/kayit">Hesap açarsan</a> hesabına taşınır ve her cihazda görürsün.
+          İlerlemen bu tarayıcıda misafir olarak saklanıyor. <a href={tabanaEkle("/kayit")}>Hesap açarsan</a> hesabına taşınır ve her cihazda görürsün.
         </p>
       )}
 
@@ -238,7 +238,7 @@ export function Progress() {
           <>
             <p>
               Henüz doğru çözemediğin {ayrinti.yanlislar.length} soru.{" "}
-              <a className="dugme-link" href="/sorular?durum=yanlis">Hepsini tekrar çöz</a>
+              <a className="dugme-link" href={tabanaEkle("/sorular?durum=yanlis")}>Hepsini tekrar çöz</a>
             </p>
             <ul className="yanlis-listesi">
               {ayrinti.yanlislar.map((y) => (

@@ -2,6 +2,7 @@ import { PRATIK, SITE_ADI } from "../lib/pratik";
 import { catiAdresi } from "../../icerik/index";
 import { Markdown } from "../components/Markdown";
 import { REPO_URL } from "../lib/api";
+import { tabanaEkle } from "../lib/router";
 
 const GELISTIRICI_URL = "https://github.com/selcukdinc";
 
@@ -20,7 +21,7 @@ export function About() {
         <li>Tema ve karma test ayarların yalnızca bu tarayıcıda saklanır.</li>
       </ul>
       <p>
-        Ayrıntılar <a href="/gizlilik">gizlilik metninde</a>.
+        Ayrıntılar <a href={tabanaEkle("/gizlilik")}>gizlilik metninde</a>.
       </p>
       <h3>Geliştirici</h3>
       <div className="kunye">

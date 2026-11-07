@@ -2,7 +2,7 @@
 
 import { useEffect, useId, useState, type FormEvent } from "react";
 import { api } from "../lib/api";
-import { href, navigate } from "../lib/router";
+import { href, navigate, tabanaEkle } from "../lib/router";
 import { uye, useOturum } from "../lib/oturum";
 import { FormHatasi } from "../components/Form";
 import { YazismaGorunumu, YazismaListesi } from "../components/Yazisma";
@@ -31,7 +31,7 @@ function YeniMesaj() {
       <h3>Yöneticiye yaz</h3>
       <p className="hint">
         Bir soruyla ilgili itirazın, hesabınla ilgili bir sorun ya da önerin varsa buraya yaz. Cevap gelince bu sayfada ve
-        menüde görünür; istersen <a href="/ayarlar">Ayarlar</a>'dan e-postayla da haber alabilirsin.
+        menüde görünür; istersen <a href={tabanaEkle("/ayarlar")}>Ayarlar</a>'dan e-postayla da haber alabilirsin.
       </p>
       <label htmlFor={k}>Konu</label>
       <input id={k} maxLength={KONU_SINIRI} value={konu} onChange={(e) => setKonu(e.target.value)} />

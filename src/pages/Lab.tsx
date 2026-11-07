@@ -1,7 +1,7 @@
 // /lab: Sanal Lab. Deney kataloğu ve seçilen deneyin düzeneği.
 
 import { Suspense } from "react";
-import { href } from "../lib/router";
+import { href, tabanaEkle } from "../lib/router";
 import { DENEYLER, deneyBul } from "../lab/deneyler";
 import { dersBul } from "../dersler";
 import { DONEM_ADI } from "../dersler/tipler";
@@ -39,7 +39,7 @@ function Katalog() {
 export function Lab({ deney }: { deney?: string }) {
   if (!deney) return <Katalog />;
   const d = deneyBul(deney);
-  if (!d) return <p className="empty">Böyle bir deney yok. <a href="/lab">Tüm deneyler</a></p>;
+  if (!d) return <p className="empty">Böyle bir deney yok. <a href={tabanaEkle("/lab")}>Tüm deneyler</a></p>;
   const Bilesen = d.bilesen;
   return (
     <div className="ders-sayfa">
@@ -56,7 +56,7 @@ export function Lab({ deney }: { deney?: string }) {
         <p className="empty">Bu deney hazırlanıyor.</p>
       )}
       <nav className="ders-gezinti" aria-label="Deneyler">
-        <a href="/lab">← Tüm deneyler</a>
+        <a href={tabanaEkle("/lab")}>← Tüm deneyler</a>
         <a href={href({ page: "ders", hafta: d.unite })}>Üniteyi oku →</a>
       </nav>
     </div>

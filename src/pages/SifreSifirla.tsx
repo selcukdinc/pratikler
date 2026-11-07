@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from "react";
 import { api } from "../lib/api";
-import { navigate } from "../lib/router";
+import { navigate, tabanaEkle } from "../lib/router";
 import { useOturum } from "../lib/oturum";
 import { parolaGucu } from "../../shared/hesap";
 import { Alan, FormHatasi, KodAlani, ParolaGucuCubugu, useGeriSayim } from "../components/Form";
@@ -112,7 +112,7 @@ export function SifreSifirla() {
         <button className="primary" type="submit" disabled={!kimlik.trim() || gonderiliyor}>
           {gonderiliyor ? "Gönderiliyor…" : "Kod gönder"}
         </button>
-        <a href="/giris">Girişe dön</a>
+        <a href={tabanaEkle("/giris")}>Girişe dön</a>
       </div>
     </form>
   );

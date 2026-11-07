@@ -14,6 +14,16 @@ export interface Yenilik {
 
 export const YENILIKLER: Yenilik[] = [
   {
+    pr: 23,
+    tarih: "2026-11-07",
+    baslik: "Sınıflar için yeni adres yapısı: pratikler.selcukdinc.dev/sinif6",
+    maddeler: [
+      "Okul dersleri artık ayrı bir alan adı açmadan pratikler.selcukdinc.dev altında açılıyor: 6. sınıfın dersleri `/sinif6` sayfasında, her ders kendi yolunda (ör. `/sinif6/turkce`).",
+      "Bu derslerde soru havuzu, ilerleme, tekrar, soru önerme, sınav hazırlama, öğrenci soru havuzu bağlantısı ve yönetim paneli diğer pratiklerdeki gibi çalışıyor; hesabın ve temanın aynısı geçiyor.",
+      "Ana sayfada **Okul** başlığı altında sınıf kartları görünüyor.",
+    ],
+  },
+  {
     pr: 22,
     tarih: "2026-11-07",
     baslik: "Yeni Pratikler ana sayfası, yönetim ve Claude paneli",
