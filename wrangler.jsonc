@@ -68,6 +68,10 @@
 		{
 			"pattern": "biyomedikal.selcukdinc.dev",
 			"custom_domain": true
+		},
+		{
+			"pattern": "isletme.selcukdinc.dev",
+			"custom_domain": true
 		}
 	],
 	"observability": {
