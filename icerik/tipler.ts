@@ -71,6 +71,9 @@ export interface PratikMeta {
   latex: boolean;
   // Alan adının kökünde açılan sayfa: karma test (varsayılan), Sanal Lab ya da VHDL simülasyon alanı
   anaSayfa?: "pratik" | "lab" | "simulasyon";
+  // Yazma (yaz) sorularının cevap kutusunun altında mantık ve küme sembol klavyesi
+  // çıkar (Ayrık); belirtilmezse çıkmaz
+  yazSembolleri?: boolean;
   // Sekme simgesi ve menüdeki logo (public/ altındaki yol); yoksa /favicon.svg
   logo?: string;
   etiketler: EtiketTanim[];

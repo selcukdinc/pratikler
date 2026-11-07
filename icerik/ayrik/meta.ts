@@ -32,6 +32,7 @@ export const ayrik: PratikMeta = {
   uniteKisa: "Ü",
   yayinda: true,
   latex: false,
+  yazSembolleri: true,
   logo: "/logolar/ayrik.svg",
   etiketler: [
     { id: "rosen", ad: "Rosen", renk: "kitap", gercek: true, aciklama: "Rosen, Ayrık Matematik ve Uygulamaları kitabının bölüm sonu alıştırması" },

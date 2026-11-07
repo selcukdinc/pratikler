@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { hosttanPratik, pratikAdresi, yoldanPratik } from "../../icerik/index";
 import { href, parseHash, parsePath, tabanaEkle, tabandanCikar, tamYuklemeMi } from "./router";
 
 describe("yönlendirici", () => {
@@ -64,5 +65,16 @@ describe("yönlendirici", () => {
     expect(tamYuklemeMi("https://pratikler.selcukdinc.dev", "/", "", t)).toBe(true);
     expect(tamYuklemeMi("/?pratik=katalog", "/", "?pratik=katalog", t)).toBe(true);
     expect(tamYuklemeMi("/ilerleme", "/ilerleme", "", "")).toBe(false);
+    // Çatıdan ya da başka bir pratikten 6. sınıf Türkçe'ye geçiş, içinde gezinme
+    expect(tamYuklemeMi(t, t, "", "")).toBe(true);
+    expect(tamYuklemeMi(`${t}/sorular`, `${t}/sorular`, "", t)).toBe(false);
+  });
+  it("yoldan pratiği bulur, alan adından bulmaz", () => {
+    expect(yoldanPratik("/sinif6/turkce/sorular")?.id).toBe("sinif6-turkce");
+    expect(yoldanPratik("/sinif6/turkce")?.id).toBe("sinif6-turkce");
+    expect(yoldanPratik("/sinif6")).toBeNull();
+    expect(yoldanPratik("/sinif6/turkcex")).toBeNull();
+    expect(hosttanPratik("sinif6turkce.selcukdinc.dev")).toBeNull();
+    expect(pratikAdresi(yoldanPratik("/sinif6/turkce")!)).toBe("https://pratikler.selcukdinc.dev/sinif6/turkce");
   });
 });

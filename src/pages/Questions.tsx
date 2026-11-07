@@ -278,7 +278,7 @@ function KapaliKart({ q, n, dersBagi, durum, onSonuc }: IcOzellikler) {
             readOnly={cozum !== null}
             onChange={(e) => setYazi(e.target.value)}
           />
-          {cozum === null && <SembolKlavyesi onSembol={(sb) => sembolEkle(yaziKutusu.current, sb, setYazi)} />}
+          {cozum === null && PRATIK.yazSembolleri && <SembolKlavyesi onSembol={(sb) => sembolEkle(yaziKutusu.current, sb, setYazi)} />}
           {cozum !== null && (
             <div className="yaz-cozum">
               <h4>Örnek çözüm</h4>

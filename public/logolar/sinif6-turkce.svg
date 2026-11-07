@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+  <rect x="100" y="100" width="824" height="824" rx="185" fill="#B23A48"/>
+  <!-- açık kitap ve "Aa": 6. sınıf Türkçe -->
+  <path d="M512 330 C430 280 320 270 230 290 V720 C320 700 430 710 512 760 Z" fill="#FFFFFF"/>
+  <path d="M512 330 C594 280 704 270 794 290 V720 C704 700 594 710 512 760 Z" fill="#F4E4D4"/>
+  <text x="371" y="600" font-family="Georgia, serif" font-size="230" font-weight="700" text-anchor="middle" fill="#B23A48">A</text>
+  <text x="653" y="600" font-family="Georgia, serif" font-size="200" font-weight="700" text-anchor="middle" fill="#7A2531">a</text>
+</svg>
