@@ -6,7 +6,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { api } from "../lib/api";
-import { href } from "../lib/router";
+import { href, tabanaEkle } from "../lib/router";
 import { inline, Markdown } from "../components/Markdown";
 import { QuestionCard, SoruMetni } from "./Questions";
 import { SINAVLAR, sinavBul, type CikmisSinav } from "../cikmis/sinavlar";
@@ -110,7 +110,7 @@ function Ozet({ sinav, sorular, secimler, sonuclar }: {
           ))}
         </tbody>
       </table>
-      <p className="hint">Ayrıntılar ve açıklamalar her sorunun altında. {DONEM_ADI[sinav.donem]} ünitelerini tekrar etmek için <a href="/ders">konu anlatımlarına</a> dön.</p>
+      <p className="hint">Ayrıntılar ve açıklamalar her sorunun altında. {DONEM_ADI[sinav.donem]} ünitelerini tekrar etmek için <a href={tabanaEkle("/ders")}>konu anlatımlarına</a> dön.</p>
     </section>
   );
 }
@@ -216,6 +216,6 @@ function SinavSayfasi({ sinav }: { sinav: CikmisSinav }) {
 export function Cikmis({ sinav }: { sinav?: string }) {
   if (!sinav) return <SinavListesi />;
   const s = sinavBul(sinav);
-  if (!s) return <p className="empty">Böyle bir sınav yok. <a href="/cikmis">Tüm çıkmış sınavlar</a></p>;
+  if (!s) return <p className="empty">Böyle bir sınav yok. <a href={tabanaEkle("/cikmis")}>Tüm çıkmış sınavlar</a></p>;
   return <SinavSayfasi key={s.id} sinav={s} />;
 }

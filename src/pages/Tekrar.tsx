@@ -3,7 +3,7 @@
 
 import { useEffect, useState } from "react";
 import { api } from "../lib/api";
-import { href } from "../lib/router";
+import { href, tabanaEkle } from "../lib/router";
 import { useGunlukTekrar } from "../lib/tekrarAyar";
 import { QuestionCard } from "./Questions";
 import { PRATIK } from "../lib/pratik";
@@ -187,7 +187,7 @@ export function Tekrar() {
           <p>
             <strong>Tekrar kutun boş.</strong>{" "}
             <span className="hint">
-              <a href="/sorular">Soru havuzunda</a> yanlış yaptığın her soru ertesi gün burada yeniden sorulur.
+              <a href={tabanaEkle("/sorular")}>Soru havuzunda</a> yanlış yaptığın her soru ertesi gün burada yeniden sorulur.
             </span>
           </p>
         )}

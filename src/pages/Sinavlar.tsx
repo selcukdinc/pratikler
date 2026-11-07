@@ -3,7 +3,7 @@
 
 import { useEffect, useState } from "react";
 import { api } from "../lib/api";
-import { href, navigate } from "../lib/router";
+import { href, navigate, tabanaEkle } from "../lib/router";
 import { useOturum } from "../lib/oturum";
 import { PRATIK } from "../lib/pratik";
 import { FormHatasi } from "../components/Form";
@@ -38,7 +38,7 @@ export function Sinavlar() {
         <h2>Sınav hazırla</h2>
         <p>
           Bu bölüm öğretim üyeleri içindir: sitedeki sorulardan seçip kendi sınav kağıdını hazırlar, PDF olarak indirirsin.
-          Akademisyen hesabı için <a href="/mesajlar">yöneticiye yaz</a>.
+          Akademisyen hesabı için <a href={tabanaEkle("/mesajlar")}>yöneticiye yaz</a>.
         </p>
       </div>
     );

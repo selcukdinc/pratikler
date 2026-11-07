@@ -7,7 +7,7 @@ import {
   type Okunmamis, type Oneri, type OneriGirdi, type Yazisma, type YazismaMesaji, type YazismaOzeti,
 } from "../shared/sosyal";
 import type { Env } from "./session";
-import { pid } from "./pratik";
+import { pid, pratikKoku } from "./pratik";
 import { yoneticiyeIlet } from "./eposta";
 
 type C = Context<Env>;
@@ -34,7 +34,7 @@ function yoneticiyeBildir(c: C, i: { konu: string; metin: string; yol: string })
   const gonder = yoneticiyeIlet(c.env, {
     konu: `[${pratik}] ${i.konu}`,
     metin: `${kim}${me.email ? ` <${me.email}>` : ""} · ${pratik}\n\n${i.metin}`,
-    baglanti: `${new URL(c.req.url).origin}${i.yol}`,
+    baglanti: `${pratikKoku(c)}${i.yol}`,
     yanitla: me.email,
   }).catch((e) => console.log(`[eposta] yönetici iletisi gönderilemedi: ${String(e)}`));
   try {

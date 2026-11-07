@@ -2,7 +2,7 @@
 
 import { useEffect, useId, useState, type FormEvent, type ReactNode } from "react";
 import { api } from "../lib/api";
-import { href } from "../lib/router";
+import { href, tabanaEkle } from "../lib/router";
 import { uye, useOturum } from "../lib/oturum";
 import { FormHatasi } from "../components/Form";
 import { Markdown, inline } from "../components/Markdown";
@@ -68,7 +68,7 @@ export function Oner() {
   if (!uye(me)) {
     return (
       <div className="form-sayfa">
-        <p>Soru önermek için <a href={href({ page: "giris", sonra: "/oner" })}>giriş yap</a> ya da <a href="/kayit">hesap aç</a>.</p>
+        <p>Soru önermek için <a href={href({ page: "giris", sonra: "/oner" })}>giriş yap</a> ya da <a href={tabanaEkle("/kayit")}>hesap aç</a>.</p>
       </div>
     );
   }
@@ -105,7 +105,7 @@ export function Oner() {
       </div>
       <div className={`oner-duzen gorunum-${gorunum}`}>
       <form className="soru-form" onSubmit={gonder}>
-        {susturuldu && <p className="bad">Hesabın şu an öneri gönderemiyor. Bir yanlışlık olduğunu düşünüyorsan <a href="/mesajlar">yöneticiye yaz</a>.</p>}
+        {susturuldu && <p className="bad">Hesabın şu an öneri gönderemiyor. Bir yanlışlık olduğunu düşünüyorsan <a href={tabanaEkle("/mesajlar")}>yöneticiye yaz</a>.</p>}
         <div className="form-izgara">
           <Alan etiket="Konu">
             {(id) => (

@@ -4,7 +4,7 @@
 
 import { Suspense, lazy, useEffect, useRef, useState } from "react";
 import { api } from "../lib/api";
-import { href } from "../lib/router";
+import { href, tabanaEkle } from "../lib/router";
 import { Markdown, inline } from "../components/Markdown";
 import { PRATIK, uniteBul, uniteYazi as uniteNo } from "../lib/pratik";
 import { QuestionCard } from "./Questions";
@@ -310,6 +310,6 @@ function useSonBolum(hafta: number, sonYer: (hafta: number, bolum: number) => vo
 export function Ders({ hafta }: { hafta?: number }) {
   if (hafta === undefined) return <DersListesi />;
   const ders = dersBul(hafta);
-  if (!ders) return <p className="empty">Bu ünitenin konu anlatımı yakında. <a href={href({ page: "sorular", hafta })}>Ünitenin sorularına git</a> · <a href="/ders">Tüm üniteler</a></p>;
+  if (!ders) return <p className="empty">Bu ünitenin konu anlatımı yakında. <a href={href({ page: "sorular", hafta })}>Ünitenin sorularına git</a> · <a href={tabanaEkle("/ders")}>Tüm üniteler</a></p>;
   return <DersSayfasi key={hafta} ders={ders} />;
 }

@@ -3,7 +3,7 @@
 // süzer. Seçim ya da çıkış sayfayı yeniden yükler, böylece önbellekteki listeler
 // havuzla karışmaz.
 
-import { PRATIK_YA_DA_KATALOG } from "./pratik";
+import { PRATIK_YA_DA_KATALOG, TABAN } from "./pratik";
 
 export interface AktifHavuz {
   kod: string;
@@ -45,5 +45,5 @@ export function havuzdanCik(sonra = location.pathname) {
   location.assign(sonra);
 }
 
-// Paylaşılacak bağlantı: pratiğin kendi adresinde /havuz/<kod>
-export const havuzBaglantisi = (kod: string) => `${location.origin}/havuz/${kod}${location.search.includes("pratik=") ? location.search : ""}`;
+// Paylaşılacak bağlantı: pratiğin kendi adresinde /havuz/<kod> (yol tabanlı pratikte yolun altında)
+export const havuzBaglantisi = (kod: string) => `${location.origin}${TABAN}/havuz/${kod}${location.search.includes("pratik=") ? location.search : ""}`;

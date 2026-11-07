@@ -1,9 +1,9 @@
 import { Suspense, lazy, useEffect, useState } from "react";
 import { PRATIK_YA_DA_KATALOG, SITE_ADI, uniteYazi } from "./lib/pratik";
 import { HesapAlani, Shell, TemaDugmesi } from "./components/Shell";
-import { Katalog } from "./pages/Katalog";
+import { KademeSayfasi, Katalog } from "./pages/Katalog";
 import { OlcekliSayfa } from "./components/Olcek";
-import { useRoute, type Route } from "./lib/router";
+import { useRoute, type Route, tabanaEkle } from "./lib/router";
 import { api } from "./lib/api";
 import { OturumSaglayici } from "./lib/oturum";
 import { Karma } from "./pages/Karma";
@@ -68,6 +68,7 @@ function baslik(route: Route, topicTitle?: string): string {
     case "yonetim": return "YÖNETİM";
     case "sinavlar": return route.id ? "SINAV HAZIRLA - Kağıt" : "SINAV HAZIRLA - Sınavlarım";
     case "havuz": return "SORU HAVUZU - Hocanın seçtiği sorular";
+    case "kademe": return "SINIF";
     case "bulunamadi": return "SAYFA BULUNAMADI";
   }
 }
@@ -83,6 +84,7 @@ function CatiApp() {
     route.page === "ayarlar" ? <Ayarlar sekme={route.sekme} /> :
     route.page === "mesajlar" ? <Mesajlar id={route.id} /> :
     route.page === "yonetim" ? <Yonetim bolum={route.bolum} soru={route.soru} alt={route.alt} /> :
+    route.page === "kademe" ? <KademeSayfasi id={route.id} /> :
     <Katalog />;
   useEffect(() => {
     document.title = SITE_ADI;
@@ -91,7 +93,7 @@ function CatiApp() {
     <OturumSaglayici>
       <div className="cati">
         <header className="topbar katalog-ust">
-          <a className="brand" href="/">
+          <a className="brand" href={tabanaEkle("/")}>
             <img src="/logolar/pratikler.svg" alt="" width={18} height={18} />
             <span className="brand-ad">{SITE_ADI}</span>
           </a>
@@ -99,7 +101,7 @@ function CatiApp() {
           <TemaDugmesi />
           <HesapAlani route={route} />
         </header>
-        <main>{sayfa.type === Katalog ? sayfa : <div className="cati-sayfa">{sayfa}</div>}</main>
+        <main>{sayfa.type === Katalog || sayfa.type === KademeSayfasi ? sayfa : <div className="cati-sayfa">{sayfa}</div>}</main>
       </div>
     </OturumSaglayici>
   );
@@ -208,7 +210,7 @@ function PratikApp() {
           )}
           {route.page === "bulunamadi" && (
             <p className="empty">
-              Bu adreste bir sayfa yok. <a href="/sorular">Sorulara git</a>
+              Bu adreste bir sayfa yok. <a href={tabanaEkle("/sorular")}>Sorulara git</a>
             </p>
           )}
         </OlcekliSayfa>

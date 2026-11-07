@@ -14,6 +14,27 @@ export interface Yenilik {
 
 export const YENILIKLER: Yenilik[] = [
   {
+    pr: 24,
+    tarih: "2026-11-07",
+    baslik: "Yeni pratik: 6. Sınıf Türkçe",
+    maddeler: [
+      "pratikler.selcukdinc.dev/sinif6/turkce açıldı: MEB Türkçe öğretim programının temalarına ve 1. dönem ortak yazılı sınavın kapsamına göre 79 soru.",
+      "Sorular programdaki öğrenme çıktılarına göre ayrıldı: kelimenin anlamını metinden tahmin etme, metinde açıkça verilen bilgi, anahtar kelime, söz varlığı, yazma planı, yazım ve noktalama. Her sorunun altında çıktının kodu (ör. **T.O.6.5**) yazar.",
+      "Ortak yazılı açık uçlu olduğu için soruların bir kısmı yazma sorusu: cevabını yazıyorsun, sonra örnek cevap ve puanlama ölçütüyle kendini değerlendiriyorsun.",
+      "1. yazılının kapsamındaki sorular **1. yazılı** etiketiyle süzülebiliyor. 2. temadan kök-ek ve karşılaştırma soruları da var.",
+    ],
+  },
+  {
+    pr: 23,
+    tarih: "2026-11-07",
+    baslik: "Sınıflar için yeni adres yapısı: pratikler.selcukdinc.dev/sinif6",
+    maddeler: [
+      "Okul dersleri artık ayrı bir alan adı açmadan pratikler.selcukdinc.dev altında açılıyor: 6. sınıfın dersleri `/sinif6` sayfasında, her ders kendi yolunda (ör. `/sinif6/turkce`).",
+      "Bu derslerde soru havuzu, ilerleme, tekrar, soru önerme, sınav hazırlama, öğrenci soru havuzu bağlantısı ve yönetim paneli diğer pratiklerdeki gibi çalışıyor; hesabın ve temanın aynısı geçiyor.",
+      "Ana sayfada **Okul** başlığı altında sınıf kartları görünüyor.",
+    ],
+  },
+  {
     pr: 22,
     tarih: "2026-11-07",
     baslik: "Yeni Pratikler ana sayfası, yönetim ve Claude paneli",

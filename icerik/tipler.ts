@@ -42,8 +42,12 @@ export interface EtiketTanim {
 export interface PratikMeta {
   // Kalıcı kimlik; soru kimliklerinin öneki ve veritabanındaki practice_id
   id: string;
-  // Alt alan adı: <alt>.selcukdinc.dev
+  // Alt alan adı: <alt>.selcukdinc.dev. Yol tabanlı pratikte alan adı açılmaz; yine
+  // de tek ve SQL'e gömülebilir bir kısa ad olarak tutulur.
   alt: string;
+  // Yol tabanlı pratik: pratikler.selcukdinc.dev/<yol> ("sinif6/turkce"). İlk parça
+  // kademenin kimliğidir (icerik/index.ts KADEMELER).
+  yol?: string;
   // "Tıp Elektroniği"; site adı "<ad> Pratik" olur
   ad: string;
   // Katalogdaki grup: Mühendislik, Temel bilimler, İşletme, Sağlık...
@@ -67,6 +71,9 @@ export interface PratikMeta {
   latex: boolean;
   // Alan adının kökünde açılan sayfa: karma test (varsayılan), Sanal Lab ya da VHDL simülasyon alanı
   anaSayfa?: "pratik" | "lab" | "simulasyon";
+  // Yazma (yaz) sorularının cevap kutusunun altında mantık ve küme sembol klavyesi
+  // çıkar (Ayrık); belirtilmezse çıkmaz
+  yazSembolleri?: boolean;
   // Sekme simgesi ve menüdeki logo (public/ altındaki yol); yoksa /favicon.svg
   logo?: string;
   etiketler: EtiketTanim[];
