@@ -16,7 +16,7 @@ import { ONERI_SQL, mesajlar, oneriSatiri, yazismaOzeti, type OneriSatiri } from
 import type { Env } from "./session";
 import { yetkisiVar, type Izin } from "./yetki";
 import { pratikKosulu } from "./ortak";
-import { pid } from "./pratik";
+import { pid, pratikKoku } from "./pratik";
 import { PRATIKLER } from "../icerik/index";
 import { IS_SQL, isSatiri, nabizOku } from "./claude";
 
@@ -578,7 +578,7 @@ yonetim.post("/yazismalar/:id", izin("mesaj.cevapla"), async (c) => {
   if (t.email && t.notify_email) {
     const gonder = bildirimGonder(
       c.env, t.email, `Mesajına cevap var: ${t.subject}`,
-      `${c.get("pratik")?.ad ?? "Pratikler"} Pratik yöneticisi "${t.subject}" konulu mesajına cevap yazdı.\n\nCevabı okumak için: ${new URL(c.req.url).origin}/mesajlar/${t.id}\n\n` +
+      `${c.get("pratik")?.ad ?? "Pratikler"} Pratik yöneticisi "${t.subject}" konulu mesajına cevap yazdı.\n\nCevabı okumak için: ${pratikKoku(c)}/mesajlar/${t.id}\n\n` +
         "Bu e-postaları Ayarlar sayfasından kapatabilirsin.",
     ).catch((e) => console.log(`[eposta] cevap bildirimi gönderilemedi: ${String(e)}`));
     try {

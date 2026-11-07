@@ -1,8 +1,9 @@
 // Bu sayfanın hangi pratiğe ait olduğu. Canlıda alt alan adından bulunur
 // (tipelektronigi.selcukdinc.dev); pratikler.selcukdinc.dev ve tanınmayan
 // adresler katalog sayfasını açar. Yerelde ?pratik=<id> ile seçilir ve
-// tarayıcıda hatırlanır (?pratik=katalog çatı sitesini açar).
-import { PRATIKLER, catiAdresi, hosttanPratik, pratikAdresi, pratikBul, type PratikMeta } from "../../icerik/index";
+// tarayıcıda hatırlanır (?pratik=katalog çatı sitesini açar). Yol tabanlı pratikler
+// (pratikler.selcukdinc.dev/sinif6/turkce) her yerde adresin yolundan bulunur.
+import { PRATIKLER, catiAdresi, hosttanPratik, pratikAdresi, pratikBul, yoldanPratik, type PratikMeta } from "../../icerik/index";
 
 const YEREL_ANAHTAR = "pratikler:yerel-pratik";
 
@@ -20,8 +21,17 @@ const yerelMi = () =>
   typeof location !== "undefined" &&
   (location.hostname === "localhost" || location.hostname === "127.0.0.1" || location.hostname.endsWith(".workers.dev"));
 
+// Adresin yolundan seçilen pratik (yayında olmayan yol, yerel dışında çatıya düşer)
+function yoldan(): PratikMeta | null {
+  if (typeof location === "undefined") return null;
+  const p = yoldanPratik(location.pathname);
+  return p && (p.yayinda || yerelMi()) ? p : null;
+}
+const YOL_PRATIGI = yoldan();
+
 function bul(): PratikMeta | null {
   if (typeof location === "undefined") return PRATIKLER[0]!;
+  if (YOL_PRATIGI) return YOL_PRATIGI;
   if (yerelMi()) {
     const secim = yerelSecim();
     if (secim === "katalog") return null;
@@ -34,6 +44,10 @@ function bul(): PratikMeta | null {
 // null: çatı sitesi (katalog). Sayfa ömrü boyunca değişmez.
 export const PRATIK_YA_DA_KATALOG: PratikMeta | null = bul();
 
+// Sayfanın taban yolu: yol tabanlı pratikte "/sinif6/turkce", başka her yerde "".
+// Yönlendirici bütün adresleri bu tabana göre okur ve yazar (src/lib/router.ts).
+export const TABAN = YOL_PRATIGI ? `/${YOL_PRATIGI.yol}` : "";
+
 // Pratik sayfalarında kullanılır; katalogda bu sayfalar çizilmez
 export const PRATIK: PratikMeta = PRATIK_YA_DA_KATALOG ?? PRATIKLER[0]!;
 // Pratiğin kendi logosu (eski sitesindeki yeşil kimya şişesi gibi); çatıda ortak logo
@@ -45,5 +59,9 @@ export const uniteBul = (no: number) => PRATIK.uniteler.find((u) => u.no === no)
 export const uniteYazi = (no: number) => `${no}. ${PRATIK.uniteAdi}`;
 
 // Bir pratiğin ve çatı sitesinin adresi; yerelde aynı sunucuda ?pratik= ile
-export const pratikBaglantisi = (p: PratikMeta, yol = "/") => (yerelMi() ? `${yol}?pratik=${p.id}` : `${pratikAdresi(p)}${yol === "/" ? "" : yol}`);
+// Yol tabanlı pratik yerelde de kendi yolunda açılır.
+export const pratikBaglantisi = (p: PratikMeta, yol = "/") =>
+  p.yol && yerelMi() ? `/${p.yol}${yol === "/" ? "" : yol}` : yerelMi() ? `${yol}?pratik=${p.id}` : `${pratikAdresi(p)}${yol === "/" ? "" : yol}`;
+// Tam adresle (ya da yerelde ?pratik= ile) yazılır; yol tabanlı pratikte de yönlendirici
+// onu pratiğin içi saymaz ve sayfa baştan yüklenir (router.ts tamYuklemeMi)
 export const catiBaglantisi = () => (yerelMi() ? "/?pratik=katalog" : catiAdresi);

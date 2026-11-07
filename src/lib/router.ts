@@ -3,7 +3,8 @@
 // Eski #/sorular gibi bağlantılar açılışta yeni adrese çevrilir.
 
 import { useEffect, useState } from "react";
-import { PRATIK_YA_DA_KATALOG } from "./pratik";
+import { PRATIK_YA_DA_KATALOG, TABAN } from "./pratik";
+import { kademeBul, yoldanPratik } from "../../icerik/index";
 
 export type Route =
   | { page: "pratik" }
@@ -31,6 +32,8 @@ export type Route =
   | { page: "yonetim"; bolum: YonetimBolumu; soru?: string; alt?: string }
   | { page: "sinavlar"; id?: string }
   | { page: "havuz"; kod: string }
+  // Çatı sitesinde bir kademenin (6. sınıf) dersleri: /sinif6
+  | { page: "kademe"; id: string }
   | { page: "bulunamadi" };
 
 export type AyarSekmesi = "profil" | "hesap" | "bildirimler" | "sil";
@@ -112,8 +115,23 @@ export function parsePath(path: string, search = ""): Route {
       return bolum === "sorular" ? { page: "yonetim", bolum, soru: ucuncu } : { page: "yonetim", bolum, alt: ucuncu };
     }
     default:
-      return { page: "bulunamadi" };
+      // Çatıda /sinif6 kademe sayfasıdır; pratiklerin içinde böyle bir sayfa yok
+      return !PRATIK_YA_DA_KATALOG && !arg && kademeBul(page) ? { page: "kademe", id: page! } : { page: "bulunamadi" };
   }
+}
+
+// Yol tabanlı pratikte (TABAN = "/sinif6/turkce") adresler tabanla yazılır, tabansız
+// okunur. Sayfalardaki "/sorular" gibi sabit bağlantılar da tabana eklenir.
+export function tabanaEkle(yol: string, taban = TABAN): string {
+  if (!taban || !yol.startsWith("/") || yol.startsWith("//")) return yol;
+  if (yol === taban || yol.startsWith(`${taban}/`) || yol.startsWith(`${taban}?`) || yol.startsWith(`${taban}#`)) return yol;
+  return yol === "/" ? taban : /^\/[?#]/.test(yol) ? taban + yol.slice(1) : taban + yol;
+}
+
+export function tabandanCikar(yol: string, taban = TABAN): string {
+  if (!taban) return yol;
+  if (yol === taban) return "/";
+  return yol.startsWith(`${taban}/`) ? yol.slice(taban.length) : yol;
 }
 
 // Eski hash adresleri: #/pratik, #/sorular/<konu>, #/ilerleme, #/hakkinda
@@ -123,6 +141,10 @@ export function parseHash(hash: string): Route | null {
 }
 
 export function href(route: Route): string {
+  return tabanaEkle(tabansizHref(route));
+}
+
+function tabansizHref(route: Route): string {
   switch (route.page) {
     case "sorular":
       return route.topic ? `/sorular/${encodeURIComponent(route.topic)}` : route.hafta ? `/sorular?hafta=${route.hafta}` : "/sorular";
@@ -146,6 +168,8 @@ export function href(route: Route): string {
       return route.id ? `/sinavlar/${encodeURIComponent(route.id)}` : "/sinavlar";
     case "havuz":
       return `/havuz/${encodeURIComponent(route.kod)}`;
+    case "kademe":
+      return `/${route.id}`;
     case "giris":
       return route.sonra ? `/giris?sonra=${encodeURIComponent(route.sonra)}` : "/giris";
     case "bulunamadi":
@@ -158,11 +182,24 @@ export function href(route: Route): string {
 const OLAY = "fp:gezinti";
 
 export function navigate(to: string | Route, { replace = false } = {}) {
-  const url = typeof to === "string" ? to : href(to);
+  const url = typeof to === "string" ? tabanaEkle(to) : href(to);
   if (replace) history.replaceState(null, "", url);
   else history.pushState(null, "", url);
   window.dispatchEvent(new Event(OLAY));
   if (!replace) window.scrollTo(0, 0);
+}
+
+// Bağlantı sayfayı baştan yüklemeli mi? Pratik sayfa ömrü boyunca değişmediği için
+// başka bir pratiğe ya da çatıya geçiş tam yüklemedir. Yol tabanlı pratikte "/sorular"
+// gibi sabit bağlantılar pratiğin içindedir; çatıya giden bağlantı tam adresle yazılır
+// (catiBaglantisi). Yerel ?pratik= seçimi de sayfayı yeniler.
+export function tamYuklemeMi(ham: string, yol: string, search: string, taban = TABAN): boolean {
+  if (new URLSearchParams(search).has("pratik")) return true;
+  const hedef = yoldanPratik(yol);
+  const hedefTaban = hedef ? `/${hedef.yol}` : "";
+  if (hedefTaban === taban) return false;
+  if (hedef) return true;
+  return /^(https?:)?\/\//.test(ham);
 }
 
 // Site içi <a href="/..."> tıklamalarını sayfa yenilemeden karşılar
@@ -173,6 +210,7 @@ function tiklama(e: MouseEvent) {
   if (!a || a.target || a.hasAttribute("download") || a.hasAttribute("data-tam-sayfa")) return;
   const url = new URL(a.href, location.href);
   if (url.origin !== location.origin || url.pathname.startsWith("/api/") || /\.\w+$/.test(url.pathname)) return;
+  if (tamYuklemeMi(a.getAttribute("href") ?? "", url.pathname, url.search)) return;
   // Aynı sayfadaki #bölüm bağlantıları tarayıcıya bırakılır: kaydırmayı ve adresi o yapar
   if (url.hash && url.pathname + url.search === location.pathname + location.search) return;
   e.preventDefault();
@@ -180,7 +218,7 @@ function tiklama(e: MouseEvent) {
 }
 
 function mevcut(): Route {
-  return parsePath(location.pathname, location.search);
+  return parsePath(tabandanCikar(location.pathname), location.search);
 }
 
 export function useRoute(): Route {
