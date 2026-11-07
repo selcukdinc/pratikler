@@ -72,71 +72,92 @@ function Genel() {
 
   return (
     <div className="panel-genel">
-      <section className="ayar-bolum">
-        <h3>Orijinal sorular</h3>
-        <p>
-          Sunumlardan gelen {o.soru.orijinal} soru şu an sitede{" "}
-          <strong className={o.showOriginal ? "ok" : "bad"}>{o.showOriginal ? "görünüyor" : "gizli"}</strong>. Gizliyken
-          listede, ilerlemede ve profillerde görünmezler, cevaplanamazlar. Eski denemeler silinmez.
-        </p>
-        <button
-          className={o.showOriginal ? "tehlike" : "primary"}
-          onClick={() =>
-            kaydet({ showOriginal: !o.showOriginal }, o.showOriginal ? "Orijinal sorular gizlendi." : "Orijinal sorular açıldı.")
-          }
-        >
-          {o.showOriginal ? "Orijinal soruları gizle" : "Orijinal soruları göster"}
-        </button>
+      <section className="panel-durum" aria-label="Durum">
+        <dl>
+          <div><dt>Yayında soru</dt><dd>{o.soru.yayinda}</dd></div>
+          <div><dt>Taslak</dt><dd>{o.soru.taslak}</dd></div>
+          <div><dt>Tek tek gizlenmiş</dt><dd>{o.soru.gizli}</dd></div>
+          <div><dt>Üye</dt><dd>{o.uye}</dd></div>
+          <div><dt>Misafir</dt><dd>{o.misafir}</dd></div>
+          <div><dt>Cevap denemesi</dt><dd>{o.deneme}</dd></div>
+        </dl>
+        {(o.bekleyenOneri > 0 || o.okunmamisMesaj > 0) ? (
+          <p className="panel-bekleyen">
+            Seni bekleyenler:{" "}
+            {o.bekleyenOneri > 0 && <a href={href({ page: "yonetim", bolum: "oneriler" })}>{o.bekleyenOneri} soru önerisi</a>}
+            {o.bekleyenOneri > 0 && o.okunmamisMesaj > 0 && " ve "}
+            {o.okunmamisMesaj > 0 && <a href={href({ page: "yonetim", bolum: "mesajlar" })}>{o.okunmamisMesaj} okunmamış mesaj</a>}
+          </p>
+        ) : (
+          <p className="panel-bekleyen soluk">Bekleyen öneri ya da okunmamış mesaj yok.</p>
+        )}
       </section>
 
+      <section className="ayar-bolum ayar-satirlari" aria-labelledby="ayarlar-baslik">
+        <h3 id="ayarlar-baslik">Pratik ayarları</h3>
 
-      <section className="ayar-bolum">
-        <h3>Geçerli hafta</h3>
-        <form
-          className="satir-form"
-          onSubmit={(e: FormEvent) => {
-            e.preventDefault();
-            void kaydet({ currentWeek: hafta }, `Geçerli hafta ${hafta} oldu.`);
-          }}
-        >
-          <label>
-            Sorular bu haftaya kadar açık:{" "}
-            <input type="number" min={1} max={14} value={hafta} onChange={(e) => setHafta(Number(e.target.value))} />
-          </label>
-          <button type="submit" disabled={hafta === o.currentWeek}>Kaydet</button>
-        </form>
-      </section>
+        <div className="ayar-satir">
+          <div>
+            <h4>Açık üniteler</h4>
+            <p className="hint">Öğrenciler bu üniteye kadar olan soruları görür. Dönem ilerledikçe artır.</p>
+          </div>
+          <form
+            className="satir-form"
+            onSubmit={(e: FormEvent) => {
+              e.preventDefault();
+              void kaydet({ currentWeek: hafta }, `Sorular artık ${hafta}. üniteye kadar açık.`);
+            }}
+          >
+            <label>
+              <span className="sr-only">Son açık ünite</span>
+              <input type="number" min={1} max={14} value={hafta} onChange={(e) => setHafta(Number(e.target.value))} />
+            </label>
+            <button type="submit" disabled={hafta === o.currentWeek}>Kaydet</button>
+          </form>
+        </div>
 
-      <section className="ayar-bolum">
-        <h3>Duyuru şeridi</h3>
+        <div className="ayar-satir">
+          <div>
+            <h4>Orijinal sorular</h4>
+            <p className="hint">
+              Sunumlardan gelen {o.soru.orijinal} soru şu an{" "}
+              <strong className={o.showOriginal ? "ok" : "bad"}>{o.showOriginal ? "görünüyor" : "gizli"}</strong>. Gizliyken
+              listede, ilerlemede ve profillerde görünmez, cevaplanamaz; eski denemeler silinmez.
+            </p>
+          </div>
+          <div>
+            <button
+              className={o.showOriginal ? "tehlike" : "primary"}
+              onClick={() =>
+                kaydet({ showOriginal: !o.showOriginal }, o.showOriginal ? "Orijinal sorular gizlendi." : "Orijinal sorular açıldı.")
+              }
+            >
+              {o.showOriginal ? "Orijinal soruları gizle" : "Orijinal soruları göster"}
+            </button>
+          </div>
+        </div>
+
         <form
+          className="ayar-satir ayar-satir-genis"
           onSubmit={(e: FormEvent) => {
             e.preventDefault();
             void kaydet({ announcement: duyuru }, duyuru.trim() ? "Duyuru yayında." : "Duyuru kaldırıldı.");
           }}
         >
-          <textarea rows={2} maxLength={300} value={duyuru} onChange={(e) => setDuyuru(e.target.value)} placeholder="Boş bırakılırsa şerit görünmez" />
-          <p className="hint">Sitenin üstünde herkese görünür. `kod` ve **kalın** yazılabilir.</p>
-          <button type="submit" disabled={duyuru.trim() === o.announcement}>Kaydet</button>
+          <div>
+            <h4><label htmlFor="duyuru">Duyuru şeridi</label></h4>
+            <p className="hint">Sitenin üstünde herkese görünür; boş bırakılırsa şerit kalkar. `kod` ve **kalın** yazılabilir.</p>
+          </div>
+          <div className="duyuru-alani">
+            <textarea id="duyuru" rows={2} maxLength={300} value={duyuru} onChange={(e) => setDuyuru(e.target.value)} placeholder="Örnek: Vize 14 Kasım'da; 1-3. üniteler." />
+            {duyuru.trim() && <div className="duyuru-onizleme" aria-label="Önizleme"><Markdown text={duyuru} /></div>}
+            <button type="submit" disabled={duyuru.trim() === o.announcement}>{duyuru.trim() ? "Duyuruyu yayınla" : "Duyuruyu kaldır"}</button>
+          </div>
         </form>
       </section>
 
       <FormHatasi hata={hata} />
       {tamam && <p className="ok" role="status">{tamam}</p>}
-
-      <section className="ayar-bolum">
-        <h3>Durum</h3>
-        <ul className="sayilar">
-          <li><strong>{o.soru.yayinda}</strong> yayında soru</li>
-          <li><strong>{o.soru.taslak}</strong> taslak</li>
-          <li><strong>{o.soru.gizli}</strong> tek tek gizlenmiş</li>
-          <li><strong>{o.uye}</strong> üye</li>
-          <li><strong>{o.misafir}</strong> misafir</li>
-          <li><strong>{o.deneme}</strong> cevap denemesi</li>
-          <li><a href={href({ page: "yonetim", bolum: "oneriler" })}><strong>{o.bekleyenOneri}</strong> bekleyen öneri</a></li>
-          <li><a href={href({ page: "yonetim", bolum: "mesajlar" })}><strong>{o.okunmamisMesaj}</strong> okunmamış mesaj</a></li>
-        </ul>
-      </section>
     </div>
   );
 }
@@ -151,31 +172,60 @@ function Pratikler() {
   }, []);
   if (!liste) return hata ? <FormHatasi hata={hata} /> : <p className="empty">Yükleniyor…</p>;
   const toplam = (f: (p: PanelPratik) => number) => liste.reduce((a, p) => a + f(p), 0);
+  const yayinda = liste.filter((p) => p.yayinda).length;
   return (
-    <div className="panel-genel">
-      <p className="hint">Son 7 günde {toplam((p) => p.deneme7)} cevap denemesi; bekleyen öneri toplamı {toplam((p) => p.bekleyenOneri)}.</p>
-      <div className="md-tablo">
+    <div className="panel-genel panel-genis">
+      <section className="panel-durum" aria-label="Bütün pratikler">
+        <dl>
+          <div><dt>Yayında pratik</dt><dd>{yayinda} / {liste.length}</dd></div>
+          <div><dt>Açık soru</dt><dd>{toplam((p) => p.soru).toLocaleString("tr-TR")}</dd></div>
+          <div><dt>Son 7 günde deneme</dt><dd>{toplam((p) => p.deneme7).toLocaleString("tr-TR")}</dd></div>
+          <div><dt>Son 7 günde kişi</dt><dd>{toplam((p) => p.kisi7)}</dd></div>
+          <div><dt>Bekleyen öneri</dt><dd>{toplam((p) => p.bekleyenOneri)}</dd></div>
+        </dl>
+        <p className="panel-bekleyen soluk">Ayarlar ve soru düzenleme her pratiğin kendi panelindedir; pratiğin adına basınca açılır.</p>
+      </section>
+      <div className="panel-tablo">
         <table>
           <thead>
             <tr>
-              <th>Pratik</th><th>Durum</th><th>Açık ünite</th><th>Soru</th><th>Taslak</th>
-              <th>7 gün deneme</th><th>7 gün kişi</th><th>Toplam kişi</th><th>Bekleyen öneri</th>
+              <th scope="col">Pratik</th>
+              <th scope="col">Açık ünite</th>
+              <th scope="col" className="sayi">Soru</th>
+              <th scope="col" className="sayi">Taslak</th>
+              <th scope="col" className="sayi">7 günde deneme</th>
+              <th scope="col" className="sayi">7 günde kişi</th>
+              <th scope="col" className="sayi">Toplam kişi</th>
+              <th scope="col" className="sayi">Öneri</th>
             </tr>
           </thead>
           <tbody>
             {liste.map((p) => {
               const meta = pratikBul(p.id)!;
+              const ad = p.id === PRATIK_YA_DA_KATALOG?.id ? <strong>{p.ad}</strong> : <a href={pratikBaglantisi(meta, "/yonetim")}>{p.ad}</a>;
               return (
                 <tr key={p.id}>
-                  <td>{p.id === PRATIK_YA_DA_KATALOG?.id ? <strong>{p.ad}</strong> : <a href={pratikBaglantisi(meta, "/yonetim")}>{p.ad}</a>}</td>
-                  <td>{p.yayinda ? "Yayında" : "Yayında değil"}</td>
-                  <td>{p.acikUnite} / {p.uniteSayisi}</td>
-                  <td>{p.soru}</td>
-                  <td>{p.taslak}</td>
-                  <td>{p.deneme7}</td>
-                  <td>{p.kisi7}</td>
-                  <td>{p.kisi}</td>
-                  <td>{p.bekleyenOneri}</td>
+                  <th scope="row">
+                    <span className="panel-pratik">
+                      {meta.logo ? <img src={meta.logo} alt="" width={22} height={22} /> : <span className="panel-pratik-harf" aria-hidden="true">{p.ad.charAt(0)}</span>}
+                      <span>
+                        {ad}
+                        <span className={`durum-hap ${p.yayinda ? "acik" : ""}`}>{p.yayinda ? "Yayında" : "Yayında değil"}</span>
+                      </span>
+                    </span>
+                  </th>
+                  <td>
+                    <span className="unite-olcer" title={`${p.acikUnite} / ${p.uniteSayisi} ünite açık`}>
+                      <span style={{ width: `${p.uniteSayisi ? (100 * p.acikUnite) / p.uniteSayisi : 0}%` }} />
+                    </span>
+                    <span className="unite-sayi">{p.acikUnite} / {p.uniteSayisi}</span>
+                  </td>
+                  <td className="sayi">{p.soru}</td>
+                  <td className="sayi">{p.taslak || <span className="soluk">0</span>}</td>
+                  <td className="sayi">{p.deneme7}</td>
+                  <td className="sayi">{p.kisi7}</td>
+                  <td className="sayi">{p.kisi}</td>
+                  <td className="sayi">{p.bekleyenOneri > 0 ? <strong>{p.bekleyenOneri}</strong> : <span className="soluk">0</span>}</td>
                 </tr>
               );
             })}
@@ -601,8 +651,19 @@ function IslemKaydi() {
   );
 }
 
+// Sekmelerdeki sayaçlar: bekleyen öneri ve okunmamış mesaj (pratik panelinde)
+function useSayaclar(acik: boolean, bolum: YonetimBolumu): Partial<Record<YonetimBolumu, number>> {
+  const [s, setS] = useState<Partial<Record<YonetimBolumu, number>>>({});
+  useEffect(() => {
+    if (!acik) return;
+    api.yonetim.ozet().then((o) => setS({ oneriler: o.bekleyenOneri, mesajlar: o.okunmamisMesaj }), () => {});
+  }, [acik, bolum]);
+  return s;
+}
+
 export function Yonetim({ bolum, soru, alt }: { bolum: YonetimBolumu; soru?: string; alt?: string }) {
   const { me, yuklendi } = useOturum();
+  const sayac = useSayaclar(!!PRATIK_YA_DA_KATALOG && me?.role === "admin", bolum);
   if (!yuklendi) return <p className="empty">Yükleniyor…</p>;
   if (me?.kind !== "member") {
     return (
@@ -617,10 +678,18 @@ export function Yonetim({ bolum, soru, alt }: { bolum: YonetimBolumu; soru?: str
 
   return (
     <div className="yonetim">
-      <nav className="tabs panel-sekmeler" aria-label="Yönetim bölümleri">
+      {/* Pratik sitesinde başlığı kabuk gösterir; çatıda kabuk yok */}
+      {cati && (
+        <header className="yonetim-ust">
+          <h2>Yönetim paneli</h2>
+          <p>Bütün pratikler, hesaplar ve Claude işleri. Bir pratiğin ayarları ve soruları kendi panelindedir.</p>
+        </header>
+      )}
+      <nav className="panel-sekmeler" aria-label="Yönetim bölümleri">
         {(cati ? CATI_BOLUMLERI : PRATIK_BOLUMLERI).map(([b, ad]) => (
           <a key={b} href={href({ page: "yonetim", bolum: b })} aria-current={bolum === b ? "page" : undefined}>
             {ad}
+            {sayac[b] ? <span className="sayi-rozeti">{sayac[b]}</span> : null}
           </a>
         ))}
       </nav>

@@ -14,6 +14,19 @@ export interface Yenilik {
 
 export const YENILIKLER: Yenilik[] = [
   {
+    pr: 22,
+    tarih: "2026-11-07",
+    baslik: "Yeni Pratikler ana sayfası, yönetim ve Claude paneli",
+    maddeler: [
+      "pratikler.selcukdinc.dev baştan tasarlandı: ilk ekranda sitenin ne olduğu, kimin için olduğu ve kısa bir canlı gösterim var. Öğrenci soru çözüp yanlışını tekrara düşürüyor, akademisyen sınavın B grubunu ve cevap anahtarını alıyor, öğretmen soru havuzu bağlantısı paylaşıyor.",
+      "**Kime ne kazandırır?** bölümü öğrenciler, akademisyenler ve öğretmenler için sitenin neler yaptığını ayrı ayrı anlatıyor; akademisyen erişimi buradan istenebiliyor.",
+      "Pratikler listesi alanlarına göre daha okunaklı bir rafta duruyor; Aydınlık, Karanlık ve Kahve temalarının hepsinde çalışıyor.",
+      "Yönetim panelinin **Genel** sekmesi önce durumu, sonra ayarları gösteriyor; duyurunun nasıl görüneceği yazarken önizleniyor. Sekmelerde bekleyen öneri ve okunmamış mesaj sayısı görünüyor.",
+      "Çatıdaki yönetim panelinde pratikler tablosu açık ünite oranını, haftalık denemeleri ve bekleyen önerileri tek bakışta veriyor.",
+      "Claude paneli sadeleşti: ajanın durumu tek satırda, kurulum gerektiğinde açılıyor; iş kutusu örnek isteklerle geliyor, işler solda, seçili işin canlı günlüğü ve aşamaları sağda.",
+    ],
+  },
+  {
     pr: 21,
     tarih: "2026-11-06",
     baslik: "Soru havuzu bağlantısı, ortak tema ve Pratikler düğmesi",
