@@ -8,7 +8,7 @@ import { useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperti
 import { api } from "../lib/api";
 import { useOturum } from "../lib/oturum";
 import { PRATIK, uniteYazi } from "../lib/pratik";
-import { href } from "../lib/router";
+import { href, tabanaEkle } from "../lib/router";
 import { havuzBaglantisi } from "../lib/havuz";
 import { Markdown } from "../components/Markdown";
 import { FormHatasi } from "../components/Form";
@@ -607,7 +607,7 @@ export function SinavKagidi({ id }: { id: string }) {
   const [wordHazirlaniyor, setWordHazirlaniyor] = useState(false);
 
   if (!yuklendi) return <Iskelet />;
-  if (!yetkili) return <p className="empty">Bu sayfa akademisyen hesapları içindir. <a href="/sinavlar">Ayrıntı</a></p>;
+  if (!yetkili) return <p className="empty">Bu sayfa akademisyen hesapları içindir. <a href={tabanaEkle("/sinavlar")}>Ayrıntı</a></p>;
   if (hata && !belge) return <p className="empty">{hata} <a href={href({ page: "sinavlar" })}>Sınavlarım</a></p>;
   if (!belge || !sorular) return <Iskelet satir={6} />;
 

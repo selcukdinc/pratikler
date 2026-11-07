@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { api } from "../lib/api";
-import { href } from "../lib/router";
+import { href, tabanaEkle } from "../lib/router";
 import { Avatar } from "../components/Avatar";
 import { AvatarSecici } from "../components/AvatarSecici";
 import { uye, useOturum } from "../lib/oturum";
@@ -58,7 +58,7 @@ export function Profil({ ad }: { ad: string }) {
           {p.kendisi && (
             <p className="hint">
               {p.publicProfile ? "Profilin herkese açık." : "Profilin gizli, bu sayfayı sadece sen görüyorsun."}{" "}
-              <a href="/ayarlar">Ayarlar</a>
+              <a href={tabanaEkle("/ayarlar")}>Ayarlar</a>
             </p>
           )}
         </div>

@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from "react";
 import { api } from "../lib/api";
-import { navigate } from "../lib/router";
+import { navigate, tabanaEkle } from "../lib/router";
 import { uye, useOturum } from "../lib/oturum";
 import { Alan, FormHatasi } from "../components/Form";
 
@@ -15,7 +15,7 @@ export function Giris({ sonra }: { sonra?: string }) {
     return (
       <div className="hesap-sayfa">
         <p>
-          <strong>{me.username}</strong> olarak giriş yaptın. <a href="/sorular">Sorulara dön</a>
+          <strong>{me.username}</strong> olarak giriş yaptın. <a href={tabanaEkle("/sorular")}>Sorulara dön</a>
         </p>
       </div>
     );
@@ -43,10 +43,10 @@ export function Giris({ sonra }: { sonra?: string }) {
         <button className="primary" type="submit" disabled={!kimlik || !parola || gonderiliyor}>
           {gonderiliyor ? "Giriş yapılıyor…" : "Giriş yap"}
         </button>
-        <a href="/sifre-sifirla">Parolamı unuttum</a>
+        <a href={tabanaEkle("/sifre-sifirla")}>Parolamı unuttum</a>
       </div>
       <p className="hint">
-        Hesabın yok mu? <a href="/kayit">Kayıt ol</a>
+        Hesabın yok mu? <a href={tabanaEkle("/kayit")}>Kayıt ol</a>
       </p>
     </form>
   );

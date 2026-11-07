@@ -7,7 +7,7 @@ import type { KatalogPratik, PratikIlerlemesi } from "../../shared/api";
 import { KADEMELER, PRATIKLER, kademeBul, kademeninPratikleri } from "../../icerik/index";
 import { api } from "../lib/api";
 import { pratikBaglantisi } from "../lib/pratik";
-import { href } from "../lib/router";
+import { href, tabanaEkle } from "../lib/router";
 import { useOturum } from "../lib/oturum";
 import { KartIskeleti } from "../components/Iskelet";
 import { Daktilo, hareketAzaltilmis, useDaktilo } from "../components/Daktilo";
@@ -242,7 +242,7 @@ export function Katalog() {
         <nav aria-label="Alt bağlantılar">
           <a href={href({ page: "gizlilik" })}>Gizlilik</a>
           <a href="https://github.com/selcukdinc/pratikler" target="_blank" rel="noreferrer">Kaynak kodu</a>
-          <a href="/mesajlar">Yöneticiye yaz</a>
+          <a href={tabanaEkle("/mesajlar")}>Yöneticiye yaz</a>
         </nav>
       </footer>
     </div>

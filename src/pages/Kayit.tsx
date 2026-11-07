@@ -1,6 +1,6 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { api } from "../lib/api";
-import { navigate } from "../lib/router";
+import { navigate, tabanaEkle } from "../lib/router";
 import { uye, useOturum } from "../lib/oturum";
 import { epostaHatasi, kullaniciAdiHatasi, parolaGucu } from "../../shared/hesap";
 import { Alan, FormHatasi, KodAlani, ParolaGucuCubugu, useGeriSayim } from "../components/Form";
@@ -182,8 +182,8 @@ export function Kayit() {
         </button>
       </div>
       <p className="hint">
-        Kayıt olarak <a href="/gizlilik">gizlilik metnini</a> okuduğunu kabul edersin. Zaten hesabın var mı?{" "}
-        <a href="/giris">Giriş yap</a>
+        Kayıt olarak <a href={tabanaEkle("/gizlilik")}>gizlilik metnini</a> okuduğunu kabul edersin. Zaten hesabın var mı?{" "}
+        <a href={tabanaEkle("/giris")}>Giriş yap</a>
       </p>
     </form>
   );

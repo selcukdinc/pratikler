@@ -6,7 +6,7 @@ import { DONEM_ADI, DONEMLER } from "../dersler/tipler";
 import { api } from "../lib/api";
 import { uye, useOturum } from "../lib/oturum";
 import { Markdown, inline } from "../components/Markdown";
-import { href } from "../lib/router";
+import { href, tabanaEkle } from "../lib/router";
 import { boslukEtiketi, bosluklariAyir } from "../lib/bosluk";
 import { enUzunSatir, koduAyir, SUTUNA_SIGAN } from "../lib/kodAyir";
 import { sonucCumlesi } from "../lib/sonuc";
@@ -59,7 +59,7 @@ function Baslik({ q, n, dersBagi, durum }: IcOzellikler) {
       <span className="tag" title={`Zorluk ${q.difficulty}/3`}>{"★".repeat(q.difficulty)}{"☆".repeat(3 - q.difficulty)}</span>
       {dersBagi && <DersBagi q={q} />}
       {q.source === "original" && q.sourceRef && <span className="q-ref">{q.sourceRef}</span>}
-      {q.oneren && <span className="q-ref">Öneren: <a href={`/profil/${encodeURIComponent(q.oneren)}`}>@{q.oneren}</a></span>}
+      {q.oneren && <span className="q-ref">Öneren: <a href={tabanaEkle(`/profil/${encodeURIComponent(q.oneren)}`)}>@{q.oneren}</a></span>}
     </header>
   );
 }
@@ -584,10 +584,10 @@ export function Questions({ topic, hafta, topics }: { topic?: string; hafta?: nu
             ) : (
               <>
                 Giriş yapmadan da çözebilirsin; ilerlemen bu tarayıcıda misafir olarak saklanır.
-                {epostaAcik ? <> <a href="/kayit">Hesap açarsan</a> bu ilerleme hesabına taşınır.</> : " Hesap açma yakında açılacak; o zaman bu ilerleme hesabına taşınabilecek."}
+                {epostaAcik ? <> <a href={tabanaEkle("/kayit")}>Hesap açarsan</a> bu ilerleme hesabına taşınır.</> : " Hesap açma yakında açılacak; o zaman bu ilerleme hesabına taşınabilecek."}
               </>
             )}{" "}
-            Aklına iyi bir soru geldiyse <a href="/oner">öner</a>.
+            Aklına iyi bir soru geldiyse <a href={tabanaEkle("/oner")}>öner</a>.
           </p>
           {gorunen.length === 0 && (
             <p className="empty">

@@ -3,7 +3,7 @@ import { PRATIK_YA_DA_KATALOG, SITE_ADI, uniteYazi } from "./lib/pratik";
 import { HesapAlani, Shell, TemaDugmesi } from "./components/Shell";
 import { KademeSayfasi, Katalog } from "./pages/Katalog";
 import { OlcekliSayfa } from "./components/Olcek";
-import { useRoute, type Route } from "./lib/router";
+import { useRoute, type Route, tabanaEkle } from "./lib/router";
 import { api } from "./lib/api";
 import { OturumSaglayici } from "./lib/oturum";
 import { Karma } from "./pages/Karma";
@@ -93,7 +93,7 @@ function CatiApp() {
     <OturumSaglayici>
       <div className="cati">
         <header className="topbar katalog-ust">
-          <a className="brand" href="/">
+          <a className="brand" href={tabanaEkle("/")}>
             <img src="/logolar/pratikler.svg" alt="" width={18} height={18} />
             <span className="brand-ad">{SITE_ADI}</span>
           </a>
@@ -210,7 +210,7 @@ function PratikApp() {
           )}
           {route.page === "bulunamadi" && (
             <p className="empty">
-              Bu adreste bir sayfa yok. <a href="/sorular">Sorulara git</a>
+              Bu adreste bir sayfa yok. <a href={tabanaEkle("/sorular")}>Sorulara git</a>
             </p>
           )}
         </OlcekliSayfa>
