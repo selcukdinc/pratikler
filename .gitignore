@@ -9,3 +9,4 @@ docs/YOL-HARITASI.md
 # Taşıma dökümleri, eşleme dosyaları ve üretilen SQL kişisel veri içerir (docs/tasima.md)
 tasima/*
 !tasima/ornek.json
+graphify-out/
