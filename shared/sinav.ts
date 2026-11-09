@@ -71,6 +71,9 @@ export interface GrupAyari {
   tohum: number;
   // Şıklar A grubunda da karışsın mı (yoksa doğru cevaplar sitedeki sırayla yığılabilir); varsayılan evet
   sikKaristir?: boolean;
+  // Grup başına seçilen karıştırma denemesi (0: tohumun kendisi). Bir grup A'dan fazla sayfa
+  // tutunca motor başka denemeleri sınar ve sığanı burada saklar; PDF ve Word aynı kağıdı basar.
+  denemeler?: number[];
 }
 
 export interface SinavBelgesi {
@@ -177,6 +180,9 @@ export function sinavBelgesiHatasi(b: unknown): string | null {
     if (!g || typeof g !== "object" || ![1, 2, 3, 4].includes(g.sayi) || (g.kip !== "karisik" && g.kip !== "benzer") || !Number.isInteger(g.tohum) || (g.sikKaristir !== undefined && typeof g.sikKaristir !== "boolean")) {
       return "Grup ayarları geçersiz.";
     }
+    if (g.denemeler !== undefined && (!Array.isArray(g.denemeler) || g.denemeler.length > 4 || !g.denemeler.every((d) => Number.isInteger(d) && d >= 0 && d <= SIGDIRMA_DENEME))) {
+      return "Grup ayarları geçersiz.";
+    }
   }
   if (!Array.isArray(ogeler) || ogeler.length > SINAV_OGE_EN_COK) return `Bir sınavda en çok ${SINAV_OGE_EN_COK} öğe olabilir.`;
   for (const o of ogeler) {
@@ -249,6 +255,34 @@ export function sayfala(
   return { sayfalar };
 }
 
+// Sayfa sayısını aşan grup için denenecek en çok karıştırma
+export const SIGDIRMA_DENEME = 40;
+
+// Ölçü anahtarı: bir öğenin kağıttaki yüksekliği şık sırasına bağlı değildir (şıklar alt alta),
+// yalnızca hangi metnin basıldığına bağlıdır. A'daki düzenlemeyle basılan soru öğeye, sitedeki
+// haliyle basılan soru sorunun kendisine bağlanır; böylece bir kez ölçülen yükseklik bütün
+// gruplarda ve denemelerde kullanılır.
+export const olcuAnahtari = (o: GrupOgesi) => (o.tur === "metin" ? `m:${o.ogeId}` : o.duzenli ? `a:${o.ogeId}` : `s:${o.soru.id}`);
+
+// Grubu A'nın sayfa sayısına sığdıran denemeyi bulur. sayfaSayisi verilen öğelerin kaç sayfa
+// tuttuğunu söyler (ölçülemeyen öğe varsa null). Önce şu anki deneme, sonra 0, 1, 2... sınanır;
+// sığan yoksa en az sayfa tutan seçilir (eşitlikte şu anki korunur, kağıt boşuna değişmez).
+export function sigdir(
+  belge: SinavBelgesi, sorular: Map<string, SinavSorusu>, grup: number, hedef: number,
+  sayfaSayisi: (ogeler: GrupOgesi[]) => number | null,
+): { deneme: number; sayfa: number } | null {
+  const simdiki = belge.gruplar?.denemeler?.[grup] ?? 0;
+  const sira = [simdiki, ...Array.from({ length: SIGDIRMA_DENEME + 1 }, (_, i) => i).filter((i) => i !== simdiki)];
+  let en: { deneme: number; sayfa: number } | null = null;
+  for (const d of sira) {
+    const s = sayfaSayisi(grupKagidi(belge, sorular, grup, d));
+    if (s === null) return null;
+    if (s <= hedef) return { deneme: d, sayfa: s };
+    if (!en || s < en.sayfa) en = { deneme: d, sayfa: s };
+  }
+  return en;
+}
+
 // Kağıdın mm cinsinden boyutu (yön dahil)
 export function kagitMm(a: Pick<SinavAyari, "boyut" | "yon">): { en: number; boy: number } {
   const k = KAGIT_MM[a.boyut];
@@ -318,10 +352,12 @@ function benzerSoru(q: SinavSorusu, havuz: SinavSorusu[], kullanilan: Set<string
 
 // Grubun kağıdı. Ortak metinler yerinde kalır; aralarındaki sorular kendi içinde karışır
 // (böylece "1-5. soruları parçaya göre" gibi yönergeler yine doğru sorulara düşer).
-export function grupKagidi(belge: SinavBelgesi, sorular: Map<string, SinavSorusu>, grup: number): GrupOgesi[] {
+// deneme: verilmezse belgede bu grup için saklanan deneme (yoksa 0). 0. deneme eski sürümlerle aynı kağıdı verir.
+export function grupKagidi(belge: SinavBelgesi, sorular: Map<string, SinavSorusu>, grup: number, deneme?: number): GrupOgesi[] {
   const g = belge.gruplar ?? varsayilanGruplar();
   const n = belge.ayar.sikSayisi;
-  const r = rastgele(g.tohum * 7919 + grup * 104729);
+  const d = grup === 0 ? 0 : deneme ?? g.denemeler?.[grup] ?? 0;
+  const r = rastgele(g.tohum * 7919 + grup * 104729 + d * 15485863);
   const havuz = [...sorular.values()];
   // Benzer kipte kağıttaki bütün sorular diğer gruplarda tekrar seçilmesin diye dışarıda tutulur
   const kagittakiler = new Set(belge.ogeler.flatMap((o) => (o.tur === "soru" ? [o.soruId] : [])));

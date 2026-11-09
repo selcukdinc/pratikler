@@ -14,6 +14,16 @@ export interface Yenilik {
 
 export const YENILIKLER: Yenilik[] = [
   {
+    pr: 27,
+    tarih: "2026-11-09",
+    baslik: "Sınav kağıdı: grupların sayfa sayısı ve otomatik sığdırma",
+    maddeler: [
+      "Önizlemedeki grup sekmelerinde her grubun kaç sayfa tuttuğu yazıyor; hangi sekmeye bakarsan bak bütün gruplar arka planda ölçülüyor.",
+      "B, C ya da D grubu A'dan fazla sayfaya taşarsa motor o grup için başka karıştırmaları kendiliğinden deniyor ve A'nın sayfa sayısına sığanı seçiyor. Seçilen düzen sınavla birlikte saklanıyor; PDF ve Word aynı kağıdı basıyor.",
+      "Hiçbir karıştırma sığmazsa önizlemenin üstünde uyarı çıkıyor ve tek tıkla yazıyı 1 punto küçültebiliyor ya da kenarı daraltabiliyorsun. Tek başına bir sütuna sığmayan (altı kesilecek) sorular da numarasıyla uyarılıyor.",
+    ],
+  },
+  {
     pr: 26,
     tarih: "2026-11-09",
     baslik: "Sınav kağıdı: PDF'te boş sayfa ve alt yazılar düzeltildi",

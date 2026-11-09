@@ -15,7 +15,7 @@ import { FormHatasi } from "../components/Form";
 import { Iskelet } from "../components/Iskelet";
 import { sinavYetkisi } from "./Sinavlar";
 import {
-  GRUP_ADLARI, SIK_HARFLERI, cevapYazisi, grupKagidi, kagitMm, sayfala, toplamPuan, varsayilanGruplar,
+  GRUP_ADLARI, SIK_HARFLERI, cevapYazisi, grupKagidi, kagitMm, olcuAnahtari, sayfala, sigdir, SIGDIRMA_DENEME, toplamPuan, varsayilanGruplar,
   type GrupAyari, type GrupOgesi, type GrupSorusu, type HavuzOzeti, type SinavAyari, type SinavBelgesi, type SinavOgesi, type SinavSorusu,
 } from "../../shared/sinav";
 
@@ -172,89 +172,116 @@ function Baslik({ ayar, toplam, grup, ayarDegistir }: { ayar: SinavAyari; toplam
 }
 
 // ---- Kağıt: ölçüm, sayfalama, çizim ----
-function Kagit({ belge, ogeler, grup, degistir, ayarDegistir, oge }: {
-  belge: SinavBelgesi; ogeler: GrupOgesi[]; grup?: string; degistir?: Degistir; ayarDegistir?: (a: Partial<SinavAyari>) => void;
-  oge?: (o: GrupOgesi) => ReactNode;
-}) {
-  const { ayar } = belge;
+
+// Kağıdın iç ölçüleri (mm) ve sayfalama ayarları (px)
+function geometri(ayar: SinavAyari) {
   const mm = kagitMm(ayar);
   const icEn = mm.en - 2 * ayar.kenar;
   const sutunEn = (icEn - (ayar.sutun - 1) * SUTUN_ARASI_MM) / ayar.sutun;
   const icBoy = mm.boy - 2 * ayar.kenar - (ayar.sayfaNo ? ALT_BILGI_MM : 0) - GUVENLIK_MM;
-  // Ölçüm, sayfada görünen halle birebir aynı çizilir: düzenlenebilir kağıtta boş alanlar
-  // (ör. boş yönerge) ipucuyla yer kapladığı için ölçümde de düzenlenebilir hal kullanılır.
-  const duzenlenir = !!degistir;
-  const bos = () => {};
-  const no = new Map<string, number>();
-  ogeler.forEach((o) => o.tur === "soru" && no.set(o.id, no.size + 1));
-  const toplam = toplamPuan(belge);
+  return { mm, icEn, sutunEn, sutunYuksekligi: icBoy * PX_MM, aralik: OGE_ARASI_MM * PX_MM };
+}
 
-  // Görünmeyen ölçüm alanı: her öğe sütun genişliğinde çizilip yüksekliği okunur
-  const olcum = useRef<HTMLDivElement>(null);
-  const [boylar, setBoylar] = useState<{ baslik: number; ogeler: Map<string, number> } | null>(null);
+// Ölçülen yükseklikler (px). Başlığın iki hali ölçülür: A grubunun düzenlenebilir hali
+// (boş alanlar ipucuyla yer kaplar) ve basılan düz hali.
+interface Olcu {
+  baslik: { duzenli: number; duz: number };
+  ogeler: Map<string, number>;
+}
+type BaslikTuru = keyof Olcu["baslik"];
+
+// Öğelerin sayfa düzeni; ölçülmemiş öğe varsa null
+function duzenHesapla(ogeler: GrupOgesi[], olcu: Olcu, ayar: SinavAyari, baslik: BaslikTuru) {
+  const g = geometri(ayar);
+  const l: { id: string; yukseklik: number }[] = [];
+  for (const o of ogeler) {
+    const y = olcu.ogeler.get(olcuAnahtari(o));
+    if (y === undefined) return null;
+    l.push({ id: o.id, yukseklik: y });
+  }
+  return sayfala(l, { sutunYuksekligi: g.sutunYuksekligi, ilkSayfaBaslik: olcu.baslik[baslik] + 4 * PX_MM, sutun: ayar.sutun, aralik: g.aralik });
+}
+
+const kagitStili = (ayar: SinavAyari) =>
+  ({ fontSize: `${ayar.yazi}pt`, "--sutun-arasi": `${SUTUN_ARASI_MM}mm`, "--oge-arasi": `${OGE_ARASI_MM}mm` }) as CSSProperties;
+
+// Görünmeyen ölçüm alanı: her öğe sütun genişliğinde bir kez çizilip yüksekliği okunur.
+// Bütün grupların (ve sığdırma denenirken aday soruların) öğeleri burada ölçülür.
+function Olcer({ belge, ogeler, grupVar, onOlcum }: { belge: SinavBelgesi; ogeler: GrupOgesi[]; grupVar: boolean; onOlcum: (o: Olcu) => void }) {
+  const { ayar } = belge;
+  const g = geometri(ayar);
+  const kok = useRef<HTMLDivElement>(null);
+  const bildir = useRef(onOlcum);
+  bildir.current = onOlcum;
+  const bos = () => {};
   useLayoutEffect(() => {
-    const kok = olcum.current;
-    if (!kok) return;
+    const k = kok.current;
+    if (!k) return;
     const olc = () => {
       const m = new Map<string, number>();
       // offsetHeight tam sayıya yuvarlar; birikince son öğe sütundan taşabiliyordu
-      kok.querySelectorAll<HTMLElement>("[data-oge]").forEach((e) => m.set(e.dataset.oge!, e.getBoundingClientRect().height));
-      const b = kok.querySelector<HTMLElement>("[data-baslik]")?.getBoundingClientRect().height ?? 0;
-      setBoylar({ baslik: b, ogeler: m });
+      k.querySelectorAll<HTMLElement>("[data-olcu]").forEach((e) => m.set(e.dataset.olcu!, e.getBoundingClientRect().height));
+      const b = (t: string) => k.querySelector<HTMLElement>(`[data-baslik="${t}"]`)?.getBoundingClientRect().height ?? 0;
+      bildir.current({ baslik: { duzenli: b("duzenli"), duz: b("duz") }, ogeler: m });
     };
     olc();
     // Şekiller ve formül yazı tipleri sonradan yüklenince yükseklik değişir
     const ro = new ResizeObserver(olc);
-    ro.observe(kok);
+    ro.observe(k);
     return () => ro.disconnect();
-  }, [belge, ogeler, duzenlenir]);
+  }, [belge, ogeler, grupVar]);
+  const toplam = toplamPuan(belge);
+  return (
+    <div className="kagit kagit-olcum" ref={kok} style={{ ...kagitStili(ayar), width: `${g.icEn}mm` }} aria-hidden="true">
+      <div data-baslik="duzenli"><Baslik ayar={ayar} toplam={toplam} grup={grupVar ? "A" : undefined} ayarDegistir={bos} /></div>
+      <div data-baslik="duz"><Baslik ayar={ayar} toplam={toplam} grup={grupVar ? "A" : undefined} /></div>
+      <div style={{ width: `${g.sutunEn}mm` }}>
+        {ogeler.map((o, i) => (
+          <div key={olcuAnahtari(o)} data-olcu={olcuAnahtari(o)}>
+            {o.tur === "soru" ? <SoruBlogu s={o} no={i + 1} ayar={ayar} /> : <MetinBlogu o={o} />}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
 
-  const duzen = useMemo(() => {
-    if (!boylar) return null;
-    return sayfala(ogeler.map((o) => ({ id: o.id, yukseklik: boylar.ogeler.get(o.id) ?? 0 })), {
-      sutunYuksekligi: icBoy * PX_MM,
-      ilkSayfaBaslik: boylar.baslik + 4 * PX_MM,
-      sutun: ayar.sutun,
-      aralik: OGE_ARASI_MM * PX_MM,
-    });
-  }, [boylar, ogeler, icBoy, ayar.sutun]);
-
-  // olcum: görünmeyen ölçüm kopyası; düzenleme araçları yok ama yerleşim aynı
-  const blok = (o: GrupOgesi, olcum: boolean) => {
-    const d = olcum ? (duzenlenir ? (bos as Degistir) : undefined) : degistir;
-    const a = olcum ? undefined : oge?.(o);
-    return o.tur === "soru" ? <SoruBlogu s={o} no={no.get(o.id)!} ayar={ayar} degistir={d} araclar={a} /> : <MetinBlogu o={o} degistir={d} araclar={a} />;
+function Kagit({ belge, ogeler, olcu, grup, degistir, ayarDegistir, oge }: {
+  belge: SinavBelgesi; ogeler: GrupOgesi[]; olcu: Olcu | null; grup?: string; degistir?: Degistir; ayarDegistir?: (a: Partial<SinavAyari>) => void;
+  oge?: (o: GrupOgesi) => ReactNode;
+}) {
+  const { ayar } = belge;
+  const g = geometri(ayar);
+  const no = new Map<string, number>();
+  ogeler.forEach((o) => o.tur === "soru" && no.set(o.id, no.size + 1));
+  const toplam = toplamPuan(belge);
+  const duzen = olcu ? duzenHesapla(ogeler, olcu, ayar, ayarDegistir ? "duzenli" : "duz") : null;
+  const blok = (o: GrupOgesi) => {
+    const a = oge?.(o);
+    return o.tur === "soru" ? <SoruBlogu s={o} no={no.get(o.id)!} ayar={ayar} degistir={degistir} araclar={a} /> : <MetinBlogu o={o} degistir={degistir} araclar={a} />;
   };
-  const kagitStil = { fontSize: `${ayar.yazi}pt`, "--sutun-arasi": `${SUTUN_ARASI_MM}mm`, "--oge-arasi": `${OGE_ARASI_MM}mm` } as CSSProperties;
+  const kagitStil = kagitStili(ayar);
   const ogeMap = new Map(ogeler.map((o) => [o.id, o]));
 
   return (
-    <>
-      <div className="kagit kagit-olcum" ref={olcum} style={{ ...kagitStil, width: `${icEn}mm` }} aria-hidden="true">
-        <div data-baslik><Baslik ayar={ayar} toplam={toplam} grup={grup} ayarDegistir={ayarDegistir && bos} /></div>
-        <div style={{ width: `${sutunEn}mm` }}>
-          {ogeler.map((o) => <div key={o.id} data-oge={o.id}>{blok(o, true)}</div>)}
-        </div>
-      </div>
-      <div className="kagit-sayfalar">
-        {(duzen?.sayfalar ?? [[[]]]).map((sayfa, si) => (
-          <section key={si} className="kagit kagit-sayfa" style={{ ...kagitStil, width: `${mm.en}mm`, height: `${mm.boy}mm`, padding: `${ayar.kenar}mm` }}>
-            {si === 0 && <Baslik ayar={ayar} toplam={toplam} grup={grup} ayarDegistir={ayarDegistir} />}
-            <div className={`kagit-sutunlar sutun-${ayar.sutun}`}>
-              {Array.from({ length: ayar.sutun }, (_, i) => (
-                <div key={i} className="kagit-sutun" style={{ width: `${sutunEn}mm` }}>
-                  {(sayfa[i] ?? []).map((id) => {
-                    const o = ogeMap.get(id);
-                    return o ? <div key={id} className="kagit-oge">{blok(o, false)}</div> : null;
-                  })}
-                </div>
-              ))}
-            </div>
-            {ayar.sayfaNo && <footer className="kagit-alt">{si + 1}</footer>}
-          </section>
-        ))}
-      </div>
-    </>
+    <div className="kagit-sayfalar">
+      {(duzen?.sayfalar ?? [[[]]]).map((sayfa, si) => (
+        <section key={si} className="kagit kagit-sayfa" style={{ ...kagitStil, width: `${g.mm.en}mm`, height: `${g.mm.boy}mm`, padding: `${ayar.kenar}mm` }}>
+          {si === 0 && <Baslik ayar={ayar} toplam={toplam} grup={grup} ayarDegistir={ayarDegistir} />}
+          <div className={`kagit-sutunlar sutun-${ayar.sutun}`}>
+            {Array.from({ length: ayar.sutun }, (_, i) => (
+              <div key={i} className="kagit-sutun" style={{ width: `${g.sutunEn}mm` }}>
+                {(sayfa[i] ?? []).map((id) => {
+                  const o = ogeMap.get(id);
+                  return o ? <div key={id} className="kagit-oge">{blok(o)}</div> : null;
+                })}
+              </div>
+            ))}
+          </div>
+          {ayar.sayfaNo && <footer className="kagit-alt">{si + 1}</footer>}
+        </section>
+      ))}
+    </div>
   );
 }
 
@@ -479,7 +506,7 @@ function GrupAyarlari({ ayar, degistir, gruplar }: { ayar: GrupAyari; degistir: 
         </label>
         <p className="soluk ayar-aciklama">Sitedeki sorularda doğru cevap çoğu zaman aynı harflerde toplanır; açık kalması önerilir.</p>
         <p className="soluk ayar-aciklama">A grubu kağıttaki soru sırasıyla basılır. Ortak metinler yerinde kalır, aralarındaki sorular kendi içinde karışır. Başka şıklara atıf yapan sorularda şıklar karışmaz.</p>
-        <button type="button" onClick={() => degistir({ tohum: (ayar.tohum % 1_000_000) + 1 })} disabled={ayar.sayi === 1 && ayar.sikKaristir === false}>Yeniden karıştır</button>
+        <button type="button" onClick={() => degistir({ tohum: (ayar.tohum % 1_000_000) + 1, denemeler: undefined })} disabled={ayar.sayi === 1 && ayar.sikKaristir === false}>Yeniden karıştır</button>
       </fieldset>
     </>
   );
@@ -627,6 +654,52 @@ export function SinavKagidi({ id }: { id: string }) {
   );
   const [wordHazirlaniyor, setWordHazirlaniyor] = useState(false);
 
+  // Bütün grupların öğeleri (ve sığdırma için aday sorular) görünmeyen alanda ölçülür;
+  // her grubun kaç sayfa tuttuğu açık sekmeden bağımsız bilinir.
+  const [olcu, setOlcu] = useState<Olcu | null>(null);
+  const [adaylar, setAdaylar] = useState<GrupOgesi[]>([]);
+  const olculecek = useMemo(() => {
+    const m = new Map<string, GrupOgesi>();
+    for (const o of [...gruplar.flat(), ...adaylar]) if (!m.has(olcuAnahtari(o))) m.set(olcuAnahtari(o), o);
+    return [...m.values()];
+  }, [gruplar, adaylar]);
+  const sayfaSayilari = useMemo(
+    () => (belge && olcu ? gruplar.map((g, i) => duzenHesapla(g, olcu, belge.ayar, i === 0 ? "duzenli" : "duz")?.sayfalar.length ?? null) : []),
+    [belge, olcu, gruplar],
+  );
+
+  // Sığdırma: A'dan fazla sayfa tutan grup için başka karıştırmalar denenir, sığan belgeye
+  // yazılır. Aday sorular henüz ölçülmediyse önce ölçüme eklenir, ölçülünce yeniden denenir.
+  useEffect(() => {
+    if (!belge || !olcu || gruplar.length < 2) return;
+    const hedef = sayfaSayilari[0];
+    if (hedef == null) return;
+    const say = (l: GrupOgesi[]) => duzenHesapla(l, olcu, belge.ayar, "duz")?.sayfalar.length ?? null;
+    const simdiki = Array.from({ length: gruplar.length }, (_, g) => belge.gruplar?.denemeler?.[g] ?? 0);
+    const yeni = [...simdiki];
+    const eksik = new Map<string, GrupOgesi>();
+    for (let g = 1; g < gruplar.length; g++) {
+      if ((sayfaSayilari[g] ?? 0) <= hedef) continue;
+      const r = sigdir(belge, soruMap, g, hedef, say);
+      if (r) yeni[g] = r.deneme;
+      else {
+        for (let d = 0; d <= SIGDIRMA_DENEME; d++) {
+          for (const o of grupKagidi(belge, soruMap, g, d)) if (!olcu.ogeler.has(olcuAnahtari(o))) eksik.set(olcuAnahtari(o), o);
+        }
+      }
+    }
+    if (eksik.size) {
+      setAdaylar((a) => {
+        const var_ = new Set(a.map(olcuAnahtari));
+        const ek = [...eksik.values()].filter((o) => !var_.has(olcuAnahtari(o)));
+        return ek.length ? [...a, ...ek] : a;
+      });
+    }
+    if (yeni.some((d, g) => d !== simdiki[g])) {
+      setBelge((b) => (b ? { ...b, gruplar: { ...(b.gruplar ?? varsayilanGruplar()), denemeler: yeni } } : b));
+    }
+  }, [belge, olcu, gruplar, sayfaSayilari, soruMap]);
+
   if (!yuklendi) return <Iskelet />;
   if (!yetkili) return <p className="empty">Bu sayfa akademisyen hesapları içindir. <a href={tabanaEkle("/sinavlar")}>Ayrıntı</a></p>;
   if (hata && !belge) return <p className="empty">{hata} <a href={href({ page: "sinavlar" })}>Sınavlarım</a></p>;
@@ -696,6 +769,16 @@ export function SinavKagidi({ id }: { id: string }) {
     }
   };
 
+  // Sığdırmadan sonra hâlâ A'dan uzun gruplar ve tek başına sütuna sığmayan sorular (A'daki numarasıyla)
+  const tasanlar = gruplar.map((_, g) => g).filter((g) => g > 0 && sayfaSayilari[g] != null && sayfaSayilari[0] != null && sayfaSayilari[g]! > sayfaSayilari[0]!);
+  const sutunBoyu = geometri(belge.ayar).sutunYuksekligi;
+  const uzunlar: number[] = [];
+  let sira = 0;
+  for (const o of gruplar[0] ?? []) {
+    if (o.tur === "soru") sira++;
+    if ((olcu?.ogeler.get(olcuAnahtari(o)) ?? 0) > sutunBoyu && o.tur === "soru") uzunlar.push(sira);
+  }
+
   const DURUM_YAZI: Record<KayitDurumu, string> = { kayitli: "Kaydedildi", bekliyor: "Değişiklik var…", kaydediliyor: "Kaydediliyor…", hata: "Kaydedilemedi" };
 
   return (
@@ -741,28 +824,50 @@ export function SinavKagidi({ id }: { id: string }) {
         </aside>
         <div className="sinav-onizleme-kap">
           <div className="sinav-gorunum" role="tablist" aria-label="Önizleme">
-            {gruplar.map((_, g) => (
-              <button key={g} role="tab" aria-selected={gorunen === g} onClick={() => setGorunum(g)}>
-                {grupAyari.sayi > 1 ? `${GRUP_ADLARI[g]} grubu` : "Kağıt"}
-              </button>
-            ))}
+            {gruplar.map((_, g) => {
+              const n = sayfaSayilari[g];
+              const tasti = g > 0 && n != null && sayfaSayilari[0] != null && n > sayfaSayilari[0]!;
+              return (
+                <button key={g} role="tab" aria-selected={gorunen === g} onClick={() => setGorunum(g)} className={tasti ? "grup-tasti" : undefined}>
+                  {grupAyari.sayi > 1 ? `${GRUP_ADLARI[g]} grubu` : "Kağıt"}
+                  {n != null && belge.ogeler.length > 0 && <span className="grup-sayfa"> · {n} sayfa{tasti ? " ⚠" : ""}</span>}
+                </button>
+              );
+            })}
             <button role="tab" aria-selected={gorunen === "anahtar"} onClick={() => setGorunum("anahtar")}>Cevap anahtarı</button>
             {grupAyari.sayi > 1 && <button role="tab" aria-selected={gorunen === "hepsi"} onClick={() => setGorunum("hepsi")}>Hepsi</button>}
             {typeof gorunen === "number" && gorunen > 0 && <span className="soluk">Bu grup A'dan üretilir; düzenlemeyi A grubunda yap.</span>}
           </div>
+          {(tasanlar.length > 0 || uzunlar.length > 0) && (
+            <div className="sinav-uyari" role="alert">
+              {tasanlar.length > 0 && (
+                <p>
+                  {tasanlar.map((g) => `${GRUP_ADLARI[g]} grubu ${sayfaSayilari[g]} sayfa`).join(", ")} tutuyor; A grubu {sayfaSayilari[0]} sayfa.
+                  Bütün karıştırmalar denendi, sığan çıkmadı. Kağıdı biraz sıkıştır:
+                  {belge.ayar.yazi > 8 && <button type="button" onClick={() => ayarDegistir({ yazi: belge.ayar.yazi - 1 })}>Yazıyı 1 punto küçült</button>}
+                  {belge.ayar.kenar > 5 && <button type="button" onClick={() => ayarDegistir({ kenar: Math.max(5, belge.ayar.kenar - 5) })}>Kenarı 5 mm daralt</button>}
+                  {grupAyari.kip === "benzer" && <span className="soluk"> ya da Gruplar sekmesinde "Aynı sorular, karışık" kipini seç.</span>}
+                </p>
+              )}
+              {uzunlar.length > 0 && (
+                <p>{uzunlar.join(", ")}. soru tek başına bir sütuna sığmıyor, kağıtta altı kesilir. Soruyu kısalt, şekli küçült ya da tek sütuna geç.</p>
+              )}
+            </div>
+          )}
           <div className="sinav-onizleme" ref={sayfalar} style={{ "--kagit-olcek": olcek } as CSSProperties}>
+            <Olcer belge={belge} ogeler={olculecek} grupVar={grupAyari.sayi > 1} onOlcum={setOlcu} />
             {belge.ogeler.length === 0 && <p className="sinav-ipucu">Soldan soru ekledikçe kağıt burada oluşur. Başlıktaki yazılara tıklayıp düzenleyebilirsin.</p>}
             {gorunen === "anahtar" ? (
               <CevapAnahtari belge={belge} gruplar={gruplar} />
             ) : gorunen === "hepsi" ? (
               <>
-                {gruplar.map((g, i) => <Kagit key={i} belge={belge} ogeler={g} grup={grupAdi(i)} />)}
+                {gruplar.map((g, i) => <Kagit key={i} belge={belge} ogeler={g} olcu={olcu} grup={grupAdi(i)} />)}
                 <CevapAnahtari belge={belge} gruplar={gruplar} />
               </>
             ) : gorunen === 0 ? (
-              <Kagit belge={belge} ogeler={gruplar[0] ?? []} grup={grupAdi(0)} degistir={degistir} ayarDegistir={ayarDegistir} oge={oge} />
+              <Kagit belge={belge} ogeler={gruplar[0] ?? []} olcu={olcu} grup={grupAdi(0)} degistir={degistir} ayarDegistir={ayarDegistir} oge={oge} />
             ) : (
-              <Kagit key={gorunen} belge={belge} ogeler={gruplar[gorunen] ?? []} grup={grupAdi(gorunen)} />
+              <Kagit key={gorunen} belge={belge} ogeler={gruplar[gorunen] ?? []} olcu={olcu} grup={grupAdi(gorunen)} />
             )}
           </div>
         </div>

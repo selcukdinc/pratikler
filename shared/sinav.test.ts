@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
-  cevapYazisi, grupKagidi, kagitMm, numaralar, sayfala, sikIndir, sinavBelgesiHatasi, toplamPuan, varsayilanAyar,
+  cevapYazisi, grupKagidi, kagitMm, numaralar, olcuAnahtari, sayfala, sigdir, sikIndir, sinavBelgesiHatasi, toplamPuan, varsayilanAyar,
   type GrupOgesi, type GrupSorusu, type SinavBelgesi, type SinavSorusu,
 } from "./sinav";
 
@@ -128,5 +128,34 @@ describe("gruplar", () => {
   });
   it("bozuk grup ayarı reddedilir", () => {
     expect(sinavBelgesiHatasi({ ...b("karisik"), gruplar: { sayi: 5, kip: "karisik", tohum: 1 } })).toMatch(/Grup/);
+    expect(sinavBelgesiHatasi({ ...b("karisik"), gruplar: { sayi: 2, kip: "karisik", tohum: 1, denemeler: [0, -1] } })).toMatch(/Grup/);
+    expect(sinavBelgesiHatasi({ ...b("karisik"), gruplar: { sayi: 2, kip: "karisik", tohum: 1, denemeler: [0, 7] } })).toBeNull();
+  });
+
+  // Sığdırma
+  const sira = (l: GrupOgesi[]) => l.map((o) => (o.tur === "soru" ? o.soru.id : "M")).join(",");
+  it("0. deneme eski kağıdı verir, saklanan deneme kullanılır, A hiç değişmez", () => {
+    const k = b("karisik");
+    expect(sira(grupKagidi(k, havuz, 1, 0))).toBe(sira(grupKagidi(k, havuz, 1)));
+    const d = { ...k, gruplar: { ...k.gruplar!, denemeler: [0, 3] } };
+    expect(ozet(grupKagidi(d, havuz, 1))).toEqual(ozet(grupKagidi(k, havuz, 1, 3)));
+    expect(ozet(grupKagidi(d, havuz, 0))).toEqual(ozet(grupKagidi(k, havuz, 0)));
+  });
+  it("ölçü anahtarı şık sırasına bağlı değil; karışık kipte bütün denemelerde aynı", () => {
+    const k = b("karisik");
+    const anahtarlar = (d: number) => grupKagidi(k, havuz, 1, d).map(olcuAnahtari).sort();
+    for (let d = 1; d < 10; d++) expect(anahtarlar(d)).toEqual(anahtarlar(0));
+  });
+  it("sığan ilk denemeyi bulur; şu anki sığıyorsa ona dokunmaz; sığan yoksa en kısasını seçer", () => {
+    const k = b("karisik");
+    // Sayfa sayısı yalnızca s1'in yerine bağlı olsun: s1 başta ise 2, değilse 3 sayfa
+    const sayac = (l: GrupOgesi[]) => (l[0]?.tur === "soru" && l[0].soru.id === "s1" ? 2 : 3);
+    const r = sigdir(k, havuz, 1, 2, sayac)!;
+    expect(r.sayfa).toBe(2);
+    expect(sayac(grupKagidi(k, havuz, 1, r.deneme))).toBe(2);
+    const dk = { ...k, gruplar: { ...k.gruplar!, denemeler: [0, r.deneme] } };
+    expect(sigdir(dk, havuz, 1, 2, sayac)!.deneme).toBe(r.deneme);
+    expect(sigdir(k, havuz, 1, 1, () => 3)).toEqual({ deneme: 0, sayfa: 3 });
+    expect(sigdir(k, havuz, 1, 1, () => null)).toBeNull();
   });
 });
