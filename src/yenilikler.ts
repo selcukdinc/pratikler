@@ -14,6 +14,16 @@ export interface Yenilik {
 
 export const YENILIKLER: Yenilik[] = [
   {
+    pr: 26,
+    tarih: "2026-11-09",
+    baslik: "Sınav kağıdı: PDF'te boş sayfa ve alt yazılar düzeltildi",
+    maddeler: [
+      "Sınav kağıdının PDF'i artık önizlemedeki sayfa sayısıyla çıkıyor; sonda fazladan boş bir sayfa basılmıyor.",
+      "Sayfaların altındaki küçük ders, sınav ve grup yazıları kaldırıldı: kağıtta, PDF'te ve Word'de yalnızca önizlemede gördüklerin var. İstersen **Kağıt ve başlık** sekmesinden altta ortada bir sayfa numarası açabilirsin; üç çıktıda da aynı görünür.",
+      "Soruların yüksekliği daha hassas ölçülüyor ve başlıktaki boş alanlar da hesaba katılıyor; sayfanın en altındaki sorunun kesilmesi önlendi. Alt bilgi kapalıyken sayfaya biraz daha soru sığıyor.",
+    ],
+  },
+  {
     pr: 25,
     tarih: "2026-11-07",
     baslik: "Yeni pratik: İşletme",

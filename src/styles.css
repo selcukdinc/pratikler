@@ -1775,7 +1775,7 @@ polygon.g-ok-7 { fill: var(--ok-7); stroke: none; }
 .kagit-cevap-yeri.uzun { height: 40mm; }
 .kagit-ortak { border-left: 2px solid #111; padding-left: 2mm; font-style: italic; }
 .kagit-eksik { color: #a00; font-style: italic; }
-.kagit-alt { flex: none; height: 6mm; margin-top: 2mm; display: flex; justify-content: space-between; align-items: flex-end; font-size: 8pt; color: #555; border-top: 1px solid #bbb; }
+.kagit-alt { flex: none; height: 6mm; margin-top: 2mm; display: flex; justify-content: center; align-items: flex-end; font-size: 9pt; color: #111; }
 
 /* Yerinde düzenleme ve öğe araçları (yazdırılmaz) */
 .kagit-tikla { cursor: text; border-radius: 2px; outline: 1px dashed transparent; outline-offset: 1px; min-height: 1em; }
