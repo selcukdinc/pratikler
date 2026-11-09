@@ -29,7 +29,7 @@ export const YENILIKLER: Yenilik[] = [
     baslik: "Yenilikler bütün pratiklerde ortak ve sana göre",
     maddeler: [
       "Bir pratikte okuduğun yenilikler artık diğer pratiklerde yeniden **Yeni** diye görünmüyor. Giriş yaptıysan bu bilgi hesabında saklanıyor ve başka cihazda da geçerli oluyor; misafirken bütün selcukdinc.dev pratiklerinde ortak.",
-      "Yenilikler sayfası yalnızca seni ilgilendiren değişiklikleri gösteriyor: sınav hazırlama ayrıntıları akademisyenlere, yönetim paneli ve Claude ile ilgili değişiklikler yalnızca yöneticiye görünüyor. Sana görünmeyen bir değişiklik **Yeni** rozetini de artırmıyor.",
+      "Yenilikler sayfası yalnızca seni ilgilendiren değişiklikleri gösteriyor: sınav hazırlama ayrıntıları akademisyenlere, sitenin yönetimiyle ilgili değişiklikler yalnızca yöneticiye görünüyor. Sana görünmeyen bir değişiklik **Yeni** rozetini de artırmıyor.",
       { metin: "Herkese açık olmayan kayıt ve maddelerin yanında kimlerin gördüğünü belirten **Akademisyen** ya da **Yönetici** etiketi var.", kitle: "akademisyen" },
     ],
   },
