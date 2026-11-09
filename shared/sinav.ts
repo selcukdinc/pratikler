@@ -39,6 +39,8 @@ export interface SinavAyari {
   imza: boolean;
   puanGoster: boolean;
   yonerge: string;
+  // Sayfanın altında ortada sayfa numarası, her grupta 1'den (önizleme, PDF ve Word'de aynı); varsayılan yok
+  sayfaNo?: boolean;
 }
 
 export type SinavOgesi =
@@ -138,6 +140,7 @@ export function varsayilanAyar(onceki?: Partial<SinavAyari>): SinavAyari {
     imza: false,
     puanGoster: true,
     yonerge: "Süreniz bitmeden cevaplarınızı kontrol ediniz. Başarılar dilerim.",
+    sayfaNo: false,
     // Önceki sınavdan yalnızca kişiye ait başlık bilgileri ve kağıt düzeni gelir
     ...(onceki
       ? {
@@ -145,7 +148,7 @@ export function varsayilanAyar(onceki?: Partial<SinavAyari>): SinavAyari {
           kenar: onceki.kenar ?? 15, sikSayisi: onceki.sikSayisi ?? 5, universite: onceki.universite ?? "",
           fakulte: onceki.fakulte ?? "", ders: onceki.ders ?? "", sure: onceki.sure ?? 0,
           adSoyad: onceki.adSoyad ?? true, numara: onceki.numara ?? true, imza: onceki.imza ?? false,
-          puanGoster: onceki.puanGoster ?? true, yonerge: onceki.yonerge ?? "",
+          puanGoster: onceki.puanGoster ?? true, yonerge: onceki.yonerge ?? "", sayfaNo: onceki.sayfaNo ?? false,
         }
       : {}),
   };
@@ -167,6 +170,7 @@ export function sinavBelgesiHatasi(b: unknown): string | null {
   if (ayar.sikSayisi !== 4 && ayar.sikSayisi !== 5) return "Şık sayısı 4 ya da 5 olmalı.";
   for (const k of ["universite", "fakulte", "ders", "sinavAdi", "tarih"] as const) if (!metinMi(ayar[k], 200)) return "Başlık bilgileri en fazla 200 karakter olabilir.";
   if (!metinMi(ayar.yonerge, 2000)) return "Yönerge en fazla 2000 karakter olabilir.";
+  if (ayar.sayfaNo !== undefined && typeof ayar.sayfaNo !== "boolean") return "Sayfa numarası ayarı geçersiz.";
   if (!(Number.isInteger(ayar.sure) && ayar.sure >= 0 && ayar.sure <= 600)) return "Süre 0 ile 600 dakika arasında olmalı.";
   const g = (b as Partial<SinavBelgesi>).gruplar;
   if (g !== undefined) {

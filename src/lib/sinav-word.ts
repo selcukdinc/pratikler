@@ -5,7 +5,7 @@
 // kağıtlar için PDF önerilir.
 
 import {
-  AlignmentType, BorderStyle, Document, Packer, Paragraph, SectionType, Table, TableCell, TableRow, TabStopType,
+  AlignmentType, BorderStyle, Document, Footer, PageNumber, Packer, Paragraph, SectionType, Table, TableCell, TableRow, TabStopType,
   TextRun, WidthType, type ISectionOptions, type ParagraphChild,
 } from "docx";
 import {
@@ -253,16 +253,29 @@ export async function sinaviWordeCevir(belge: SinavBelgesi, gruplar: GrupOgesi[]
   // docx yatay kağıtta eni ve boyu kendisi çevirir; boyutlar dikey olarak verilir
   if (ayar.yon === "yatay") sayfa.size = { ...sayfa.size, width: tw(mm.boy), height: tw(mm.en) };
   const toplam = toplamPuan(belge);
+  // Önizlemedeki gibi: alt bilgi yalnızca sayfa numarası istenirse, altta ortada, her grupta 1'den
+  const altBilgi = ayar.sayfaNo
+    ? { default: new Footer({ children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ children: [PageNumber.CURRENT], font: YAZI, size: 18 })] })] }) }
+    : { default: new Footer({ children: [] }) };
   const bolumler: ISectionOptions[] = [];
   gruplar.forEach((g, i) => {
     const grup = gruplar.length > 1 ? GRUP_ADLARI[i] : undefined;
-    bolumler.push({ properties: { page: sayfa, type: SectionType.NEXT_PAGE }, children: baslik(ayar, toplam, grup, boy, icEn) });
+    bolumler.push({
+      properties: { page: { ...sayfa, pageNumbers: { start: 1 } }, type: SectionType.NEXT_PAGE },
+      footers: altBilgi,
+      children: baslik(ayar, toplam, grup, boy, icEn),
+    });
     bolumler.push({
       properties: { page: sayfa, type: SectionType.CONTINUOUS, column: { count: ayar.sutun, space: tw(8), separate: ayar.sutun > 1 } },
+      footers: altBilgi,
       children: sorular(g, ayar, boy),
     });
   });
-  bolumler.push({ properties: { page: { ...sayfa, size: { width: tw(210), height: tw(297), orientation: "portrait" } }, type: SectionType.NEXT_PAGE }, children: anahtar(belge, gruplar) });
+  bolumler.push({
+    properties: { page: { ...sayfa, size: { width: tw(210), height: tw(297), orientation: "portrait" } }, type: SectionType.NEXT_PAGE },
+    footers: { default: new Footer({ children: [] }) },
+    children: anahtar(belge, gruplar),
+  });
   const doc = new Document({
     creator: "pratikler.selcukdinc.dev",
     title: belge.ad,

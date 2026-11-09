@@ -23,6 +23,10 @@ import {
 const PX_MM = 96 / 25.4;
 const SUTUN_ARASI_MM = 8;
 const OGE_ARASI_MM = 4;
+// Sayfa numarası satırı (yükseklik + üst boşluk), styles.css .kagit-alt ile aynı
+const ALT_BILGI_MM = 8;
+// Ölçüm ile tarayıcının basarken yaptığı yuvarlama farkına karşı sütunda bırakılan pay
+const GUVENLIK_MM = 1;
 
 const TUR_ADI: Record<string, string> = { mcq: "Çoktan seçmeli", tf: "Doğru / Yanlış", fill: "Boşluk doldurma", num: "Sayısal", yaz: "Yazılı" };
 const yeniKimlik = () => Math.random().toString(36).slice(2, 10);
@@ -176,7 +180,11 @@ function Kagit({ belge, ogeler, grup, degistir, ayarDegistir, oge }: {
   const mm = kagitMm(ayar);
   const icEn = mm.en - 2 * ayar.kenar;
   const sutunEn = (icEn - (ayar.sutun - 1) * SUTUN_ARASI_MM) / ayar.sutun;
-  const icBoy = mm.boy - 2 * ayar.kenar - 8; // altbilgi için 8 mm
+  const icBoy = mm.boy - 2 * ayar.kenar - (ayar.sayfaNo ? ALT_BILGI_MM : 0) - GUVENLIK_MM;
+  // Ölçüm, sayfada görünen halle birebir aynı çizilir: düzenlenebilir kağıtta boş alanlar
+  // (ör. boş yönerge) ipucuyla yer kapladığı için ölçümde de düzenlenebilir hal kullanılır.
+  const duzenlenir = !!degistir;
+  const bos = () => {};
   const no = new Map<string, number>();
   ogeler.forEach((o) => o.tur === "soru" && no.set(o.id, no.size + 1));
   const toplam = toplamPuan(belge);
@@ -189,8 +197,9 @@ function Kagit({ belge, ogeler, grup, degistir, ayarDegistir, oge }: {
     if (!kok) return;
     const olc = () => {
       const m = new Map<string, number>();
-      kok.querySelectorAll<HTMLElement>("[data-oge]").forEach((e) => m.set(e.dataset.oge!, e.offsetHeight));
-      const b = kok.querySelector<HTMLElement>("[data-baslik]")?.offsetHeight ?? 0;
+      // offsetHeight tam sayıya yuvarlar; birikince son öğe sütundan taşabiliyordu
+      kok.querySelectorAll<HTMLElement>("[data-oge]").forEach((e) => m.set(e.dataset.oge!, e.getBoundingClientRect().height));
+      const b = kok.querySelector<HTMLElement>("[data-baslik]")?.getBoundingClientRect().height ?? 0;
       setBoylar({ baslik: b, ogeler: m });
     };
     olc();
@@ -198,7 +207,7 @@ function Kagit({ belge, ogeler, grup, degistir, ayarDegistir, oge }: {
     const ro = new ResizeObserver(olc);
     ro.observe(kok);
     return () => ro.disconnect();
-  }, [belge, ogeler]);
+  }, [belge, ogeler, duzenlenir]);
 
   const duzen = useMemo(() => {
     if (!boylar) return null;
@@ -210,25 +219,25 @@ function Kagit({ belge, ogeler, grup, degistir, ayarDegistir, oge }: {
     });
   }, [boylar, ogeler, icBoy, ayar.sutun]);
 
-  const blok = (o: GrupOgesi, duzenle: boolean) =>
-    o.tur === "soru" ? (
-      <SoruBlogu s={o} no={no.get(o.id)!} ayar={ayar} degistir={duzenle ? degistir : undefined} araclar={duzenle ? oge?.(o) : undefined} />
-    ) : (
-      <MetinBlogu o={o} degistir={duzenle ? degistir : undefined} araclar={duzenle ? oge?.(o) : undefined} />
-    );
+  // olcum: görünmeyen ölçüm kopyası; düzenleme araçları yok ama yerleşim aynı
+  const blok = (o: GrupOgesi, olcum: boolean) => {
+    const d = olcum ? (duzenlenir ? (bos as Degistir) : undefined) : degistir;
+    const a = olcum ? undefined : oge?.(o);
+    return o.tur === "soru" ? <SoruBlogu s={o} no={no.get(o.id)!} ayar={ayar} degistir={d} araclar={a} /> : <MetinBlogu o={o} degistir={d} araclar={a} />;
+  };
   const kagitStil = { fontSize: `${ayar.yazi}pt`, "--sutun-arasi": `${SUTUN_ARASI_MM}mm`, "--oge-arasi": `${OGE_ARASI_MM}mm` } as CSSProperties;
   const ogeMap = new Map(ogeler.map((o) => [o.id, o]));
 
   return (
     <>
       <div className="kagit kagit-olcum" ref={olcum} style={{ ...kagitStil, width: `${icEn}mm` }} aria-hidden="true">
-        <div data-baslik><Baslik ayar={ayar} toplam={toplam} grup={grup} /></div>
+        <div data-baslik><Baslik ayar={ayar} toplam={toplam} grup={grup} ayarDegistir={ayarDegistir && bos} /></div>
         <div style={{ width: `${sutunEn}mm` }}>
-          {ogeler.map((o) => <div key={o.id} data-oge={o.id}>{blok(o, false)}</div>)}
+          {ogeler.map((o) => <div key={o.id} data-oge={o.id}>{blok(o, true)}</div>)}
         </div>
       </div>
       <div className="kagit-sayfalar">
-        {(duzen?.sayfalar ?? [[[]]]).map((sayfa, si, hepsi) => (
+        {(duzen?.sayfalar ?? [[[]]]).map((sayfa, si) => (
           <section key={si} className="kagit kagit-sayfa" style={{ ...kagitStil, width: `${mm.en}mm`, height: `${mm.boy}mm`, padding: `${ayar.kenar}mm` }}>
             {si === 0 && <Baslik ayar={ayar} toplam={toplam} grup={grup} ayarDegistir={ayarDegistir} />}
             <div className={`kagit-sutunlar sutun-${ayar.sutun}`}>
@@ -236,15 +245,12 @@ function Kagit({ belge, ogeler, grup, degistir, ayarDegistir, oge }: {
                 <div key={i} className="kagit-sutun" style={{ width: `${sutunEn}mm` }}>
                   {(sayfa[i] ?? []).map((id) => {
                     const o = ogeMap.get(id);
-                    return o ? <div key={id} className="kagit-oge">{blok(o, true)}</div> : null;
+                    return o ? <div key={id} className="kagit-oge">{blok(o, false)}</div> : null;
                   })}
                 </div>
               ))}
             </div>
-            <footer className="kagit-alt">
-              {[ayar.ders, ayar.sinavAdi, grup && `${grup} grubu`].filter(Boolean).join(" · ")}
-              <span>Sayfa {si + 1} / {hepsi.length}</span>
-            </footer>
+            {ayar.sayfaNo && <footer className="kagit-alt">{si + 1}</footer>}
           </section>
         ))}
       </div>
@@ -281,6 +287,17 @@ function CevapAnahtari({ belge, gruplar }: { belge: SinavBelgesi; gruplar: GrupO
   );
 }
 
+// Yazdırma çerçevesinin stili. Sayfa sonu yalnızca sayfaların ARASINA konur (sonuncusundan
+// sonra konunca tarayıcı boş bir sayfa daha basıyordu); sayfa kutusu kağıttan bir tık kısa
+// tutulur, yuvarlamadan doğan taşma yeni sayfa açamaz. Cevap anahtarı kendi boyunda kalır.
+export const YAZDIRMA_STILI = (mm: { en: number; boy: number }) => `@page { size: ${mm.en}mm ${mm.boy}mm; margin: 0 }
+html, body { margin: 0; padding: 0; background: #fff; height: auto; overflow: visible }
+.kagit-sayfalar { zoom: 1 !important; gap: 0 !important; padding: 0 !important; display: block !important; width: auto !important; min-width: 0 !important }
+.kagit-sayfa { box-shadow: none !important; margin: 0 !important; break-after: auto; break-inside: avoid; height: calc(${mm.boy}mm - 0.5mm) !important }
+.kagit-anahtar { height: auto !important; min-height: 0 !important; max-height: calc(${mm.boy}mm - 0.5mm) }
+.kagit-sayfa + .kagit-sayfa { break-before: page }
+.kagit-bos { display: none }`;
+
 // Kağıdı ayrı bir çerçevede yazdırır: yalnızca sayfalar ve sitenin stilleri
 function yazdir(kok: HTMLElement | null, ayar: SinavAyari, ad: string) {
   if (!kok) return;
@@ -296,8 +313,7 @@ function yazdir(kok: HTMLElement | null, ayar: SinavAyari, ad: string) {
   const mm = kagitMm(ayar);
   d.open();
   d.write(`<!doctype html><html lang="tr" data-theme="light"><head><meta charset="utf-8"><title>${ad.replace(/</g, "")}</title>${stiller}
-<style>@page { size: ${mm.en}mm ${mm.boy}mm; margin: 0 } html, body { margin: 0; background: #fff; height: auto; overflow: visible }
-.kagit-sayfalar { zoom: 1 !important; gap: 0 !important; padding: 0 !important } .kagit-sayfa { box-shadow: none !important; margin: 0 !important; break-after: page }</style>
+<style>${YAZDIRMA_STILI(mm)}</style>
 </head><body>${kopya.outerHTML}</body></html>`);
   d.close();
   const bas = () => {
@@ -379,8 +395,8 @@ function KagitAyarlari({ ayar, degistir, puanDagit }: { ayar: SinavAyari; degist
       </span>
     </label>
   );
-  const kutu = (k: "adSoyad" | "numara" | "imza" | "puanGoster", etiket: string) => (
-    <label className="ayar-kutu"><input type="checkbox" checked={ayar[k]} onChange={(e) => degistir({ [k]: e.target.checked })} /> {etiket}</label>
+  const kutu = (k: "adSoyad" | "numara" | "imza" | "puanGoster" | "sayfaNo", etiket: string) => (
+    <label className="ayar-kutu"><input type="checkbox" checked={!!ayar[k]} onChange={(e) => degistir({ [k]: e.target.checked })} /> {etiket}</label>
   );
   return (
     <div className="kagit-ayarlari">
@@ -408,6 +424,11 @@ function KagitAyarlari({ ayar, degistir, puanDagit }: { ayar: SinavAyari; degist
             <option value={4}>4 şık (A-D)</option><option value={5}>5 şık (A-E)</option>
           </select>
         </label>
+        {kutu("sayfaNo", "Sayfa numarası (altta ortada)")}
+        <p className="soluk ayar-aciklama">
+          Kağıtta yalnızca önizlemede gördüklerin basılır; PDF ve Word aynıdır. PDF'te tarih ya da adres yazıları
+          çıkıyorsa yazdırma penceresinde <i>Üstbilgi ve altbilgi</i> kutusunu kapat.
+        </p>
       </fieldset>
       <fieldset>
         <legend>Başlık</legend>
@@ -692,7 +713,7 @@ export function SinavKagidi({ id }: { id: string }) {
           {wordHazirlaniyor ? "Hazırlanıyor…" : "Word indir"}
         </button>
         <button className="primary" onClick={() => yazdir(sayfalar.current, belge.ayar, belge.ad)}
-          title="Önizlemede görüneni basar. Yazdırma penceresinde hedef olarak 'PDF olarak kaydet'i seç">
+          title="Önizlemede görüneni basar. Yazdırma penceresinde hedef olarak 'PDF olarak kaydet'i seç; 'Üstbilgi ve altbilgi' kapalı kalsın">
           PDF indir / yazdır
         </button>
       </div>
