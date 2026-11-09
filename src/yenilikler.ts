@@ -24,6 +24,15 @@ export interface Yenilik {
 
 export const YENILIKLER: Yenilik[] = [
   {
+    pr: 32,
+    tarih: "2026-11-09",
+    baslik: "Site bağımsız bir öğrenci projesi",
+    maddeler: [
+      "Açılış sayfasında, her pratiğin menüsünün altında ve Hakkında sayfasında sitenin bağımsız olduğu yazıyor: pratikler öğrenciler tarafından öğrenciler için hazırlanır, dersin hocası tarafından hazırlanmaz ya da onaylanmaz.",
+      "Sınavda soruların buradan geleceğinin bir garantisi yok; S.S.S.'ye bu soru eklendi. Hocanın verdiği soru havuzu bağlantısıyla geldiysen o soruları hocan seçmiştir.",
+    ],
+  },
+  {
     pr: 31,
     tarih: "2026-11-09",
     baslik: "Yenilikler bütün pratiklerde ortak ve sana göre",

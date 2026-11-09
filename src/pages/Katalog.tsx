@@ -14,6 +14,7 @@ import { Daktilo, hareketAzaltilmis, useDaktilo } from "../components/Daktilo";
 import { KITLELER, Vitrin } from "../components/Vitrin";
 import "@fontsource-variable/literata";
 import "../cati.css";
+import { BAGIMSIZLIK_BASLIK, BAGIMSIZLIK_KISA, BAGIMSIZLIK_METNI } from "../lib/bagimsizlik";
 
 // Pratiğin logosu; logosu yoksa adın baş harfi
 function KartLogosu({ id }: { id: string }) {
@@ -58,6 +59,9 @@ function Acilis({ liste }: { liste: KatalogPratik[] | null }) {
           <a className="cati-dugme birincil" href="#pratikler">Pratik seç</a>
           <a className="cati-dugme" href="#akademisyen">Sınav hazırlamak istiyorum</a>
         </div>
+        <p className="bagimsizlik">
+          <strong>{BAGIMSIZLIK_BASLIK}</strong> {BAGIMSIZLIK_METNI}
+        </p>
       </div>
       <Vitrin sahne={sahne} donuyor={donuyor} sec={(i) => { setDonuyor(false); setSahne(i); }} />
     </section>
@@ -86,6 +90,7 @@ const FAYDALAR = [
       "A, B, C ve D grupları kurarsın: aynı sorular karışık sırada ya da aynı kavramdan farklı sorular.",
       "Cevap anahtarı kendiliğinden çıkar. Kağıdı Word dosyası olarak indirir ya da PDF basarsın.",
       "Öğrencilerine \"sınav bu sorulardan gelecek\" bağlantısı verirsin; yalnızca o sorularla çalışırlar.",
+      "Bağlantı vermediğin sürece öğrencilere sınavın buradan geleceği söylenmez; site dersin hocalarından bağımsızdır.",
     ],
     bag: { metin: "Akademisyen erişimi iste", adres: "/mesajlar" },
     not: "Hesap açtıktan sonra Mesajlarım'dan hangi derslerin sorumlusu olduğunu yazman yeterli; hesabın o dersler için akademisyen olarak işaretlenir.",
@@ -242,7 +247,7 @@ export function Katalog() {
       <footer className="cati-alt">
         <p>
           Pratikler açık kaynaklıdır ve ücretsizdir. Reklam ve takip çerezi kullanılmaz; kaynak kodu GPL lisansıyla
-          GitHub'da yayımlanır.
+          GitHub'da yayımlanır. {BAGIMSIZLIK_KISA}
         </p>
         <nav aria-label="Alt bağlantılar">
           <a href={href({ page: "gizlilik" })}>Gizlilik</a>
