@@ -155,7 +155,42 @@ function paragraflar(metin: string, boy: number, { on = [] as ParagraphChild[], 
 
 // ---- Bölümler ----
 
+// Sade başlık: çerçevesiz, sola dayalı; kurum ve sınav bilgisi aynı satırda (sağa sekme),
+// ders ve sınav adı kalın, grup sağda; kimlik alanları tek satırda; altında ince çizgi.
+function sadeBaslik(ayar: SinavAyari, toplam: number, grup: string | undefined, boy: number, icEn: number): Paragraph[] {
+  const sag = [{ type: TabStopType.RIGHT, position: tw(icEn) }];
+  const tarih = ayar.tarih ? new Date(`${ayar.tarih}T12:00:00`).toLocaleDateString("tr-TR", { day: "numeric", month: "long", year: "numeric" }) : "";
+  const bilgi = [tarih && `Tarih: ${tarih}`, ayar.sure > 0 && `Süre: ${ayar.sure} dakika`, ayar.puanGoster && toplam > 0 && `Toplam: ${toplam} puan`].filter(Boolean).join("   ·   ");
+  const kurum = [ayar.universite, ayar.fakulte].filter(Boolean).join(" · ").toLocaleUpperCase("tr-TR");
+  const ad = [ayar.ders, ayar.sinavAdi].filter(Boolean).join(" — ");
+  const out: Paragraph[] = [];
+  if (kurum || bilgi) {
+    out.push(new Paragraph({ tabStops: sag, spacing: { after: 20 }, children: [new TextRun({ text: `${kurum}${bilgi ? `\t${bilgi}` : ""}`, font: YAZI, size: boy - 3 })] }));
+  }
+  if (ad || grup) {
+    out.push(new Paragraph({
+      tabStops: sag, spacing: { after: 40 },
+      children: [new TextRun({ text: ad, font: YAZI, size: boy + 1, bold: true }), ...(grup ? [new TextRun({ text: `\tGrup ${grup}`, font: YAZI, size: boy + 1, bold: true })] : [])],
+    }));
+  }
+  const kimlik = [ayar.adSoyad && "Adı Soyadı:", ayar.numara && "Numarası:", ayar.imza && "İmza:"].filter((x): x is string => !!x);
+  if (kimlik.length) {
+    // Alanlar satırı eşit bölüşür: her alanın sonunda noktalı sekme
+    const parca = icEn / kimlik.length;
+    out.push(new Paragraph({
+      spacing: { before: 60, after: 40 },
+      tabStops: kimlik.map((_, i) => ({ type: TabStopType.RIGHT, position: tw(parca * (i + 1) - 4), leader: "dot" as const })),
+      children: kimlik.map((k, i) => new TextRun({ text: `${i ? "    " : ""}${k}\t`, font: YAZI, size: boy })),
+    }));
+  }
+  if (ayar.yonerge.trim()) out.push(...paragraflar(ayar.yonerge, boy - 2));
+  // Başlığın altındaki ince çizgi
+  out.push(new Paragraph({ children: [], border: { bottom: { style: BorderStyle.SINGLE, size: 6, color: "111111", space: 1 } }, spacing: { after: 120 } }));
+  return out;
+}
+
 function baslik(ayar: SinavAyari, toplam: number, grup: string | undefined, boy: number, icEn: number): (Paragraph | Table)[] {
+  if (ayar.baslik === "sade") return sadeBaslik(ayar, toplam, grup, boy, icEn);
   const ortala = (metin: string, ek: { kalin?: boolean; buyuk?: boolean; egik?: boolean } = {}) =>
     new Paragraph({
       alignment: AlignmentType.CENTER,

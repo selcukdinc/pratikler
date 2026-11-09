@@ -14,6 +14,16 @@ export interface Yenilik {
 
 export const YENILIKLER: Yenilik[] = [
   {
+    pr: 29,
+    tarih: "2026-11-09",
+    baslik: "Sınav kağıdı: sade başlık",
+    maddeler: [
+      "Kağıdın başlığı için ikinci bir stil geldi: **Sade**. Çerçeve yok, başlık üç sıkışık satır: üniversite ve fakülte ile tarih ve süre aynı satırda, altında kalın ders ve sınav adı ile sağda grup, en altta tek satırda Adı Soyadı, Numarası ve İmza. Altında soruları ayıran ince bir çizgi var.",
+      "Kutulu başlığa göre ilk sayfada yaklaşık 15-20 mm yer kazanılıyor. Stil **Kağıt ve başlık** sekmesinden seçiliyor; önizlemede, PDF'te ve Word'de aynı görünüyor.",
+      "Var olan sınavlar kutulu başlıkla kalıyor. İlk sınavın sade başlıkla açılıyor, sonraki yeni sınavlar son kullandığın stili alıyor.",
+    ],
+  },
+  {
     pr: 28,
     tarih: "2026-11-09",
     baslik: "Sınav kağıdı: ünite ünite soru seçimi ve kapsamlı süzgeçler",

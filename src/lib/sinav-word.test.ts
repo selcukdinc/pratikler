@@ -28,5 +28,18 @@ describe("Word dosyası", () => {
     const m = new Map([["s1", q]]);
     const blob = await sinaviWordeCevir(b, [grupKagidi(b, m, 0), grupKagidi(b, m, 1)]);
     expect(blob.size).toBeGreaterThan(3000);
+    // Sade başlık ve sayfa numarası; kutulu başlıktaki tablo sade başlıkta yok
+    const sade = { ...b, ayar: { ...b.ayar, baslik: "sade" as const, sayfaNo: true, universite: "İKÇÜ", ders: "Tıp Elektroniği", sinavAdi: "Vize" } };
+    const xml = async (x: SinavBelgesi) => {
+      const { default: JSZip } = await import("jszip");
+      const z = await JSZip.loadAsync(await (await sinaviWordeCevir(x, [grupKagidi(x, m, 0), grupKagidi(x, m, 1)])).arrayBuffer());
+      return { govde: await z.file("word/document.xml")!.async("string"), dosyalar: Object.keys(z.files) };
+    };
+    const s = await xml(sade);
+    expect(s.govde).toContain("Tıp Elektroniği — Vize");
+    expect(s.govde).toContain("Grup B");
+    expect(s.dosyalar.some((f) => /footer\d*\.xml$/.test(f))).toBe(true);
+    const k = await xml({ ...sade, ayar: { ...sade.ayar, baslik: "kutulu" } });
+    expect((k.govde.match(/<w:tbl>/g) ?? []).length).toBeGreaterThan((s.govde.match(/<w:tbl>/g) ?? []).length);
   });
 });

@@ -20,7 +20,7 @@ import {
 } from "../lib/soru-secimi";
 import {
   GRUP_ADLARI, SIK_HARFLERI, cevapYazisi, grupKagidi, kagitMm, olcuAnahtari, sayfala, sigdir, SIGDIRMA_DENEME, SINAV_OGE_EN_COK, toplamPuan, varsayilanGruplar,
-  type GrupAyari, type GrupOgesi, type GrupSorusu, type HavuzOzeti, type SinavAyari, type SinavBelgesi, type SinavOgesi, type SinavSorusu,
+  type BaslikStili, type GrupAyari, type GrupOgesi, type GrupSorusu, type HavuzOzeti, type SinavAyari, type SinavBelgesi, type SinavOgesi, type SinavSorusu,
 } from "../../shared/sinav";
 
 // CSS'te 1 mm = 96 / 25.4 px
@@ -153,24 +153,43 @@ function Baslik({ ayar, toplam, grup, ayarDegistir }: { ayar: SinavAyari; toplam
     <Duzenlenir deger={ayar[k]} markdown={false} cok={false} bos={bos} onDegis={ayarDegistir && ((s) => ayarDegistir({ [k]: s }))} />
   );
   const bilgi = [ayar.tarih && `Tarih: ${tarihYazi(ayar.tarih)}`, ayar.sure > 0 && `Süre: ${ayar.sure} dakika`, ayar.puanGoster && toplam > 0 && `Toplam: ${toplam} puan`].filter(Boolean);
+  const kimlik = (ayar.adSoyad || ayar.numara || ayar.imza) && (
+    <div className="kagit-kimlik">
+      {ayar.adSoyad && <span>Adı Soyadı: <i /></span>}
+      {ayar.numara && <span>Numarası: <i /></span>}
+      {ayar.imza && <span>İmza: <i /></span>}
+    </div>
+  );
+  const yonerge = (ayar.yonerge || ayarDegistir) && (
+    <div className="kagit-yonerge">
+      <Duzenlenir deger={ayar.yonerge} bos="Yönerge (isteğe bağlı)" onDegis={ayarDegistir && ((s) => ayarDegistir({ yonerge: s }))} />
+    </div>
+  );
+  // Sade: çerçevesiz, üç sıkışık satır. Boş alanlar düzenlerken ipucuyla görünür, basılmaz.
+  if (ayar.baslik === "sade") {
+    return (
+      <header className="kagit-baslik kagit-baslik-sade">
+        <div className="sade-satir sade-ust">
+          <span className="sade-kurum">{alan("universite", "Üniversite")}<span className="sade-ayrac" aria-hidden="true">{" · "}</span>{alan("fakulte", "Fakülte / bölüm")}</span>
+          {bilgi.length > 0 && <span className="sade-bilgi">{bilgi.join("   ·   ")}</span>}
+        </div>
+        <div className="sade-satir sade-ad">
+          <span className="sade-ders">{alan("ders", "Ders adı")}<span className="sade-ayrac" aria-hidden="true">{" — "}</span>{alan("sinavAdi", "Sınav: ör. 2026-2027 Güz Vize")}</span>
+          {grup && <span className="sade-grup" aria-label={`${grup} grubu`}>Grup {grup}</span>}
+        </div>
+        {kimlik}
+        {yonerge}
+      </header>
+    );
+  }
   return (
     <header className="kagit-baslik">
       {grup && <div className="kagit-grup" aria-label={`${grup} grubu`}><small>GRUP</small>{grup}</div>}
       <div className="kagit-baslik-ust">{alan("universite", "Üniversite")}{alan("fakulte", "Fakülte / bölüm")}</div>
       <div className="kagit-baslik-ad">{alan("ders", "Ders adı")}{alan("sinavAdi", "Sınav: ör. 2026-2027 Güz Vize")}</div>
       {bilgi.length > 0 && <div className="kagit-bilgi">{bilgi.join("   ·   ")}</div>}
-      {(ayar.adSoyad || ayar.numara || ayar.imza) && (
-        <div className="kagit-kimlik">
-          {ayar.adSoyad && <span>Adı Soyadı: <i /></span>}
-          {ayar.numara && <span>Numarası: <i /></span>}
-          {ayar.imza && <span>İmza: <i /></span>}
-        </div>
-      )}
-      {(ayar.yonerge || ayarDegistir) && (
-        <div className="kagit-yonerge">
-          <Duzenlenir deger={ayar.yonerge} bos="Yönerge (isteğe bağlı)" onDegis={ayarDegistir && ((s) => ayarDegistir({ yonerge: s }))} />
-        </div>
-      )}
+      {kimlik}
+      {yonerge}
     </header>
   );
 }
@@ -709,6 +728,12 @@ function KagitAyarlari({ ayar, degistir, puanDagit }: { ayar: SinavAyari; degist
       </fieldset>
       <fieldset>
         <legend>Başlık</legend>
+        <label>Başlık stili
+          <select value={ayar.baslik ?? "kutulu"} onChange={(e) => degistir({ baslik: e.target.value as BaslikStili })}>
+            <option value="sade">Sade: çerçevesiz, üç satır</option>
+            <option value="kutulu">Kutulu: çerçeveli, ortalanmış</option>
+          </select>
+        </label>
         {(["universite", "fakulte", "ders", "sinavAdi"] as const).map((k) => (
           <label key={k}>{{ universite: "Üniversite", fakulte: "Fakülte / bölüm", ders: "Ders", sinavAdi: "Sınav" }[k]}
             <input value={ayar[k]} maxLength={200} onChange={(e) => degistir({ [k]: e.target.value })} />

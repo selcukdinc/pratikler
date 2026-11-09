@@ -1846,6 +1846,24 @@ polygon.g-ok-7 { fill: var(--ok-7); stroke: none; }
 .kagit-anahtar th, .kagit-anahtar td { border: 1px solid #111; padding: 1mm 4mm; text-align: center; }
 @media (max-width: 800px) { .sinav-onizleme-kap { min-height: 70vh; } }
 .kagit-baslik:has(.kagit-grup) { padding-inline: 17mm; }
+/* Sade başlık: çerçevesiz, sola dayalı, üç sıkışık satır; altında ince tek çizgi */
+.kagit-baslik.kagit-baslik-sade { border: 0; border-bottom: 0.75pt solid #111; padding: 0 0 1.5mm; margin-bottom: 3mm; text-align: left; line-height: 1.25; }
+.sade-satir { display: flex; align-items: baseline; justify-content: space-between; gap: 4mm; }
+.sade-satir > span { min-width: 0; }
+.sade-kurum, .sade-ders { display: flex; flex-wrap: wrap; align-items: baseline; }
+.sade-kurum > div, .sade-ders > div { display: inline-block; }
+.sade-ust { font-size: 0.85em; }
+.sade-ayrac { white-space: pre; }
+.sade-kurum { text-transform: uppercase; letter-spacing: 0.02em; }
+.sade-bilgi { white-space: pre; text-align: right; flex: none; }
+.sade-ad { font-weight: 700; font-size: 1.05em; margin-top: 0.5mm; }
+.sade-grup { flex: none; font-size: 1.05em; border: 1px solid #111; padding: 0 2mm; }
+.kagit-baslik-sade .kagit-kimlik { border-top: 0; margin-top: 1.5mm; padding-top: 0; flex-wrap: nowrap; }
+.kagit-baslik-sade .kagit-kimlik span { flex: 1 1 0; }
+.kagit-baslik-sade .kagit-yonerge { margin-top: 1mm; }
+/* Boş alanın ayıracı yalnızca iki tarafı da doluyken görünür */
+.sade-kurum > .kagit-bos + .sade-ayrac, .sade-ders > .kagit-bos + .sade-ayrac, .sade-ayrac:has(+ .kagit-bos),
+.sade-kurum > div:empty + .sade-ayrac, .sade-ayrac:has(+ div:empty), .sade-kurum > .sade-ayrac:first-child { display: none; }
 
 /* Öğrenci soru havuzu */
 .havuz-seridi { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; padding: 5px 12px; background: var(--tag-ges-bg); color: var(--tag-ges-text); border-bottom: 1px solid var(--border); }
