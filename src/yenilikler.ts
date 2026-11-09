@@ -1,7 +1,15 @@
 // Sitedeki yenilikler, en yenisi en üstte. Kullanıcıya görünen her değişiklik
 // (her PR) buraya bir kayıt ekler; yenilikler.test.ts sırayı ve biçimi denetler.
 // Maddeler kullanıcının diliyle yazılır: ne değişti, sana ne kazandırır.
-// Markdown alt kümesi kullanılabilir (`kod`, **kalın**).
+// Markdown alt kümesi kullanılabilir (`kod`, **kalın**). Yalnızca yöneticiyi ilgilendiren
+// (yönetim paneli, Claude, yerel ajan) kayıt ya da madde kitle: "yonetici", yalnızca sınav
+// hazırlayan akademisyeni ilgilendiren kitle: "akademisyen" alır.
+
+// Kimin göreceği: herkes; akademisyen (akademisyen ve yönetici); yonetici (yalnızca yönetici).
+// Kayıt bir kitle alabilir, tek tek maddeler de kendi kitlesini alabilir. Kişinin görebileceği
+// maddesi kalmayan kayıt hiç görünmez ve "Yeni" rozetini artırmaz (src/lib/yenilik.ts).
+export type Kitle = "herkes" | "akademisyen" | "yonetici";
+export type Madde = string | { metin: string; kitle: Kitle };
 
 export interface Yenilik {
   // Değişikliği getiren PR'ın numarası; kaydın kimliği de budur
@@ -9,25 +17,39 @@ export interface Yenilik {
   // YYYY-AA-GG
   tarih: string;
   baslik: string;
-  maddeler: string[];
+  // Verilmezse herkes
+  kitle?: Kitle;
+  maddeler: Madde[];
 }
 
 export const YENILIKLER: Yenilik[] = [
   {
+    pr: 31,
+    tarih: "2026-11-09",
+    baslik: "Yenilikler bütün pratiklerde ortak ve sana göre",
+    maddeler: [
+      "Bir pratikte okuduğun yenilikler artık diğer pratiklerde yeniden **Yeni** diye görünmüyor. Giriş yaptıysan bu bilgi hesabında saklanıyor ve başka cihazda da geçerli oluyor; misafirken bütün selcukdinc.dev pratiklerinde ortak.",
+      "Yenilikler sayfası yalnızca seni ilgilendiren değişiklikleri gösteriyor: sınav hazırlama ayrıntıları akademisyenlere, sitenin yönetimiyle ilgili değişiklikler yalnızca yöneticiye görünüyor. Sana görünmeyen bir değişiklik **Yeni** rozetini de artırmıyor.",
+      { metin: "Herkese açık olmayan kayıt ve maddelerin yanında kimlerin gördüğünü belirten **Akademisyen** ya da **Yönetici** etiketi var.", kitle: "akademisyen" },
+    ],
+  },
+  {
     pr: 30,
     tarih: "2026-11-09",
     baslik: "Akademisyenler kendi derslerinde sınav hazırlıyor; rol çipleri",
+    kitle: "akademisyen",
     maddeler: [
       "Akademisyen hesapları artık yalnızca sorumlu oldukları derslerde sınav hazırlıyor ve öğrencilere soru havuzu açıyor. Alanını yönetici atıyor; daha önce sınav hazırladığın ya da havuz açtığın dersler alanın olarak kendiliğinden atandı.",
       "Alanındaki bir derste üst çubukta **Akademisyen** çipi görünüyor; tıklayınca Sınavlarım açılıyor. Pratikler ana sayfasında alanındaki derslerin kartında **Alanın** etiketi var.",
       "Alanın dışındaki bir derste Sınav hazırla sayfası sınav hazırlayabildiğin dersleri listeliyor; yeni bir ders için yöneticiye yazabilirsin. Var olan sınavların silinmiyor, alan geri verilince yeniden açılıyor; öğrencilere verdiğin havuz bağlantıları çalışmaya devam ediyor.",
-      "Yönetici hesabıyla girildiğinde üst çubukta **Yönetici** çipi görünüyor ve yönetim paneline götürüyor. Yönetim panelinin Kullanıcılar sekmesinde akademisyenlerin alanları eklenip çıkarılabiliyor; değişiklikler işlem kaydına yazılıyor.",
+      { metin: "Yönetici hesabıyla girildiğinde üst çubukta **Yönetici** çipi görünüyor ve yönetim paneline götürüyor. Yönetim panelinin Kullanıcılar sekmesinde akademisyenlerin alanları eklenip çıkarılabiliyor; değişiklikler işlem kaydına yazılıyor.", kitle: "yonetici" },
     ],
   },
   {
     pr: 29,
     tarih: "2026-11-09",
     baslik: "Sınav kağıdı: sade başlık",
+    kitle: "akademisyen",
     maddeler: [
       "Kağıdın başlığı için ikinci bir stil geldi: **Sade**. Çerçeve yok, başlık üç sıkışık satır: üniversite ve fakülte ile tarih ve süre aynı satırda, altında kalın ders ve sınav adı ile sağda grup, en altta tek satırda Adı Soyadı, Numarası ve İmza. Altında soruları ayıran ince bir çizgi var.",
       "Kutulu başlığa göre ilk sayfada yaklaşık 15-20 mm yer kazanılıyor. Stil **Kağıt ve başlık** sekmesinden seçiliyor; önizlemede, PDF'te ve Word'de aynı görünüyor.",
@@ -38,6 +60,7 @@ export const YENILIKLER: Yenilik[] = [
     pr: 28,
     tarih: "2026-11-09",
     baslik: "Sınav kağıdı: ünite ünite soru seçimi ve kapsamlı süzgeçler",
+    kitle: "akademisyen",
     maddeler: [
       "Soru listesi ünitelere ayrıldı. Ünite satırındaki kutu, ünitenin görünen sorularının hepsini tek tıkla ekliyor ya da çıkarıyor; ünite açılınca sorular kavram başlıkları altında, kavramlar da kendi kutularıyla listeleniyor.",
       "Ünitenin **⋯** menüsünden: görünen sorularını ekle, bütün sorularını çıkar, rastgele 5 soru ekle, kağıttaki sorularını aynı kavramdan başka sorularla değiştir (yer ve puan kalıyor), kağıda ünite başlığı ekle.",
@@ -50,6 +73,7 @@ export const YENILIKLER: Yenilik[] = [
     pr: 27,
     tarih: "2026-11-09",
     baslik: "Sınav kağıdı: grupların sayfa sayısı ve otomatik sığdırma",
+    kitle: "akademisyen",
     maddeler: [
       "Önizlemedeki grup sekmelerinde her grubun kaç sayfa tuttuğu yazıyor; hangi sekmeye bakarsan bak bütün gruplar arka planda ölçülüyor.",
       "B, C ya da D grubu A'dan fazla sayfaya taşarsa motor o grup için başka karıştırmaları kendiliğinden deniyor ve A'nın sayfa sayısına sığanı seçiyor. Seçilen düzen sınavla birlikte saklanıyor; PDF ve Word aynı kağıdı basıyor.",
@@ -60,6 +84,7 @@ export const YENILIKLER: Yenilik[] = [
     pr: 26,
     tarih: "2026-11-09",
     baslik: "Sınav kağıdı: PDF'te boş sayfa ve alt yazılar düzeltildi",
+    kitle: "akademisyen",
     maddeler: [
       "Sınav kağıdının PDF'i artık önizlemedeki sayfa sayısıyla çıkıyor; sonda fazladan boş bir sayfa basılmıyor.",
       "Sayfaların altındaki küçük ders, sınav ve grup yazıları kaldırıldı: kağıtta, PDF'te ve Word'de yalnızca önizlemede gördüklerin var. İstersen **Kağıt ve başlık** sekmesinden altta ortada bir sayfa numarası açabilirsin; üç çıktıda da aynı görünür.",
@@ -105,9 +130,9 @@ export const YENILIKLER: Yenilik[] = [
       "pratikler.selcukdinc.dev baştan tasarlandı: ilk ekranda sitenin ne olduğu, kimin için olduğu ve kısa bir canlı gösterim var. Öğrenci soru çözüp yanlışını tekrara düşürüyor, akademisyen sınavın B grubunu ve cevap anahtarını alıyor, öğretmen soru havuzu bağlantısı paylaşıyor.",
       "**Kime ne kazandırır?** bölümü öğrenciler, akademisyenler ve öğretmenler için sitenin neler yaptığını ayrı ayrı anlatıyor; akademisyen erişimi buradan istenebiliyor.",
       "Pratikler listesi alanlarına göre daha okunaklı bir rafta duruyor; Aydınlık, Karanlık ve Kahve temalarının hepsinde çalışıyor.",
-      "Yönetim panelinin **Genel** sekmesi önce durumu, sonra ayarları gösteriyor; duyurunun nasıl görüneceği yazarken önizleniyor. Sekmelerde bekleyen öneri ve okunmamış mesaj sayısı görünüyor.",
-      "Çatıdaki yönetim panelinde pratikler tablosu açık ünite oranını, haftalık denemeleri ve bekleyen önerileri tek bakışta veriyor.",
-      "Claude paneli sadeleşti: ajanın durumu tek satırda, kurulum gerektiğinde açılıyor; iş kutusu örnek isteklerle geliyor, işler solda, seçili işin canlı günlüğü ve aşamaları sağda.",
+      { metin: "Yönetim panelinin **Genel** sekmesi önce durumu, sonra ayarları gösteriyor; duyurunun nasıl görüneceği yazarken önizleniyor. Sekmelerde bekleyen öneri ve okunmamış mesaj sayısı görünüyor.", kitle: "yonetici" },
+      { metin: "Çatıdaki yönetim panelinde pratikler tablosu açık ünite oranını, haftalık denemeleri ve bekleyen önerileri tek bakışta veriyor.", kitle: "yonetici" },
+      { metin: "Claude paneli sadeleşti: ajanın durumu tek satırda, kurulum gerektiğinde açılıyor; iş kutusu örnek isteklerle geliyor, işler solda, seçili işin canlı günlüğü ve aşamaları sağda.", kitle: "yonetici" },
     ],
   },
   {
@@ -115,10 +140,10 @@ export const YENILIKLER: Yenilik[] = [
     tarih: "2026-11-06",
     baslik: "Soru havuzu bağlantısı, ortak tema ve Pratikler düğmesi",
     maddeler: [
-      "Akademisyenler sınav kağıdının **Gruplar ve havuz** sekmesinden öğrencilere \"sınav bu sorulardan gelecek\" bağlantısı açabiliyor: yalnızca sınavdaki sorular ya da sınavın kavramlarındaki bütün sorular.",
+      { metin: "Akademisyenler sınav kağıdının **Gruplar ve havuz** sekmesinden öğrencilere \"sınav bu sorulardan gelecek\" bağlantısı açabiliyor: yalnızca sınavdaki sorular ya da sınavın kavramlarındaki bütün sorular.", kitle: "akademisyen" },
       "Bağlantıyı açan öğrenci **Çalışmaya başla** deyince Soru havuzu, Karma test ve Tekrar yalnızca o sorularla çalışıyor; üstteki şeritten istediği an bütün sorulara dönebiliyor. Cevaplar ve sınav kağıdı görünmüyor.",
       "Havuz sayfası kaç sorunun doğru çözüldüğünü bir ilerleme çubuğuyla gösteriyor; hesap açmadan da çalışılabiliyor.",
-      "**Sınavlarım** sayfasında açılan havuzlar listeleniyor; bağlantı kopyalanıp havuz kaldırılabiliyor.",
+      { metin: "**Sınavlarım** sayfasında açılan havuzlar listeleniyor; bağlantı kopyalanıp havuz kaldırılabiliyor.", kitle: "akademisyen" },
       "Tema artık bütün pratiklerde ortak: hangi pratikte seçersen seç, son seçtiğin tema diğer pratiklerde ve Pratikler ana sayfasında da geçerli.",
       "Üst çubuktaki **Pratikler** düğmesi ve menüdeki **Bütün pratikler** bağlantısıyla herhangi bir pratikten tek tıkla pratikler.selcukdinc.dev'e geçiliyor.",
     ],
@@ -127,6 +152,7 @@ export const YENILIKLER: Yenilik[] = [
     pr: 20,
     tarih: "2026-11-06",
     baslik: "Sınavda A, B, C, D grupları, cevap anahtarı ve Word çıktısı",
+    kitle: "akademisyen",
     maddeler: [
       "Sınav kağıdının **Gruplar** sekmesinden 2, 3 ya da 4 grup seçiliyor. **Aynı sorular, karışık** kipinde her grupta soruların sırası ve şıkların yeri değişiyor; **Benzer ama farklı sorular** kipinde B, C ve D gruplarına aynı kavramdan başka sorular geliyor.",
       "Ortak metinler (\"1-5. soruları parçaya göre cevaplayınız\") yerinde kalıyor, sorular kendi bölümünde karışıyor; başka şıklara atıf yapan soruların şıklarına dokunulmuyor.",
@@ -141,15 +167,16 @@ export const YENILIKLER: Yenilik[] = [
     baslik: "Akademisyenler için sınav hazırlama",
     maddeler: [
       "Yeni **Akademisyen** hesabıyla hesap menüsündeki **Sınav hazırla** bölümü açılıyor: sitedeki sorulardan ünite, tür ve aramayla seçip kendi sınav kağıdını hazırlıyorsun.",
-      "Kağıt gerçek boyutunda canlı görünüyor; başlık, soru metni ve şıklar kağıdın üzerinde tıklanıp yerinde düzenleniyor, sorular sıralanıp puanlanıyor, ortak metin ve yönerge eklenebiliyor.",
-      "A4 ya da A3, dikey ya da yatay kağıt, tek, iki ya da üç sütun, yazı boyutu, kenar boşluğu ve 4 ya da 5 şık seçilebiliyor; üniversite, fakülte ve ders bilgileri bir sonraki sınava kendiliğinden geliyor, tarih ve süre ayarlanıyor.",
-      "Değişiklikler kendiliğinden kaydediliyor; başka bir cihazdan girince sınava kaldığın yerden devam ediyorsun. **PDF indir** kağıdı önizlemede gördüğün gibi basıyor.",
+      { metin: "Kağıt gerçek boyutunda canlı görünüyor; başlık, soru metni ve şıklar kağıdın üzerinde tıklanıp yerinde düzenleniyor, sorular sıralanıp puanlanıyor, ortak metin ve yönerge eklenebiliyor.", kitle: "akademisyen" },
+      { metin: "A4 ya da A3, dikey ya da yatay kağıt, tek, iki ya da üç sütun, yazı boyutu, kenar boşluğu ve 4 ya da 5 şık seçilebiliyor; üniversite, fakülte ve ders bilgileri bir sonraki sınava kendiliğinden geliyor, tarih ve süre ayarlanıyor.", kitle: "akademisyen" },
+      { metin: "Değişiklikler kendiliğinden kaydediliyor; başka bir cihazdan girince sınava kaldığın yerden devam ediyorsun. **PDF indir** kağıdı önizlemede gördüğün gibi basıyor.", kitle: "akademisyen" },
     ],
   },
   {
     pr: 17,
     tarih: "2026-11-06",
     baslik: "Yönetim panelinde Claude işleri canlı izleniyor",
+    kitle: "yonetici",
     maddeler: [
       "Yönetim panelinin **Claude** sekmesinde bir iş seçilince yerel ajanın ne yaptığı canlı akıyor: Claude'un yazdıkları, okuduğu ve değiştirdiği dosyalar, çalıştırdığı komutlar ve denetimlerin sonucu.",
       "Hazırlık, Claude, Denetim ve PR aşamaları bir çubukta görünüyor; iş bitince süre ve maliyet de yazılıyor.",
@@ -278,6 +305,7 @@ export const YENILIKLER: Yenilik[] = [
     pr: 4,
     tarih: "2026-11-03",
     baslik: "Yerel ajan claude'u bulamama ve servis kurulum hatası",
+    kitle: "yonetici",
     maddeler: [
       "Ajan artık `~/.local/bin`, `/opt/homebrew/bin` ve `/usr/local/bin` klasörlerine kendisi bakıyor; `spawn claude ENOENT` hatası için `.zprofile` düzenlemek gerekmiyor.",
       "`npm run ajan:servis -- kur` eski servis kapanırken verdiği \"Input/output error\" hatasında kısa bekleyip kendisi yeniden deniyor.",
@@ -289,15 +317,16 @@ export const YENILIKLER: Yenilik[] = [
     baslik: "pratikler.selcukdinc.dev'de hesap sayfaları ve yeni pratik açma",
     maddeler: [
       "Çatı sitesinde Ayarlar, Mesajlarım ve Yönetim paneli artık açılıyor; daha önce boş kalıyor ve 404 hatası veriyordu.",
-      "Çatı sitesinin yönetim panelinde **Claude** sekmesinden yeni bir pratik açılabiliyor: ad, alt alan adı ve kaynak klasörünü yazmak yetiyor, gerisini yerel ajan hazırlayıp PR olarak getiriyor.",
-      "Her Claude sekmesi yerel ajanın açık olup olmadığını, hangi makinede çalıştığını ve en son ne zaman yokladığını gösteriyor. **Ajanı dene** düğmesi Claude'u çalıştırmadan makinedeki claude, gh ve depo durumunu raporluyor.",
-      "Ajan kapalıysa panel nasıl açılacağını adım adım anlatıyor: anahtar Mac'in Anahtar Zinciri'nde tutuluyor, ajan tek komutla servis olarak kurulabiliyor ya da indirilen bir dosyaya çift tıklayarak Terminal'de açılabiliyor.",
+      { metin: "Çatı sitesinin yönetim panelinde **Claude** sekmesinden yeni bir pratik açılabiliyor: ad, alt alan adı ve kaynak klasörünü yazmak yetiyor, gerisini yerel ajan hazırlayıp PR olarak getiriyor.", kitle: "yonetici" },
+      { metin: "Her Claude sekmesi yerel ajanın açık olup olmadığını, hangi makinede çalıştığını ve en son ne zaman yokladığını gösteriyor. **Ajanı dene** düğmesi Claude'u çalıştırmadan makinedeki claude, gh ve depo durumunu raporluyor.", kitle: "yonetici" },
+      { metin: "Ajan kapalıysa panel nasıl açılacağını adım adım anlatıyor: anahtar Mac'in Anahtar Zinciri'nde tutuluyor, ajan tek komutla servis olarak kurulabiliyor ya da indirilen bir dosyaya çift tıklayarak Terminal'de açılabiliyor.", kitle: "yonetici" },
     ],
   },
   {
     pr: 2,
     tarih: "2026-11-03",
     baslik: "Yönetim panelinde pratikler ve Claude",
+    kitle: "yonetici",
     maddeler: [
       "Yönetim panelinin yeni **Pratikler** sekmesi bütün pratikleri yan yana gösteriyor: açık ünite, soru sayısı, son 7 gündeki denemeler ve kişiler, bekleyen öneriler.",
       "**Claude** sekmesinden bir pratiğe iş verilebiliyor (\"3. üniteye iki soru ekle\" gibi). İşi yöneticinin bilgisayarındaki yerel ajan yapıyor; denetimlerden geçerse bir PR olarak geliyor, birleştirmek yine yöneticide.",

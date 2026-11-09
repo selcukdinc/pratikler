@@ -2049,3 +2049,8 @@ polygon.g-ok-7 { fill: var(--ok-7); stroke: none; }
 .rol-yonetici { color: var(--text); background: color-mix(in srgb, var(--text) 8%, var(--panel)); border-color: color-mix(in srgb, var(--text) 35%, transparent); }
 .rol-akademisyen { color: var(--green); background: color-mix(in srgb, var(--green) 12%, var(--panel)); border-color: color-mix(in srgb, var(--green) 45%, transparent); }
 @media (max-width: 560px) { .rol-cipi { padding: 0 6px; font-size: 11px; } }
+
+/* Yenilikler: herkese açık olmayan kayıt ve maddelerin kitlesi (yalnızca görebilenlere) */
+.kitle-etiketi { font-size: 11px; margin-left: 6px; vertical-align: 1px; }
+.kitle-yonetici { color: var(--text); border: 1px solid color-mix(in srgb, var(--text) 35%, transparent); background: color-mix(in srgb, var(--text) 8%, transparent); }
+.kitle-akademisyen { color: var(--green); border: 1px solid color-mix(in srgb, var(--green) 45%, transparent); background: color-mix(in srgb, var(--green) 10%, transparent); }

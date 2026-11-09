@@ -346,6 +346,16 @@ ayarlar.put("/gorunum", async (c) => {
   return c.json(await loadUser(c.env.DB, me.id, c.get("pratik")?.id));
 });
 
+// Yenilikler: görülen son kayıt. Yalnızca ileri gider (eski bir sekme geri almasın).
+ayarlar.put("/yenilik", async (c) => {
+  const { pr } = await govde<{ pr: number }>(c);
+  if (typeof pr !== "number" || !Number.isInteger(pr) || pr < 0 || pr > 1_000_000) return hata(c, 400, "Geçersiz değer.");
+  const me = c.get("me")!;
+  const r = await c.env.DB.prepare("UPDATE users SET yenilik_goruldu = MAX(COALESCE(yenilik_goruldu, 0), ?) WHERE id = ? RETURNING yenilik_goruldu")
+    .bind(pr, me.id).first<{ yenilik_goruldu: number }>();
+  return c.json({ yenilikGoruldu: r?.yenilik_goruldu ?? pr });
+});
+
 ayarlar.put("/gunluk-tekrar", async (c) => {
   const b = await govde<{ gunlukTekrar: number | null }>(c);
   if (b.gunlukTekrar !== null && !gunlukGecerli(b.gunlukTekrar)) return hata(c, 400, "Geçersiz günlük tekrar sayısı.");
