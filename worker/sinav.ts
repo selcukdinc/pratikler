@@ -32,14 +32,43 @@ async function kendi(c: C): Promise<Satir | null> {
 
 // Sınava eklenebilecek sorular: yayındaki bütün sorular (ünite açılmamış olsa da),
 // cevap ve açıklamayla birlikte. Kod soruları kağıda basılamadığı için gelmez.
+// Seçicide süzmek için konu adı, ilk deneme başarısı (her kişinin ilk denemesi, anonim
+// toplam) ve kişinin bu pratikteki sınavlarında kaç kez kullanıldığı da gelir.
 sinav.get("/sorular", async (c) => {
-  const { results } = await c.env.DB.prepare(
-    `SELECT ${SORU_SUTUNLARI}, q.answer, q.explanation
-     FROM questions q JOIN topics t ON t.id = q.topic_id LEFT JOIN users u ON u.id = q.suggested_by
-     WHERE ${pratikKosulu(pid(c))} AND q.active = 1 AND q.status = 'published' AND q.type NOT IN ('code', 'wave')
-     ORDER BY q.week, t.sort, q.difficulty, q.rowid`,
-  ).all<SoruListeSatiri & { answer: string; explanation: string | null }>();
-  return c.json<SinavSorusu[]>(results.map((r) => ({ ...soruyaCevir(r), answer: JSON.parse(r.answer), explanation: r.explanation })));
+  const db = c.env.DB;
+  const kosul = `${pratikKosulu(pid(c))} AND q.active = 1 AND q.status = 'published' AND q.type NOT IN ('code', 'wave')`;
+  const [sorular, basari, sinavlar] = await db.batch([
+    db.prepare(
+      `SELECT ${SORU_SUTUNLARI}, q.answer, q.explanation, t.title AS konu
+       FROM questions q JOIN topics t ON t.id = q.topic_id LEFT JOIN users u ON u.id = q.suggested_by
+       WHERE ${kosul}
+       ORDER BY q.week, t.sort, q.difficulty, q.rowid`,
+    ),
+    db.prepare(
+      `SELECT a.question_id AS id, COUNT(*) AS kisi, COALESCE(SUM(a.correct), 0) AS dogru
+       FROM attempts a JOIN (
+         SELECT MIN(b.id) AS ilk FROM attempts b JOIN questions q ON q.id = b.question_id
+         WHERE ${kosul} GROUP BY b.question_id, b.user_id
+       ) f ON f.ilk = a.id
+       GROUP BY a.question_id`,
+    ),
+    db.prepare("SELECT belge FROM sinavlar WHERE sahip = ? AND practice_id = ?").bind(c.get("me")!.id, pid(c)),
+  ]);
+  const b = new Map((basari!.results as { id: string; kisi: number; dogru: number }[]).map((r) => [r.id, { kisi: r.kisi, dogru: r.dogru }]));
+  const kullanim = new Map<string, number>();
+  for (const r of sinavlar!.results as { belge: string }[]) {
+    try {
+      const kimlikler = new Set((JSON.parse(r.belge) as SinavBelgesi).ogeler.flatMap((o) => (o.tur === "soru" ? [o.soruId] : [])));
+      for (const k of kimlikler) kullanim.set(k, (kullanim.get(k) ?? 0) + 1);
+    } catch {
+      // bozuk belge sayılmaz
+    }
+  }
+  type Satir = SoruListeSatiri & { answer: string; explanation: string | null; konu: string };
+  return c.json<SinavSorusu[]>((sorular!.results as Satir[]).map((r) => ({
+    ...soruyaCevir(r), answer: JSON.parse(r.answer), explanation: r.explanation, konu: r.konu,
+    basari: b.get(r.id) ?? { kisi: 0, dogru: 0 }, kullanim: kullanim.get(r.id) ?? 0,
+  })));
 });
 
 sinav.get("/", async (c) => {

@@ -119,6 +119,11 @@ export const HAVUZ_SORU_EN_COK = 2000;
 export interface SinavSorusu extends Question {
   answer: unknown;
   explanation: string | null;
+  // Seçicide süzmek için: konunun adı, ilk denemelerin toplamı (kişi, doğru) ve
+  // hocanın bu pratikteki kaç sınavında kullanıldığı (şu anki sınav dahil)
+  konu?: string;
+  basari?: { kisi: number; dogru: number };
+  kullanim?: number;
 }
 
 export const SINAV_BELGE_EN_BUYUK = 300_000;

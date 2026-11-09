@@ -4,7 +4,7 @@
 // (başka cihazdan aynı yerden devam edilir). "PDF indir" kağıdı tarayıcının yazdırma
 // motoruyla basar: önizlemede ne görünüyorsa kağıtta o çıkar.
 
-import { useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from "react";
+import { Fragment, useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { api } from "../lib/api";
 import { useOturum } from "../lib/oturum";
 import { PRATIK, uniteYazi } from "../lib/pratik";
@@ -15,7 +15,11 @@ import { FormHatasi } from "../components/Form";
 import { Iskelet } from "../components/Iskelet";
 import { sinavYetkisi } from "./Sinavlar";
 import {
-  GRUP_ADLARI, SIK_HARFLERI, cevapYazisi, grupKagidi, kagitMm, olcuAnahtari, sayfala, sigdir, SIGDIRMA_DENEME, toplamPuan, varsayilanGruplar,
+  BASARI_ESIGI, BOS_SUZGEC, basariOrani, etkinSayisi, rastgeleSec, sekilliMi, sirala, suz, uniteyiDegistir,
+  type Basari, type Kullanim, type Secim, type Siralama, type Suzgec, type Var,
+} from "../lib/soru-secimi";
+import {
+  GRUP_ADLARI, SIK_HARFLERI, cevapYazisi, grupKagidi, kagitMm, olcuAnahtari, sayfala, sigdir, SIGDIRMA_DENEME, SINAV_OGE_EN_COK, toplamPuan, varsayilanGruplar,
   type GrupAyari, type GrupOgesi, type GrupSorusu, type HavuzOzeti, type SinavAyari, type SinavBelgesi, type SinavOgesi, type SinavSorusu,
 } from "../../shared/sinav";
 
@@ -355,55 +359,301 @@ function yazdir(kok: HTMLElement | null, ayar: SinavAyari, ad: string) {
 }
 
 // ---- Soru seçici ----
-function SoruSecici({ sorular, ogeler, ekle, cikar }: {
-  sorular: SinavSorusu[]; ogeler: SinavOgesi[]; ekle: (q: SinavSorusu) => void; cikar: (soruId: string) => void;
+// Sorular ünite ünite listelenir; ünite satırındaki kutu ünitenin görünen sorularının hepsini
+// ekler ya da çıkarır. Süzgeçler sınav başına bu tarayıcıda hatırlanır.
+
+const buyukHarfle = (s: string) => s.charAt(0).toLocaleUpperCase("tr-TR") + s.slice(1);
+const SUZGEC_ANAHTARI = (id: string) => `sinav-suzgec:${id}`;
+function suzgecOku(id: string): Suzgec {
+  try {
+    const v = localStorage.getItem(SUZGEC_ANAHTARI(id));
+    return v ? { ...BOS_SUZGEC, ...(JSON.parse(v) as Partial<Suzgec>) } : BOS_SUZGEC;
+  } catch {
+    return BOS_SUZGEC;
+  }
+}
+
+const BASARI_ADI: Record<Exclude<Basari, "">, string> = { kolay: "Kolay (%70 ve üstü)", orta: "Orta", zor: "Zor (%40'ın altı)", veriyok: `Veri az (${BASARI_ESIGI} kişiden az)` };
+const SIRALAMA_ADI: Record<Siralama, string> = { unite: "Konu sırası", zorluk: "Zorluk", basari: "Öğrenci başarısı (zordan)", uzunluk: "Uzunluk (kısadan)", rastgele: "Rastgele" };
+
+// Üç durumlu onay kutusu: hiçbiri, bir kısmı, hepsi
+function UcluKutu({ durum, onDegis, etiket }: { durum: "yok" | "kismen" | "hepsi"; onDegis: (sec: boolean) => void; etiket: string }) {
+  const r = useRef<HTMLInputElement>(null);
+  useEffect(() => {
+    if (r.current) r.current.indeterminate = durum === "kismen";
+  }, [durum]);
+  return <input ref={r} type="checkbox" checked={durum === "hepsi"} aria-label={etiket} title={etiket} onChange={() => onDegis(durum !== "hepsi")} />;
+}
+
+function SoruSecici({ sinavId, sorular, ogeler, ekle, cikar, ogeleriDegistir, ortakMetin }: {
+  sinavId: string; sorular: SinavSorusu[]; ogeler: SinavOgesi[];
+  ekle: (l: SinavSorusu[]) => void; cikar: (soruIdler: string[]) => void;
+  ogeleriDegistir: (f: (l: SinavOgesi[]) => SinavOgesi[]) => void; ortakMetin: (metin: string) => void;
 }) {
-  const [unite, setUnite] = useState(0);
-  const [tur, setTur] = useState("");
-  const [ara, setAra] = useState("");
+  const [s, setS] = useState<Suzgec>(() => suzgecOku(sinavId));
+  const [suzgecAcik, setSuzgecAcik] = useState(false);
+  const [acik, setAcik] = useState<Map<number, boolean>>(new Map());
+  const [hedef, setHedef] = useState<Record<number, number>>({});
+  const [bilgi, setBilgi] = useState<string | null>(null);
+  useEffect(() => {
+    try {
+      localStorage.setItem(SUZGEC_ANAHTARI(sinavId), JSON.stringify(s));
+    } catch {
+      // depolama kapalı
+    }
+  }, [s, sinavId]);
+  const degis = (ek: Partial<Suzgec>) => setS((x) => ({ ...x, ...ek }));
+
   const secili = new Set(ogeler.flatMap((o) => (o.tur === "soru" ? [o.soruId] : [])));
-  const ara2 = ara.trim().toLocaleLowerCase("tr-TR");
-  const liste = sorular.filter((q) =>
-    (!unite || q.week === unite) && (!tur || q.type === tur) && (!ara2 || q.prompt.toLocaleLowerCase("tr-TR").includes(ara2)),
-  );
+  const soruMap = useMemo(() => new Map(sorular.map((q) => [q.id, q])), [sorular]);
+  const liste = sirala(suz(sorular, s, secili), s.siralama);
+  const etkin = etkinSayisi(s);
   const turler = [...new Set(sorular.map((q) => q.type))];
+  const konular = [...new Map(sorular.map((q) => [q.topicId, q.konu ?? q.topicId])).entries()];
+  const kavramlar = [...new Set(sorular.flatMap((q) => (q.kavram && (!s.uniteler.length || s.uniteler.includes(q.week)) ? [q.kavram] : [])))];
+  const kavramAdi = (k: string) => PRATIK.kavramlar[k]?.ad ?? k;
+  const uniteler = PRATIK.uniteler.filter((u) => liste.some((q) => q.week === u.no));
+  const durum = (l: SinavSorusu[]) => {
+    const n = l.filter((q) => secili.has(q.id)).length;
+    return n === 0 ? "yok" : n === l.length ? "hepsi" : "kismen";
+  };
+  const topluSec = (l: SinavSorusu[], sec: boolean) => (sec ? ekle(l.filter((q) => !secili.has(q.id))) : cikar(l.filter((q) => secili.has(q.id)).map((q) => q.id)));
+  const rastgeleEkle = (u: number, n: number) => {
+    // Ünite süzgeci burada sayılmaz: hangi üniteden seçileceğini kişi zaten yazdı
+    const l = rastgeleSec(suz(sorular, { ...s, uniteler: [], secim: "" }, secili).filter((q) => q.week === u && !secili.has(q.id)), n);
+    ekle(l);
+    return l.length;
+  };
+  const uniteAcik = (u: number) => acik.get(u) ?? (etkin > 0 || uniteler.length === 1);
+  const seciliSayisi = (u: number) => sorular.filter((q) => q.week === u && secili.has(q.id)).length;
+
+  // Etkin süzgeçlerin çipleri
+  const cipler: { ad: string; kaldir: () => void }[] = [
+    ...s.uniteler.map((u) => ({ ad: uniteYazi(u), kaldir: () => degis({ uniteler: s.uniteler.filter((x) => x !== u) }) })),
+    ...(s.konu ? [{ ad: `Konu: ${konular.find(([k]) => k === s.konu)?.[1] ?? s.konu}`, kaldir: () => degis({ konu: "" }) }] : []),
+    ...(s.kavram ? [{ ad: `Kavram: ${kavramAdi(s.kavram)}`, kaldir: () => degis({ kavram: "" }) }] : []),
+    ...s.turler.map((t) => ({ ad: TUR_ADI[t] ?? t, kaldir: () => degis({ turler: s.turler.filter((x) => x !== t) }) })),
+    ...(s.zorMin > 1 || s.zorMax < 5 ? [{ ad: `Zorluk ${s.zorMin}-${s.zorMax}`, kaldir: () => degis({ zorMin: 1, zorMax: 5 }) }] : []),
+    ...(s.etiket ? [{ ad: PRATIK.etiketler.find((e) => e.id === s.etiket)?.ad ?? s.etiket, kaldir: () => degis({ etiket: "" }) }] : []),
+    ...(s.sekil ? [{ ad: s.sekil === "var" ? "Şekilli" : "Şekilsiz", kaldir: () => degis({ sekil: "" }) }] : []),
+    ...(s.formul ? [{ ad: s.formul === "var" ? "Formüllü" : "Formülsüz", kaldir: () => degis({ formul: "" }) }] : []),
+    ...(s.secim ? [{ ad: s.secim === "secili" ? "Kağıttakiler" : "Kağıtta olmayanlar", kaldir: () => degis({ secim: "" }) }] : []),
+    ...(s.kullanim ? [{ ad: s.kullanim === "kullanilmis" ? "Önceki sınavlarımda var" : "Önceki sınavlarımda yok", kaldir: () => degis({ kullanim: "" }) }] : []),
+    ...(s.basari ? [{ ad: BASARI_ADI[s.basari], kaldir: () => degis({ basari: "" }) }] : []),
+  ];
+
+  const satir = (q: SinavSorusu) => {
+    const var_ = secili.has(q.id);
+    const oran = basariOrani(q);
+    const baska = (q.kullanim ?? 0) - (var_ ? 1 : 0);
+    return (
+      <li key={q.id} className={var_ ? "secili" : undefined}>
+        <button className="soru-secici-dugme" onClick={() => (var_ ? cikar([q.id]) : ekle([q]))} aria-pressed={var_} title={var_ ? "Kağıttan çıkar" : "Kağıda ekle"}>
+          {var_ ? "✓" : "+"}
+        </button>
+        <div>
+          <span className="soru-secici-meta">
+            {q.kavram ? kavramAdi(q.kavram) : q.konu} · {TUR_ADI[q.type] ?? q.type} · zorluk {q.difficulty}
+            {oran !== null && <> · <span title={`${q.basari!.kisi} kişinin ilk denemesi`}>%{Math.round(oran * 100)} doğru</span></>}
+            {sekilliMi(q) && " · şekilli"}
+            {baska > 0 && <span className="tag" title="Önceki sınavlarında kullandın">{baska} sınavda</span>}
+          </span>
+          <span className="soru-secici-metin">{duzMetin(q.prompt).slice(0, 220)}</span>
+        </div>
+      </li>
+    );
+  };
+
   return (
     <div className="soru-secici">
       <div className="soru-secici-filtre">
-        <select value={unite} onChange={(e) => setUnite(Number(e.target.value))} aria-label="Ünite">
-          <option value={0}>Bütün {PRATIK.uniteAdi}ler</option>
-          {PRATIK.uniteler.map((u) => <option key={u.no} value={u.no}>{uniteYazi(u.no)}: {u.baslik}</option>)}
+        <input type="search" value={s.ara} onChange={(e) => degis({ ara: e.target.value })} placeholder='Soruda, şıklarda ara ("tam ifade")' aria-label="Soru ara" />
+        <button type="button" onClick={() => setSuzgecAcik(!suzgecAcik)} aria-expanded={suzgecAcik} className={etkin > 0 ? "etkin" : undefined}>
+          Süzgeçler{etkin > 0 ? ` (${etkin})` : ""}
+        </button>
+        <select value={s.siralama} onChange={(e) => degis({ siralama: e.target.value as Siralama })} aria-label="Sıralama">
+          {(Object.keys(SIRALAMA_ADI) as Siralama[]).map((k) => <option key={k} value={k}>{SIRALAMA_ADI[k]}</option>)}
         </select>
-        <select value={tur} onChange={(e) => setTur(e.target.value)} aria-label="Soru türü">
-          <option value="">Bütün türler</option>
-          {turler.map((t) => <option key={t} value={t}>{TUR_ADI[t] ?? t}</option>)}
-        </select>
-        <input type="search" value={ara} onChange={(e) => setAra(e.target.value)} placeholder="Soruda ara" />
       </div>
+      {suzgecAcik && (
+        <div className="soru-secici-suzgec">
+          <fieldset className="suzgec-tam">
+            <legend>{buyukHarfle(PRATIK.uniteAdi)}</legend>
+            <div className="suzgec-cipler">
+              {PRATIK.uniteler.map((u) => (
+                <label key={u.no} className={s.uniteler.includes(u.no) ? "secik" : undefined} title={u.baslik}>
+                  <input type="checkbox" checked={s.uniteler.includes(u.no)}
+                    onChange={(e) => degis({ uniteler: e.target.checked ? [...s.uniteler, u.no].sort((a, b) => a - b) : s.uniteler.filter((x) => x !== u.no), kavram: "" })} />
+                  {u.no}
+                </label>
+              ))}
+            </div>
+          </fieldset>
+          <fieldset className="suzgec-tam">
+            <legend>Soru türü</legend>
+            <div className="suzgec-cipler">
+              {turler.map((t) => (
+                <label key={t} className={s.turler.includes(t) ? "secik" : undefined}>
+                  <input type="checkbox" checked={s.turler.includes(t)} onChange={(e) => degis({ turler: e.target.checked ? [...s.turler, t] : s.turler.filter((x) => x !== t) })} />
+                  {TUR_ADI[t] ?? t}
+                </label>
+              ))}
+            </div>
+          </fieldset>
+          {konular.length > 1 && (
+            <label>Konu
+              <select value={s.konu} onChange={(e) => degis({ konu: e.target.value })}>
+                <option value="">Hepsi</option>
+                {konular.map(([k, ad]) => <option key={k} value={k}>{ad}</option>)}
+              </select>
+            </label>
+          )}
+          {kavramlar.length > 0 && (
+            <label>Kavram
+              <select value={s.kavram} onChange={(e) => degis({ kavram: e.target.value })}>
+                <option value="">Hepsi</option>
+                {kavramlar.map((k) => <option key={k} value={k}>{kavramAdi(k)}</option>)}
+              </select>
+            </label>
+          )}
+          <label>Zorluk
+            <span className="ayar-satir-ic">
+              <select value={s.zorMin} onChange={(e) => degis({ zorMin: Number(e.target.value), zorMax: Math.max(Number(e.target.value), s.zorMax) })} aria-label="En az zorluk">
+                {[1, 2, 3, 4, 5].map((n) => <option key={n} value={n}>{n}</option>)}
+              </select>
+              –
+              <select value={s.zorMax} onChange={(e) => degis({ zorMax: Number(e.target.value), zorMin: Math.min(Number(e.target.value), s.zorMin) })} aria-label="En çok zorluk">
+                {[1, 2, 3, 4, 5].map((n) => <option key={n} value={n}>{n}</option>)}
+              </select>
+            </span>
+          </label>
+          {PRATIK.etiketler.length > 1 && (
+            <label>Kaynak
+              <select value={s.etiket} onChange={(e) => degis({ etiket: e.target.value })}>
+                <option value="">Hepsi</option>
+                {PRATIK.etiketler.map((e) => <option key={e.id} value={e.id}>{e.ad}</option>)}
+              </select>
+            </label>
+          )}
+          <label>Öğrenci başarısı
+            <select value={s.basari} onChange={(e) => degis({ basari: e.target.value as Basari })}>
+              <option value="">Hepsi</option>
+              {(Object.keys(BASARI_ADI) as Exclude<Basari, "">[]).map((k) => <option key={k} value={k}>{BASARI_ADI[k]}</option>)}
+            </select>
+          </label>
+          <label>Önceki sınavlarım
+            <select value={s.kullanim} onChange={(e) => degis({ kullanim: e.target.value as Kullanim })}>
+              <option value="">Hepsi</option>
+              <option value="kullanilmamis">Hiç kullanmadıklarım</option>
+              <option value="kullanilmis">Kullandıklarım</option>
+            </select>
+          </label>
+          <label>Kağıtta
+            <select value={s.secim} onChange={(e) => degis({ secim: e.target.value as Secim })}>
+              <option value="">Hepsi</option>
+              <option value="secilmemis">Olmayanlar</option>
+              <option value="secili">Olanlar</option>
+            </select>
+          </label>
+          <label>Şekil
+            <select value={s.sekil} onChange={(e) => degis({ sekil: e.target.value as Var })}>
+              <option value="">Hepsi</option><option value="var">Şekilli</option><option value="yok">Şekilsiz</option>
+            </select>
+          </label>
+          <label>Formül
+            <select value={s.formul} onChange={(e) => degis({ formul: e.target.value as Var })}>
+              <option value="">Hepsi</option><option value="var">Formüllü</option><option value="yok">Formülsüz</option>
+            </select>
+          </label>
+          <button type="button" className="suzgec-tam" onClick={() => setS({ ...BOS_SUZGEC, siralama: s.siralama })} disabled={etkin === 0}>Süzgeçleri temizle</button>
+        </div>
+      )}
+      {cipler.length > 0 && (
+        <div className="suzgec-etkin">
+          {cipler.map((c) => <button key={c.ad} type="button" className="suzgec-cip" onClick={c.kaldir} title="Süzgeci kaldır">{c.ad} ✕</button>)}
+        </div>
+      )}
       <div className="soru-secici-ozet">
-        {liste.length} soru · {secili.size} seçili
-        {liste.length > 0 && (
-          <button onClick={() => liste.filter((q) => !secili.has(q.id)).forEach(ekle)} disabled={liste.every((q) => secili.has(q.id))}>
-            Görünenlerin hepsini ekle
-          </button>
-        )}
+        <span>{liste.length} soru görünüyor · {secili.size} seçili</span>
+        <span className="soru-secici-toplu">
+          <button type="button" onClick={() => topluSec(liste, true)} disabled={liste.every((q) => secili.has(q.id))}>Görünenlerin tümünü seç</button>
+          <button type="button" onClick={() => topluSec(liste, false)} disabled={!liste.some((q) => secili.has(q.id))}>Tümünü kaldır</button>
+          <button type="button" onClick={() => confirm("Kağıttaki bütün sorular ve ortak metinler çıkarılsın mı?") && ogeleriDegistir(() => [])} disabled={ogeler.length === 0}>Kağıdı temizle</button>
+        </span>
       </div>
+      <details className="unite-hedef">
+        <summary>{buyukHarfle(PRATIK.uniteAdi)} başına rastgele soru seç</summary>
+        <p className="soluk">Her {PRATIK.uniteAdi.toLocaleLowerCase("tr-TR")}den kaç soru istediğini yaz. Kağıtta olmayan ve süzgeçlere (tür, zorluk, kaynak...) uyan sorulardan, kavramlara dağıtılarak seçilir.</p>
+        <div className="unite-hedef-liste">
+          {PRATIK.uniteler.map((u) => (
+            <label key={u.no} title={u.baslik}>
+              <span>{uniteYazi(u.no)}</span>
+              <input type="number" min={0} max={100} value={hedef[u.no] ?? ""} placeholder="0"
+                onChange={(e) => setHedef({ ...hedef, [u.no]: Math.max(0, Math.min(100, Number(e.target.value) || 0)) })} />
+            </label>
+          ))}
+        </div>
+        <button type="button" className="primary" disabled={!Object.values(hedef).some((n) => n > 0)} onClick={() => {
+          let toplam = 0;
+          for (const [u, n] of Object.entries(hedef)) if (n > 0) toplam += rastgeleEkle(Number(u), n);
+          setBilgi(toplam ? `${toplam} soru eklendi.` : "Süzgece uyan ve kağıtta olmayan soru kalmadı.");
+          setHedef({});
+        }}>Seç ve kağıda ekle</button>
+      </details>
+      {bilgi && <p className="soru-secici-bilgi" role="status" onClick={() => setBilgi(null)}>{bilgi}</p>}
       <ul className="soru-secici-liste">
-        {liste.map((q) => {
-          const var_ = secili.has(q.id);
+        {uniteler.map((u) => {
+          const ul = liste.filter((q) => q.week === u.no);
+          const ac = uniteAcik(u.no);
+          // Konu sırasında kavram başlıklarıyla, başka sıralamada düz liste
+          const parcalar = s.siralama === "unite"
+            ? [...new Map(ul.map((q) => [q.kavram ?? q.konu ?? "", ul.filter((x) => (x.kavram ?? x.konu ?? "") === (q.kavram ?? q.konu ?? ""))])).entries()]
+            : [["", ul] as const];
           return (
-            <li key={q.id} className={var_ ? "secili" : undefined}>
-              <button className="soru-secici-dugme" onClick={() => (var_ ? cikar(q.id) : ekle(q))} aria-pressed={var_}
-                title={var_ ? "Kağıttan çıkar" : "Kağıda ekle"}>
-                {var_ ? "✓" : "+"}
-              </button>
-              <div>
-                <span className="soru-secici-meta">{uniteYazi(q.week)} · {TUR_ADI[q.type] ?? q.type} · zorluk {q.difficulty}</span>
-                <span className="soru-secici-metin">{duzMetin(q.prompt).slice(0, 220)}</span>
+            <li key={u.no} className="unite-grubu">
+              <div className="unite-satiri">
+                <button type="button" className="unite-ac" aria-expanded={ac} onClick={() => setAcik(new Map(acik).set(u.no, !ac))} aria-label={ac ? "Kapat" : "Aç"}>{ac ? "▾" : "▸"}</button>
+                <UcluKutu durum={durum(ul)} onDegis={(sec) => topluSec(ul, sec)} etiket={`${uniteYazi(u.no)}: görünen soruların hepsini seç ya da kaldır`} />
+                <button type="button" className="unite-ad" onClick={() => setAcik(new Map(acik).set(u.no, !ac))}>
+                  <strong>{uniteYazi(u.no)}</strong> {u.baslik}
+                  <span className="soluk"> {ul.length} soru · {seciliSayisi(u.no)} seçili</span>
+                </button>
+                <details className="unite-menu">
+                  <summary aria-label={`${uniteYazi(u.no)} işlemleri`} title="İşlemler">⋯</summary>
+                  <div className="unite-menu-liste" onClick={(e) => { (e.currentTarget.parentElement as HTMLDetailsElement).open = false; }}>
+                    <button type="button" onClick={() => topluSec(ul, true)}>Görünen sorularını ekle</button>
+                    <button type="button" onClick={() => cikar(sorular.filter((q) => q.week === u.no && secili.has(q.id)).map((q) => q.id))} disabled={seciliSayisi(u.no) === 0}>Bütün sorularını kağıttan çıkar</button>
+                    <button type="button" onClick={() => setBilgi(`${uniteYazi(u.no)}: ${rastgeleEkle(u.no, 5)} soru eklendi.`)}>Rastgele 5 soru ekle</button>
+                    <button type="button" disabled={seciliSayisi(u.no) === 0} onClick={() => {
+                      const r = uniteyiDegistir(ogeler, soruMap, u.no);
+                      if (r.degisen) ogeleriDegistir(() => r.ogeler);
+                      setBilgi(r.degisen
+                        ? `${uniteYazi(u.no)}: ${r.degisen} soru aynı kavramdan başka sorularla değişti.`
+                        : `${uniteYazi(u.no)}: yerine konacak başka soru bulunamadı.`);
+                    }}>Kağıttaki sorularını değiştir</button>
+                    <button type="button" onClick={() => ortakMetin(`**${uniteYazi(u.no)}: ${u.baslik}**`)}>Kağıda başlığını ekle</button>
+                  </div>
+                </details>
               </div>
+              {ac && (
+                <ul>
+                  {parcalar.map(([k, l]) => (
+                    <Fragment key={k}>
+                      {k && parcalar.length > 1 && (
+                        <li className="kavram-satiri">
+                          <UcluKutu durum={durum([...l])} onDegis={(sec) => topluSec([...l], sec)} etiket={`${kavramAdi(k)}: hepsini seç ya da kaldır`} />
+                          {kavramAdi(k)}
+                        </li>
+                      )}
+                      {l.map(satir)}
+                    </Fragment>
+                  ))}
+                </ul>
+              )}
             </li>
           );
         })}
+        {liste.length === 0 && <li className="soluk">Süzgece uyan soru yok.</li>}
       </ul>
     </div>
   );
@@ -708,8 +958,19 @@ export function SinavKagidi({ id }: { id: string }) {
   const guncelle = (f: (b: SinavBelgesi) => SinavBelgesi) => setBelge((b) => (b ? f(b) : b));
   const ayarDegistir = (a: Partial<SinavAyari>) => guncelle((b) => ({ ...b, ayar: { ...b.ayar, ...a } }));
   const degistir: Degistir = (oid, f) => guncelle((b) => ({ ...b, ogeler: b.ogeler.map((o) => (o.id === oid ? f(o) : o)) }));
-  const ekle = (q: SinavSorusu) => guncelle((b) => ({ ...b, ogeler: [...b.ogeler, { tur: "soru", id: yeniKimlik(), soruId: q.id }] }));
-  const cikar = (soruId: string) => guncelle((b) => ({ ...b, ogeler: b.ogeler.filter((o) => o.tur !== "soru" || o.soruId !== soruId) }));
+  const ekle = (l: SinavSorusu[]) => {
+    if (!l.length) return;
+    guncelle((b) => {
+      const var_ = new Set(b.ogeler.flatMap((o) => (o.tur === "soru" ? [o.soruId] : [])));
+      const yeni = l.filter((q) => !var_.has(q.id)).slice(0, Math.max(0, SINAV_OGE_EN_COK - b.ogeler.length));
+      return { ...b, ogeler: [...b.ogeler, ...yeni.map((q) => ({ tur: "soru" as const, id: yeniKimlik(), soruId: q.id }))] };
+    });
+  };
+  const cikar = (soruIdler: string[]) => {
+    const c = new Set(soruIdler);
+    if (c.size) guncelle((b) => ({ ...b, ogeler: b.ogeler.filter((o) => o.tur !== "soru" || !c.has(o.soruId)) }));
+  };
+  const ogeleriDegistir = (f: (l: SinavOgesi[]) => SinavOgesi[]) => guncelle((b) => ({ ...b, ogeler: f(b.ogeler) }));
   const tasi = (oid: string, yon: -1 | 1) => guncelle((b) => {
     const i = b.ogeler.findIndex((o) => o.id === oid);
     const j = i + yon;
@@ -719,7 +980,7 @@ export function SinavKagidi({ id }: { id: string }) {
     return { ...b, ogeler: l };
   });
   const sil = (oid: string) => guncelle((b) => ({ ...b, ogeler: b.ogeler.filter((o) => o.id !== oid) }));
-  const ortakMetin = () => guncelle((b) => ({ ...b, ogeler: [...b.ogeler, { tur: "metin", id: yeniKimlik(), metin: "" }] }));
+  const ortakMetin = (metin = "") => guncelle((b) => ({ ...b, ogeler: [...b.ogeler, { tur: "metin", id: yeniKimlik(), metin }] }));
   const puanDagit = () => guncelle((b) => {
     const n = b.ogeler.filter((o) => o.tur === "soru").length;
     if (!n) return b;
@@ -810,8 +1071,8 @@ export function SinavKagidi({ id }: { id: string }) {
           </div>
           {sekme === "sorular" ? (
             <>
-              <SoruSecici sorular={sorular} ogeler={belge.ogeler} ekle={ekle} cikar={cikar} />
-              <button className="ortak-metin-dugme" onClick={ortakMetin}>+ Ortak metin ya da yönerge ekle</button>
+              <SoruSecici sinavId={id} sorular={sorular} ogeler={belge.ogeler} ekle={ekle} cikar={cikar} ogeleriDegistir={ogeleriDegistir} ortakMetin={ortakMetin} />
+              <button className="ortak-metin-dugme" onClick={() => ortakMetin()}>+ Ortak metin ya da yönerge ekle</button>
             </>
           ) : sekme === "kagit" ? (
             <KagitAyarlari ayar={belge.ayar} degistir={ayarDegistir} puanDagit={puanDagit} />
