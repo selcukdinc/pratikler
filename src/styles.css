@@ -1793,6 +1793,11 @@ polygon.g-ok-7 { fill: var(--ok-7); stroke: none; }
 .sinav-gorunum { flex: none; display: flex; flex-wrap: wrap; align-items: center; gap: 4px; padding: 5px 8px; border-bottom: 1px solid var(--border); background: var(--panel); }
 .sinav-gorunum button[aria-selected="true"] { background: var(--active); border-color: var(--btn-primary-border); font-weight: 600; }
 .sinav-gorunum .soluk { font-size: 12px; margin-left: 6px; }
+.sinav-gorunum .grup-sayfa { font-weight: 400; color: var(--muted); }
+.sinav-gorunum .grup-tasti .grup-sayfa { color: var(--red, #b3261e); font-weight: 600; }
+.sinav-uyari { flex: none; padding: 6px 10px; background: color-mix(in srgb, #f6c27a 30%, var(--panel)); border-bottom: 1px solid var(--border); font-size: 13px; }
+.sinav-uyari p { margin: 2px 0; display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.sinav-uyari button { padding: 1px 8px; font-size: 12px; }
 .ayar-aciklama { margin: -2px 0 4px 22px; font-size: 12px; }
 .ayar-uyari { margin: 0; font-size: 12px; color: var(--warning); }
 .kagit-baslik { position: relative; }
