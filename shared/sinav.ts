@@ -41,7 +41,11 @@ export interface SinavAyari {
   yonerge: string;
   // Sayfanın altında ortada sayfa numarası, her grupta 1'den (önizleme, PDF ve Word'de aynı); varsayılan yok
   sayfaNo?: boolean;
+  // Başlık stili: "kutulu" (çerçeveli, ortalanmış) ya da "sade" (çerçevesiz, sıkışık, 3 satır).
+  // Yazılmamışsa kutulu (bu ayardan önceki sınavlar).
+  baslik?: BaslikStili;
 }
+export type BaslikStili = "kutulu" | "sade";
 
 export type SinavOgesi =
   | {
@@ -149,6 +153,8 @@ export function varsayilanAyar(onceki?: Partial<SinavAyari>): SinavAyari {
     puanGoster: true,
     yonerge: "Süreniz bitmeden cevaplarınızı kontrol ediniz. Başarılar dilerim.",
     sayfaNo: false,
+    // İlk sınav sade başlıkla açılır; sonrakiler kişinin son kullandığı stili alır
+    baslik: "sade",
     // Önceki sınavdan yalnızca kişiye ait başlık bilgileri ve kağıt düzeni gelir
     ...(onceki
       ? {
@@ -157,6 +163,7 @@ export function varsayilanAyar(onceki?: Partial<SinavAyari>): SinavAyari {
           fakulte: onceki.fakulte ?? "", ders: onceki.ders ?? "", sure: onceki.sure ?? 0,
           adSoyad: onceki.adSoyad ?? true, numara: onceki.numara ?? true, imza: onceki.imza ?? false,
           puanGoster: onceki.puanGoster ?? true, yonerge: onceki.yonerge ?? "", sayfaNo: onceki.sayfaNo ?? false,
+          baslik: onceki.baslik ?? "kutulu",
         }
       : {}),
   };
@@ -179,6 +186,7 @@ export function sinavBelgesiHatasi(b: unknown): string | null {
   for (const k of ["universite", "fakulte", "ders", "sinavAdi", "tarih"] as const) if (!metinMi(ayar[k], 200)) return "Başlık bilgileri en fazla 200 karakter olabilir.";
   if (!metinMi(ayar.yonerge, 2000)) return "Yönerge en fazla 2000 karakter olabilir.";
   if (ayar.sayfaNo !== undefined && typeof ayar.sayfaNo !== "boolean") return "Sayfa numarası ayarı geçersiz.";
+  if (ayar.baslik !== undefined && ayar.baslik !== "kutulu" && ayar.baslik !== "sade") return "Başlık stili geçersiz.";
   if (!(Number.isInteger(ayar.sure) && ayar.sure >= 0 && ayar.sure <= 600)) return "Süre 0 ile 600 dakika arasında olmalı.";
   const g = (b as Partial<SinavBelgesi>).gruplar;
   if (g !== undefined) {

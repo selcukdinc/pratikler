@@ -40,6 +40,13 @@ describe("sınav belgesi", () => {
     expect(a.tarih).toBe("");
     expect(a.sinavAdi).toBe("");
   });
+  it("başlık stili: ilk sınav sade, sonra son kullanılan; eski sınav (ayar yok) kutulu sayılır", () => {
+    expect(varsayilanAyar().baslik).toBe("sade");
+    expect(varsayilanAyar({ baslik: "sade" }).baslik).toBe("sade");
+    expect(varsayilanAyar({ universite: "İKÇÜ" }).baslik).toBe("kutulu");
+    const b = belge();
+    expect(sinavBelgesiHatasi({ ...b, ayar: { ...b.ayar, baslik: "süslü" } })).toMatch(/Başlık stili/);
+  });
   it("A3 yatay kağıt boyutu", () => {
     expect(kagitMm({ boyut: "A3", yon: "yatay" })).toEqual({ en: 420, boy: 297 });
   });
