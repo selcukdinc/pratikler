@@ -1,6 +1,7 @@
 import { execSync } from "node:child_process";
 import { describe, expect, it } from "vitest";
 import { YENILIKLER } from "./yenilikler";
+import { gorulmemisSayisi, gorunurYenilikler } from "./lib/yenilik";
 
 // Her PR yenilikler.ts'in en üstüne bir kayıt ekler. Bu test kayıtların
 // sırasını ve biçimini korur.
@@ -23,8 +24,38 @@ describe("yenilikler", () => {
     for (const y of YENILIKLER) {
       expect(y.baslik.trim(), `#${y.pr}`).not.toBe("");
       expect(y.maddeler.length, `#${y.pr}`).toBeGreaterThan(0);
-      for (const m of y.maddeler) expect(m.trim(), `#${y.pr}`).not.toBe("");
+      for (const m of y.maddeler) expect((typeof m === "string" ? m : m.metin).trim(), `#${y.pr}`).not.toBe("");
     }
+  });
+
+  it("kitleler geçerli; maddeye ayrıca yazılan kitle kaydınkinden geniş değil", () => {
+    const sira = { herkes: 0, akademisyen: 1, yonetici: 2 } as const;
+    for (const y of YENILIKLER) {
+      const k = y.kitle ?? "herkes";
+      expect(Object.keys(sira), `#${y.pr}`).toContain(k);
+      for (const m of y.maddeler) {
+        if (typeof m === "string") continue;
+        expect(Object.keys(sira), `#${y.pr}`).toContain(m.kitle);
+        expect(sira[m.kitle], `#${y.pr}: madde kaydın kitlesinden daha geniş`).toBeGreaterThanOrEqual(sira[k]);
+      }
+    }
+  });
+
+  it("yönetim paneli, Claude ve yerel ajan maddeleri herkese görünmez", () => {
+    const herkes = gorunurYenilikler(null).flatMap((y) => y.maddeler.map((m) => m.metin));
+    for (const m of herkes) expect(m, m.slice(0, 80)).not.toMatch(/Claude|yerel ajan|Yönetim panelinin|Ajan /);
+  });
+
+  it("rol bazında görünürlük", () => {
+    const sayi = (rol: string | null) => gorunurYenilikler(rol).reduce((t, y) => t + y.maddeler.length, 0);
+    expect(sayi(null)).toBeLessThan(sayi("akademisyen"));
+    expect(sayi("akademisyen")).toBeLessThan(sayi("admin"));
+    expect(sayi("admin")).toBe(YENILIKLER.reduce((t, y) => t + y.maddeler.length, 0));
+    expect(sayi("user")).toBe(sayi(null));
+    // Görünür maddesi kalmayan kayıt listeye girmez
+    expect(gorunurYenilikler(null).every((y) => y.maddeler.length > 0)).toBe(true);
+    expect(gorunurYenilikler(null).some((y) => y.pr === 17)).toBe(false);
+    expect(gorulmemisSayisi(0, null)).toBe(gorunurYenilikler(null).length);
   });
 });
 

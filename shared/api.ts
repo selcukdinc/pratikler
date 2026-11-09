@@ -30,6 +30,8 @@ export interface Me {
   epostaAcik?: boolean;
   // Akademisyenin sorumlu olduğu pratikler (yönetici atar); başkalarında boş
   alanlar: string[];
+  // Yenilikler sayfasında en son görülen kayıt (PR numarası); bütün pratiklerde ortak
+  yenilikGoruldu?: number | null;
 }
 
 export interface Topic {

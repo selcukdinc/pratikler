@@ -117,6 +117,7 @@ export const api = {
     hesabiSil: (parola: string) => post<{ ok: true }>("/hesap/ayarlar/hesabi-sil", { parola }),
     gorunum: (yaziOlcek: number | null) => post<Me>("/hesap/ayarlar/gorunum", { yaziOlcek }, "PUT"),
     gunlukTekrar: (gunlukTekrar: number | null) => post<Me>("/hesap/ayarlar/gunluk-tekrar", { gunlukTekrar }, "PUT"),
+    yenilik: (pr: number) => post<{ yenilikGoruldu: number }>("/hesap/ayarlar/yenilik", { pr }, "PUT"),
     duzenler: (alan: DuzenAlaniAdi = "matstudio") => get<KayitliDuzen[]>(`/hesap/ayarlar/duzenler?alan=${alan}`),
     duzenleriKaydet: (duzenler: KayitliDuzen[], alan: DuzenAlaniAdi = "matstudio") =>
       post<KayitliDuzen[]>(`/hesap/ayarlar/duzenler?alan=${alan}`, { duzenler }, "PUT"),

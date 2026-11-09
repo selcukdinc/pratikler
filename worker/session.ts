@@ -49,7 +49,7 @@ function randomToken(): string {
 
 const ME_SQL = `SELECT u.id, u.kind, u.display_name, u.username, u.email, u.avatar, u.avatar_bg, u.role,
                        u.public_profile, u.username_changed_at, u.notify_email, u.muted_until, u.gunluk_hedef, u.gunluk_hedefler,
-                       u.yazi_olcek, u.gunluk_tekrar,
+                       u.yazi_olcek, u.gunluk_tekrar, u.yenilik_goruldu,
                        (SELECT group_concat(practice_id) FROM akademisyen_alanlari aa WHERE aa.user_id = u.id) AS alanlar
                 FROM users u`;
 
@@ -58,7 +58,7 @@ type MeRow = {
   email: string | null; avatar: string | null; avatar_bg: string | null; role: string;
   public_profile: number; username_changed_at: number | null; notify_email: number; muted_until: number | null;
   gunluk_hedef: number; gunluk_hedefler: string | null; yazi_olcek: number | null; gunluk_tekrar: number | null;
-  alanlar: string | null;
+  alanlar: string | null; yenilik_goruldu: number | null;
 };
 
 // Günlük hedef pratik başınadır: gunluk_hedefler {"<pratik>": n}; bir pratikte
@@ -90,6 +90,7 @@ const meFromRow = (r: MeRow, pratik?: string | null): Me => ({
   yaziOlcek: r.yazi_olcek,
   gunlukTekrar: r.gunluk_tekrar,
   alanlar: r.alanlar ? r.alanlar.split(",").sort() : [],
+  yenilikGoruldu: r.yenilik_goruldu,
 });
 
 export async function loadUser(db: D1Database, id: string, pratik?: string | null): Promise<Me | null> {

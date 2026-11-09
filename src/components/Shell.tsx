@@ -13,7 +13,7 @@ import { Avatar } from "./Avatar";
 import { inline } from "./Markdown";
 import { KutlamaBildirimi } from "./Kutlama";
 import { OlcekDugmeleri } from "./Olcek";
-import { gorulmemisSayisi, useSonGorulen } from "../lib/yenilik";
+import { gorulmemisSayisi, hesapla, useSonGorulen, uyeRolu } from "../lib/yenilik";
 import { GUNLUK_OLAYI, gunlukTekrar } from "../lib/tekrarAyar";
 import { sinavYetkisi, yoneticiMi } from "../lib/yetki";
 
@@ -258,7 +258,9 @@ export function Shell({ route, currentWeek, title, status, duyuru, children }: P
   const [menuAcik, setMenuAcik] = useState(false);
   const { me } = useOturum();
   const [tekrarSayisi, setTekrarSayisi] = useState(0);
-  const yeniSayisi = gorulmemisSayisi(useSonGorulen());
+  const yeniSayisi = gorulmemisSayisi(useSonGorulen(), uyeRolu(me));
+  // Hesaptaki "görülen son yenilik" ile birleştir: başka pratikte okunan burada yeni görünmez
+  useEffect(() => hesapla(me), [me]);
 
   // Bugün tekrar edilecek soru sayısı; sayfa değiştikçe tazelenir
   const [gunlukDegisti, setGunlukDegisti] = useState(0);
