@@ -67,6 +67,8 @@ export interface PanelKullanici {
   createdAt: number;
   deneme: number;
   mutedUntil: number | null;
+  // Akademisyenin alanları (pratik kimlikleri)
+  alanlar: string[];
 }
 
 export interface PanelKayit {

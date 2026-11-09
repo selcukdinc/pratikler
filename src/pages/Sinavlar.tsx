@@ -5,7 +5,9 @@ import { useEffect, useState } from "react";
 import { api } from "../lib/api";
 import { href, navigate, tabanaEkle } from "../lib/router";
 import { useOturum } from "../lib/oturum";
-import { PRATIK } from "../lib/pratik";
+import { PRATIK, pratikBaglantisi } from "../lib/pratik";
+import { alanDisiAkademisyen, sinavYetkisi } from "../lib/yetki";
+import { pratikBul } from "../../icerik/index";
 import { FormHatasi } from "../components/Form";
 import { Iskelet } from "../components/Iskelet";
 import { havuzBaglantisi } from "../lib/havuz";
@@ -13,7 +15,6 @@ import type { HavuzOzeti, SinavOzeti } from "../../shared/sinav";
 
 const tarih = (ms: number) => new Date(ms).toLocaleString("tr-TR", { day: "numeric", month: "long", hour: "2-digit", minute: "2-digit" });
 
-export const sinavYetkisi = (role?: string | null) => role === "admin" || role === "akademisyen";
 
 export function Sinavlar() {
   const { me, yuklendi } = useOturum();
@@ -21,7 +22,7 @@ export function Sinavlar() {
   const [hata, setHata] = useState<string | null>(null);
   const [mesgul, setMesgul] = useState(false);
   const [havuzlar, setHavuzlar] = useState<HavuzOzeti[]>([]);
-  const yetkili = sinavYetkisi(me?.role);
+  const yetkili = sinavYetkisi(me);
 
   const yukle = () => {
     api.havuz.liste().then(setHavuzlar, () => setHavuzlar([]));
@@ -32,6 +33,27 @@ export function Sinavlar() {
   }, [yetkili]);
 
   if (!yuklendi) return <Iskelet />;
+  if (!yetkili && alanDisiAkademisyen(me)) {
+    // Akademisyen ama bu ders alanında değil: alanlarını göster
+    const alanlar = (me?.alanlar ?? []).flatMap((a) => pratikBul(a) ?? []);
+    return (
+      <div className="sinavlar">
+        <h2>Sınav hazırla</h2>
+        <p>
+          {PRATIK.ad} senin alanında değil; burada sınav hazırlayamaz ve soru havuzu açamazsın.
+          Bu dersin alanlarına eklenmesini istiyorsan <a href={tabanaEkle("/mesajlar")}>yöneticiye yaz</a>.
+        </p>
+        {alanlar.length > 0 ? (
+          <>
+            <p>Sınav hazırlayabildiğin dersler:</p>
+            <ul>{alanlar.map((p) => <li key={p.id}><a href={pratikBaglantisi(p, "/sinavlar")}>{p.ad}</a></li>)}</ul>
+          </>
+        ) : (
+          <p className="soluk">Hesabına henüz bir alan atanmamış.</p>
+        )}
+      </div>
+    );
+  }
   if (!yetkili) {
     return (
       <div className="sinavlar">

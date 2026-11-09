@@ -14,6 +14,17 @@ export interface Yenilik {
 
 export const YENILIKLER: Yenilik[] = [
   {
+    pr: 30,
+    tarih: "2026-11-09",
+    baslik: "Akademisyenler kendi derslerinde sınav hazırlıyor; rol çipleri",
+    maddeler: [
+      "Akademisyen hesapları artık yalnızca sorumlu oldukları derslerde sınav hazırlıyor ve öğrencilere soru havuzu açıyor. Alanını yönetici atıyor; daha önce sınav hazırladığın ya da havuz açtığın dersler alanın olarak kendiliğinden atandı.",
+      "Alanındaki bir derste üst çubukta **Akademisyen** çipi görünüyor; tıklayınca Sınavlarım açılıyor. Pratikler ana sayfasında alanındaki derslerin kartında **Alanın** etiketi var.",
+      "Alanın dışındaki bir derste Sınav hazırla sayfası sınav hazırlayabildiğin dersleri listeliyor; yeni bir ders için yöneticiye yazabilirsin. Var olan sınavların silinmiyor, alan geri verilince yeniden açılıyor; öğrencilere verdiğin havuz bağlantıları çalışmaya devam ediyor.",
+      "Yönetici hesabıyla girildiğinde üst çubukta **Yönetici** çipi görünüyor ve yönetim paneline götürüyor. Yönetim panelinin Kullanıcılar sekmesinde akademisyenlerin alanları eklenip çıkarılabiliyor; değişiklikler işlem kaydına yazılıyor.",
+    ],
+  },
+  {
     pr: 29,
     tarih: "2026-11-09",
     baslik: "Sınav kağıdı: sade başlık",

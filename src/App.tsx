@@ -1,6 +1,6 @@
 import { Suspense, lazy, useEffect, useState } from "react";
 import { PRATIK_YA_DA_KATALOG, SITE_ADI, uniteYazi } from "./lib/pratik";
-import { HesapAlani, Shell, TemaDugmesi } from "./components/Shell";
+import { HesapAlani, RolCipi, Shell, TemaDugmesi } from "./components/Shell";
 import { KademeSayfasi, Katalog } from "./pages/Katalog";
 import { OlcekliSayfa } from "./components/Olcek";
 import { useRoute, type Route, tabanaEkle } from "./lib/router";
@@ -99,6 +99,7 @@ function CatiApp() {
           </a>
           <span className="bosluk" />
           <TemaDugmesi />
+          <RolCipi />
           <HesapAlani route={route} />
         </header>
         <main>{sayfa.type === Katalog || sayfa.type === KademeSayfasi ? sayfa : <div className="cati-sayfa">{sayfa}</div>}</main>

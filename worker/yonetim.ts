@@ -413,7 +413,8 @@ yonetim.post("/sorular/:id/durum", async (c) => {
 yonetim.get("/kullanicilar", izin("kullanici.yonet"), async (c) => {
   const ara = c.req.query("ara")?.toLowerCase();
   const { results } = await c.env.DB.prepare(
-    `SELECT u.id, u.username, u.email, u.role, u.public_profile, u.created_at, u.muted_until, COUNT(a.id) AS deneme
+    `SELECT u.id, u.username, u.email, u.role, u.public_profile, u.created_at, u.muted_until, COUNT(a.id) AS deneme,
+            (SELECT group_concat(practice_id) FROM akademisyen_alanlari aa WHERE aa.user_id = u.id) AS alanlar
      FROM users u LEFT JOIN attempts a ON a.user_id = u.id
      WHERE u.kind = 'member'${ara ? " AND (u.username LIKE ?1 OR u.email LIKE ?1)" : ""}
      GROUP BY u.id ORDER BY u.created_at DESC LIMIT 200`,
@@ -421,12 +422,12 @@ yonetim.get("/kullanicilar", izin("kullanici.yonet"), async (c) => {
     .bind(...(ara ? [`%${ara}%`] : []))
     .all<{
       id: string; username: string; email: string | null; role: string; public_profile: number; created_at: number;
-      muted_until: number | null; deneme: number;
+      muted_until: number | null; deneme: number; alanlar: string | null;
     }>();
   return c.json<PanelKullanici[]>(
     results.map((r) => ({
       id: r.id, username: r.username, email: r.email, role: r.role, publicProfile: r.public_profile === 1,
-      createdAt: r.created_at, deneme: r.deneme, mutedUntil: r.muted_until,
+      createdAt: r.created_at, deneme: r.deneme, mutedUntil: r.muted_until, alanlar: r.alanlar ? r.alanlar.split(",").sort() : [],
     })),
   );
 });
@@ -444,6 +445,33 @@ yonetim.post("/kullanicilar/:id/rol", izin("kullanici.yonet"), async (c) => {
     kayit(c, "kullanici.rol", u.username, { role }),
   ]);
   return c.json({ ok: true });
+});
+
+// Akademisyenin alanları: verilen liste olduğu gibi yazılır (eklenen ve çıkarılanlar işlem
+// kaydına geçer). Rol akademisyen değilken de saklanır ama etkisizdir.
+yonetim.put("/kullanicilar/:id/alanlar", izin("kullanici.yonet"), async (c) => {
+  const id = c.req.param("id");
+  const { alanlar } = (await c.req.json<{ alanlar?: unknown }>().catch(() => ({}))) as { alanlar?: unknown };
+  const gecerli = new Set(PRATIKLER.map((p) => p.id));
+  if (!Array.isArray(alanlar) || alanlar.length > 50 || !alanlar.every((a) => typeof a === "string" && gecerli.has(a))) {
+    return c.json({ error: "Alan listesi geçersiz." }, 400);
+  }
+  const db = c.env.DB;
+  const u = await db.prepare("SELECT username FROM users WHERE id = ? AND kind = 'member'").bind(id).first<{ username: string }>();
+  if (!u) return c.json({ error: "kullanıcı bulunamadı" }, 404);
+  const { results } = await db.prepare("SELECT practice_id FROM akademisyen_alanlari WHERE user_id = ?").bind(id).all<{ practice_id: string }>();
+  const eski = new Set(results.map((r) => r.practice_id));
+  const yeni = new Set(alanlar as string[]);
+  const eklenen = [...yeni].filter((a) => !eski.has(a));
+  const cikan = [...eski].filter((a) => !yeni.has(a));
+  if (!eklenen.length && !cikan.length) return c.json({ alanlar: [...yeni].sort() });
+  const simdi = Date.now();
+  await db.batch([
+    ...cikan.map((a) => db.prepare("DELETE FROM akademisyen_alanlari WHERE user_id = ? AND practice_id = ?").bind(id, a)),
+    ...eklenen.map((a) => db.prepare("INSERT INTO akademisyen_alanlari (user_id, practice_id, atayan, created_at) VALUES (?, ?, ?, ?)").bind(id, a, c.get("me")!.id, simdi)),
+    kayit(c, "kullanici.alan", u.username, { eklenen, cikan }),
+  ]);
+  return c.json({ alanlar: [...yeni].sort() });
 });
 
 // Susturma: gün sayısı kadar, -1 kalıcı, 0 kaldırır. Susturulan kullanıcı öneri gönderemez.

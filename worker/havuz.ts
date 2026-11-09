@@ -58,8 +58,8 @@ async function sorulariYaz(db: D1Database, pratik: string, kod: string, sorular:
   await db.batch(sorgular);
 }
 
-const yetkili = (c: Parameters<MiddlewareHandler<Env>>[0]) => yetkisiVar(c.get("me"), "havuz.ac");
-const YETKI_YOK = { error: "Soru havuzu açmak için akademisyen hesabı gerekir." };
+const yetkili = (c: Parameters<MiddlewareHandler<Env>>[0]) => yetkisiVar(c.get("me"), "havuz.ac", pid(c));
+const YETKI_YOK = { error: "Soru havuzu açmak için bu dersin alanında olan bir akademisyen hesabı gerekir." };
 
 type Satir = { kod: string; ad: string; son_tarih: string | null; sinav_id: string | null; updated_at: number; soru_sayisi: number };
 const ozet = (r: Satir): HavuzOzeti => ({ kod: r.kod, ad: r.ad, sonTarih: r.son_tarih, sinavId: r.sinav_id, soruSayisi: r.soru_sayisi, guncellendi: r.updated_at });

@@ -17,10 +17,12 @@ export type Izin =
   | "sinav.hazirla"
   | "havuz.ac";
 
-// Akademisyen yalnızca sınav hazırlar ve öğrencilere soru havuzu açar; yönetim paneline girmez
+// Akademisyen yalnızca sınav hazırlar ve öğrencilere soru havuzu açar; yönetim paneline girmez.
+// Bu izinler pratiğe bağlıdır: akademisyen yalnızca yöneticinin atadığı alanlarında (me.alanlar) kullanır.
 const AKADEMISYEN: Izin[] = ["sinav.hazirla", "havuz.ac"];
 
-export function yetkisiVar(me: Me | null, izin: Izin): boolean {
+export function yetkisiVar(me: Me | null, izin: Izin, pratik?: string | null): boolean {
   if (me?.kind !== "member") return false;
-  return me.role === "admin" || (me.role === "akademisyen" && AKADEMISYEN.includes(izin));
+  if (me.role === "admin") return true;
+  return me.role === "akademisyen" && AKADEMISYEN.includes(izin) && !!pratik && (me.alanlar ?? []).includes(pratik);
 }

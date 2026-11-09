@@ -88,7 +88,7 @@ const FAYDALAR = [
       "Öğrencilerine \"sınav bu sorulardan gelecek\" bağlantısı verirsin; yalnızca o sorularla çalışırlar.",
     ],
     bag: { metin: "Akademisyen erişimi iste", adres: "/mesajlar" },
-    not: "Hesap açtıktan sonra Mesajlarım'dan yazman yeterli; hesabın akademisyen olarak işaretlenir.",
+    not: "Hesap açtıktan sonra Mesajlarım'dan hangi derslerin sorumlusu olduğunu yazman yeterli; hesabın o dersler için akademisyen olarak işaretlenir.",
   },
   {
     id: "ogretmen",
@@ -197,7 +197,12 @@ export function Katalog() {
                     <a href={pratikBaglantisi(meta(k.id))}>
                       <KartLogosu id={k.id} />
                       <span className="raf-govde">
-                        <strong>{k.ad}</strong>
+                        <strong>
+                          {k.ad}
+                          {me?.role === "akademisyen" && me.alanlar?.includes(k.id) && (
+                            <span className="alan-etiketi" title="Bu ders senin alanında: sınav hazırlayabilirsin">Alanın</span>
+                          )}
+                        </strong>
                         <span className="raf-aciklama">{k.aciklama}</span>
                         <span className="raf-sayilar">
                           {k.unite} {meta(k.id).uniteAdi}{k.soru ? `, ${sayi(k.soru)} soru` : ""}

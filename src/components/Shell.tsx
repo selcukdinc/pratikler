@@ -15,6 +15,7 @@ import { KutlamaBildirimi } from "./Kutlama";
 import { OlcekDugmeleri } from "./Olcek";
 import { gorulmemisSayisi, useSonGorulen } from "../lib/yenilik";
 import { GUNLUK_OLAYI, gunlukTekrar } from "../lib/tekrarAyar";
+import { sinavYetkisi, yoneticiMi } from "../lib/yetki";
 
 interface Props {
   route: Route;
@@ -137,6 +138,27 @@ function GorunumAyarlari({ route }: { route: Route }) {
   );
 }
 
+// Rol çipi: yönetici her yerde "Yönetici" görür (panele götürür); akademisyen yalnızca
+// alanındaki pratikte "Akademisyen" görür (Sınavlarım'a götürür). Amaç yetkisini görmesi.
+export function RolCipi() {
+  const { me } = useOturum();
+  if (yoneticiMi(me)) {
+    return (
+      <a className="rol-cipi rol-yonetici" href={tabanaEkle("/yonetim")} data-tam-sayfa title="Yönetici olarak giriş yaptın; yönetim paneline git">
+        Yönetici
+      </a>
+    );
+  }
+  if (PRATIK_YA_DA_KATALOG && me?.role === "akademisyen" && sinavYetkisi(me)) {
+    return (
+      <a className="rol-cipi rol-akademisyen" href={tabanaEkle("/sinavlar")} title={`${PRATIK.ad} senin alanında: sınav hazırlayabilir, öğrencilere soru havuzu açabilirsin`}>
+        Akademisyen
+      </a>
+    );
+  }
+  return null;
+}
+
 export function HesapAlani({ route }: { route: Route }) {
   const { me, yuklendi, setMe, epostaAcik } = useOturum();
   const menu = useRef<HTMLDetailsElement>(null);
@@ -182,7 +204,7 @@ export function HesapAlani({ route }: { route: Route }) {
         <a role="menuitem" href={tabanaEkle("/mesajlar")}>Mesajlarım {rozet(okunmamis.mesaj)}</a>
         {PRATIK_YA_DA_KATALOG && <a role="menuitem" href={tabanaEkle("/oner")}>Soru öner {rozet(okunmamis.oneri)}</a>}
         <a role="menuitem" href={tabanaEkle("/ayarlar")}>Ayarlar</a>
-        {PRATIK_YA_DA_KATALOG && (me.role === "admin" || me.role === "akademisyen") && <a role="menuitem" href={tabanaEkle("/sinavlar")}>Sınav hazırla</a>}
+        {PRATIK_YA_DA_KATALOG && sinavYetkisi(me) && <a role="menuitem" href={tabanaEkle("/sinavlar")}>Sınav hazırla</a>}
         {me.role === "admin" && <a role="menuitem" href={tabanaEkle("/yonetim")} data-tam-sayfa>Yönetim paneli</a>}
         <button role="menuitem" onClick={cikis}>Çıkış yap</button>
       </div>
@@ -296,6 +318,7 @@ export function Shell({ route, currentWeek, title, status, duyuru, children }: P
           </a>
         )}
         <GorunumAyarlari route={route} />
+        <RolCipi />
         <HesapAlani route={route} />
       </header>
 
