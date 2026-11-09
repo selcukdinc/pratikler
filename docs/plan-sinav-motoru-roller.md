@@ -1,6 +1,6 @@
 # Plan: Sınav kağıdı motoru, roller ve ana sayfa bildirimi
 
-Hazırlanma: 9 Kasım 2026 · İsteyen: Selçuk · Durum: **onay bekliyor** (onaydan önce kod yazılmaz)
+Hazırlanma: 9 Kasım 2026 · İsteyen: Selçuk · Durum: **onaylandı** (9 Kasım 2026; açık soruların hepsinde önerilen cevap kabul edildi, yenilikler isteği eklendi)
 
 Bu plan Selçuk'un dört başlıktaki isteklerini kodun bugünkü haline göre ele alır: sınav kağıdı motoru,
 akademisyen rolü, pratikler.selcukdinc.dev ana sayfası ve yönetici rolü. Her başlıkta önce sorunun
@@ -200,9 +200,40 @@ Kaygı: Gruba gelen bir bağlantıyı açan öğrenci "hocamız bu sorulardan so
 - Çatı sayfasındaki "Akademisyensen" bölümüne de bir cümle: "Siteyi kullanman sorumluluğu sana
   geçirmez; öğrencilere havuz bağlantısı vermediğin sürece sınavın buradan geleceği söylenmez."
 
+## 5. Yenilikler: rol bazında görünürlük ve pratikler arası senkron
+
+Bugün: `src/yenilikler.ts`'teki bütün kayıtlar herkese görünür; Claude paneli, yerel ajan, yönetim
+paneli gibi yalnızca yöneticiyi ilgilendiren değişiklikler de öğrencinin "Yeni" rozetini artırır.
+"En son hangi yeniliği gördüm" bilgisi `localStorage`'da (`pratik:yenilik-goruldu`) durur; her alt
+alan adı ayrı bir tarayıcı deposu olduğu için bir pratikte gördüğün yenilik başka pratikte yine
+"yeni" görünür.
+
+**Kitle (rol bazında görünürlük):**
+- `Yenilik` kaydına `kitle?: "herkes" | "akademisyen" | "yonetici"` (varsayılan herkes). Tek tek
+  maddeler de kendi kitlesini alabilir: `maddeler: (string | { metin: string; kitle: Kitle })[]`.
+  Böylece bir PR'ın öğrenciye görünen kısmı herkese, panel kısmı yalnızca yöneticiye gider.
+- Görünürlük: üye/misafir → herkes; akademisyen → herkes + akademisyen; yönetici → hepsi.
+  Bir kaydın görünen maddesi kalmazsa kayıt hiç görünmez ve rozeti saymaz.
+- Yönetici Yenilikler sayfasında kayıtların yanında küçük "Yönetici" / "Akademisyen" etiketi görür
+  (kimin ne gördüğü belli olsun).
+- Geçmiş kayıtlar elden geçirilir: Claude paneli, yerel ajan, yönetim paneli, işlem kaydı gibi
+  kayıtlar ve maddeler `yonetici`; sınav kağıdı düzenleyicisinin ayrıntıları `akademisyen`.
+- `src/yenilikler.test.ts`: kitle değerlerinin geçerli olduğu ve her kaydın en az bir maddesinin
+  bulunduğu denetlenir. CLAUDE.md'deki yenilikler kuralına "yöneticiyi ilgilendiren madde
+  `kitle: "yonetici"` alır" cümlesi eklenir.
+
+**Pratikler arası senkron:**
+- Görülen son yenilik **hesapta** saklanır: `users.yenilik_goruldu` (göç), `/api/hesap/yenilik`
+  okuma/yazma; `Me` nesnesiyle gelir. Bütün pratikler aynı veritabanını kullandığı için bir pratikte
+  okuyunca diğerlerinde ve diğer cihazlarda rozet söner.
+- Misafirler için `.selcukdinc.dev` alanına yazılan bir çerez (`yenilik_goruldu`); oturum çerezinin
+  kullandığı alanla aynı, bütün alt alan adlarında okunur. Eski `localStorage` değeri ilk açılışta
+  çereze ve hesaba taşınır (en büyüğü alınır).
+- Rozet yalnızca kişinin görebildiği kayıtları sayar.
+
 ---
 
-## 5. PR zinciri
+## 6. PR zinciri
 
 Her PR bir öncekinin dalı üstüne açılır; alttaki birleşince sıradakinin tabanı main'e çevrilir.
 
@@ -213,13 +244,15 @@ Her PR bir öncekinin dalı üstüne açılır; alttaki birleşince sıradakinin
 | 3 | Soru seçici v2 | 1.4 ünite akordeonu, toplu seçim, ünite işlemleri, filtreler, sunucu ek alanları | yok |
 | 4 | Sade başlık | 1.5 başlık stili seçimi, önizleme + PDF + Word | yok |
 | 5 | Akademisyen alanları ve rol çipleri | 2, 2.1, 3 | 0030 |
-| 6 | Bağımsızlık bildirimi | 4 | yok |
+| 6 | Yenilikler: kitle ve senkron | 5 | 0031 |
+| 7 | Bağımsızlık bildirimi | 4 | yok |
 
-Bildirim (6) küçük ve bağımsız olduğu için istersen en başa da alınabilir; zincir sırası buna göre
-kaydırılır. Her PR'ın yayından önce yerelde `npm run denetle`, PR 1-4 için ayrıca
-`node scripts/kagit-pdf-denetimi.mjs`. PR 5 için yayında `0030` uzak göçü gerekir.
+Her PR'ın dalı bir öncekinin dalı üstüne kurulur; tabanı (base) ise baştan **main** olur. Böylece
+hangi sırayla birleştirilirse birleştirilsin değişiklikler main'e ulaşır (geçmişte alt dala
+birleşme sorunu yaşandı). Her PR'ın yayından önce yerelde `npm run denetle`, PR 1-4 için ayrıca
+`node scripts/kagit-pdf-denetimi.mjs`. PR 5 ve 6 için yayında `0030` ve `0031` uzak göçleri gerekir.
 
-## 6. Açık sorular (önerilen cevaplarla)
+## 7. Açık sorular (9 Kasım 2026'da hepsinde önerilen cevap kabul edildi)
 
 1. **PDF'in altındaki yazılar** hangileri: bizim "Ders · Sınav · A grubu / Sayfa 1 / 2" satırı mı,
    tarayıcının tarih ve adres yazıları mı? *Öneri:* İkisini de kaldıralım; sayfa numarası isteğe
