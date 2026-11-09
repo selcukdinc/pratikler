@@ -3,6 +3,7 @@ import { catiAdresi } from "../../icerik/index";
 import { Markdown } from "../components/Markdown";
 import { REPO_URL } from "../lib/api";
 import { tabanaEkle } from "../lib/router";
+import { BAGIMSIZLIK_BASLIK, BAGIMSIZLIK_METNI } from "../lib/bagimsizlik";
 
 const GELISTIRICI_URL = "https://github.com/selcukdinc";
 
@@ -13,6 +14,10 @@ export function About() {
       <p>{PRATIK.aciklama} Açık kaynaklı, ücretsiz bir pratik sitesidir ve <a href={catiAdresi}>Pratikler</a> çatısı altındaki diğer sitelerle aynı hesabı kullanır.</p>
       <h3>Kaynak</h3>
       <Markdown text={PRATIK.kaynakAciklamasi} />
+      <h3>Bağımsızlık</h3>
+      <p>
+        <strong>{BAGIMSIZLIK_BASLIK}</strong> {BAGIMSIZLIK_METNI}
+      </p>
       {PRATIK.bagimsizlikNotu && <p>{PRATIK.bagimsizlikNotu}</p>}
       <h3>Gizlilik</h3>
       <ul>

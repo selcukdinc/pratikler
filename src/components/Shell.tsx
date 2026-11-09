@@ -16,6 +16,7 @@ import { OlcekDugmeleri } from "./Olcek";
 import { gorulmemisSayisi, hesapla, useSonGorulen, uyeRolu } from "../lib/yenilik";
 import { GUNLUK_OLAYI, gunlukTekrar } from "../lib/tekrarAyar";
 import { sinavYetkisi, yoneticiMi } from "../lib/yetki";
+import { BAGIMSIZLIK_BASLIK, BAGIMSIZLIK_KISA, BAGIMSIZLIK_METNI } from "../lib/bagimsizlik";
 
 interface Props {
   route: Route;
@@ -236,6 +237,7 @@ function TanitimSeridi({ route }: { route: Route }) {
     <div className="tanitim-seridi">
       <span>Siteye yeni misin? Neler yapabileceğini iki dakikada gör:</span>
       <a href={href({ page: "tanitim" })} onClick={kapat}>Nasıl kullanılır</a>
+      {!aktifHavuz() && <span className="tanitim-bagimsiz">{BAGIMSIZLIK_KISA}</span>}
       <button className="icon" aria-label="Kapat" onClick={kapat}>×</button>
     </div>
   );
@@ -371,6 +373,11 @@ export function Shell({ route, currentWeek, title, status, duyuru, children }: P
         </NavLink>
         <NavLink to={{ page: "hakkinda" }} current={route} ikon="hakkinda">Hakkında</NavLink>
         <NavLink to={{ page: "gizlilik" }} current={route} ikon="gizlilik">Gizlilik</NavLink>
+        {!aktifHavuz() && (
+          <a className="kenar-bagimsiz" href={href({ page: "hakkinda" })} title={`${BAGIMSIZLIK_BASLIK} ${BAGIMSIZLIK_METNI}`}>
+            {BAGIMSIZLIK_KISA}
+          </a>
+        )}
       </aside>
 
       <main className="workspace">

@@ -22,6 +22,11 @@ export const SSS: SssBolumu[] = [
           "Hayır. Soruları ve karma testi hesapsız çözebilirsin; ilerlemen bu tarayıcıda tutulur. Hesap açma, doğrulama e-postası gönderimi kurulunca açılacak; o zaman ilerlemen her cihazda seninle gelir.",
       },
       {
+        soru: "Hocamız sınavda bu sorulardan mı soracak?",
+        cevap:
+          "Bunun bir garantisi yok. Site bağımsız bir öğrenci projesidir; sorular ders notlarından ve kaynak kitaplardan türetilir, dersin hocası tarafından hazırlanmaz ya da onaylanmaz. Tek istisna: hocan sana bir **soru havuzu** bağlantısı verdiyse o soruları hocan kendisi seçmiştir.",
+      },
+      {
         soru: "Sorular nereden geliyor?",
         cevap:
           PRATIK.kaynakAciklamasi,

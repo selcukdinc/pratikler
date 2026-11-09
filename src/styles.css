@@ -925,9 +925,13 @@ body.boyutlaniyor iframe, body.boyutlaniyor canvas { pointer-events: none; }
 .tanitim-seridi { display: flex; gap: 10px; align-items: center; padding: 6px 12px; background: var(--section-header); color: var(--section-text); border-bottom: 1px solid var(--border); flex-wrap: wrap; }
 .tanitim-seridi a { font-weight: 600; }
 .tanitim-seridi .icon { margin-left: auto; }
+.tanitim-bagimsiz { color: var(--detail); font-size: 12px; }
+.kenar-bagimsiz { display: block; margin: 16px 12px 8px; color: var(--detail); font-size: 11px; line-height: 1.4; text-decoration: none; }
+.kenar-bagimsiz:hover { text-decoration: underline; }
 .tanitim { max-width: 1000px; padding: 12px 16px 56px; }
 .tanitim-ust h2 { font-size: 26px; margin: 10px 0 8px; }
 .tanitim-ust p { font-size: 15px; line-height: 1.6; max-width: 760px; margin: 0; }
+.tanitim-ust .tanitim-bagimsizlik { margin-top: 10px; font-size: 13px; color: var(--detail); }
 .tanitim-dugmeler { display: flex; gap: 8px; flex-wrap: wrap; margin: 16px 0 8px; }
 .tanitim h3 { font-size: 18px; margin: 32px 0 12px; }
 .kitleler { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; }

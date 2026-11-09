@@ -7,6 +7,7 @@ import { href } from "../lib/router";
 import { Markdown } from "../components/Markdown";
 import { SSS } from "../sss";
 import { TANITIM_GORULDU } from "../components/Shell";
+import { BAGIMSIZLIK_BASLIK, BAGIMSIZLIK_METNI } from "../lib/bagimsizlik";
 
 const KITLELER = PRATIK.tanitim.kitleler;
 
@@ -50,6 +51,9 @@ export function Tanitim() {
       <header className="tanitim-ust">
         <h2>{PRATIK.tanitim.baslik}</h2>
         <p>{PRATIK.tanitim.giris}</p>
+        <p className="tanitim-bagimsizlik">
+          <strong>{BAGIMSIZLIK_BASLIK}</strong> {BAGIMSIZLIK_METNI}
+        </p>
         <div className="tanitim-dugmeler">
           <a className="buton primary" href={href({ page: "pratik" })}>Karma teste başla</a>
           <a className="buton" href={href({ page: "sorular" })}>Soru havuzu</a>
