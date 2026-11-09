@@ -1721,6 +1721,43 @@ polygon.g-ok-7 { fill: var(--ok-7); stroke: none; }
 .soru-secici-liste li.secili { background: color-mix(in srgb, var(--selection) 45%, transparent); }
 .soru-secici-liste li > div { min-width: 0; display: flex; flex-direction: column; gap: 2px; }
 .soru-secici-dugme { flex: none; width: 28px; height: 28px; padding: 0; font-weight: 700; }
+.soru-secici-filtre button.etkin { border-color: var(--btn-primary-border); font-weight: 600; }
+.soru-secici-suzgec { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 8px; padding: 8px; border-bottom: 1px solid var(--border-soft); background: var(--panel-header); max-height: 45vh; overflow: auto; }
+.soru-secici-suzgec label { display: flex; flex-direction: column; gap: 2px; font-size: 12px; min-width: 0; }
+.soru-secici-suzgec select { min-width: 0; }
+.soru-secici-suzgec .suzgec-tam { grid-column: 1 / -1; }
+.soru-secici-suzgec fieldset { border: 0; margin: 0; padding: 0; min-width: 0; }
+.soru-secici-suzgec legend { font-size: 12px; padding: 0; margin-bottom: 2px; }
+.suzgec-cipler { display: flex; flex-wrap: wrap; gap: 4px; }
+.suzgec-cipler label { flex-direction: row; align-items: center; gap: 4px; padding: 1px 8px 1px 4px; border: 1px solid var(--border); border-radius: 999px; cursor: pointer; font-size: 12px; }
+.suzgec-cipler label.secik { background: var(--active); border-color: var(--btn-primary-border); }
+.suzgec-cipler input { margin: 0; }
+.suzgec-etkin { display: flex; flex-wrap: wrap; gap: 4px; padding: 6px 8px 0; }
+.suzgec-cip { font-size: 11px; padding: 1px 8px; border-radius: 999px; }
+.soru-secici-toplu { display: flex; flex-wrap: wrap; gap: 4px; }
+.soru-secici-toplu button { font-size: 12px; padding: 1px 6px; }
+.soru-secici-ozet { flex-wrap: wrap; }
+.unite-hedef { padding: 2px 8px 6px; font-size: 12px; border-bottom: 1px solid var(--border-soft); }
+.unite-hedef summary { cursor: pointer; color: var(--link); }
+.unite-hedef p { margin: 4px 0; }
+.unite-hedef-liste { display: grid; grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); gap: 4px 8px; margin-bottom: 6px; }
+.unite-hedef-liste label { display: flex; align-items: center; justify-content: space-between; gap: 4px; }
+.unite-hedef-liste input { width: 48px; }
+.soru-secici-bilgi { margin: 0; padding: 4px 8px; font-size: 12px; background: color-mix(in srgb, var(--green) 14%, transparent); cursor: pointer; }
+.soru-secici-liste li.unite-grubu { display: block; padding: 0; }
+.soru-secici-liste li.unite-grubu > ul { list-style: none; margin: 0; padding: 0; }
+.soru-secici-liste .unite-satiri { display: flex; flex-direction: row; align-items: center; gap: 6px; padding: 6px 8px; background: var(--panel-header); position: sticky; top: 0; z-index: 1; }
+.unite-ac { flex: none; width: 22px; height: 22px; padding: 0; border: 0; background: none; }
+.unite-ad { flex: 1; min-width: 0; text-align: left; border: 0; background: none; padding: 0; font-size: 13px; line-height: 1.3; }
+.unite-ad .soluk { font-size: 11px; white-space: nowrap; }
+.unite-menu { position: static; flex: none; }
+.unite-menu summary { list-style: none; cursor: pointer; padding: 0 6px; font-weight: 700; border: 1px solid var(--border); border-radius: 4px; }
+.unite-menu summary::-webkit-details-marker { display: none; }
+.unite-menu-liste { position: absolute; right: 8px; top: calc(100% - 4px); z-index: 3; display: flex; flex-direction: column; min-width: 220px; background: var(--panel); border: 1px solid var(--border); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2); }
+.unite-menu-liste button { text-align: left; border: 0; border-radius: 0; padding: 6px 10px; font-size: 13px; background: none; }
+.unite-menu-liste button:hover:not(:disabled) { background: var(--active); }
+.soru-secici-liste li.kavram-satiri { padding: 4px 8px 2px 34px; font-size: 12px; font-weight: 600; color: var(--muted); align-items: center; border-top: 0; }
+.soru-secici-meta .tag { margin-left: 6px; }
 .secili .soru-secici-dugme { color: var(--green); }
 .soru-secici-meta { font-size: 11px; color: var(--muted); }
 .soru-secici-metin { font-size: 13px; line-height: 1.35; overflow-wrap: anywhere; }

@@ -14,6 +14,18 @@ export interface Yenilik {
 
 export const YENILIKLER: Yenilik[] = [
   {
+    pr: 28,
+    tarih: "2026-11-09",
+    baslik: "Sınav kağıdı: ünite ünite soru seçimi ve kapsamlı süzgeçler",
+    maddeler: [
+      "Soru listesi ünitelere ayrıldı. Ünite satırındaki kutu, ünitenin görünen sorularının hepsini tek tıkla ekliyor ya da çıkarıyor; ünite açılınca sorular kavram başlıkları altında, kavramlar da kendi kutularıyla listeleniyor.",
+      "Ünitenin **⋯** menüsünden: görünen sorularını ekle, bütün sorularını çıkar, rastgele 5 soru ekle, kağıttaki sorularını aynı kavramdan başka sorularla değiştir (yer ve puan kalıyor), kağıda ünite başlığı ekle.",
+      "**Görünenlerin tümünü seç**, **Tümünü kaldır** ve **Kağıdı temizle** düğmeleri geldi. **Ünite başına rastgele soru seç** ile her üniteden kaç soru istediğini yazıp kağıdı tek seferde kurabiliyorsun; sorular kavramlara dağıtılarak seçiliyor.",
+      "Süzgeçler: ünite (birden çok), soru türü, konu, kavram, zorluk aralığı, kaynak, öğrencilerin ilk denemedeki başarısı (kolay, orta, zor), önceki sınavlarında kullandıkların ya da hiç kullanmadıkların, kağıtta olanlar ya da olmayanlar, şekilli ve formüllü sorular. Arama şıklarda ve soru kimliğinde de bakıyor; tırnakla tam ifade aranabiliyor.",
+      "Liste konu sırası, zorluk, öğrenci başarısı, uzunluk ya da rastgele sıralanabiliyor. Etkin süzgeçler listenin üstünde çip olarak duruyor ve sınav başına hatırlanıyor. Her sorunun yanında öğrencilerin doğru yapma oranı ve kaç sınavında kullandığın yazıyor.",
+    ],
+  },
+  {
     pr: 27,
     tarih: "2026-11-09",
     baslik: "Sınav kağıdı: grupların sayfa sayısı ve otomatik sığdırma",
