@@ -257,3 +257,6 @@
 @media (prefers-reduced-motion: reduce) {
   .vitrin-siklar li, .vitrin-kagit li, .vitrin-anahtar, .vitrin-kopya, .vitrin-havuz, .vitrin-cubuk span, .kabarcik { transition: none; }
 }
+
+/* Akademisyenin alanındaki ders kartında küçük etiket */
+.alan-etiketi { display: inline-block; margin-left: 8px; padding: 0 7px; border-radius: 999px; font-size: 11px; font-weight: 600; vertical-align: 2px; color: var(--green); border: 1px solid color-mix(in srgb, var(--green) 45%, transparent); background: color-mix(in srgb, var(--green) 10%, transparent); }

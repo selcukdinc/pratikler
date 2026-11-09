@@ -157,6 +157,7 @@ export const api = {
     yazismaDurum: (id: string, status: "open" | "closed") =>
       post<{ ok: true }>(`/yonetim/yazismalar/${encodeURIComponent(id)}/durum`, { status }),
     rol: (id: string, role: string) => post<{ ok: true }>(`/yonetim/kullanicilar/${encodeURIComponent(id)}/rol`, { role }),
+    alanlar: (id: string, alanlar: string[]) => post<{ alanlar: string[] }>(`/yonetim/kullanicilar/${encodeURIComponent(id)}/alanlar`, { alanlar }, "PUT"),
     kayit: () => get<PanelKayit[]>("/yonetim/kayit"),
   },
 };

@@ -13,7 +13,7 @@ import { havuzBaglantisi } from "../lib/havuz";
 import { Markdown } from "../components/Markdown";
 import { FormHatasi } from "../components/Form";
 import { Iskelet } from "../components/Iskelet";
-import { sinavYetkisi } from "./Sinavlar";
+import { sinavYetkisi } from "../lib/yetki";
 import {
   BASARI_ESIGI, BOS_SUZGEC, basariOrani, etkinSayisi, rastgeleSec, sekilliMi, sirala, suz, uniteyiDegistir,
   type Basari, type Kullanim, type Secim, type Siralama, type Suzgec, type Var,
@@ -879,7 +879,7 @@ export function SinavKagidi({ id }: { id: string }) {
   const guncellendi = useRef(0);
   const ilk = useRef(true);
   const sayfalar = useRef<HTMLDivElement>(null);
-  const yetkili = sinavYetkisi(me?.role);
+  const yetkili = sinavYetkisi(me);
 
   useEffect(() => {
     if (!yetkili) return;
@@ -976,7 +976,7 @@ export function SinavKagidi({ id }: { id: string }) {
   }, [belge, olcu, gruplar, sayfaSayilari, soruMap]);
 
   if (!yuklendi) return <Iskelet />;
-  if (!yetkili) return <p className="empty">Bu sayfa akademisyen hesapları içindir. <a href={tabanaEkle("/sinavlar")}>Ayrıntı</a></p>;
+  if (!yetkili) return <p className="empty">Bu sayfa, dersi alanında olan akademisyenler içindir. <a href={tabanaEkle("/sinavlar")}>Ayrıntı</a></p>;
   if (hata && !belge) return <p className="empty">{hata} <a href={href({ page: "sinavlar" })}>Sınavlarım</a></p>;
   if (!belge || !sorular) return <Iskelet satir={6} />;
 

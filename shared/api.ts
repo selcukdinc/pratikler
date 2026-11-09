@@ -28,6 +28,8 @@ export interface Me {
   gunlukTekrar: number | null;
   // Sunucu e-posta gönderebiliyor mu (kayıt ve sıfırlama buna bağlı)
   epostaAcik?: boolean;
+  // Akademisyenin sorumlu olduğu pratikler (yönetici atar); başkalarında boş
+  alanlar: string[];
 }
 
 export interface Topic {

@@ -15,7 +15,7 @@ import type { PanelKayit, PanelKullanici, PanelOzet, PanelPratik, PanelSoru } fr
 import { ClaudeIsleri } from "./YonetimClaude";
 import { PRATIK_YA_DA_KATALOG } from "../lib/pratik";
 import { pratikBaglantisi } from "../lib/pratik";
-import { pratikBul } from "../../icerik/index";
+import { PRATIKLER, pratikBul } from "../../icerik/index";
 import type { PanelOneri, YazismaOzeti } from "../../shared/sosyal";
 
 // Çatı adresinde (pratikler.) yalnızca pratiklerden bağımsız bölümler
@@ -366,6 +366,12 @@ function Kullanicilar() {
     void yukle();
   };
 
+  const alanlariYaz = async (u: PanelKullanici, alanlar: string[]) => {
+    const r = await api.yonetim.alanlar(u.id, alanlar);
+    if (!r.ok) return setHata(r.hata.error);
+    setListe((l) => l && l.map((x) => (x.id === u.id ? { ...x, alanlar: r.data.alanlar } : x)));
+  };
+
   const sustur = async (u: PanelKullanici, gun: number) => {
     const ne = gun === 0 ? "susturması kalksın" : gun < 0 ? "kalıcı olarak susturulsun" : `${gun} gün susturulsun`;
     if (!confirm(`${u.username} ${ne} mu? Susturulan üye soru öneremez; yöneticiye yazmaya devam edebilir.`)) return;
@@ -392,6 +398,7 @@ function Kullanicilar() {
                 <th>Katıldı</th>
                 <th>Deneme</th>
                 <th>Rol</th>
+                <th title="Akademisyen yalnızca alanındaki pratiklerde sınav hazırlar ve soru havuzu açar">Alanlar</th>
                 <th>Öneri</th>
               </tr>
             </thead>
@@ -411,6 +418,27 @@ function Kullanicilar() {
                       <option value="admin">Yönetici</option>
                       <option value="akademisyen">Akademisyen</option>
                     </select>
+                  </td>
+                  <td className="alanlar-hucre">
+                    {u.role === "admin" ? (
+                      <span className="soluk">Bütün pratikler</span>
+                    ) : u.role === "akademisyen" ? (
+                      <>
+                        {u.alanlar.map((a) => (
+                          <span key={a} className="tag alan-cipi">
+                            {pratikBul(a)?.ad ?? a}
+                            <button type="button" onClick={() => alanlariYaz(u, u.alanlar.filter((x) => x !== a))} aria-label={`${pratikBul(a)?.ad ?? a} alanını kaldır`} title="Alanı kaldır">✕</button>
+                          </span>
+                        ))}
+                        {u.alanlar.length === 0 && <span className="ayar-uyari">Alanı yok: sınav hazırlayamaz</span>}
+                        <select value="" onChange={(e) => e.target.value && alanlariYaz(u, [...u.alanlar, e.target.value])} aria-label={`${u.username} için alan ekle`}>
+                          <option value="">+ Alan ekle</option>
+                          {PRATIKLER.filter((p) => !u.alanlar.includes(p.id)).map((p) => <option key={p.id} value={p.id}>{p.ad}</option>)}
+                        </select>
+                      </>
+                    ) : u.alanlar.length > 0 ? (
+                      <span className="soluk" title="Rolü akademisyen olunca geçerli olur">{u.alanlar.map((a) => pratikBul(a)?.ad ?? a).join(", ")}</span>
+                    ) : null}
                   </td>
                   <td className="islemler">
                     {u.mutedUntil && u.mutedUntil > Date.now() ? (
@@ -443,6 +471,7 @@ const EYLEM: Record<string, string> = {
   "soru.duzenle": "Soru düzenlendi",
   "soru.durum": "Soru durumu değişti",
   "kullanici.rol": "Rol değişti",
+  "kullanici.alan": "Akademisyen alanı değişti",
   "kullanici.sustur": "Susturma değişti",
   "oneri.kabul": "Öneri kabul edildi",
   "oneri.red": "Öneri reddedildi",

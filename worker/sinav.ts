@@ -16,7 +16,10 @@ type C = Context<Env>;
 export const sinav = new Hono<Env>();
 
 sinav.use("*", async (c, next) => {
-  if (!yetkisiVar(c.get("me"), "sinav.hazirla")) return c.json({ error: "Sınav hazırlamak için akademisyen hesabı gerekir." }, 403);
+  const me = c.get("me");
+  if (!yetkisiVar(me, "sinav.hazirla", pid(c))) {
+    return c.json({ error: me?.role === "akademisyen" ? "Bu ders senin alanında değil; alanlarına eklenmesi için yöneticiye yaz." : "Sınav hazırlamak için akademisyen hesabı gerekir." }, 403);
+  }
   await next();
 });
 

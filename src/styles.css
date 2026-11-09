@@ -2036,3 +2036,16 @@ polygon.g-ok-7 { fill: var(--ok-7); stroke: none; }
 .cati .yonetim-ust { padding-inline: 16px; }
 .cati-sayfa .yonetim .panel-genel { padding-inline: 16px; }
 .claude-paneli .terminal.terminal-kisa { height: auto; }
+
+/* Yönetim → Kullanıcılar: akademisyen alanları */
+.alanlar-hucre { min-width: 180px; }
+.alanlar-hucre .alan-cipi { display: inline-flex; align-items: center; gap: 2px; margin: 0 4px 4px 0; }
+.alanlar-hucre .alan-cipi button { border: 0; background: none; padding: 0 2px; min-width: 0; font-size: 11px; line-height: 1; cursor: pointer; color: inherit; }
+.alanlar-hucre select { font-size: 12px; max-width: 160px; }
+
+/* Üst çubukta rol çipi: yetkisi olduğunu gösterir; sade, gradyansız */
+.rol-cipi { flex: none; display: inline-flex; align-items: center; height: 22px; padding: 0 9px; border-radius: 999px; font-size: 12px; font-weight: 600; letter-spacing: 0.01em; text-decoration: none; border: 1px solid; white-space: nowrap; }
+.rol-cipi:hover { text-decoration: none; filter: brightness(0.96); }
+.rol-yonetici { color: var(--text); background: color-mix(in srgb, var(--text) 8%, var(--panel)); border-color: color-mix(in srgb, var(--text) 35%, transparent); }
+.rol-akademisyen { color: var(--green); background: color-mix(in srgb, var(--green) 12%, var(--panel)); border-color: color-mix(in srgb, var(--green) 45%, transparent); }
+@media (max-width: 560px) { .rol-cipi { padding: 0 6px; font-size: 11px; } }
