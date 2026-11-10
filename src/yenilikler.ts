@@ -26,13 +26,16 @@ export const YENILIKLER: Yenilik[] = [
   {
     pr: 34,
     tarih: "2026-11-10",
-    baslik: "Açılış sayfası yenilendi: dersini ara, hemen çöz",
+    baslik: "Açılış sayfası ve İlerlemem yenilendi",
     maddeler: [
       "pratikler.selcukdinc.dev artık bir soruyla açılıyor: **Bugün hangi dersi çalışacaksın?** Arama kutusuna dersin ya da konunun adını yazınca dersler süzülüyor; Türkçe harfleri yazmasan da (`isletme`, `turkce`) buluyor, Enter ilk sonucu açıyor.",
       "Dersler sayfanın en üstüne taşındı ve alan düğmeleriyle (Mühendislik, Temel bilimler, Okul...) süzülebiliyor. Giriş yaptıysan kaldığın dersler aramanın hemen altında.",
       "Sitenin öğrenciye, akademisyene ve öğretmene ne kazandırdığı tek bir **Nasıl çalışır?** bölümünde, sekmelerle anlatılıyor; sayfa eskisinin yarısı kadar.",
       "Aradığın ders yoksa **Ders iste** bağlantısıyla ders notunu ya da kitabını gönderebilirsin.",
       "Açılış sayfası her temada pratiklerle aynı renkleri kullanıyor; Karanlık temadaki yeşilimsi zemin gitti.",
+      "**İlerlemem** sayfası bütün pratiklerde yenilendi. En üstte bugünkü hedefin ve sıradaki adımın var: yanlışın varsa tek düğmeyle onları tekrar çözersin, yoksa karma teste geçersin.",
+      "İlerlemem'de üniteler ve konular tek listede, her biri kendi çubuğuyla; tekrar etmen gereken konular ile yanlış yaptıkların yan yana. Tablo kalktı, sayfa telefonda da rahat okunuyor.",
+      "Sayfalar yüklenirken görünen iskeletler artık açılacak sayfanın biçiminde; içerik gelince ekran zıplamıyor.",
       "Düğmeler ve arama kutusu telefonda parmakla rahat basılacak boyutta; sayfanın tamamı klavyeyle kullanılabiliyor.",
     ],
   },

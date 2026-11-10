@@ -78,16 +78,27 @@ export function KartIskeleti({ adet = 4 }: { adet?: number }) {
   );
 }
 
-// İlerleme: özet kutuları ve tablo
-export function TabloIskeleti({ satir = 6 }: { satir?: number }) {
+// İlerlemem: bugünkü hedef, dört özet sayı, iki sütun liste ve ünite satırları (Progress.tsx)
+export function IlerlemeIskeleti({ satir = 4 }: { satir?: number }) {
+  const satirlar = (n: number) =>
+    Array.from({ length: n }, (_, i) => (
+      <li key={i} className="il-konu">
+        <Cizgi en={`${70 - i * 9}%`} /><Cizgi en="3em" /><Cizgi boy="8px" />
+      </li>
+    ));
   return (
     <Gecikmeli>
-      <div className="iskelet-sayfa">
-        <div className="iskelet-kutular">
-          <Cizgi boy="64px" /><Cizgi boy="64px" /><Cizgi boy="64px" />
+      <div className="progress">
+        <div className="il-bugun">
+          <div className="il-bugun-metin"><Cizgi en="60%" boy="1.5em" /><Cizgi boy="8px" /><Cizgi en="45%" /></div>
+          <div className="il-bugun-dugmeler"><Cizgi en="170px" boy="44px" /></div>
         </div>
-        <div className="iskelet-blok">
-          {Array.from({ length: satir }, (_, i) => <Cizgi key={i} boy="1.6em" />)}
+        <div className="il-ozet">
+          {Array.from({ length: 4 }, (_, i) => <div key={i}><Cizgi en="70%" /><Cizgi en="45%" boy="1.9em" /></div>)}
+        </div>
+        <div className="il-bolum">
+          <Cizgi en="180px" boy="1.2em" />
+          <ul className="il-liste">{satirlar(satir)}</ul>
         </div>
       </div>
     </Gecikmeli>
