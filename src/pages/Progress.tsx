@@ -5,7 +5,8 @@ import { uye, useOturum } from "../lib/oturum";
 import { basamak } from "../lib/ilerleme";
 import { ALEV, KIVILCIM, PARILTI, gunSusu, rozetler } from "../../shared/motivasyon";
 import type { IlerlemeAyrintisi, TopicProgress } from "../../shared/api";
-import { TabloIskeleti } from "../components/Iskelet";
+import { IlerlemeIskeleti } from "../components/Iskelet";
+import { PRATIK, uniteBul, uniteYazi } from "../lib/pratik";
 
 type Gun = IlerlemeAyrintisi["takvim"][number];
 
@@ -84,43 +85,75 @@ function Takvim({ takvim }: { takvim: Gun[] }) {
 
 const SUS_ADI: Record<string, string> = { kivilcim: " · kıvılcım", parilti: " · parıltı", alev: " · alev günü 🔥" };
 
-function Bugun({ dogru, hedef, uyeMi }: { dogru: number; hedef: number; uyeMi: boolean }) {
-  if (!hedef) {
-    return (
-      <p className="hint bugun">
-        Bugün {dogru} doğru. Günlük hedefin kapalı; <a href={tabanaEkle("/ayarlar")}>Ayarlar</a>'dan açabilirsin.
-      </p>
-    );
-  }
-  const tamam = dogru >= hedef;
+const oran = (r: TopicProgress) => (r.total ? r.correct / r.total : 0);
+const yuzde = (x: number) => `%${Math.round(x * 100)}`;
+// "Ünitelere", "Haftalara": çoğul eki son ünlüye uyar
+const EK = /[aıou][^aeıioöuü]*$/.test(PRATIK.uniteAdi) ? "lara" : "lere";
+const UNITE = PRATIK.uniteAdi.charAt(0).toLocaleUpperCase("tr") + PRATIK.uniteAdi.slice(1);
+
+function Cubuk({ deger, toplam, etiket }: { deger: number; toplam: number; etiket: string }) {
+  const y = toplam ? Math.min(100, Math.round((deger / toplam) * 100)) : 0;
   return (
-    <div className={`bugun${tamam ? " tamam" : ""}`}>
-      <div>
-        <strong>{tamam ? "🎯 Günlük hedef tamam" : "Bugünkü hedef"}</strong>
-        <span className="hint">
-          {" "}{Math.min(dogru, hedef)} / {hedef} doğru
-          {tamam && dogru > hedef ? ` (toplam ${dogru})` : ""}
-          {!tamam && ` · ${hedef - dogru} kaldı`}
-        </span>
-      </div>
-      <div className="bar" role="progressbar" aria-valuemin={0} aria-valuemax={hedef} aria-valuenow={Math.min(dogru, hedef)} aria-label="Günlük hedef">
-        <div style={{ width: `${Math.min(100, Math.round((dogru / hedef) * 100))}%` }} />
-      </div>
-      <span className="hint">
-        {uyeMi ? <a href={tabanaEkle("/ayarlar")}>Hedefi değiştir</a> : <><a href={tabanaEkle("/kayit")}>Hesap açarsan</a> hedefini değiştirebilirsin.</>}
-      </span>
+    <div className="bar" role="progressbar" aria-valuemin={0} aria-valuemax={toplam} aria-valuenow={Math.min(deger, toplam)} aria-label={etiket}>
+      <div style={{ width: `${y}%` }} />
     </div>
   );
 }
 
-const oran = (r: TopicProgress) => (r.total ? r.correct / r.total : 0);
-const yuzde = (x: number) => `%${Math.round(x * 100)}`;
+// Sayfanın başı: bugün ne durumdasın ve şimdi ne yapmalısın. Tek bir birincil düğme vardır:
+// yanlışın varsa onları tekrar çöz, yoksa karma test.
+function Bugun({ dogru, hedef, seri, yanlis, hicYok, uyeMi }: { dogru: number; hedef: number; seri: number; yanlis: number; hicYok: boolean; uyeMi: boolean }) {
+  const tamam = hedef > 0 && dogru >= hedef;
+  const baslik = hicYok
+    ? "İlk sorunu çöz, ilerlemen burada birikir"
+    : !hedef
+      ? `Bugün ${dogru} doğru`
+      : tamam
+        ? "Bugünkü hedef tamam"
+        : `Bugünkü hedefe ${hedef - dogru} doğru kaldı`;
+  return (
+    <section className={`il-bugun${tamam ? " tamam" : ""}`} aria-labelledby="il-bugun-baslik">
+      <div className="il-bugun-metin">
+        <h2 id="il-bugun-baslik">{baslik}</h2>
+        {hedef > 0 ? (
+          <>
+            <Cubuk deger={dogru} toplam={hedef} etiket="Günlük hedef" />
+            <p className="hint">
+              {Math.min(dogru, hedef)} / {hedef} doğru{tamam && dogru > hedef ? ` (bugün toplam ${dogru})` : ""}
+              {seri > 0 && <>, {seri} gündür üst üste çalışıyorsun{seri >= 3 ? " 🔥" : ""}</>}.{" "}
+              {uyeMi ? <a href={tabanaEkle("/ayarlar")}>Hedefi değiştir</a> : <><a href={tabanaEkle("/kayit")}>Hesap açarsan</a> hedefini değiştirebilirsin.</>}
+            </p>
+          </>
+        ) : (
+          <p className="hint">Günlük hedefin kapalı; <a href={tabanaEkle("/ayarlar")}>Ayarlar</a>'dan açabilirsin.</p>
+        )}
+      </div>
+      <div className="il-bugun-dugmeler">
+        {yanlis > 0 ? (
+          <>
+            <a className="il-dugme birincil" href={tabanaEkle("/sorular?durum=yanlis")}>Yanlışlarını tekrar çöz ({yanlis})</a>
+            <a className="il-dugme" href={href({ page: "pratik" })}>Karma test</a>
+          </>
+        ) : (
+          <>
+            <a className="il-dugme birincil" href={href({ page: "pratik" })}>{hicYok ? "Karma teste başla" : "Karma test çöz"}</a>
+            <a className="il-dugme" href={href({ page: "tekrar" })}>Tekrar</a>
+          </>
+        )}
+      </div>
+    </section>
+  );
+}
+
+// Sayfada ilk anda gösterilen yanlış sayısı; gerisi "Hepsini göster" ile açılır
+const YANLIS_ILK = 6;
 
 export function Progress() {
   const { me } = useOturum();
   const [rows, setRows] = useState<TopicProgress[] | null>(null);
   const [ayrinti, setAyrinti] = useState<IlerlemeAyrintisi | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [tumYanlislar, setTumYanlislar] = useState(false);
 
   useEffect(() => {
     api.progress().then(setRows, (e) => setError(String(e)));
@@ -128,7 +161,7 @@ export function Progress() {
   }, []);
 
   if (error) return <p className="empty">İlerleme yüklenemedi: {error}</p>;
-  if (!rows || !ayrinti) return <TabloIskeleti />;
+  if (!rows || !ayrinti) return <IlerlemeIskeleti />;
 
   const toplam = rows.reduce((s, r) => s + r.total, 0);
   const dogru = rows.reduce((s, r) => s + r.correct, 0);
@@ -136,6 +169,7 @@ export function Progress() {
   const deneme = ayrinti.takvim.reduce((s, g) => s + g.deneme, 0);
   const dogruDeneme = ayrinti.takvim.reduce((s, g) => s + g.dogru, 0);
   const aktifGun = ayrinti.takvim.filter((g) => g.deneme).length;
+  const hicYok = denenen === 0 && deneme === 0;
 
   // Zayıf konular: denenmiş ve henüz bitmemiş konular, oranı en düşük olanlar
   const zayif = rows
@@ -143,38 +177,115 @@ export function Progress() {
     .sort((a, b) => oran(a) - oran(b) || b.total - a.total)
     .slice(0, 3);
 
-  const haftalar = [...new Set(rows.map((r) => r.week))].sort((a, b) => a - b).map((w) => {
-    const h = rows.filter((r) => r.week === w);
-    return { w, total: h.reduce((s, r) => s + r.total, 0), correct: h.reduce((s, r) => s + r.correct, 0) };
+  const uniteler = [...new Set(rows.map((r) => r.week))].sort((a, b) => a - b).map((w) => {
+    const konular = rows.filter((r) => r.week === w);
+    return { w, konular, total: konular.reduce((s, r) => s + r.total, 0), correct: konular.reduce((s, r) => s + r.correct, 0) };
   });
+  const yanlislar = tumYanlislar ? ayrinti.yanlislar : ayrinti.yanlislar.slice(0, YANLIS_ILK);
 
   return (
     <div className="progress">
+      <Bugun
+        dogru={ayrinti.takvim[ayrinti.takvim.length - 1]?.dogru ?? 0} hedef={ayrinti.hedef} seri={ayrinti.seri.simdi}
+        yanlis={ayrinti.yanlislar.length} hicYok={hicYok} uyeMi={uye(me)}
+      />
+
       {!uye(me) && (
-        <p className="hint">
+        <p className="hint il-misafir">
           İlerlemen bu tarayıcıda misafir olarak saklanıyor. <a href={tabanaEkle("/kayit")}>Hesap açarsan</a> hesabına taşınır ve her cihazda görürsün.
         </p>
       )}
 
-      <div className="ilerleme-ozet">
-        <div className="pano-kart"><strong>{dogru} / {toplam}</strong><span>soru çözüldü</span></div>
-        <div className="pano-kart"><strong>{deneme ? yuzde(dogruDeneme / deneme) : "–"}</strong><span>son 12 haftada isabet</span></div>
-        <div className="pano-kart"><strong>{aktifGun}</strong><span>aktif gün (12 hafta)</span></div>
-        <div className="pano-kart">
-          <strong>{ayrinti.seri.simdi}{ayrinti.seri.simdi >= 3 ? " 🔥" : ""}</strong>
-          <span>günlük seri · en uzun {ayrinti.seri.enUzun}</span>
+      <dl className="il-ozet">
+        <div><dt>Çözülen soru</dt><dd>{dogru}<span> / {toplam}</span></dd></div>
+        <div><dt>İsabet (12 hafta)</dt><dd>{deneme ? yuzde(dogruDeneme / deneme) : "–"}</dd></div>
+        <div><dt>Aktif gün (12 hafta)</dt><dd>{aktifGun}</dd></div>
+        <div><dt>Günlük seri</dt><dd>{ayrinti.seri.simdi}<span> gün, en uzun {ayrinti.seri.enUzun}</span></dd></div>
+      </dl>
+
+      {!hicYok && (
+        <div className="il-iki">
+          <section className="il-bolum" aria-labelledby="il-zayif">
+            <h3 id="il-zayif">Tekrar etmen gereken konular</h3>
+            {zayif.length === 0 ? (
+              <p className="hint">Denediğin konuların hepsini bitirmişsin.</p>
+            ) : (
+              <ul className="il-liste">
+                {zayif.map((r) => (
+                  <li key={r.topicId} className="il-konu">
+                    <a className="il-ad" href={`${href({ page: "sorular", topic: r.topicId })}?durum=cozulmemis`}>{r.title}</a>
+                    <span className="il-sayi">{r.correct} / {r.total}</span>
+                    <Cubuk deger={r.correct} toplam={r.total} etiket={`${r.title}: ${yuzde(oran(r))}`} />
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+
+          <section className="il-bolum" aria-labelledby="il-yanlis">
+            <h3 id="il-yanlis">Yanlış yaptıkların</h3>
+            {ayrinti.yanlislar.length === 0 ? (
+              <p className="hint">Denediğin halde doğru çözemediğin soru yok.</p>
+            ) : (
+              <>
+                <ul className="il-liste">
+                  {yanlislar.map((y) => (
+                    <li key={y.id} className="il-yanlis">
+                      <a className="il-ad" href={`${href({ page: "sorular", topic: y.topicId })}?durum=yanlis#soru-${encodeURIComponent(y.id)}`}>{y.ozet}</a>
+                      <span className="hint">{y.topicTitle}, {y.deneme} deneme</span>
+                    </li>
+                  ))}
+                </ul>
+                {ayrinti.yanlislar.length > YANLIS_ILK && !tumYanlislar && (
+                  <button type="button" className="il-daha" onClick={() => setTumYanlislar(true)}>
+                    Hepsini göster ({ayrinti.yanlislar.length})
+                  </button>
+                )}
+              </>
+            )}
+          </section>
         </div>
-      </div>
+      )}
 
-      <Bugun dogru={ayrinti.takvim[ayrinti.takvim.length - 1]?.dogru ?? 0} hedef={ayrinti.hedef} uyeMi={uye(me)} />
+      <section className="il-bolum" aria-labelledby="il-unite">
+        <h3 id="il-unite">{UNITE}{EK} göre ilerleme</h3>
+        <p className="hint">Her konuda en az bir kez doğru çözdüğün soruların oranı.</p>
+        <ul className="il-liste">
+          {uniteler.map((u) => {
+            const tek = u.konular.length === 1;
+            return (
+              <li key={u.w} className="il-unite">
+                <div className="il-konu">
+                  <a className="il-ad" href={href(tek ? { page: "sorular", topic: u.konular[0]!.topicId } : { page: "sorular", hafta: u.w })}>
+                    <span className="il-no">{uniteYazi(u.w)}</span> {tek ? u.konular[0]!.title : uniteBul(u.w)?.baslik}
+                  </a>
+                  <span className="il-sayi">{u.correct} / {u.total}</span>
+                  <Cubuk deger={u.correct} toplam={u.total} etiket={`${uniteYazi(u.w)}: ${yuzde(u.total ? u.correct / u.total : 0)}`} />
+                </div>
+                {!tek && (
+                  <ul className="il-alt">
+                    {u.konular.map((r) => (
+                      <li key={r.topicId} className="il-konu">
+                        <a className="il-ad" href={href({ page: "sorular", topic: r.topicId })}>{r.title}</a>
+                        <span className="il-sayi">{r.correct} / {r.total}</span>
+                        <Cubuk deger={r.correct} toplam={r.total} etiket={`${r.title}: ${yuzde(oran(r))}`} />
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </li>
+            );
+          })}
+        </ul>
+      </section>
 
-      <section className="ilerleme-bolum">
-        <h3>Etkinlik</h3>
+      <section className="il-bolum" aria-labelledby="il-etkinlik">
+        <h3 id="il-etkinlik">Son 12 hafta</h3>
         <Takvim takvim={ayrinti.takvim} />
       </section>
 
-      <section className="ilerleme-bolum">
-        <h3>Rozetler</h3>
+      <section className="il-bolum" aria-labelledby="il-rozet">
+        <h3 id="il-rozet">Rozetler</h3>
         <p className="hint">Yalnızca sen görürsün; kimseyle karşılaştırılmaz.</p>
         <ul className="rozetler">
           {rozetler({ enUzunSeri: ayrinti.seri.enUzun, alevGunleri: ayrinti.alevGunleri, hedefGunleri: ayrinti.hedefGunleri, cozulen: dogru, toplam }).map((r) => {
@@ -191,103 +302,6 @@ export function Progress() {
             );
           })}
         </ul>
-      </section>
-
-      <div className="ilerleme-iki">
-        <section className="ilerleme-bolum">
-          <h3>Tekrar etmen gereken konular</h3>
-          {zayif.length === 0 ? (
-            <p className="hint">{denenen ? "Denediğin konuların hepsini bitirmişsin." : "Birkaç soru çözünce zayıf konuların burada görünür."}</p>
-          ) : (
-            <ul className="zayif-konular">
-              {zayif.map((r) => (
-                <li key={r.topicId}>
-                  <div>
-                    <a href={href({ page: "sorular", topic: r.topicId })}>{r.title}</a>
-                    <span className="hint"> H{r.week} · {r.correct}/{r.total} doğru</span>
-                  </div>
-                  <div className="bar" role="img" aria-label={yuzde(oran(r))}><div style={{ width: `${Math.round(oran(r) * 100)}%` }} /></div>
-                  <a className="dugme-link" href={`${href({ page: "sorular", topic: r.topicId })}?durum=cozulmemis`}>Tekrar et</a>
-                </li>
-              ))}
-            </ul>
-          )}
-        </section>
-
-        <section className="ilerleme-bolum">
-          <h3>Haftalar</h3>
-          <ul className="hafta-cubuklari">
-            {haftalar.map((h) => (
-              <li key={h.w}>
-                <a href={href({ page: "sorular", hafta: h.w })}>Hafta {h.w}</a>
-                <div className="bar" role="img" aria-label={yuzde(h.total ? h.correct / h.total : 0)}>
-                  <div style={{ width: `${h.total ? Math.round((h.correct / h.total) * 100) : 0}%` }} />
-                </div>
-                <span className="hint">{h.correct}/{h.total}</span>
-              </li>
-            ))}
-          </ul>
-        </section>
-      </div>
-
-      <section className="ilerleme-bolum">
-        <h3>Yanlış yaptıklarım</h3>
-        {ayrinti.yanlislar.length === 0 ? (
-          <p className="hint">Denediğin halde doğru çözemediğin soru yok.</p>
-        ) : (
-          <>
-            <p>
-              Henüz doğru çözemediğin {ayrinti.yanlislar.length} soru.{" "}
-              <a className="dugme-link" href={tabanaEkle("/sorular?durum=yanlis")}>Hepsini tekrar çöz</a>
-            </p>
-            <ul className="yanlis-listesi">
-              {ayrinti.yanlislar.map((y) => (
-                <li key={y.id}>
-                  <a href={`${href({ page: "sorular", topic: y.topicId })}?durum=yanlis#soru-${encodeURIComponent(y.id)}`}>{y.ozet}</a>
-                  <span className="hint"> {y.topicTitle} · H{y.week} · {y.deneme} deneme</span>
-                </li>
-              ))}
-            </ul>
-          </>
-        )}
-      </section>
-
-      <section className="ilerleme-bolum">
-        <h3>Konular</h3>
-        <p className="hint">Her konuda en az bir kez doğru çözdüğün soruların oranı. Eksik olduğun konular üstte.</p>
-        <table>
-          <thead>
-            <tr>
-              <th>Hafta</th>
-              <th>Konu</th>
-              <th>Doğru</th>
-              <th>Durum</th>
-            </tr>
-          </thead>
-          <tbody>
-            {[...rows]
-              .sort((a, b) => oran(a) - oran(b))
-              .map((r) => {
-                const pct = Math.round(oran(r) * 100);
-                return (
-                  <tr key={r.topicId}>
-                    <td>{r.week}</td>
-                    <td>
-                      <a href={href({ page: "sorular", topic: r.topicId })}>{r.title}</a>
-                    </td>
-                    <td>
-                      {r.correct} / {r.total}
-                    </td>
-                    <td>
-                      <div className="bar" role="img" aria-label={`%${pct}`}>
-                        <div style={{ width: `${pct}%` }} />
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
-          </tbody>
-        </table>
       </section>
     </div>
   );
