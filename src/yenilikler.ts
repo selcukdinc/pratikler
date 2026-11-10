@@ -24,6 +24,17 @@ export interface Yenilik {
 
 export const YENILIKLER: Yenilik[] = [
   {
+    pr: 33,
+    tarih: "2026-11-10",
+    baslik: "Bütün pratikler tek adreste",
+    maddeler: [
+      "Pratikler artık tek adresin altında: `pratikler.selcukdinc.dev/girisimcilik`, `/fizik`, `/dsp` ... Hepsine aynı yerden ulaşır, birinden ötekine aynı hesapla geçersin.",
+      "Eski bağlantılar çalışmaya devam ediyor: `girisimcilik.selcukdinc.dev` gibi bir adresi açtığında aynı sayfanın yeni adresine kendiliğinden yönlenirsin. Yer imlerini ve arkadaşlarınla paylaştığın bağlantıları değiştirmen gerekmez.",
+      "İlerlemen, teman ve bu tarayıcıdaki taslakların (ders ilerlemesi, simülasyon projesi, betikler) yeni adrese seninle birlikte gelir.",
+      { metin: "Yeni pratik için alt alan adı açılmıyor: **Claude ile yeni pratik aç** formu adresi `pratikler.selcukdinc.dev/<ad>` olarak kurar, `wrangler.jsonc`'a satır eklenmez. Eski alan adları yalnızca yönlendirme için durur.", kitle: "yonetici" },
+    ],
+  },
+  {
     pr: 32,
     tarih: "2026-11-09",
     baslik: "Site bağımsız bir öğrenci projesi",
