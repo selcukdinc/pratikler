@@ -34,6 +34,11 @@ export const YENILIKLER: Yenilik[] = [
       "Aradığın ders yoksa **Ders iste** bağlantısıyla ders notunu ya da kitabını gönderebilirsin.",
       "Açılış sayfası her temada pratiklerle aynı renkleri kullanıyor; Karanlık temadaki yeşilimsi zemin gitti.",
       "Düğmeler ve arama kutusu telefonda parmakla rahat basılacak boyutta; sayfanın tamamı klavyeyle kullanılabiliyor.",
+    ],
+  },
+  {
+    pr: 33,
+    tarih: "2026-11-10",
     baslik: "Bütün pratikler tek adreste",
     maddeler: [
       "Pratikler artık tek adresin altında: `pratikler.selcukdinc.dev/girisimcilik`, `/fizik`, `/dsp` ... Hepsine aynı yerden ulaşır, birinden ötekine aynı hesapla geçersin.",
