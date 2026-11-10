@@ -6,6 +6,8 @@ import type { PratikMeta } from "../tipler.ts";
 export const girisimcilik: PratikMeta = {
   id: "girisimcilik",
   alt: "girisimcilik",
+  yol: "girisimcilik",
+  eskiAlan: true,
   ad: "Girişimcilik",
   alan: "İşletme",
   aciklama: "KOSGEB Girişimcilik El Kitabı'nın bölüm sonu soruları, çıkmış sorular ve türetilmiş sorular.",

@@ -9,6 +9,8 @@ import type { PratikMeta } from "../tipler.ts";
 export const isletme: PratikMeta = {
   id: "isletme",
   alt: "isletme",
+  yol: "isletme",
+  eskiAlan: true,
   ad: "İşletme",
   alan: "İşletme",
   aciklama:

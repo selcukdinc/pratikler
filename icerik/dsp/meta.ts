@@ -7,6 +7,8 @@ import type { PratikMeta } from "../tipler.ts";
 export const dsp: PratikMeta = {
   id: "dsp",
   alt: "dsp",
+  yol: "dsp",
+  eskiAlan: true,
   ad: "DSP",
   alan: "Mühendislik",
   aciklama:

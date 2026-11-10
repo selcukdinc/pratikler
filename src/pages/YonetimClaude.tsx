@@ -186,14 +186,14 @@ function YeniPratikFormu({ eklendi }: { eklendi: () => void }) {
       <h3 id="yeni-pratik-baslik">Claude ile yeni pratik aç</h3>
       <p className="hint">
         Kaynakları (.md'ye çevrilmiş ders notları, kitap bölümleri) bilgisayarında bir klasöre koy ve yolunu yaz. Ajan
-        Claude'a o klasörü okutur; meta bilgisini, üniteleri, soruları, alan adı satırını ve migration'ları hazırlatıp
+        Claude'a o klasörü okutur; meta bilgisini, üniteleri, soruları ve migration'ları hazırlatıp
         denetimlerden geçerse PR açar. Birleştirip <code>npm run db:migrate:remote</code> ve <code>npm run deploy</code>
-        çalıştırınca pratik yeni alt alan adında yayına çıkar.
+        çalıştırınca pratik <code>pratikler.selcukdinc.dev</code> altındaki kendi adresinde yayına çıkar; alt alan adı açılmaz.
       </p>
       <form onSubmit={gonder} className="yeni-pratik">
         {alan("ad", "Ad", { placeholder: "Devre Analizi", maxLength: 60 })}
         {alan("id", "Kimlik", { placeholder: "devre-analizi" })}
-        {alan("alt", "Alt alan adı", { placeholder: "devreanalizi" })}
+        {alan("alt", "Adresteki ad", { placeholder: "devreanalizi" })}
         {alan("onek", "Soru öneki", { placeholder: "da", maxLength: 4 })}
         {alan("alan", "Katalog alanı", { placeholder: "Mühendislik" })}
         {alan("kaynakKlasoru", "Kaynak klasörü", { placeholder: "~/Belgeler/dersler/devre-analizi" })}
@@ -204,7 +204,7 @@ function YeniPratikFormu({ eklendi }: { eklendi: () => void }) {
         </label>
         <div className="tam claude-yazici-alt">
           <p className="hint">
-            {g.alt ? <>Adres <strong>{g.alt}.selcukdinc.dev</strong> olacak; konu kimlikleri {g.onek || "?"}-u1, {g.onek || "?"}-u2 diye gider.</> : "Adı yazınca kimlik, alan adı ve önek kendiliğinden dolar; istersen değiştir."}
+            {g.alt ? <>Adres <strong>pratikler.selcukdinc.dev/{g.alt}</strong> olacak; konu kimlikleri {g.onek || "?"}-u1, {g.onek || "?"}-u2 diye gider.</> : "Adı yazınca kimlik, adres ve önek kendiliğinden dolar; istersen değiştir."}
           </p>
           <button type="submit" className="primary" disabled={mesgul || !g.ad.trim()}>{mesgul ? "Ekleniyor…" : "Pratiği sıraya ekle"}</button>
         </div>
@@ -283,7 +283,7 @@ function isBasligi(i: ClaudeIsi): string {
   if (i.tur === "pratik") {
     try {
       const g = JSON.parse(i.istek) as YeniPratikGirdi;
-      return `Yeni pratik: ${g.ad} (${g.alt}.selcukdinc.dev) · kaynak ${g.kaynakKlasoru}`;
+      return `Yeni pratik: ${g.ad} (pratikler.selcukdinc.dev/${g.alt}) · kaynak ${g.kaynakKlasoru}`;
     } catch {
       return "Yeni pratik";
     }

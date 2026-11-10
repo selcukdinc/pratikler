@@ -8,6 +8,8 @@ import type { PratikMeta } from "../tipler.ts";
 export const biyomedikal: PratikMeta = {
   id: "biyomedikal",
   alt: "biyomedikal",
+  yol: "biyomedikal",
+  eskiAlan: true,
   ad: "Biyomedikal",
   alan: "Mühendislik",
   aciklama:

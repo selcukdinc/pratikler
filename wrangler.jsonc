@@ -1,9 +1,10 @@
 {
 	"$schema": "node_modules/wrangler/config-schema.json",
-	// Bütün pratikler tek Worker ve tek D1 veritabanıyla çalışır; pratik, isteğin alt
-	// alan adından anlaşılır (worker/pratik.ts). Yeni pratik = icerik/<pratik>/ + aşağıya
-	// bir custom domain satırı. Mevcut ayrı sitelerin (fpga, dsp, girisimcilik, kimya,
-	// fizik, ayrik) alan adları burada YOK; onlar kendi Worker'larında kalır.
+	// Bütün pratikler tek Worker ve tek D1 veritabanıyla, tek adreste çalışır:
+	// pratikler.selcukdinc.dev/<pratik> (meta.yol). Yeni pratik = icerik/<pratik>/; buraya
+	// alan adı EKLENMEZ (Cloudflare'in custom domain sınırı). Aşağıdaki alt alan adları
+	// eskiden paylaşılmış bağlantılar kırılmasın diye durur ve yoldaki karşılığına
+	// yönlendirir (meta.eskiAlan, src/lib/eskiAdres.ts).
 	"name": "pratikler",
 	"main": "worker/index.ts",
 	"compatibility_date": "2026-10-01",

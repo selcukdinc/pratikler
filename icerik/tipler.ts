@@ -42,12 +42,15 @@ export interface EtiketTanim {
 export interface PratikMeta {
   // Kalıcı kimlik; soru kimliklerinin öneki ve veritabanındaki practice_id
   id: string;
-  // Alt alan adı: <alt>.selcukdinc.dev. Yol tabanlı pratikte alan adı açılmaz; yine
-  // de tek ve SQL'e gömülebilir bir kısa ad olarak tutulur.
+  // Tek ve SQL'e gömülebilir kısa ad. Eskiden pratiğin alt alan adıydı
+  // (<alt>.selcukdinc.dev); yeni pratiklere alan adı açılmaz.
   alt: string;
-  // Yol tabanlı pratik: pratikler.selcukdinc.dev/<yol> ("sinif6/turkce"). İlk parça
-  // kademenin kimliğidir (icerik/index.ts KADEMELER).
+  // Pratiğin adresi: pratikler.selcukdinc.dev/<yol> ("girisimcilik", "sinif6/turkce").
+  // Kademe dersinde ilk parça kademenin kimliğidir (icerik/index.ts KADEMELER).
   yol?: string;
+  // <alt>.selcukdinc.dev eskiden bu pratiğin adresiydi: alan adı Worker'da durur ve
+  // paylaşılmış eski bağlantılar yoldaki karşılığına yönlenir (src/lib/eskiAdres.ts).
+  eskiAlan?: boolean;
   // "Tıp Elektroniği"; site adı "<ad> Pratik" olur
   ad: string;
   // Katalogdaki grup: Mühendislik, Temel bilimler, İşletme, Sağlık...

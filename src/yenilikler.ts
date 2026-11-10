@@ -34,6 +34,12 @@ export const YENILIKLER: Yenilik[] = [
       "Aradığın ders yoksa **Ders iste** bağlantısıyla ders notunu ya da kitabını gönderebilirsin.",
       "Açılış sayfası her temada pratiklerle aynı renkleri kullanıyor; Karanlık temadaki yeşilimsi zemin gitti.",
       "Düğmeler ve arama kutusu telefonda parmakla rahat basılacak boyutta; sayfanın tamamı klavyeyle kullanılabiliyor.",
+    baslik: "Bütün pratikler tek adreste",
+    maddeler: [
+      "Pratikler artık tek adresin altında: `pratikler.selcukdinc.dev/girisimcilik`, `/fizik`, `/dsp` ... Hepsine aynı yerden ulaşır, birinden ötekine aynı hesapla geçersin.",
+      "Eski bağlantılar çalışmaya devam ediyor: `girisimcilik.selcukdinc.dev` gibi bir adresi açtığında aynı sayfanın yeni adresine kendiliğinden yönlenirsin. Yer imlerini ve arkadaşlarınla paylaştığın bağlantıları değiştirmen gerekmez.",
+      "İlerlemen, teman ve bu tarayıcıdaki taslakların (ders ilerlemesi, simülasyon projesi, betikler) yeni adrese seninle birlikte gelir.",
+      { metin: "Yeni pratik için alt alan adı açılmıyor: **Claude ile yeni pratik aç** formu adresi `pratikler.selcukdinc.dev/<ad>` olarak kurar, `wrangler.jsonc`'a satır eklenmez. Eski alan adları yalnızca yönlendirme için durur.", kitle: "yonetici" },
     ],
   },
   {

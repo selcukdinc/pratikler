@@ -7,6 +7,8 @@ import type { PratikMeta } from "../tipler.ts";
 export const ayrik: PratikMeta = {
   id: "ayrik",
   alt: "ayrik",
+  yol: "ayrik",
+  eskiAlan: true,
   ad: "Ayrık",
   alan: "Mühendislik",
   aciklama:

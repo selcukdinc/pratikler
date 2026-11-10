@@ -7,8 +7,9 @@ const mevcut = [{ id: "tip-elektronigi", alt: "tipelektronigi" }];
 describe("yeni pratik girdisi", () => {
   it("geçerli girdiyi kabul eder", () => expect(yeniPratikHatasi(g, mevcut)).toBeNull());
   it("eski sitelerin ve var olan pratiklerin alt alan adını reddeder", () => {
-    expect(yeniPratikHatasi({ ...g, alt: "fpga" }, mevcut)).toMatch(/başka bir sitede/);
-    expect(yeniPratikHatasi({ ...g, alt: "pratikler" }, mevcut)).toMatch(/başka bir sitede/);
+    expect(yeniPratikHatasi({ ...g, alt: "pratikler" }, mevcut)).toMatch(/kendi sayfalarından/);
+    expect(yeniPratikHatasi({ ...g, alt: "sorular" }, mevcut)).toMatch(/kendi sayfalarından/);
+    expect(yeniPratikHatasi({ ...g, alt: "sinif7" }, mevcut)).toMatch(/kendi sayfalarından/);
     expect(yeniPratikHatasi({ ...g, alt: "tipelektronigi" }, mevcut)).toMatch(/zaten var/);
   });
   it("biçimsiz kimlik, önek ve göreli klasör yolunu reddeder", () => {

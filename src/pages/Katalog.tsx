@@ -4,7 +4,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import type { KatalogPratik, PratikIlerlemesi } from "../../shared/api";
-import { KADEMELER, PRATIKLER, kademeBul, kademeninPratikleri } from "../../icerik/index";
+import { KADEMELER, PRATIKLER, kademeBul, kademeninPratikleri, pratiginKademesi } from "../../icerik/index";
 import { api } from "../lib/api";
 import { pratikBaglantisi } from "../lib/pratik";
 import { href, tabanaEkle } from "../lib/router";
@@ -138,9 +138,9 @@ export function Katalog() {
   const hepsi = liste ?? [];
   // Kademe dersleri (6. sınıf Türkçe) rafta tek tek değil, kademe kartıyla görünür;
   // aramada ise her ders kendi adıyla bulunur
-  const raf = hepsi.filter((p) => !meta(p.id).yol);
+  const raf = hepsi.filter((p) => !pratiginKademesi(meta(p.id)));
   const alanlar = [...new Set(raf.map((p) => p.alan))];
-  const kademeler = KADEMELER.filter((k) => hepsi.some((p) => meta(p.id).yol?.split("/")[0] === k.id));
+  const kademeler = KADEMELER.filter((k) => hepsi.some((p) => pratiginKademesi(meta(p.id))?.id === k.id));
   const suzgecler = [TUMU, ...alanlar, ...(kademeler.length > 0 ? [OKUL] : [])];
   const toplamSoru = hepsi.reduce((a, p) => a + p.soru, 0);
 
@@ -172,7 +172,7 @@ export function Katalog() {
   const kademeKartlari = (
     <ul className="raf-liste">
       {kademeler.map((k) => {
-        const dersler = hepsi.filter((p) => meta(p.id).yol?.split("/")[0] === k.id);
+        const dersler = hepsi.filter((p) => pratiginKademesi(meta(p.id))?.id === k.id);
         return (
           <li key={k.id}>
             <a href={href({ page: "kademe", id: k.id })}>

@@ -114,7 +114,7 @@ function AkademisyenSahnesi() {
   );
 }
 
-const BAGLANTI = "tipelektronigi.selcukdinc.dev/havuz/vize24";
+const BAGLANTI = "pratikler.selcukdinc.dev/tipelektronigi/havuz/vize24";
 
 function OgretmenSahnesi() {
   const t = useSahneZamani();
