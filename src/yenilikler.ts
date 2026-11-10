@@ -32,6 +32,7 @@ export const YENILIKLER: Yenilik[] = [
       "Dersler sayfanın en üstüne taşındı ve alan düğmeleriyle (Mühendislik, Temel bilimler, Okul...) süzülebiliyor. Giriş yaptıysan kaldığın dersler aramanın hemen altında.",
       "Sitenin öğrenciye, akademisyene ve öğretmene ne kazandırdığı tek bir **Nasıl çalışır?** bölümünde, sekmelerle anlatılıyor; sayfa eskisinin yarısı kadar.",
       "Aradığın ders yoksa **Ders iste** bağlantısıyla ders notunu ya da kitabını gönderebilirsin.",
+      "Açılış sayfası her temada pratiklerle aynı renkleri kullanıyor; Karanlık temadaki yeşilimsi zemin gitti.",
       "Düğmeler ve arama kutusu telefonda parmakla rahat basılacak boyutta; sayfanın tamamı klavyeyle kullanılabiliyor.",
     ],
   },
