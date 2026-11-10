@@ -4,7 +4,7 @@
 
 import { useEffect, useState } from "react";
 import type { KatalogPratik, PratikIlerlemesi } from "../../shared/api";
-import { KADEMELER, PRATIKLER, kademeBul, kademeninPratikleri } from "../../icerik/index";
+import { KADEMELER, PRATIKLER, kademeBul, kademeninPratikleri, pratiginKademesi } from "../../icerik/index";
 import { api } from "../lib/api";
 import { pratikBaglantisi } from "../lib/pratik";
 import { href, tabanaEkle } from "../lib/router";
@@ -152,7 +152,7 @@ export function Katalog() {
 
   const meta = (id: string) => PRATIKLER.find((p) => p.id === id)!;
   // Kademe dersleri (6. sınıf Türkçe) rafta tek tek değil, kademe kartıyla görünür
-  const raf = (liste ?? []).filter((p) => !meta(p.id).yol);
+  const raf = (liste ?? []).filter((p) => !pratiginKademesi(meta(p.id)));
   const alanlar = [...new Set(raf.map((p) => p.alan))];
   const kademeler = KADEMELER.filter((k) => (liste ?? []).some((p) => meta(p.id).yol?.split("/")[0] === k.id));
 

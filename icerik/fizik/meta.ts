@@ -6,6 +6,8 @@ import type { PratikMeta } from "../tipler.ts";
 export const fizik: PratikMeta = {
   id: "fizik",
   alt: "fizik",
+  yol: "fizik",
+  eskiAlan: true,
   ad: "Fizik",
   alan: "Temel bilimler",
   aciklama:
