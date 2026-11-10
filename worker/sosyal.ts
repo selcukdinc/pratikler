@@ -196,15 +196,16 @@ sosyal.post("/yazismalar/:id", async (c) => {
 });
 
 // Menüdeki sayaç
-sosyal.get("/okunmamis", async (c) => {
-  const id = c.get("me")!.id;
-  const r = await c.env.DB.prepare(
+export async function okunmamisSayilari(db: D1Database, id: string): Promise<Okunmamis> {
+  const r = await db.prepare(
     `SELECT (SELECT COUNT(*) FROM threads WHERE user_id = ?1 AND user_unread = 1) AS mesaj,
             (SELECT COUNT(*) FROM suggestions WHERE user_id = ?1 AND user_unread = 1) AS oneri`,
   )
     .bind(id)
     .first<Okunmamis>();
-  return c.json<Okunmamis>({ mesaj: r?.mesaj ?? 0, oneri: r?.oneri ?? 0 });
-});
+  return { mesaj: r?.mesaj ?? 0, oneri: r?.oneri ?? 0 };
+}
+
+sosyal.get("/okunmamis", async (c) => c.json<Okunmamis>(await okunmamisSayilari(c.env.DB, c.get("me")!.id)));
 
 export { sosyal };
