@@ -55,24 +55,24 @@ export function SoruIskeleti({ adet = 3 }: { adet?: number }) {
   );
 }
 
-// Katalog kartları: logo, ad ve iki satır açıklama
+// Çatı sayfasındaki ders rafı: alan başlığı ve iki sütun ders satırı (cati.css .raf-liste)
 export function KartIskeleti({ adet = 4 }: { adet?: number }) {
   return (
     <Gecikmeli>
-      <div className="iskelet-sayfa">
-        <Cizgi en="160px" boy="1.3em" />
-        <div className="katalog-izgara">
+      <div className="raf-alan">
+        <Cizgi en="110px" />
+        <ul className="raf-liste iskelet-raf">
           {Array.from({ length: adet }, (_, i) => (
-            <div key={i} className="katalog-kart iskelet-kart">
-              <span className="iskelet katalog-logo" />
-              <div className="katalog-govde">
-                <Cizgi en="55%" />
+            <li key={i}>
+              <span className="iskelet raf-logo" />
+              <span className="raf-govde">
+                <Cizgi en="45%" boy="1.2em" />
                 <Cizgi />
                 <Cizgi en="70%" />
-              </div>
-            </div>
+              </span>
+            </li>
           ))}
-        </div>
+        </ul>
       </div>
     </Gecikmeli>
   );

@@ -141,23 +141,26 @@ function OgretmenSahnesi() {
 
 const SAHNELER = [OgrenciSahnesi, AkademisyenSahnesi, OgretmenSahnesi];
 
-export function Vitrin({ sahne, sec, donuyor }: { sahne: number; sec: (i: number) => void; donuyor: boolean }) {
+// sec verilmezse sekmeler çizilmez; sahneyi çağıran taraf seçer (çatı sayfası)
+export function Vitrin({ sahne, sec, donuyor = false }: { sahne: number; sec?: (i: number) => void; donuyor?: boolean }) {
   const Sahne = SAHNELER[sahne]!;
   return (
-    <figure className="vitrin" aria-label="Pratikler ne işe yarar: kısa gösterim">
+    <figure className="vitrin" aria-label={`Kısa gösterim: ${KITLELER[sahne]!.ad}`}>
       <div className="vitrin-kart">
         <Sahne key={sahne} />
       </div>
-      <figcaption>
-        <div className="vitrin-sekmeler" role="tablist" aria-label="Kime göre göster">
-          {KITLELER.map((k, i) => (
-            <button key={k.ad} type="button" role="tab" aria-selected={i === sahne} onClick={() => sec(i)}>
-              {k.ad}
-              {i === sahne && donuyor && <span key={sahne} className="vitrin-sure" style={{ animationDuration: `${k.sure}ms` }} />}
-            </button>
-          ))}
-        </div>
-      </figcaption>
+      {sec && (
+        <figcaption>
+          <div className="vitrin-sekmeler" role="tablist" aria-label="Kime göre göster">
+            {KITLELER.map((k, i) => (
+              <button key={k.ad} type="button" role="tab" aria-selected={i === sahne} onClick={() => sec(i)}>
+                {k.ad}
+                {i === sahne && donuyor && <span key={sahne} className="vitrin-sure" style={{ animationDuration: `${k.sure}ms` }} />}
+              </button>
+            ))}
+          </div>
+        </figcaption>
+      )}
     </figure>
   );
 }

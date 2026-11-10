@@ -24,6 +24,18 @@ export interface Yenilik {
 
 export const YENILIKLER: Yenilik[] = [
   {
+    pr: 33,
+    tarih: "2026-11-10",
+    baslik: "Açılış sayfası yenilendi: dersini ara, hemen çöz",
+    maddeler: [
+      "pratikler.selcukdinc.dev artık bir soruyla açılıyor: **Bugün hangi dersi çalışacaksın?** Arama kutusuna dersin ya da konunun adını yazınca dersler süzülüyor; Türkçe harfleri yazmasan da (`isletme`, `turkce`) buluyor, Enter ilk sonucu açıyor.",
+      "Dersler sayfanın en üstüne taşındı ve alan düğmeleriyle (Mühendislik, Temel bilimler, Okul...) süzülebiliyor. Giriş yaptıysan kaldığın dersler aramanın hemen altında.",
+      "Sitenin öğrenciye, akademisyene ve öğretmene ne kazandırdığı tek bir **Nasıl çalışır?** bölümünde, sekmelerle anlatılıyor; sayfa eskisinin yarısı kadar.",
+      "Aradığın ders yoksa **Ders iste** bağlantısıyla ders notunu ya da kitabını gönderebilirsin.",
+      "Düğmeler ve arama kutusu telefonda parmakla rahat basılacak boyutta; sayfanın tamamı klavyeyle kullanılabiliyor.",
+    ],
+  },
+  {
     pr: 32,
     tarih: "2026-11-09",
     baslik: "Site bağımsız bir öğrenci projesi",
