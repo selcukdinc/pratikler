@@ -6,7 +6,7 @@ Ders ve kitaplar için açık kaynaklı, ücretsiz soru çalışma siteleri; hep
 
 | Pratik | Adres | Kaynak |
 | --- | --- | --- |
-| Tıp Elektroniği | [tipelektronigi.selcukdinc.dev](https://tipelektronigi.selcukdinc.dev) | Ders notları (1-4. hafta), Semmlow ve Subasi |
+| Tıp Elektroniği | [pratikler.selcukdinc.dev/tipelektronigi](https://pratikler.selcukdinc.dev/tipelektronigi) | Ders notları (1-4. hafta), Semmlow ve Subasi |
 
 ## Neler var?
 

@@ -207,6 +207,13 @@ export interface YeniPratikGirdi {
   kaynakKlasoru: string;
   notlar: string;
 }
+// Pratik adresi pratikler.selcukdinc.dev/<alt> olduğundan, sitenin kendi sayfalarının
+// ve dosya klasörlerinin adı pratik adı olamaz (src/lib/router.ts parsePath, public/)
+export const AYRILMIS_YOLLAR = [
+  "api", "assets", "logolar", "nvc", "pratik", "lab", "matstudio", "simulasyon", "cikmis", "sorular", "ders",
+  "ilerleme", "tekrar", "hakkinda", "tanitim", "sss", "yenilikler", "terimler", "gizlilik", "giris", "kayit",
+  "sifre-sifirla", "profil", "ayarlar", "oner", "mesajlar", "yonetim", "sinavlar", "havuz", "katalog",
+];
 const KIMLIK = /^[a-z][a-z0-9-]{1,30}$/;
 const ALT = /^[a-z][a-z0-9]{1,30}$/;
 const ONEK = /^[a-z]{2,4}$/;
@@ -214,10 +221,10 @@ const ONEK = /^[a-z]{2,4}$/;
 export function yeniPratikHatasi(g: Partial<YeniPratikGirdi>, mevcut: { id: string; alt: string }[]): string | null {
   if (!g.ad?.trim() || g.ad.trim().length > 60) return "Pratiğin adını yaz (en fazla 60 karakter).";
   if (!g.id || !KIMLIK.test(g.id)) return "Kimlik küçük harf, rakam ve tireden oluşmalı (ör. tip-elektronigi).";
-  if (!g.alt || !ALT.test(g.alt)) return "Alt alan adı küçük harf ve rakamdan oluşmalı, tire içermemeli (ör. tipelektronigi).";
+  if (!g.alt || !ALT.test(g.alt)) return "Adresteki ad küçük harf ve rakamdan oluşmalı, tire içermemeli (ör. tipelektronigi).";
   if (!g.onek || !ONEK.test(g.onek)) return "Soru öneki 2-4 küçük harf olmalı (ör. te).";
-  if (["pratikler", "www", "fpga", "dsp", "girisimcilik", "kimya", "fizik", "ayrik"].includes(g.alt)) return "Bu alt alan adı başka bir sitede kullanılıyor.";
-  if (mevcut.some((p) => p.id === g.id || p.alt === g.alt)) return "Bu kimlik ya da alt alan adıyla bir pratik zaten var.";
+  if (["pratikler", "www", ...AYRILMIS_YOLLAR].includes(g.alt) || /^sinif\d+$/.test(g.alt)) return "Bu ad sitenin kendi sayfalarından birinin adresi; başka bir ad seç.";
+  if (mevcut.some((p) => p.id === g.id || p.alt === g.alt)) return "Bu kimlik ya da adla bir pratik zaten var.";
   if (!g.alan?.trim()) return "Katalogdaki alanı yaz (ör. Mühendislik).";
   if (!g.kaynakKlasoru?.trim().startsWith("/") && !g.kaynakKlasoru?.trim().startsWith("~/")) return "Kaynak klasörünü bilgisayarındaki tam yoluyla yaz (ör. ~/Belgeler/dersler/devreler).";
   if ((g.notlar ?? "").length > 2000) return "Notlar en fazla 2000 karakter olabilir.";

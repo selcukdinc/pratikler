@@ -75,6 +75,7 @@ describe("yönlendirici", () => {
     expect(yoldanPratik("/sinif6")).toBeNull();
     expect(yoldanPratik("/sinif6/turkcex")).toBeNull();
     expect(hosttanPratik("sinif6turkce.selcukdinc.dev")).toBeNull();
+    expect(hosttanPratik("girisimcilik.selcukdinc.dev")?.id).toBe("girisimcilik");
     expect(pratikAdresi(yoldanPratik("/sinif6/turkce")!)).toBe("https://pratikler.selcukdinc.dev/sinif6/turkce");
   });
 });

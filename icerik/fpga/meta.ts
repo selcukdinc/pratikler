@@ -7,6 +7,8 @@ import type { PratikMeta } from "../tipler.ts";
 export const fpga: PratikMeta = {
   id: "fpga",
   alt: "fpga",
+  yol: "fpga",
+  eskiAlan: true,
   ad: "FPGA",
   alan: "Mühendislik",
   aciklama:

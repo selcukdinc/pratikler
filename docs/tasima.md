@@ -1,5 +1,7 @@
 # Eski bir siteyi çatıya taşıma (Faz 3)
 
+> **Not (2026-11):** Bütün eski siteler taşındı ve pratikler artık `pratikler.selcukdinc.dev/<yol>` adresinde açılıyor; eski alt alan adları yalnızca yönlendiriyor. Yeni bir site taşınırsa 4. adımda `meta.ts`'e ayrıca `yol` ve `eskiAlan: true` yazılır.
+
 Bu rehber, ayrı depoda çalışan eski bir pratik sitesini (kimya, fpga, dsp, fizik, ayrik, girisimcilik) `pratikler` platformuna taşımanın adımlarıdır. İlk uygulama kimya oldu. Diğer siteler aynı adımlarla taşınır.
 
 Temel kural şu: eski depo ve eski veritabanı hiç değiştirilmez, yalnızca okunur. Alan adı en son adımda çatıya geçer ve geri alınabilir.
