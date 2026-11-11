@@ -210,7 +210,7 @@ export interface YeniPratikGirdi {
 // Pratik adresi pratikler.selcukdinc.dev/<alt> olduğundan, sitenin kendi sayfalarının
 // ve dosya klasörlerinin adı pratik adı olamaz (src/lib/router.ts parsePath, public/)
 export const AYRILMIS_YOLLAR = [
-  "api", "assets", "logolar", "nvc", "pratik", "lab", "matstudio", "simulasyon", "cikmis", "sorular", "ders",
+  "api", "assets", "logolar", "nvc", "pratik", "lab", "matstudio", "simulasyon", "sandbox", "cikmis", "sorular", "ders",
   "ilerleme", "tekrar", "hakkinda", "tanitim", "sss", "yenilikler", "terimler", "gizlilik", "giris", "kayit",
   "sifre-sifirla", "profil", "ayarlar", "oner", "mesajlar", "yonetim", "sinavlar", "havuz", "katalog",
 ];

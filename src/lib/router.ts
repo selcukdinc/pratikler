@@ -11,6 +11,7 @@ export type Route =
   | { page: "lab"; deney?: string }
   | { page: "matstudio" }
   | { page: "simulasyon" }
+  | { page: "sandbox" }
   | { page: "cikmis"; sinav?: string }
   | { page: "sorular"; topic?: string; hafta?: number }
   | { page: "ders"; hafta?: number }
@@ -68,6 +69,8 @@ export function parsePath(path: string, search = ""): Route {
       return { page: "matstudio" };
     case "simulasyon":
       return { page: "simulasyon" };
+    case "sandbox":
+      return { page: "sandbox" };
     case "cikmis":
       return arg ? { page: "cikmis", sinav: parca(arg) } : { page: "cikmis" };
     case "sorular": {

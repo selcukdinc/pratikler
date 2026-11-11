@@ -24,6 +24,18 @@ export interface Yenilik {
 
 export const YENILIKLER: Yenilik[] = [
   {
+    pr: 38,
+    tarih: "2026-11-11",
+    baslik: "Git ve GitHub pratiği: Git sandbox'ı ve ilk 11 görev",
+    kitle: "yonetici",
+    maddeler: [
+      "Yeni Git sandbox sayfası (`/git/sandbox`, menüde yalnızca Git pratiğinde): gerçek git komutlarını yazdığın bir terminal, canlı commit grafiği (dallar, HEAD, etiketler) ve çalışma dizini, hazırlık alanı, depo şeridi. Dosyaya tıklayınca ya da `nano dosya` yazınca editör açılıyor.",
+      "Her komuttan sonra isteğe bağlı \"Ne oldu?\" notu: Git'in İngilizce çıktısını Türkçe açıklıyor, hatada ne yapacağını söylüyor. Geri al düğmesi son komutu geri alıyor.",
+      "Serbest alanın yanında Acemi kademesinin 11 görevi: kimlik ayarı, ilk depo, ilk commit, seçerek ekleme, yanlış ekleneni geri çekme, .gitignore, geçmişte dedektif, .env'i takipten çıkarma, dosya kurtarma, son commit'i düzeltme, master'dan main'e. Hedefler canlı işaretleniyor; ipuçları sırayla açılıyor; durumu değiştiren komut sayısına göre üç yıldız.",
+      "Her görevin örnek çözümü testte çalıştırılıyor (`icerik/git/istemci/gorevler.test.ts`). Sandbox sunucuya hiç istek atmıyor; ilerleme tarayıcıda saklanıyor.",
+    ],
+  },
+  {
     pr: 37,
     tarih: "2026-11-11",
     baslik: "Git ve GitHub pratiği: tarayıcıda çalışan Git motoru",

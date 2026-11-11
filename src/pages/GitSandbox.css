@@ -1,0 +1,175 @@
+/* Git sandbox'ı. Renkler temanın değişkenlerinden; terminal her temada koyu. */
+.gs {
+  --gs-term-bg: #16181d;
+  --gs-term-text: #d8dee9;
+  --gs-term-muted: #8a93a3;
+  --gs-yesil: #4fbf6a;
+  --gs-kirmizi: #f0686a;
+  --gs-sari: #d9a53a;
+  --gs-mavi: #5fb3e8;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 8px;
+  max-width: 1500px;
+  margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
+}
+.gs .panel-title { display: flex; align-items: center; gap: 8px; }
+.gs .panel-title .icon { margin-left: auto; font-size: 12px; color: var(--link); }
+.gs-bosluk { flex: 1; }
+.gs-ust { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.gs-kip { display: inline-flex; border: 1px solid var(--border); border-radius: 4px; overflow: hidden; }
+.gs-kip button { border: none; border-radius: 0; background: var(--panel); padding: 4px 12px; }
+.gs-kip button + button { border-left: 1px solid var(--border); }
+.gs-kip button.secili { background: var(--active); font-weight: 600; }
+.gs-sayac { font-size: 11px; color: var(--muted); margin-left: 4px; }
+.gs-gorev-sec { max-width: 100%; }
+.gs-secenek { display: inline-flex; align-items: center; gap: 4px; font-size: 13px; color: var(--muted); }
+
+/* görev kartı */
+.gs-gorev { padding: 10px 14px; border-left: 4px solid var(--link); }
+.gs-gorev.bitti { border-left-color: var(--green); }
+.gs-gorev h2 { font-size: 16px; margin: 0 0 4px; }
+.gs-gorev p { margin: 4px 0; line-height: 1.5; }
+.gs-unite { font-size: 11px; font-weight: 400; color: var(--muted); margin-left: 6px; }
+.gs-gorev-govde { display: grid; grid-template-columns: minmax(0, 3fr) minmax(220px, 2fr); gap: 16px; }
+.gs-hedefler { list-style: none; margin: 0; padding: 0; font-size: 14px; }
+.gs-hedefler li { padding: 3px 0; color: var(--muted); }
+.gs-hedefler li.tamam { color: var(--green); }
+.gs-hedefler li span { display: inline-block; width: 1.2em; font-weight: 700; }
+.gs-komut-sayisi { font-size: 12px; border-top: 1px solid var(--border-soft); margin-top: 4px; }
+.gs-ipuclari { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; margin-top: 6px; }
+.gs-ipucu { background: var(--tag-original-bg); color: var(--text); padding: 4px 8px; border-radius: 3px; }
+.gs-cozum { background: var(--pre-bg); border: 1px solid var(--pre-border); padding: 6px 10px; margin: 0; font-size: 13px; }
+.gs-tebrik { margin-top: 6px; }
+.gs-tebrik button { margin-top: 6px; }
+.gs-yildiz { color: var(--warning); font-size: 20px; letter-spacing: 2px; margin-right: 8px; vertical-align: -2px; }
+
+/* düzen: terminal | grafik, altında üç alan */
+.gs-izgara {
+  display: grid;
+  grid-template-columns: minmax(0, 11fr) minmax(0, 9fr);
+  grid-template-areas: "terminal grafik" "alanlar alanlar";
+  gap: 8px;
+}
+.gs-terminal { grid-area: terminal; height: 440px; }
+.gs-grafik { grid-area: grafik; height: 440px; }
+.gs-alanlar { grid-area: alanlar; }
+
+/* terminal */
+.gs-ekran {
+  flex: 1;
+  overflow: auto;
+  background: var(--gs-term-bg);
+  color: var(--gs-term-text);
+  font-family: var(--mono);
+  font-size: 13px;
+  line-height: 1.45;
+  padding: 8px 10px;
+  cursor: text;
+}
+.gs-satir { white-space: pre-wrap; overflow-wrap: anywhere; }
+.gs-komut { color: #fff; margin-top: 6px; }
+.gs-hata { color: var(--gs-kirmizi); }
+.gs-bilgi { color: var(--gs-term-muted); }
+.gs-not {
+  font-family: system-ui, sans-serif;
+  font-size: 13px;
+  white-space: normal;
+  background: rgb(95 179 232 / 12%);
+  border-left: 3px solid var(--gs-mavi);
+  padding: 4px 8px;
+  margin: 4px 0;
+  border-radius: 0 3px 3px 0;
+}
+.gs-not code { background: rgb(255 255 255 / 10%); padding: 0 3px; border-radius: 2px; color: #fff; }
+.gs-not-etiket { font-weight: 700; color: var(--gs-mavi); margin-right: 4px; }
+.gs-yesil { color: var(--gs-yesil); }
+.gs-kirmizi { color: var(--gs-kirmizi); }
+.gs-mavi { color: var(--gs-mavi); }
+.gs-sari { color: var(--gs-sari); }
+.gs-girdi-satiri { display: flex; gap: 6px; margin-top: 6px; }
+.gs-istem { color: var(--gs-yesil); white-space: nowrap; }
+.gs-girdi-satiri input {
+  flex: 1;
+  min-width: 0;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #fff;
+  font-family: var(--mono);
+  font-size: 13px;
+  padding: 0;
+  caret-color: var(--gs-yesil);
+}
+.gs-hizli { display: flex; gap: 4px; padding: 6px; overflow-x: auto; border-top: 1px solid var(--border); background: var(--panel-header); }
+.gs-hizli button { font-family: var(--mono); font-size: 12px; white-space: nowrap; padding: 2px 8px; }
+
+/* commit grafiği */
+.gs-grafik-kaydir { flex: 1; overflow: auto; padding: 6px 4px; }
+.gs-grafik-ic { position: relative; }
+.gs-grafik-svg { position: absolute; left: 0; top: 0; }
+.gs-commitler { list-style: none; margin: 0; padding: 0; }
+.gs-commitler li { display: flex; align-items: center; gap: 6px; white-space: nowrap; font-size: 13px; padding-left: 4px; }
+.gs-commitler li.head { font-weight: 600; }
+.gs-grafik .gs-sari, .gs-alanlar .gs-sari { color: var(--warning); }
+.gs-ozet { overflow: hidden; text-overflow: ellipsis; }
+.gs-cip { font-size: 11px; padding: 0 6px; border-radius: 9px; border: 1px solid; line-height: 17px; font-weight: 600; }
+.gs-cip-dal { color: var(--green); border-color: var(--green); }
+.gs-cip-dal.etkin { background: var(--green); color: #fff; }
+.gs-cip-head { color: var(--error); border-color: var(--error); }
+.gs-cip-uzak { color: var(--error); border-color: currentColor; opacity: 0.85; }
+.gs-cip-etiket { color: var(--warning); border-color: var(--warning); }
+
+/* üç alan */
+.gs-alanlar { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) auto minmax(0, 1fr); gap: 4px; align-items: stretch; }
+.gs-alan { min-height: 160px; }
+.gs-alan ul { list-style: none; margin: 0; padding: 6px 8px; overflow: auto; max-height: 220px; }
+.gs-alan li { display: flex; align-items: baseline; gap: 6px; padding: 1px 0; font-size: 13px; }
+.gs-alan li.empty { padding: 4px 0; display: block; font-size: 12px; }
+.gs-dosya { font-family: var(--mono); font-size: 13px; border: none; background: none; padding: 0; color: var(--text); text-align: left; overflow-wrap: anywhere; }
+button.gs-dosya { cursor: pointer; }
+button.gs-dosya:hover { text-decoration: underline; color: var(--link); }
+.gs-durum { font-size: 11px; color: var(--muted); margin-left: auto; white-space: nowrap; }
+.d-izlenmiyor, .d-degisti, .d-silindi, .d-cakisma { color: var(--error); }
+.d-silindi, .h-silindi { text-decoration: line-through; }
+.d-cakisma { font-weight: 700; }
+.d-yok { color: var(--muted); opacity: 0.7; }
+.h-yeni, .h-degisti, .h-silindi { color: var(--green); }
+.gs-alan-not { font-size: 12px; color: var(--muted); margin: 0; padding: 0 8px 6px; }
+.gs-head { margin: 0; padding: 6px 8px 0; font-size: 13px; }
+.gs-ok { display: flex; flex-direction: column; justify-content: center; gap: 6px; font-family: var(--mono); font-size: 11px; color: var(--muted); text-align: center; padding: 0 2px; }
+
+/* editör */
+.gs-editor-arka { position: fixed; inset: 0; background: rgb(0 0 0 / 40%); display: flex; align-items: center; justify-content: center; z-index: 50; padding: 16px; }
+.gs-editor { width: min(760px, 100%); height: min(560px, 90vh); box-shadow: 0 8px 30px rgb(0 0 0 / 35%); }
+.gs-editor textarea {
+  flex: 1;
+  resize: none;
+  border: none;
+  outline: none;
+  padding: 10px;
+  font-family: var(--mono);
+  font-size: 14px;
+  line-height: 1.5;
+  background: var(--input);
+  color: var(--text);
+  tab-size: 2;
+}
+.gs-editor-alt { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-top: 1px solid var(--border); flex-wrap: wrap; }
+.gs-kisayol { font-size: 12px; color: var(--muted); }
+
+@media (max-width: 900px) {
+  .gs { padding: 6px; }
+  .gs-gorev-govde { grid-template-columns: 1fr; gap: 6px; }
+  .gs-izgara { grid-template-columns: minmax(0, 1fr); grid-template-areas: "terminal" "alanlar" "grafik"; }
+  .gs-terminal { height: 60vh; min-height: 320px; }
+  .gs-grafik { height: auto; max-height: 360px; }
+  .gs-alanlar { grid-template-columns: minmax(0, 1fr); }
+  .gs-ok { flex-direction: row; justify-content: center; }
+  .gs-alan { min-height: 0; }
+  /* iOS'ta odaklanınca yakınlaştırmasın */
+  .gs-girdi-satiri input { font-size: 16px; }
+}
