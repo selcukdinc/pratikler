@@ -11,6 +11,7 @@ import * as isIngilizcesi from "./is-ingilizcesi/sorular/index.ts";
 import * as biyomedikal from "./biyomedikal/sorular/index.ts";
 import * as sinif6Turkce from "./sinif6-turkce/sorular/index.ts";
 import * as isletme from "./isletme/sorular/index.ts";
+import * as git from "./git/sorular/index.ts";
 
 export const SORULAR: Record<string, PratikSorulari> = {
   "tip-elektronigi": tipElektronigi,
@@ -24,4 +25,5 @@ export const SORULAR: Record<string, PratikSorulari> = {
   fpga,
   girisimcilik,
   "sinif6-turkce": sinif6Turkce,
+  git,
 };

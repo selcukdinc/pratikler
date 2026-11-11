@@ -19,10 +19,10 @@ if (!pratik || !hedef) {
 const { konular, sorular } = SORULAR[pratik.id]!;
 
 // DSP kaynaklarında MatStudio'nun ~ işleci (~=, ~x) için ¬ yazılır; Ayrık'ta ¬ gerçek
-// mantık sembolüdür, o yüzden bu dönüşüm yalnızca DSP'de yapılır
+// mantık sembolüdür, o yüzden bu dönüşüm yalnızca DSP ve Git (HEAD¬1, ¬/.gitconfig) için yapılır
 const md = (s: string) => {
   const t = s.replace(/~/g, "`");
-  return pratik.id === "dsp" ? t.replace(/¬/g, "~") : t;
+  return pratik.id === "dsp" || pratik.id === "git" ? t.replace(/¬/g, "~") : t;
 };
 const q = (s: string | null) => (s === null ? "NULL" : `'${s.replace(/'/g, "''")}'`);
 

@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#37474F"/>
+      <stop offset="1" stop-color="#1C262B"/>
+    </linearGradient>
+  </defs>
+  <rect x="100" y="100" width="824" height="824" rx="185" fill="url(#bg)"/>
+  <!-- commit grafiği: ana hat, ayrılan bir dal ve geri birleşme -->
+  <path d="M380 260 V764" stroke="#FFFFFF" stroke-width="56" stroke-linecap="round" fill="none"/>
+  <path d="M380 400 C380 470 644 450 644 530 V560 C644 640 380 620 380 690" stroke="#FF8A3D" stroke-width="56" stroke-linecap="round" fill="none"/>
+  <circle cx="380" cy="270" r="62" fill="#FFFFFF"/>
+  <circle cx="644" cy="545" r="62" fill="#FF8A3D"/>
+  <circle cx="380" cy="754" r="62" fill="#FFFFFF"/>
+</svg>

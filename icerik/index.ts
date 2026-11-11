@@ -12,10 +12,11 @@ import { isIngilizcesi } from "./is-ingilizcesi/meta.ts";
 import { biyomedikal } from "./biyomedikal/meta.ts";
 import { sinif6Turkce } from "./sinif6-turkce/meta.ts";
 import { isletme } from "./isletme/meta.ts";
+import { git } from "./git/meta.ts";
 
 export type { PratikMeta } from "./tipler.ts";
 
-export const PRATIKLER: PratikMeta[] = [tipElektronigi, biyomedikal, isIngilizcesi, isletme, kimya, dsp, fizik, ayrik, fpga, girisimcilik, sinif6Turkce];
+export const PRATIKLER: PratikMeta[] = [tipElektronigi, biyomedikal, isIngilizcesi, isletme, kimya, dsp, fizik, ayrik, fpga, girisimcilik, sinif6Turkce, git];
 
 // Çatı sitesinin alt alan adı (katalog, tek hesap)
 export const CATI_ALT = "pratikler";
