@@ -1,7 +1,7 @@
 import type { KodBilgisi } from "./kod";
 // İstemci ile Worker arasındaki veri tipleri
 
-import type { QuestionType } from "./grade";
+import type { Answer, QuestionType } from "./grade";
 import type { GunlukDurum, Seriler } from "./motivasyon";
 
 export interface Me {
@@ -56,6 +56,11 @@ export interface Question {
   kavram?: string | null;
   // Üye önerisinden gelen ve adı görünsün denmiş sorularda
   oneren?: string;
+  // Perdelenmiş cevap anahtarı ve açıklama (shared/perde.ts, JSON {a, e}); cevap tarayıcıda
+  // değerlendirilir. Kod sorularında yoktur, onlar sunucuda sınanır.
+  cozum?: string;
+  // Soru listesi alındığı andaki anonim toplamlar; cevaptan sonra gösterilir
+  ist?: SoruIstatistigi;
 }
 
 // Pratiğin etiket kimliği (icerik/<pratik>/meta.ts etiketler): ges, cikmis, turetilmis, ders, kitap...
@@ -77,6 +82,38 @@ export interface AnswerResult {
   istatistik?: SoruIstatistigi;
   // Doğru cevaptan sonra bugünkü doğru sayısı ve hedef
   gunluk?: GunlukDurum;
+}
+
+// Toplu gönderilen cevaplar (POST /cevaplar): tarayıcı cevapları biriktirir, sunucu
+// yeniden puanlayıp kaydeder. at: cevabın verildiği an (ms)
+export interface KuyrukCevabi {
+  id: string;
+  answer: Answer;
+  at: number;
+}
+export const TOPLU_CEVAP_SINIRI = 25;
+
+export interface TopluCevapSonucu {
+  kaydedilen: number;
+  gunluk: GunlukDurum;
+  // Menüdeki "bugün tekrar edilecek" sayısı (istek ?gunluk= ile geldiyse)
+  tekrarSayisi: number;
+}
+
+// Sayfa açılışında tek istekte gelenler (GET /baslangic); pratik yoksa (çatı) yalnızca oturum
+export interface Baslangic {
+  me: (Me & { epostaAcik: boolean }) | { epostaAcik: boolean; id?: undefined };
+  okunmamis: { mesaj: number; oneri: number };
+  pratik?: {
+    currentWeek: number;
+    topics: Topic[];
+    announcement: string | null;
+    durumlar: SoruDurumlari;
+    // Sayının hesaplandığı günlük tekrar sınırı (üyede hesaptaki, misafirde istekteki)
+    tekrarSayisi: number;
+    tekrarGunluk: number;
+    gunluk: GunlukDurum;
+  };
 }
 
 // Kullanıcının sorulardaki durumu: en az bir kez doğru çözdüyse "dogru",

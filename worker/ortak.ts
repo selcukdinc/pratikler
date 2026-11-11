@@ -1,4 +1,5 @@
-import type { Etiket, Question } from "../shared/api";
+import type { Etiket, Question, SoruIstatistigi } from "../shared/api";
+import { perdele } from "../shared/perde";
 import type { QuestionType } from "../shared/grade";
 
 // Worker modüllerinin paylaştığı küçük yardımcılar: ayarlar, görünür soru koşulu, gün sınırları
@@ -71,6 +72,35 @@ export const soruyaCevir = (r: SoruListeSatiri): Question => ({
   kavram: r.kavram,
   etiketler: etiketleriAyir(r.etiketler, r.source),
   ...(r.oneren ? { oneren: r.oneren } : {}),
+});
+
+// Öğrenciye giden soru listeleri: cevap anahtarı ve açıklama perdelenmiş olarak, anonim
+// toplamlar sayaç satırından eklenir. Cevap tarayıcıda değerlendirilir, böylece her cevap
+// için sunucuya istek atılmaz (worker/cevaplar.ts toplu gelenleri yeniden puanlar).
+export const SIK_SAYACLARI = 8;
+const SAYAC_SUTUNLARI = ["kisi", "ilk_dogru", ...Array.from({ length: SIK_SAYACLARI }, (_, i) => `s${i}`)];
+export const COZUMLU_SUTUNLAR = `${SORU_SUTUNLARI}, q.answer AS c_answer, q.explanation AS c_explanation,
+  (SELECT json_array(${SAYAC_SUTUNLARI.map((s) => `y.${s}`).join(", ")}) FROM soru_sayaclari y WHERE y.question_id = q.id) AS c_sayac`;
+
+export type CozumluSatir = SoruListeSatiri & { c_answer: string; c_explanation: string | null; c_sayac: string | null };
+
+export function istatistikCoz(sayac: string | null, type: QuestionType, payload: string): SoruIstatistigi {
+  const s = sayac ? (JSON.parse(sayac) as number[]) : [];
+  const ist: SoruIstatistigi = { kisi: s[0] ?? 0, ilkDogru: s[1] ?? 0 };
+  if (type === "mcq") {
+    const sikSayisi = ((JSON.parse(payload) as { choices?: string[] }).choices ?? []).length;
+    ist.siklar = Array.from({ length: sikSayisi }, (_, i) => s[2 + i] ?? 0);
+  }
+  return ist;
+}
+
+export const cozumluSoru = (r: CozumluSatir): Question => ({
+  ...soruyaCevir(r),
+  // Kod soruları sunucuda sınanır; anahtarları (referans model) istemciye gitmez
+  ...(r.type === "code" || r.type === "wave"
+    ? {}
+    : { cozum: perdele(r.id, JSON.stringify({ a: JSON.parse(r.c_answer), e: r.c_explanation })) }),
+  ist: istatistikCoz(r.c_sayac, r.type, r.payload),
 });
 
 // "ges,cikmis" biçimindeki sütunu listeye çevirir; boşsa kaynaktan tahmin eder

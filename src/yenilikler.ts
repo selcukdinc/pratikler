@@ -24,6 +24,31 @@ export interface Yenilik {
 
 export const YENILIKLER: Yenilik[] = [
   {
+    pr: 35,
+    tarih: "2026-11-10",
+    baslik: "Cevaplar anında, site daha hafif",
+    maddeler: [
+      "Cevabını kontrol ettiğinde sonuç ve açıklama beklemeden görünüyor: cevap artık tarayıcında değerlendiriliyor. Bağlantın yavaşken ya da kısa süreliğine kesildiğinde de soru çözmeye devam edebilirsin.",
+      "Cevapların arka planda toplu olarak kaydediliyor (birkaç soruda bir, sayfa değiştirirken ve sekmeyi kapatırken). İlerlemen, tekrar kutuların ve günlük hedefin eskisi gibi çalışıyor; sekmeyi kapatsan da gönderilmemiş cevapların bir sonraki ziyaretinde kaydedilir.",
+      "Cevaptan sonra gördüğün \"kaç kişi hangi şıkkı seçti\" oranları yerinde duruyor. Oranlar soru listesiyle birlikte geldiği için birkaç dakika gecikmeli olabilir; kendi cevabın hemen eklenir.",
+      "Sayfalar arasında gezerken soru listesi yeniden indirilmiyor, geçişler hızlandı.",
+      { metin: "Sunucuya giden istek sayısı ziyaret başına 35-40'tan 3-4'e indi: açılış tek istek (`/api/baslangic`), cevaplar toplu (`/api/cevaplar`), şık oranları `soru_sayaclari` tablosundan. Yayından önce `0032_soru_sayaclari.sql` uygulanmalı.", kitle: "yonetici" },
+    ],
+  },
+  {
+    pr: 34,
+    tarih: "2026-11-10",
+    baslik: "Açılış sayfası yenilendi: dersini ara, hemen çöz",
+    maddeler: [
+      "pratikler.selcukdinc.dev artık bir soruyla açılıyor: **Bugün hangi dersi çalışacaksın?** Arama kutusuna dersin ya da konunun adını yazınca dersler süzülüyor; Türkçe harfleri yazmasan da (`isletme`, `turkce`) buluyor, Enter ilk sonucu açıyor.",
+      "Dersler sayfanın en üstüne taşındı ve alan düğmeleriyle (Mühendislik, Temel bilimler, Okul...) süzülebiliyor. Giriş yaptıysan kaldığın dersler aramanın hemen altında.",
+      "Sitenin öğrenciye, akademisyene ve öğretmene ne kazandırdığı tek bir **Nasıl çalışır?** bölümünde, sekmelerle anlatılıyor; sayfa eskisinin yarısı kadar.",
+      "Aradığın ders yoksa **Ders iste** bağlantısıyla ders notunu ya da kitabını gönderebilirsin.",
+      "Açılış sayfası her temada pratiklerle aynı renkleri kullanıyor; Karanlık temadaki yeşilimsi zemin gitti.",
+      "Düğmeler ve arama kutusu telefonda parmakla rahat basılacak boyutta; sayfanın tamamı klavyeyle kullanılabiliyor.",
+    ],
+  },
+  {
     pr: 33,
     tarih: "2026-11-10",
     baslik: "Bütün pratikler tek adreste",

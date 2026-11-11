@@ -151,7 +151,7 @@ function KapaliKart({ q, n, dersBagi, durum, onSonuc }: IcOzellikler) {
     setSending(true);
     setError(null);
     try {
-      const r = await api.answer(q.id, gonderilen);
+      const r = await api.answer(q, gonderilen);
       setResult(r);
       onSonuc?.(r.correct);
     } catch (e) {
@@ -165,7 +165,7 @@ function KapaliKart({ q, n, dersBagi, durum, onSonuc }: IcOzellikler) {
     setSending(true);
     setError(null);
     try {
-      setCozum((await api.cozum(q.id)).cozum);
+      setCozum((await api.cozum(q)).cozum);
     } catch (e) {
       setError(String(e));
     } finally {

@@ -148,7 +148,7 @@ function SinavSayfasi({ sinav }: { sinav: CikmisSinav }) {
       for (const q of sorular) {
         const i = secimler[q.id];
         if (i === undefined) continue;
-        s[q.id] = await api.answer(q.id, { index: i });
+        s[q.id] = await api.answer(q, { index: i });
       }
       setSonuclar(s);
       document.querySelector(".workspace-body")?.scrollTo({ top: 0, behavior: "smooth" });

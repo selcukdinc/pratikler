@@ -3,7 +3,7 @@
 
 import { Hono } from "hono";
 import type { Env } from "./session";
-import { GUN_MS, SORU_SUTUNLARI, bugunBasi, gorunurKosul, pratikKosulu, soruyaCevir, type SoruListeSatiri } from "./ortak";
+import { COZUMLU_SUTUNLAR, GUN_MS, bugunBasi, cozumluSoru, gorunurKosul, pratikKosulu, type CozumluSatir } from "./ortak";
 import { pid } from "./pratik";
 import {
   GUNLUK_TEKRAR, ILISKILI_SAYISI, OGRENILDI, SON_KUTU, TAKVIM_GUN, gunlukGecerli, sonrakiKutu, type TekrarCevabi, type TekrarKaynagi,
@@ -11,36 +11,46 @@ import {
 
 type Satir = { kutu: number; sonraki: number; kaynak: TekrarKaynagi; son_tekrar: number | null };
 
-export async function tekrarIsle(db: D1Database, pratik: string, userId: string, soruId: string, dogru: boolean) {
-  const simdi = Date.now();
-  const bugun = bugunBasi();
-  const r = await db.prepare("SELECT kutu, sonraki, kaynak, son_tekrar FROM tekrarlar WHERE user_id = ? AND question_id = ?")
-    .bind(userId, soruId)
-    .first<Satir>();
+export type TekrarSatiri = Satir;
+
+// Bir cevabın tekrar kutularına etkisi: çalıştırılacak sorgular ve satırın yeni hali.
+// Sorgu çalıştırmaz; toplu cevaplarda (worker/cevaplar.ts) bütün cevapların sorguları
+// tek batch'te gider. r: kişinin bu sorudaki mevcut satırı (yoksa null),
+// gorunur: gorunurKosul(db, pratik) sonucu.
+export function tekrarAdimi(
+  db: D1Database, gorunur: string, userId: string, soruId: string, dogru: boolean, r: Satir | null, simdi: number, bugun: number,
+): { sorgular: D1PreparedStatement[]; yeni: Satir | null } {
   // Vadesi gelmiş bir sorunun cevabı tekrar sayılır (günlük sınıra girer)
   const vadeli = !!r && r.kutu < OGRENILDI && r.sonraki <= simdi;
 
   if (dogru) {
-    if (!r) return;
+    if (!r) return { sorgular: [], yeni: null };
     if (vadeli) {
       const g = sonrakiKutu(r.kutu, true);
-      await db.prepare("UPDATE tekrarlar SET kutu = ?, sonraki = ?, son_tekrar = ? WHERE user_id = ? AND question_id = ?")
-        .bind(g.kutu, g.gun === null ? 0 : bugun + g.gun * GUN_MS, simdi, userId, soruId)
-        .run();
-    } else if (r.kaynak === "iliskili" && r.son_tekrar === null) {
-      // Tekrara eklenen yeni soru, sırası gelmeden havuzda çözüldü: artık sorulmasına gerek yok
-      await db.prepare("DELETE FROM tekrarlar WHERE user_id = ? AND question_id = ?").bind(userId, soruId).run();
+      const sonraki = g.gun === null ? 0 : bugun + g.gun * GUN_MS;
+      return {
+        sorgular: [
+          db.prepare("UPDATE tekrarlar SET kutu = ?, sonraki = ?, son_tekrar = ? WHERE user_id = ? AND question_id = ?")
+            .bind(g.kutu, sonraki, simdi, userId, soruId),
+        ],
+        yeni: { ...r, kutu: g.kutu, sonraki, son_tekrar: simdi },
+      };
     }
-    return;
+    if (r.kaynak === "iliskili" && r.son_tekrar === null) {
+      // Tekrara eklenen yeni soru, sırası gelmeden havuzda çözüldü: artık sorulmasına gerek yok
+      return { sorgular: [db.prepare("DELETE FROM tekrarlar WHERE user_id = ? AND question_id = ?").bind(userId, soruId)], yeni: null };
+    }
+    return { sorgular: [], yeni: r };
   }
 
   const g = sonrakiKutu(r?.kutu ?? 1, false);
+  const sonraki = bugun + g.gun! * GUN_MS;
   const sorgular = [
     db.prepare(
       `INSERT INTO tekrarlar (user_id, question_id, kutu, sonraki, kaynak, eklendi, son_tekrar) VALUES (?, ?, ?, ?, 'yanlis', ?, ?)
        ON CONFLICT(user_id, question_id) DO UPDATE SET kutu = excluded.kutu, sonraki = excluded.sonraki, kaynak = 'yanlis',
          son_tekrar = COALESCE(excluded.son_tekrar, tekrarlar.son_tekrar)`,
-    ).bind(userId, soruId, g.kutu, bugun + g.gun! * GUN_MS, simdi, vadeli ? simdi : null),
+    ).bind(userId, soruId, g.kutu, sonraki, simdi, vadeli ? simdi : null),
   ];
   // İlk kez yanlış yapılan (ya da öğrenilmişken unutulan) sorunun kavramından,
   // kişinin hiç denemediği birkaç soru da ertesi güne eklenir. Önce yedek havuzdan
@@ -51,7 +61,7 @@ export async function tekrarIsle(db: D1Database, pratik: string, userId: string,
         `INSERT OR IGNORE INTO tekrarlar (user_id, question_id, kutu, sonraki, kaynak, eklendi)
          SELECT ?1, q.id, 1, ?2, 'iliskili', ?3
          FROM questions q, (SELECT kavram, topic_id FROM questions WHERE id = ?4) k
-         WHERE ${await gorunurKosul(db, pratik)} AND q.id <> ?4
+         WHERE ${gorunur} AND q.id <> ?4
            AND (q.kavram = k.kavram OR (k.kavram IS NULL AND q.topic_id = k.topic_id))
            AND NOT EXISTS (SELECT 1 FROM attempts a WHERE a.user_id = ?1 AND a.question_id = q.id)
            AND NOT EXISTS (SELECT 1 FROM tekrarlar t WHERE t.user_id = ?1 AND t.question_id = q.id)
@@ -59,8 +69,33 @@ export async function tekrarIsle(db: D1Database, pratik: string, userId: string,
       ).bind(userId, bugun + GUN_MS, simdi, soruId),
     );
   }
-  await db.batch(sorgular);
+  return { sorgular, yeni: { kutu: g.kutu, sonraki, kaynak: "yanlis", son_tekrar: vadeli ? simdi : (r?.son_tekrar ?? null) } };
 }
+
+// Tek bir cevap için (kod soruları): satırı okur ve adımı hemen uygular
+export async function tekrarIsle(db: D1Database, pratik: string, userId: string, soruId: string, dogru: boolean) {
+  const r = await db.prepare("SELECT kutu, sonraki, kaynak, son_tekrar FROM tekrarlar WHERE user_id = ? AND question_id = ?")
+    .bind(userId, soruId)
+    .first<Satir>();
+  const { sorgular } = tekrarAdimi(db, await gorunurKosul(db, pratik), userId, soruId, dogru, r, Date.now(), bugunBasi());
+  if (sorgular.length) await db.batch(sorgular);
+}
+
+// Menüdeki sayı: bugün sorulacak soru sayısı (kişinin günlük sınırına göre)
+export async function tekrarSayisi(db: D1Database, pratik: string, havuz: string | null, userId: string, gunluk: number): Promise<number> {
+  const r = await db.prepare(
+    `SELECT (SELECT COUNT(*) FROM tekrarlar y WHERE y.user_id = ?1 AND y.son_tekrar >= ?3) AS yapilan,
+            (SELECT COUNT(*) FROM tekrarlar t JOIN questions q ON q.id = t.question_id
+             WHERE t.user_id = ?1 AND t.kutu <= ${SON_KUTU} AND t.sonraki <= ?2 AND ${await gorunurKosul(db, pratik, havuz)}) AS bekleyen`,
+  ).bind(userId, Date.now(), bugunBasi()).first<{ yapilan: number; bekleyen: number }>();
+  return Math.min(r?.bekleyen ?? 0, kalanHesapla(gunluk, r?.yapilan ?? 0, 0));
+}
+
+// ?gunluk= parametresi (günlük tekrar sınırı); geçersizse varsayılan
+export const gunlukSecimi = (deger: string | undefined) => {
+  const g = Number(deger);
+  return gunlukGecerli(g) ? g : GUNLUK_TEKRAR;
+};
 
 const tekrar = new Hono<Env>();
 
@@ -109,7 +144,7 @@ tekrar.get("/", async (c) => {
   const suzgec = `${s.hafta ? ` AND q.week = ${s.hafta}` : ""}${s.yanlis ? " AND t.kaynak = 'yanlis'" : ""}`;
   const vadeli = vadeliTum + suzgec;
   const [liste, bekleyen, kutular, takvim, takvimListe, haftalar] = await db.batch([
-    db.prepare(`SELECT t.kutu AS t_kutu, t.kaynak AS t_kaynak, q.kavram AS t_kavram, ${SORU_SUTUNLARI} ${vadeli}
+    db.prepare(`SELECT t.kutu AS t_kutu, t.kaynak AS t_kaynak, q.kavram AS t_kavram, ${COZUMLU_SUTUNLAR} ${vadeli}
                 ORDER BY t.sonraki, t.kutu, t.eklendi LIMIT ?3`).bind(me.id, simdi, kalan),
     db.prepare(`SELECT COUNT(*) AS n ${vadeli}`).bind(me.id, simdi),
     db.prepare(`SELECT t.kutu, COUNT(*) AS n FROM tekrarlar t JOIN questions q ON q.id = t.question_id WHERE t.user_id = ? AND ${bu} GROUP BY t.kutu`).bind(me.id),
@@ -125,14 +160,14 @@ tekrar.get("/", async (c) => {
     ).bind(me.id, bugun, simdi),
     db.prepare(`SELECT q.week AS hafta, COUNT(*) AS n ${vadeliTum} GROUP BY q.week ORDER BY q.week`).bind(me.id, simdi),
   ]);
-  const satirlar = liste!.results as (SoruListeSatiri & { t_kutu: number; t_kaynak: TekrarKaynagi; t_kavram: string | null })[];
+  const satirlar = liste!.results as (CozumluSatir & { t_kutu: number; t_kaynak: TekrarKaynagi; t_kavram: string | null })[];
   const k = new Map((kutular!.results as { kutu: number; n: number }[]).map((r) => [r.kutu, r.n]));
   const g = new Map((takvim!.results as { gun: number; n: number }[]).map((r) => [r.gun, r.n]));
   type TakvimSatiri = { id: string; topic_id: string; week: number; kutu: number; gun: number; prompt: string };
   return c.json<TekrarCevabi>({
     gunluk: s.gunluk,
     bugun: satirlar.map((r) => ({ id: r.id, kutu: r.t_kutu, kaynak: r.t_kaynak, kavram: r.t_kavram })),
-    sorular: satirlar.map(soruyaCevir),
+    sorular: satirlar.map(cozumluSoru),
     bekleyen: (bekleyen!.results[0] as { n: number }).n,
     yapilan,
     kutular: Array.from({ length: SON_KUTU }, (_, i) => k.get(i + 1) ?? 0),
@@ -145,18 +180,10 @@ tekrar.get("/", async (c) => {
   });
 });
 
-// Menüdeki sayı: bugün sorulacak soru sayısı (kişinin günlük sınırına göre)
 tekrar.get("/sayi", async (c) => {
   const me = c.get("me");
   if (!me) return c.json({ n: 0 });
-  const db = c.env.DB;
-  const r = await db.prepare(
-    `SELECT (SELECT COUNT(*) FROM tekrarlar y WHERE y.user_id = ?1 AND y.son_tekrar >= ?3) AS yapilan,
-            (SELECT COUNT(*) FROM tekrarlar t JOIN questions q ON q.id = t.question_id
-             WHERE t.user_id = ?1 AND t.kutu <= ${SON_KUTU} AND t.sonraki <= ?2 AND ${await gorunurKosul(db, pid(c), c.get("havuz"))}) AS bekleyen`,
-  ).bind(me.id, Date.now(), bugunBasi()).first<{ yapilan: number; bekleyen: number }>();
-  const kalan = kalanHesapla(secenekler(c).gunluk, r?.yapilan ?? 0, 0);
-  return c.json({ n: Math.min(r?.bekleyen ?? 0, kalan) });
+  return c.json({ n: await tekrarSayisi(c.env.DB, pid(c), c.get("havuz"), me.id, secenekler(c).gunluk) });
 });
 
 // "Biliyorum, artık sorma": soru öğrenildi kutusuna geçer
