@@ -11,7 +11,7 @@ export function satirlar(s: string): string[] {
 }
 
 // a[i] -> b[j] eşleşmeleri (LCS)
-function eslesmeler(a: string[], b: string[]): [number, number][] {
+export function eslesmeler(a: string[], b: string[]): [number, number][] {
   const n = a.length;
   const m = b.length;
   // Ortak baş ve sonu ayırıp yalnız ortayı tabloyla çöz

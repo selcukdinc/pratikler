@@ -50,6 +50,11 @@ const HATALAR: Kalip[] = [
     "Dal korumalı: GitHub doğrudan push'u kabul etmiyor. Kendi dalını aç (`git switch -c feature/...`), oraya commit'le, dalı push et ve `gh pr create` ile pull request aç."],
   [/GH013: Repository rule violations/, () =>
     "Push protection: GitHub push'unda gizli bir anahtar buldu ve kabul etmedi. Anahtar GitHub'a hiç ulaşmadı, iptal etmen gerekmiyor. Değeri koddan çıkar (`.env` dosyasına taşı ve `.gitignore`'a ekle), anahtarın geçtiği commit'i düzelt (`git commit --amend` ya da `git rebase -i`) ve yeniden push et."],
+  [/You are not allowed to push code to protected branches/, () =>
+    "Dal korumalı (GitLab'da protected branch): doğrudan push kabul edilmiyor. Kendi dalını aç, oraya commit'le, dalı push et ve `glab mr create` ile merge request aç."],
+  [/You are not allowed to force push code to a protected branch/, () => "Korumalı dalda force push kapalı: paylaşılan geçmiş yeniden yazılamaz."],
+  [/cannot be merged:/, () => "Hedef dalın kuralları henüz sağlanmadı: eksik onay ya da başarısız pipeline var. `glab mr view` ile durumuna, `glab ci status` ile pipeline'a bak."],
+  [/Pipeline state: failed/, () => "Pipeline kırmızı: başarısız işin iletisine bak, dalında düzelt, commit'le ve push et. Merge request kendiliğinden yeniden denetlenir."],
   [/Cannot force-push to this branch/, () => "Korumalı dalda force push kapalı: paylaşılan geçmiş yeniden yazılamaz."],
   [/Cannot delete this branch/, () => "Korumalı dal silinemez. main, test ve dev gibi ortam dalları kalıcıdır."],
   [/Can not approve your own pull request/, () => "Kendi PR'ını onaylayamazsın; onayı bir ekip arkadaşın verir. İncelemenin amacı ikinci bir gözdür."],
@@ -169,11 +174,31 @@ function basari(satir: string, once: Ortam, sonra: Ortam, cikti: string): string
       if (/forced update/.test(cikti)) return "Zorla push: uzaktaki dal seninkiyle değiştirildi. Başkalarının bu daldaki işi gidebilir; paylaşılan dallarda yapma.";
       if (/\[deleted\]/.test(cikti)) return "Dal uzak depodan silindi.";
       return "Commit'lerin uzak depoya (GitHub) gönderildi; ekip arkadaşların artık `git pull` ile alabilir.";
+    case "bisect": {
+      const m = /Bisecting: (\d+) revisions? left to test after this \(roughly (\d+) steps?\)/.exec(cikti);
+      if (m) return `Git ortadaki commit'i açtı. Dene: hata burada var mı? Varsa \`git bisect bad\`, yoksa \`git bisect good\`. Kalan aday ${m[1]}, yaklaşık ${m[2]} adım daha.`;
+      if (/is the first bad commit/.test(cikti)) return "Hatayı getiren commit bulundu. İşin bitince `git bisect reset` ile başladığın dala dön.";
+      if (/^status: waiting for good/m.test(cikti)) return "Kötü commit işaretlendi. Şimdi hatanın olmadığını bildiğin bir commit'i `git bisect good <commit>` ile işaretle.";
+      if (/^status: waiting for bad/m.test(cikti)) return "İyi commit işaretlendi. Şimdi hatalı bir commit'i (genellikle şu anki: `git bisect bad`) işaretle.";
+      if (/^status: waiting for both/m.test(cikti)) return "Bisect başladı. Hatalı (bad) ve hatasız (good) birer commit söyle; Git aradaki geçmişi ikiye bölerek arar.";
+      if (/Switched to branch|Already on/.test(cikti)) return "Bisect bitti; başladığın dala döndün.";
+      return null;
+    }
+    case "blame":
+      return "Her satırın solunda o satırı en son değiştiren commit, yazarı ve tarihi var. Satırın neden öyle olduğunu görmek için `git show <commit>`.";
     case "rebase":
       return head !== onceHead && !/CONFLICT/.test(cikti) ? "Dalın commit'leri yeni tabanın üstüne yeniden yazıldı; kimlikleri değişti." : null;
     default:
       return null;
   }
+}
+
+function glabNotu(cikti: string): string | null {
+  if (/^Creating merge request/m.test(cikti)) return "Merge request açıldı (GitLab'da PR'ın adı; numarası !1 gibi yazılır). Ekip onaylayacak, pipeline dalını denetleyecek. Durumu `glab mr view` ile izle.";
+  if (/^✓ Approved/m.test(cikti)) return "Onay verildi.";
+  if (/^✓ Merged/m.test(cikti)) return "Merge request birleşti; değişiklik GitLab'daki hedef dalda. Kendi bilgisayarında görmek için `git fetch`.";
+  if (/Pipeline state: success/.test(cikti)) return "Pipeline yeşil: bütün işler geçti.";
+  return null;
 }
 
 function ghNotu(satir: string, cikti: string): string | null {
@@ -198,6 +223,7 @@ function kafepayNotu(satir: string, once: Ortam, sonra: Ortam): string | null {
 export function aciklama(satir: string, sonuc: KabukSonucu, once: Ortam, sonra: Ortam): string | null {
   if (/^\s*kafepay\b/.test(satir) && sonuc.kod === 0) return kafepayNotu(satir, once, sonra);
   if (/^\s*gh\b/.test(satir) && sonuc.kod === 0) return ghNotu(satir, sonuc.cikti);
+  if (/^\s*glab\b/.test(satir) && sonuc.kod === 0) return glabNotu(sonuc.cikti);
   for (const [k, f] of HATALAR) {
     const m = sonuc.cikti.match(k);
     if (m) return f(m);

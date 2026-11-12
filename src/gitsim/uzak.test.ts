@@ -175,6 +175,7 @@ const BAGLI = [...ILK, "git remote add origin URL", "git push -u origin main", "
 const SENARYOLAR: Record<string, string[]> = {
   "remote add, -v, ilk push": [...ILK, "git remote add origin URL", "! git remote -v", "! git push", "! git push origin main", "! git status", "! git log --oneline"],
   "push -u ve izleme": [...ILK, "git remote add origin URL", "git push -u origin main", "! git status", "! git branch -vv", "echo iki >> README.md", "git commit -am iki", "! git status", "! git push", "! git status"],
+  "push --all ve --tags": [...ILK, "git branch dev", "git branch feature/a", "git tag v1.0", "git remote add origin URL", "! git push origin --all", "! git push origin --tags", "! git branch -a"],
   "boş depoyu klonla": ["git clone URL .", "! git status", "echo a > a.txt", "git add .", "git commit -m a", "git config --get branch.main.merge", "git push", "git status"],
   "klonla ve fetch/pull": [
     ...BAGLI,

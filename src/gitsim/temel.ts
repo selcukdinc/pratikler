@@ -94,6 +94,10 @@ export function status(o: Ortam, args: string[]): string {
   const c: string[] = [];
   if (dal) c.push(`On branch ${dalAdi(dal)}`);
   else c.push(`HEAD detached at ${kisa(headCommit(d)!)}`);
+  if (d.bisect) {
+    const b = d.bisect.baslangic;
+    c.push(`You are currently bisecting, started from branch '${b}'.`, '  (use "git bisect reset" to get back to the original branch)');
+  }
   const islem = d.islem;
   if (islem?.tur === "rebase") {
     c[0] = `interactive rebase in progress; onto ${kisa(islem.onto)}`;
@@ -455,6 +459,15 @@ export function log(o: Ortam, args: string[]): string {
     }
   }
   return c.join("\n");
+}
+
+// git bisect'in bulduğu ilk kötü commit: süslemesiz başlık ve dosya özeti
+export function bisectGosterimi(d: Depo, h: string): string {
+  const cm = commitOku(d, h);
+  const s = commitBasligi(d, h, cm);
+  s[0] = `commit ${h}`;
+  const f = cm.ebeveynler.length > 1 ? "" : statVeMod(d, commitAgaci(d, cm.ebeveynler[0] ?? null), agacAc(d, cm.agac));
+  return [...s, ...(f ? ["", f] : [])].join("\n");
 }
 
 function commitBasligi(d: Depo, h: string, cm: Commit): string[] {

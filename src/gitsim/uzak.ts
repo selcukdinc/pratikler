@@ -17,6 +17,7 @@ export const adresAnahtari = (url: string) => url.replace(/\/+$/, "").replace(/\
 const gosterim = (url: string) => url.replace(/\/+$/, "").replace(/\.git$/, "");
 
 const GITHUB = /^https:\/\/github\.com\//;
+const GITLAB = /^https:\/\/gitlab\.com\//;
 
 // Boş bir uzak depo oluşturur (GitHub'da "New repository")
 export function uzakOlustur(o: Ortam, url: string, varsayilanDal = "main"): Depo {
@@ -385,6 +386,7 @@ export function push(o: Ortam, args: string[]): string {
   if (!uzakAd)
     throw new GitHatasi("fatal: No configured push destination.\nEither specify the URL from the command-line or configure a remote repository using\n\n    git remote add <name> <url>\n\nand then push using the remote name\n\n    git push <name>\n");
   let refspecler = a.kalan.slice(1);
+  if (var_(a, "--all", "--branches")) refspecler = [...refspecler, ...Object.keys(d.refs).filter((x) => x.startsWith(DAL)).sort().map(dalAdi)];
   if (var_(a, "--tags")) refspecler = [...refspecler, ...Object.keys(d.refs).filter((x) => x.startsWith(ETIKET)).map(dalAdi)];
   if (!refspecler.length) {
     if (!r) throw new GitHatasi("fatal: You are not currently on a branch.\nTo push the history leading to the current (detached HEAD)\nstate now, use\n\n    git push origin HEAD:<name-of-remote-branch>\n");
@@ -405,11 +407,12 @@ export function push(o: Ortam, args: string[]): string {
   const githubNotu: string[] = [];
   // Sunucunun (GitHub) "remote:" satırları, ör. korumalı dal reddi
   const uzakSatirlari: string[] = [];
+  let ilkGelen: string | undefined;
   const korumaReddi = (ref: string, tur: "guncelle" | "zorla" | "sil", kaynak: string | undefined, hedef: string) => {
     const red = pushKorumasi(uzak, ref, tur);
     if (!red) return false;
     uzakSatirlari.push(...red);
-    satirlar.push({ kod: "!", ozet: "[remote rejected]", kaynak, hedef, hata: "protected branch hook declined", reddedildi: true });
+    satirlar.push({ kod: "!", ozet: "[remote rejected]", kaynak, hedef, hata: uzak.platform?.tur === "gitlab" ? "pre-receive hook declined" : "protected branch hook declined", reddedildi: true });
     return true;
   };
   for (const spec of refspecler) {
@@ -453,7 +456,7 @@ export function push(o: Ortam, args: string[]): string {
     if (uzakHash === undefined) {
       kod = "*";
       ozet = etiketMi ? "[new tag]" : "[new branch]";
-      if (!etiketMi && GITHUB.test(url)) githubNotu.push(kisaHedef);
+      if (!etiketMi && (GITHUB.test(url) || GITLAB.test(url))) githubNotu.push(kisaHedef);
     } else if (etiketMi && !zorla && !arti) {
       satirlar.push({ kod: "!", ozet: "[rejected]", kaynak: kisaKaynak, hedef: kisaHedef, hata: "already exists", reddedildi: true });
       continue;
@@ -490,17 +493,18 @@ export function push(o: Ortam, args: string[]): string {
     nesneleriKopyala(d, uzak, [yerelHash]);
     botTaramasi(o, uzak, [yerelHash], bilinen);
     uzak.refs[hedefRef] = yerelHash;
-    // Boş depoya ilk push: varsayılan dal yoksa ilk gelen dal olur (GitHub gibi)
-    const varsayilan = uzakHeadDali(uzak);
-    if (!etiketMi && (!varsayilan || uzak.refs[varsayilan] === undefined) && Object.keys(uzak.refs).filter((x) => x.startsWith(DAL)).length === 1) {
-      uzak.head = { tur: "ref", ref: hedefRef };
-    }
+    if (!etiketMi) ilkGelen ??= hedefRef;
     if (!etiketMi) {
       d.refs[izleyen] = yerelHash;
       (d.dalReflog[izleyen] ??= []).push({ hash: yerelHash, mesaj: "update by push" });
       izlenecek.push(kisaKaynak);
     }
     satirlar.push({ kod, ozet, kaynak: kisaKaynak, hedef: kisaHedef, hata });
+  }
+  // Boş depoya ilk push: varsayılan dal gelmediyse ilk gelen dal olur (GitHub gibi)
+  const varsayilan = uzakHeadDali(uzak);
+  if (ilkGelen && (!varsayilan || uzak.refs[varsayilan] === undefined) && Object.keys(uzak.refs).filter((x) => x.startsWith(DAL)).length === Object.keys(uzak.refs).filter((x) => x.startsWith(DAL) && satirlar.some((y) => !y.reddedildi && y.hedef === dalAdi(x))).length) {
+    uzak.head = { tur: "ref", ref: ilkGelen };
   }
   sembolleriGuncelle(d);
   const gorunen = satirlar.filter((s) => s.kod !== "=");
@@ -510,7 +514,8 @@ export function push(o: Ortam, args: string[]): string {
   else {
     if (githubNotu.length) {
       for (const dal of githubNotu) {
-        c.push("remote: ", `remote: Create a pull request for '${dal}' on GitHub by visiting:`, `remote:      ${gosterim(url)}/pull/new/${dal}`, "remote: ");
+        if (GITLAB.test(url)) c.push("remote: ", `remote: To create a merge request for ${dal}, visit:`, `remote:   ${gosterim(url)}/-/merge_requests/new?merge_request%5Bsource_branch%5D=${encodeURIComponent(dal)}`, "remote: ");
+        else c.push("remote: ", `remote: Create a pull request for '${dal}' on GitHub by visiting:`, `remote:      ${gosterim(url)}/pull/new/${dal}`, "remote: ");
       }
     }
     c.push(...uzakSatirlari);

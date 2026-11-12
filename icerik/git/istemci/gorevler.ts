@@ -9,7 +9,7 @@ import { ataMi, commitAgaci, commitOku, gecmis, icerik, soy } from "../../../src
 import { prCi } from "../../../src/gitsim/platform";
 import { uzakBul, uzakDalUcu } from "../../../src/gitsim/uzak";
 import {
-  BOT_OLAYI, CI_LINT, envHazir, KAFE_TEMEL, ODEME_TEMEL, odemeDosyasi, odemedeVar, odemePlatformu, ORNEK_ANAHTAR, ornekIptal, platform, prVar, sizdi,
+  BOT_OLAYI, CI_LINT, envHazir, glDosya, glPlatform, glUc, KAFE_GL, KAFE_GL_TEMEL, KAFE_TEMEL, mrVar, ODEME_TEMEL, odemeDosyasi, odemedeVar, odemePlatformu, ORNEK_ANAHTAR, ornekIptal, platform, prVar, sizdi,
   UC_ORTAM, uzakDosya, uzakUc as kafeUc,
 } from "./kafe";
 import type { Ortam } from "../../../src/gitsim/tipler";
@@ -1164,10 +1164,198 @@ const sizintiGorevi: Gorev = {
   sonNot: "Sıra doğruysa zarar birkaç dakikayla sınırlı kaldı. Push etmeden önce `git status` ve `git show --stat` ile neyi gönderdiğine bakmak bu tatbikatın hiç yaşanmamasını sağlardı.",
 };
 
+// ---------------- Kademe 4: GitLab ve ileri araçlar ----------------
+
+const glAkis: Gorev = {
+  id: "gitlab-mr",
+  kademe: 4,
+  unite: 15,
+  baslik: "GitLab'da kampanya MR'ı",
+  hikaye:
+    "Kafe Mavi'nin projesi GitLab'da. main korumalı: bir onay ve yeşil pipeline şart. `feature/kampanya` dalın push edildi ama MR açılmadı. " +
+    "MR'ı aç, pipeline'ı geçir; Ayşe yalnızca pipeline yeşilse onaylar. Ekip kuralı: main'e tek commit girer (squash) ve kaynak dal birleşince silinir.",
+  kurulum: [
+    ...KAFE_GL_TEMEL,
+    glPlatform({ korumalar: { main: { prZorunlu: true, onay: 1, ci: true } }, ci: [CI_LINT] }),
+    `git clone ${KAFE_GL}`,
+    "git switch -c feature/kampanya",
+    'echo "function kampanya() { console.log(\'indirim\') }" > kampanya.js',
+    "git add kampanya.js",
+    'git commit -m "Kampanya"',
+    "git push -u origin feature/kampanya",
+  ],
+  olaylar: [
+    {
+      id: "ayse-onay",
+      kosul: (o) => {
+        const u = uzakBul(o, KAFE_GL);
+        return !!u && mrVar(o, (p) => p.durum === "acik" && !p.onaylar.length && prCi(u, p).every((c) => c.gecti));
+      },
+      kim: "ayse",
+      komutlar: ["glab mr approve feature/kampanya"],
+      bildirim: "Ayşe pipeline'ın yeşil olduğunu gördü ve merge request'i onayladı.",
+    },
+  ],
+  hedefler: [
+    { aciklama: "Merge request birleşti", denetle: (o) => mrVar(o, (p) => p.durum === "birlesti") },
+    { aciklama: "GitLab'daki main'de kampanya var, console.log yok", denetle: (o) => { const f = glDosya(o, "main", "kampanya.js"); return !!f && !f.includes("console.log"); } },
+    { aciklama: "main'e tek commit girdi (squash)", denetle: (o) => { const u = uzakBul(o, KAFE_GL); const h = glUc(o, "main"); return !!u && !!h && gecmis(u, [h]).length === 2; } },
+    { aciklama: "Kaynak dal GitLab'dan silindi", denetle: (o) => !!glUc(o, "main") && !glUc(o, "feature/kampanya") },
+  ],
+  ipuclari: [
+    "`glab mr create --target-branch main --title \"Kampanya\"` ile MR'ı aç, sonra `glab ci status` ile pipeline'a bak.",
+    "Lint `console.log` istemiyor: kampanya.js'ten çıkar, commit'le ve push et; Ayşe yeşili görünce onaylar.",
+    "`glab mr merge --squash --remove-source-branch` iki commit'i tek commit olarak main'e katar ve dalı siler.",
+  ],
+  cozum: [
+    'glab mr create --target-branch main --title "Kampanya"',
+    'echo "function kampanya() { return 0.1 }" > kampanya.js',
+    'git commit -am "console.log kaldırıldı"',
+    "git push",
+    "glab mr merge --squash --remove-source-branch",
+  ],
+  sonNot: "GitLab'da kural adları farklı (Protected branches, approval rules, Pipelines must succeed) ama akış GitHub'dakiyle aynı. Squash, düzeltme commit'lerini main'in geçmişine taşımaz.",
+};
+
+const cherryPickGorevi: Gorev = {
+  id: "cherry-pick",
+  kademe: 4,
+  unite: 16,
+  baslik: "Sürüme tek düzeltme",
+  hikaye:
+    "`release/1.2` dalı yarın kasalara kurulacak. `dev`'de üç yeni commit var: iki yarım özellik ve fiş toplamını düzelten bir commit. " +
+    "Sürüme yalnızca düzeltme girmeli; dev olduğu gibi kalmalı.",
+  kurulum: [
+    "git init",
+    'echo "function toplam(f) { return 0; }" > fis.js',
+    'echo "kahve 40" > menu.txt',
+    "git add .",
+    'git commit -m "Fiş ve menü"',
+    "git branch release/1.2",
+    "git switch -c dev",
+    'echo "export function puan() {}" > sadakat.js',
+    "git add sadakat.js",
+    'git commit -m "Sadakat puanı (yarım)"',
+    'echo "function toplam(f) { return f.reduce((a, x) => a + x, 0); }" > fis.js',
+    'git commit -am "Fiş toplamı düzeltildi"',
+    'echo "export function qr() {}" > qr.js',
+    "git add qr.js",
+    'git commit -m "QR menü (yarım)"',
+    "git switch release/1.2",
+  ],
+  hedefler: [
+    { aciklama: "release/1.2'de fiş toplamı düzeltildi", denetle: (o) => { const h = dalUcu(o, "release/1.2"); return !!h && (dosyaCommitte(o, h, "fis.js") ?? "").includes("reduce"); } },
+    { aciklama: "release/1.2'ye yarım özellikler girmedi", denetle: (o) => { const h = dalUcu(o, "release/1.2"); const a = h ? commitAgaci(o.depo!, h) : {}; return !!h && !("sadakat.js" in a) && !("qr.js" in a); } },
+    { aciklama: "dev'in geçmişi değişmedi (4 commit)", denetle: (o) => { const h = dalUcu(o, "dev"); return !!h && dalCommitSayisi(o, "dev") === 4 && !!commitAgaci(o.depo!, h)["qr.js"]; } },
+  ],
+  ipuclari: [
+    "`git log --oneline dev` ile düzeltme commit'inin kimliğini bul.",
+    "release/1.2'deyken `git cherry-pick <kimlik>` yalnızca o commit'in farkını uygular. `-x` eklersen mesaj kaynağını da yazar.",
+  ],
+  cozum: ["git log --oneline dev", "git cherry-pick -x dev~1"],
+  sonNot: "Merge dev'in her şeyini getirirdi. cherry-pick yeni bir commit yazar: içeriği aynı, kimliği farklı. -x'in eklediği satır, düzeltmenin hangi commit'ten geldiğini sonra bulmayı kolaylaştırır.",
+};
+
+const BISECT_MESAJLARI = [
+  "Menüye çay", "Fiş başlığı", "Masa numarası", "Tatlı menüsü", "Kasa ekranı", "Yazım düzeltmesi", "Kampanya rozeti",
+  "Fiyat hesabı sadeleştirildi", "Kampanya kodu", "Menü sırası", "Logo güncellendi", "Fiş alt bilgisi", "README güncellendi",
+  "Kasa kısayolları", "Teslim süresi", "Günün kahvesi", "Masa planı", "Bahşiş satırı",
+];
+const BISECT_HATALI_GOREV = "Fiyat hesabı sadeleştirildi";
+const bisectGorevi: Gorev = {
+  id: "bisect",
+  kademe: 4,
+  unite: 16,
+  baslik: "Hangi commit KDV'yi bozdu?",
+  hikaye:
+    "Kasada fiyatlar KDV'siz çıkıyor. `v2.0` sürümünde doğruydu, o günden beri 18 commit girdi. Hepsini tek tek okumak yerine ikili aramayla hatalı commit'i bul, " +
+    "ona `hatali` etiketini koy ve geçmişi yeniden yazmadan geri al. Doğru hesap: `return net * 1.2`.",
+  kurulum: [
+    "git init",
+    'echo "function fiyat(net) { return net * 1.2; }" > fiyat.js',
+    'echo "# Kasa" > README.md',
+    "git add .",
+    'git commit -m "Kasa"',
+    "git tag v2.0",
+    ...BISECT_MESAJLARI.flatMap((m, i) => [
+      // Hatalı commit yalnızca fiyat.js'i değiştirir (revert temiz uygulanır)
+      m === BISECT_HATALI_GOREV ? 'echo "function fiyat(net) { return net; }" > fiyat.js' : `echo "surum ${i + 2}" > surum.txt`,
+      "git add .",
+      `git commit -m "${m}"`,
+    ]),
+  ],
+  hedefler: [
+    {
+      aciklama: "hatali etiketi KDV'yi bozan commit'te",
+      denetle: (o) => { const d = o.depo!; const h = d.refs["refs/tags/hatali"]; return !!h && commitOku(d, h).mesaj.trim() === BISECT_HATALI_GOREV; },
+    },
+    { aciklama: "bisect bitirildi, main'e dönüldü", denetle: (o) => !o.depo!.bisect && dalAdiniAl(o) === "main" },
+    { aciklama: "fiyat.js yine KDV'li", denetle: (o) => (headDosyalari(o)["fiyat.js"] ?? "").includes("1.2") },
+    { aciklama: "Geçmiş yeniden yazılmadı (hatalı commit hâlâ geçmişte)", denetle: (o) => { const d = o.depo!; const h = d.refs["refs/tags/hatali"]; const ana = dalUcu(o, "main"); return !!h && !!ana && ataMi(d, h, ana) && dalCommitSayisi(o, "main") === 20; } },
+  ],
+  ipuclari: [
+    "`git bisect start`, `git bisect bad` (şu an bozuk), `git bisect good v2.0`.",
+    "Git ortadaki bir commit'i açar: `cat fiyat.js`; KDV varsa `git bisect good`, yoksa `git bisect bad`. Git ilk kötü commit'i yazana kadar sürdür.",
+    "Bulunca `git tag hatali refs/bisect/bad`, `git bisect reset`, sonra `git revert --no-edit hatali`.",
+  ],
+  cozum: [
+    "git bisect start", "git bisect bad", "git bisect good v2.0",
+    "cat fiyat.js", "git bisect bad", "cat fiyat.js", "git bisect good", "cat fiyat.js", "git bisect good",
+    "cat fiyat.js", "git bisect bad", "cat fiyat.js", "git bisect good",
+    "git tag hatali refs/bisect/bad", "git bisect reset", "git revert --no-edit hatali",
+  ],
+  sonNot: "18 commit yaklaşık 4 adımda tarandı: her cevap aralığı yarıya indirir. Testi bir betiğe bağlarsan `git bisect run ./test.sh` adımları kendisi yürütür.",
+};
+
+const blameGorevi: Gorev = {
+  id: "blame",
+  kademe: 4,
+  unite: 16,
+  baslik: "Bedava su kimden?",
+  hikaye:
+    "Menüde `su 0` satırı var; su bedava olmamalı. Satırı hangi commit'in eklediğini bul ve o commit'i `git revert` ile geri al. " +
+    "Geçmiş paylaşılıyor, yeniden yazılmaz; düzeltmeyi GitHub'a gönder.",
+  kurulum: [
+    ...KAFE_TEMEL,
+    '@ayse echo "cay 20" >> menu.txt',
+    '@ayse git commit -am "Çay"',
+    "@ayse git push",
+    `@mert git clone ${KAFE}`,
+    '@mert echo "su 0" >> menu.txt',
+    '@mert git commit -am "Menü güncellendi"',
+    "@mert git push",
+    "@ayse git pull",
+    '@ayse printf "kahve 45\\ncay 20\\nsu 0\\n" > menu.txt',
+    '@ayse git commit -am "Kahve 45"',
+    "@ayse git push",
+    `git clone ${KAFE}`,
+  ],
+  hedefler: [
+    { aciklama: "GitHub'daki menüde su 0 yok, diğer satırlar duruyor", denetle: (o) => { const m = uzakDosya(o, "main", "menu.txt") ?? ""; return !m.includes("su 0") && m.includes("kahve 45") && m.includes("cay 20"); } },
+    {
+      aciklama: "Düzeltme, satırı ekleyen commit'in revert'i",
+      denetle: (o) => {
+        const d = o.depo!;
+        const h = d.refs["refs/remotes/origin/main"];
+        if (!h) return false;
+        const ekleyen = gecmis(d, [h]).find((c) => commitOku(d, c).mesaj.trim() === "Menü güncellendi");
+        return !!ekleyen && commitOku(d, h).mesaj.includes(`This reverts commit ${ekleyen}`);
+      },
+    },
+  ],
+  ipuclari: [
+    "`git blame menu.txt` her satırın yanında commit'ini ve yazarını gösterir.",
+    "Satırı ekleyen commit'in mesajı satırı anlatmıyor; kimliğini blame'den al ve `git show <kimlik>` ile bak.",
+    "`git revert --no-edit <kimlik>`, sonra `git push`.",
+  ],
+  cozum: ["git blame menu.txt", "git revert --no-edit HEAD~1", "git push"],
+  sonNot: "blame suçlu aramak için değil, bağlamı bulmak içindir: commit'i bulunca Mert'e neden eklediğini sorabilirsin. Mesajı \"Menü güncellendi\" yerine \"Su bedava\" olsaydı arama hiç gerekmezdi.",
+};
+
 export const GOREVLER: Gorev[] = [
   kimlik, ilkDepo, ilkCommit, secerekEkle, geriCek, gitignore, dedektif, envCikar, kurtar, mesajDuzelt, mainYap,
   dalAc, ileriSar, izBirak, yanlisDal, kopukKurtar, cakismaCoz, vazgec, canliGeriAl, acilStash, reflogKurtar,
   ilkPush, pushReddi, guvenliForce, budama, tekCommit, mesajDegistir, sirDrop, rebaseCakisma,
   korumaliMain, ciKirmizi, surumEtiketi, devdenAcilan, ucOrtam, hotfix,
-  gecmisteAnahtar, sizintiGorevi,
+  gecmisteAnahtar, sizintiGorevi, glAkis, cherryPickGorevi, bisectGorevi, blameGorevi,
 ];

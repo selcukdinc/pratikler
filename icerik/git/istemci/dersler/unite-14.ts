@@ -28,7 +28,7 @@ export const UNITE_14: Ders = {
 | API anahtarı | ödeme, e-posta, harita hizmetinin anahtarı | hesabından para çeker, fatura çıkarır |
 | Veritabanı parolası | ~DB_PASSWORD~ | müşteri verisini okur, siler |
 | Erişim token'ı | GitHub kişisel erişim token'ı | depolarına kod yazar, gizli depolarını okur |
-| Özel anahtar | ~/.ssh/id_ed25519~, TLS sertifikasının anahtarı | sunucularına girer, senin gibi görünür |
+| Özel anahtar | ~¬/.ssh/id_ed25519~, TLS sertifikasının anahtarı | sunucularına girer, senin gibi görünür |
 
 Kural basit: **gizli değer koda yazılmaz, depoya girmez.** Kod, değeri çalışırken dışarıdan okur:
 

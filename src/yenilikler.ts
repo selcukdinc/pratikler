@@ -24,6 +24,18 @@ export interface Yenilik {
 
 export const YENILIKLER: Yenilik[] = [
   {
+    pr: 44,
+    tarih: "2026-11-12",
+    baslik: "Git ve GitHub pratiği: GitLab ve ileri araçlar",
+    kitle: "yonetici",
+    maddeler: [
+      "15. ünite GitLab: merge request, `glab` komutları, korumalı dallar, onaylar, pipeline ve bir depoyu GitHub'dan GitLab'a taşımak. Terminaldeki sanal platform GitLab'ın mesajlarıyla da çalışıyor.",
+      "16. ünite ileri araçlar: cherry-pick, bisect (ikili arama oyunu dahil), blame, worktree, submodule, hook'lar, LFS ve imzalı commit'ler.",
+      "Sanal Git'e `git bisect`, `git blame`, `glab` ve `git push --all` eklendi; çıktılar gerçek Git 2.43 ile karşılaştırılarak sınandı.",
+      "58 yeni soru ve dört yeni sandbox görevi: GitLab'da MR, sürüme tek düzeltme, bisect ile hatalı commit, blame ile satırın kaynağı.",
+    ],
+  },
+  {
     pr: 43,
     tarih: "2026-11-12",
     baslik: "Git ve GitHub pratiği: gizli anahtarlar ve depo güvenliği",

@@ -44,7 +44,7 @@ function serbestOturum(): Oturum {
 }
 
 function gorevOturumu(g: Gorev): Oturum {
-  return { ortam: gorevOrtami(g), satirlar: [{ tur: "bilgi", metin: `Görev: ${g.baslik}. Durumu görmek için git status ile başla.` }], komutlar: [] };
+  return { ortam: gorevOrtami(g), satirlar: [{ tur: "bilgi", metin: `Görev: ${g.baslik}${/[.?!]$/.test(g.baslik) ? "" : "."} Durumu görmek için git status ile başla.` }], komutlar: [] };
 }
 
 function kayitOku(): Kayit {

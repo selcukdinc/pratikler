@@ -150,3 +150,28 @@
 .ge-av li.ge-hayir { border-color: var(--error); }
 .ge-av .ge-dosya { flex-shrink: 0; font-size: 12px; white-space: pre-wrap; overflow-wrap: anywhere; }
 .ge-av-dosya { font-family: var(--mono); font-size: 12px; color: var(--muted); }
+/* Ü15-16: iki platform, GitLab pipeline, bisect oyunu */
+.ge-iki-akis { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+.ge-iki-adim { width: 100%; text-align: left; font: inherit; padding: 4px 8px; border: 1px solid var(--border-soft); border-radius: 4px; background: var(--panel); color: var(--text); cursor: pointer; }
+.ge-iki-adim[aria-pressed="true"] { border-color: var(--link); background: var(--active); font-weight: 600; }
+.ge-iki-sutun { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 6px; margin: 6px 0 4px; }
+.ge-iki-kutu { display: flex; flex-direction: column; gap: 4px; padding: 8px; border-radius: 6px; border: 1px solid var(--border); background: var(--panel); min-width: 0; }
+.ge-iki-kutu code { overflow-wrap: anywhere; }
+.ge-iki-kutu span { font-size: 12.5px; color: var(--muted); overflow-wrap: anywhere; }
+.ge-github { border-top: 3px solid #6e7781; }
+.ge-gitlab { border-top: 3px solid #e2432a; }
+.ge-hat { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.ge-hat-asama { display: flex; flex-direction: column; gap: 4px; padding: 6px; border: 1px solid var(--border-soft); border-radius: 6px; background: var(--panel); }
+.ge-hat-asama > strong { font-size: 12.5px; text-transform: uppercase; color: var(--muted); }
+.ge-hat-is { display: flex; flex-direction: column; padding: 4px 6px; border-radius: 4px; border: 1px solid var(--border); font-size: 12.5px; }
+.ge-hat-is.ge-evet { border-color: var(--green); }
+.ge-hat-is.ge-hayir { border-color: var(--error); }
+.ge-calisiyor { border-color: var(--link); background: var(--active); }
+.ge-bisect { display: grid; grid-template-columns: repeat(auto-fill, minmax(42px, 1fr)); gap: 4px; }
+.ge-b { font-family: var(--mono); font-size: 12px; padding: 6px 0; border-radius: 4px; border: 1px solid var(--border); background: var(--panel); color: var(--text); cursor: pointer; }
+.ge-b:disabled { cursor: default; }
+.ge-b-iyi { background: var(--tag-ders-bg); color: var(--tag-ders-text); border-color: transparent; }
+.ge-b-kotu { background: var(--tag-cikmis-bg); color: var(--tag-cikmis-text); border-color: transparent; }
+.ge-b-aday:not(.ge-b-kotu) { border-color: var(--link); }
+.ge-b-oneri { outline: 2px solid var(--warning); font-weight: 700; }
+@media (max-width: 560px) { .ge-hat { grid-template-columns: 1fr; } }

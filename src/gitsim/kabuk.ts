@@ -2,9 +2,11 @@
 // komutlarını (ls, cat, echo, touch, rm, mkdir, cd, pwd, mv, cp) çalıştırır ve
 // git komutlarını ilgili işleve yönlendirir.
 import * as dal from "./dal";
+import * as ileri from "./ileri";
 import { GitHatasi } from "./nesne";
 import { gh } from "./platform";
 import { kafepay } from "./gizli";
+import { glab } from "./gitlab";
 import * as temel from "./temel";
 import * as uzak from "./uzak";
 import type { Ortam } from "./tipler";
@@ -135,7 +137,7 @@ function komutCalistir(o: Ortam, parca: Belirtec[]): KabukSonucu {
     if (e instanceof GitHatasi) return { cikti: e.message, kod: e.kod };
     throw e;
   } finally {
-    if (ad === "git" || ad === "gh" || ad === "kafepay") o.saat += 60;
+    if (ad === "git" || ad === "gh" || ad === "glab" || ad === "kafepay") o.saat += 60;
   }
 }
 
@@ -178,6 +180,8 @@ function calistir(o: Ortam, ad: string, args: string[]): IcSonuc {
       return gitCalistir(o, args);
     case "gh":
       return gh(o, args);
+    case "glab":
+      return glab(o, args);
     case "kafepay":
       return kafepay(o, args);
     case "pwd":
@@ -328,6 +332,8 @@ const KOMUTLAR: Record<string, (o: Ortam, a: string[]) => string> = {
   stash: dal.stash,
   tag: dal.tag,
   reflog: dal.reflog,
+  bisect: ileri.bisect,
+  blame: ileri.blame,
   clone: uzak.clone,
   remote: uzak.remote,
   fetch: uzak.fetch,
