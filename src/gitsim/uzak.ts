@@ -5,6 +5,7 @@
 import { agacaGec, ataMi, ayar, cozYumusak, DAL, dalAdi, depoGerekli, ETIKET, gecerliDal, headCommit, kisa, reflogYaz, UZAK, yeniDepo } from "./depo";
 import { merge, rebase } from "./dal";
 import { pushKorumasi } from "./platform";
+import { botTaramasi, commitlerdekiGizliler, pushKorumasiSatirlari } from "./gizli";
 import { GitHatasi } from "./nesne";
 import type { Depo, Nesne, Ortam } from "./tipler";
 import { ayir, ilk, var_ } from "./yardim";
@@ -476,7 +477,18 @@ export function push(o: Ortam, args: string[]): string {
       hata = "forced update";
     }
     if (kod !== "+" && korumaReddi(hedefRef, "guncelle", kisaKaynak, kisaHedef)) continue;
+    // Uzakta zaten olan dallardan ulaşılmayan commit'ler yenidir: gizli bilgi taraması onlara bakar
+    const bilinen = Object.values(uzak.refs).filter((h) => d.nesneler[h]);
+    if (uzak.platform?.gizliKoruma && !etiketMi) {
+      const bulgular = commitlerdekiGizliler(d, [yerelHash], bilinen);
+      if (bulgular.length) {
+        uzakSatirlari.push(...pushKorumasiSatirlari(hedefRef, bulgular));
+        satirlar.push({ kod: "!", ozet: "[remote rejected]", kaynak: kisaKaynak, hedef: kisaHedef, hata: "push declined due to repository rule violations", reddedildi: true });
+        continue;
+      }
+    }
     nesneleriKopyala(d, uzak, [yerelHash]);
+    botTaramasi(o, uzak, [yerelHash], bilinen);
     uzak.refs[hedefRef] = yerelHash;
     // Boş depoya ilk push: varsayılan dal yoksa ilk gelen dal olur (GitHub gibi)
     const varsayilan = uzakHeadDali(uzak);

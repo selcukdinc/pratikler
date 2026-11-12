@@ -7,6 +7,7 @@ import { GitHatasi } from "./nesne";
 import type { Ortam } from "./tipler";
 import { uzakOlustur } from "./uzak";
 import { platformKur } from "./platform";
+import { anahtarEkle } from "./gizli";
 
 export type { Ortam, Depo, Commit, Nesne } from "./tipler";
 export type { KabukSonucu } from "./kabuk";
@@ -48,7 +49,8 @@ export function calistir(o: Ortam, satir: string): { ortam: Ortam; sonuc: KabukS
 // olması beklenir (ör. çakışmayla duran bir birleştirme)
 // "@uzak <adres>" boş bir uzak depo açar, "@platform <adres> <json>" GitHub'daki dal
 // korumalarını ve CI adımlarını tanımlar (platform.ts), "@ayse <komut>" komutu ekip arkadaşının
-// bilgisayarında çalıştırır (ilk komutu genellikle git clone olur).
+// bilgisayarında çalıştırır, "@anahtar <ad> <değer>" sanal ödeme hizmetinde (KafePay)
+// etkin bir anahtar açar (ilk komutu genellikle git clone olur).
 export function kur(o: Ortam, satirlar: string[]): Ortam {
   let x = o;
   for (const satir of satirlar) {
@@ -58,6 +60,12 @@ export function kur(o: Ortam, satirlar: string[]): Ortam {
     if (pl) {
       x = kopya(x);
       platformKur(x, pl[1]!, JSON.parse(pl[2]!));
+      continue;
+    }
+    const an = /^@anahtar (\S+) (\S+)$/.exec(s);
+    if (an) {
+      x = kopya(x);
+      anahtarEkle(x, an[1]!, an[2]!);
       continue;
     }
     if (s.startsWith("@uzak ")) {

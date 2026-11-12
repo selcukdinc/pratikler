@@ -7,6 +7,7 @@ import { nesneKimligi } from "../../../../src/gitsim/nesne";
 import { CakismaEditoru, DalIsaretcisi, PullRequest, ResetKipleri } from "./kademe2";
 import { FetchPull, MergeRebase, RebaseListesi } from "./kademe3";
 import { IsAkisi, KorumaPaneli, UcOrtamAkisi } from "./platform";
+import { AnahtarAvi, SizintiTatbikati } from "./guvenlik";
 import "./etkilesim.css";
 
 type Ozellik = { g: Gorsel };
@@ -381,4 +382,6 @@ export const ETKILESIMLER: Record<string, ComponentType<Ozellik>> = {
   ucOrtamAkisi: UcOrtamAkisi,
   korumaPaneli: KorumaPaneli,
   isAkisi: IsAkisi,
+  sizintiTatbikati: SizintiTatbikati,
+  anahtarAvi: AnahtarAvi,
 };

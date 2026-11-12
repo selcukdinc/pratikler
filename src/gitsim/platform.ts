@@ -26,6 +26,8 @@ export function platformKur(o: Ortam, url: string, ayar: Partial<Platform>) {
   const p = platformu(uzak, githubAdi(url) ?? adresAnahtari(url));
   if (ayar.korumalar) p.korumalar = { ...p.korumalar, ...ayar.korumalar };
   if (ayar.ci) p.ci = ayar.ci;
+  if (ayar.gizliKoruma !== undefined) p.gizliKoruma = ayar.gizliKoruma;
+  if (ayar.herkeseAcik !== undefined) p.herkeseAcik = ayar.herkeseAcik;
 }
 
 export const koruma = (uzak: Depo, dal: string): DalKorumasi | null => uzak.platform?.korumalar[dal] ?? null;

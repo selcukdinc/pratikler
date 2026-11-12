@@ -8,7 +8,10 @@ import {
 import { ataMi, commitAgaci, commitOku, gecmis, icerik, soy } from "../../../src/gitsim/depo";
 import { prCi } from "../../../src/gitsim/platform";
 import { uzakBul, uzakDalUcu } from "../../../src/gitsim/uzak";
-import { CI_LINT, KAFE_TEMEL, platform, prVar, UC_ORTAM, uzakDosya, uzakUc as kafeUc } from "./kafe";
+import {
+  BOT_OLAYI, CI_LINT, envHazir, KAFE_TEMEL, ODEME_TEMEL, odemeDosyasi, odemedeVar, odemePlatformu, ORNEK_ANAHTAR, ornekIptal, platform, prVar, sizdi,
+  UC_ORTAM, uzakDosya, uzakUc as kafeUc,
+} from "./kafe";
 import type { Ortam } from "../../../src/gitsim/tipler";
 
 const HESAP_JS = "function topla(a, b) {\n  return a + b;\n}\n";
@@ -1063,9 +1066,108 @@ const hotfix: Gorev = {
   sonNot: "Git Flow'daki hotfix kuralının üç ortamlı karşılığı: canlıdan aç, önce canlıya, sonra bütün ortamlara. Düzeltme yalnızca main'de kalsaydı bir sonraki Release PR (test → main) onu geri alırdı.",
 };
 
+// ---------------- Kademe 4: Usta ----------------
+
+const gecmisteAnahtar: Gorev = {
+  id: "gecmiste-anahtar",
+  kademe: 4,
+  unite: 14,
+  baslik: "Push protection eski commit'i gösteriyor",
+  hikaye:
+    "Ödeme modülünde üç commit'in push bekliyor. İlkinde KafePay anahtarını koda yazmışsın, üçüncüsünde fark edip `.env`'e taşımışsın. " +
+    "Ama depoda push protection açık ve push reddediliyor: anahtar hâlâ ilk commit'te. Geçmişi düzelt ve üç commit'in işini GitHub'a gönder.",
+  kurulum: [
+    ...ODEME_TEMEL,
+    odemePlatformu({ gizliKoruma: true }),
+    `echo 'const anahtar = "${ORNEK_ANAHTAR}";' > odeme.js`,
+    "git add odeme.js",
+    'git commit -m "Ödeme modülü"',
+    'echo "export function fis() {}" > fis.js',
+    "git add fis.js",
+    'git commit -m "Fiş yazdırma"',
+    `echo "KAFEPAY_KEY=${ORNEK_ANAHTAR}" > .env`,
+    'echo ".env" >> .gitignore',
+    "echo 'const anahtar = process.env.KAFEPAY_KEY;' > odeme.js",
+    "git add odeme.js .gitignore",
+    'git commit -m "Anahtar ortamdan okunuyor"',
+  ],
+  hedefler: [
+    { aciklama: "GitHub'da ödeme modülü ve fiş yazdırma var", denetle: (o) => (odemeDosyasi(o, "odeme.js") ?? "").includes("process.env") && odemeDosyasi(o, "fis.js") !== null },
+    { aciklama: "GitHub'daki geçmişte anahtar yok", denetle: (o) => !odemedeVar(o, ORNEK_ANAHTAR) },
+    { aciklama: ".env'de anahtar duruyor, Git onu izlemiyor", denetle: envHazir },
+  ],
+  ipuclari: [
+    "Önce `git push` deneyip GH013 çıktısını oku: anahtar hangi commit'te, hangi satırda?",
+    "Yeni bir commit eklemek yetmez; reddedilen commit push'un içinde kalır. `git rebase -i origin/main` ile geçmişi düzenle.",
+    "Listede \"Anahtar ortamdan okunuyor\" satırını \"Ödeme modülü\"nün hemen altına taşı ve başını `fixup` yap. Sonra `git push`.",
+  ],
+  cozum: ["git rebase -i origin/main", "git push"],
+  editorCozum: [
+    (m) => {
+      const s = m.split("\n");
+      const i = s.findIndex((x) => x.endsWith("Anahtar ortamdan okunuyor"));
+      const [satir] = s.splice(i, 1);
+      const j = s.findIndex((x) => x.endsWith("Ödeme modülü"));
+      s.splice(j + 1, 0, satir!.replace(/^pick/, "fixup"));
+      return s.join("\n");
+    },
+  ],
+  sonNot: "Push protection kapıda durdurdu: anahtar GitHub'a hiç ulaşmadı, iptal gerekmedi. Fixup düzeltmeyi hatalı commit'in içine kattı; geçmişte anahtarın hiç olmadığı bir sürüm kaldı.",
+};
+
+const sizintiGorevi: Gorev = {
+  id: "sizinti",
+  kademe: 4,
+  unite: 14,
+  baslik: "Sızıntı tatbikatı",
+  hikaye:
+    "Ödeme modülünün deposu herkese açık (public). İki commit'in hazır: \"Ödeme ayarları\" ve \"Fiş yazdırma\". Push et. " +
+    "Bir sorun çıkarsa doğru sırayla müdahale et: anahtar yeni ve geçerli olsun, GitHub'daki geçmişte eski anahtar kalmasın, `.env` bir daha commit'e girmesin.",
+  kurulum: [
+    ...ODEME_TEMEL,
+    odemePlatformu({ herkeseAcik: true }),
+    `echo "KAFEPAY_KEY=${ORNEK_ANAHTAR}" > .env`,
+    "echo 'const anahtar = process.env.KAFEPAY_KEY;' > odeme.js",
+    "git add .",
+    'git commit -m "Ödeme ayarları"',
+    'echo "export function fis() {}" > fis.js',
+    "git add fis.js",
+    'git commit -m "Fiş yazdırma"',
+  ],
+  olaylar: [BOT_OLAYI],
+  hedefler: [
+    { aciklama: "İki commit'in işi GitHub'da", denetle: (o) => odemeDosyasi(o, "odeme.js") !== null && odemeDosyasi(o, "fis.js") !== null },
+    { aciklama: "Anahtar sızdıysa iptal edildi", denetle: (o) => !sizdi(o) || ornekIptal(o) },
+    { aciklama: ".env'de geçerli bir anahtar var, Git onu izlemiyor", denetle: envHazir },
+    { aciklama: "GitHub'daki geçmişte eski anahtar yok", denetle: (o) => !odemedeVar(o, ORNEK_ANAHTAR) },
+    { aciklama: "GitHub'daki .gitignore .env'i yok sayıyor", denetle: (o) => (odemeDosyasi(o, ".gitignore") ?? "").split("\n").includes(".env") },
+  ],
+  ipuclari: [
+    "Bot anahtarı bulduysa ilk iş iptal: `kafepay keys revoke`. `kafepay logs` ne olduğunu gösterir. Yeni anahtarı geçmişi temizledikten sonra `kafepay keys create > .env` ile üret (rebase, değişmiş izlenen dosyayla başlamaz).",
+    "Anahtar \"Ödeme ayarları\" commit'inde. Push ettiğin için `origin/main` artık senin commit'lerinle aynı; `git rebase -i HEAD~2` ile son iki commit'i aç ve \"Ödeme ayarları\" satırını `edit` yap; durunca `git rm --cached .env`, .gitignore'a `.env` ekle, `git add .gitignore`, `git commit --amend --no-edit`, `git rebase --continue`.",
+    "Geçmiş değişti: `git push --force` ile gönder.",
+  ],
+  cozum: [
+    "git push",
+    "kafepay keys revoke",
+    "kafepay logs",
+    "git rebase -i HEAD~2",
+    "git rm --cached .env",
+    'echo ".env" >> .gitignore',
+    "git add .gitignore",
+    "git commit --amend --no-edit",
+    "git rebase --continue",
+    "kafepay keys create > .env",
+    "git push --force",
+  ],
+  editorCozum: [(m) => m.replace(/^pick (\w+) Ödeme ayarları$/m, "edit $1 Ödeme ayarları")],
+  sonNot: "Sıra doğruysa zarar birkaç dakikayla sınırlı kaldı. Push etmeden önce `git status` ve `git show --stat` ile neyi gönderdiğine bakmak bu tatbikatın hiç yaşanmamasını sağlardı.",
+};
+
 export const GOREVLER: Gorev[] = [
   kimlik, ilkDepo, ilkCommit, secerekEkle, geriCek, gitignore, dedektif, envCikar, kurtar, mesajDuzelt, mainYap,
   dalAc, ileriSar, izBirak, yanlisDal, kopukKurtar, cakismaCoz, vazgec, canliGeriAl, acilStash, reflogKurtar,
   ilkPush, pushReddi, guvenliForce, budama, tekCommit, mesajDegistir, sirDrop, rebaseCakisma,
   korumaliMain, ciKirmizi, surumEtiketi, devdenAcilan, ucOrtam, hotfix,
+  gecmisteAnahtar, sizintiGorevi,
 ];
