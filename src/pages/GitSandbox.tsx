@@ -6,6 +6,23 @@ import { yeniOrtam, type Ortam } from "../gitsim";
 import { gitKomutuSayisi, gorevOrtami, enAzKomut, olaylariIslet, tamamMi, yildiz, type Gorev } from "../gitsim/gorev";
 import { uzakOlustur } from "../gitsim/uzak";
 import { CommitGrafigi, Editor, editorAc, UzakDepolar, oturumdaCalistir, oturumdaKaydet, satirIci, Terminal, UcAlan, type Oturum, type Satir } from "../components/GitParcalari";
+import { DuzenAlani } from "../components/DuzenAlani";
+import { DuzenMenusu, useDuzen } from "../components/DuzenMenusu";
+import { BaglamMenusu, type MenuOgesi } from "../components/BaglamMenusu";
+import { GitIskeleti } from "../components/Iskelet";
+
+// Dar ekranda paneller alt alta dizilir; pencere düzeni yalnızca genişte
+const DAR = "(max-width: 900px)";
+function useDar(): boolean {
+  const [dar, setDar] = useState(() => typeof matchMedia === "function" && matchMedia(DAR).matches);
+  useEffect(() => {
+    const m = matchMedia(DAR);
+    const f = () => setDar(m.matches);
+    m.addEventListener("change", f);
+    return () => m.removeEventListener("change", f);
+  }, []);
+  return dar;
+}
 
 const ANAHTAR = "git-pratik:sandbox";
 const SERBEST = "serbest";
@@ -148,11 +165,15 @@ export function GitSandbox({ gorevleriYukle, aktif }: { gorevleriYukle: () => Pr
     setEditor({ yol, metin: oturum.ortam.dosyalar[yol] ?? "" });
   };
 
+  const [duzen, setDuzen] = useDuzen("git");
+  const [menu, setMenu] = useState<{ x: number; y: number; ogeler: MenuOgesi[] } | null>(null);
+  const dar = useDar();
+
   const bitenSayi = gorevler.filter((g) => kayit.biten[g.id]).length;
   const geriAlinabilir = (geriAlma.current[kayit.kip]?.length ?? 0) > 0;
 
   return (
-    <div className="gs">
+    <div className={dar ? "gs" : "gs gs-duzenli"}>
       <div className="gs-ust">
         <div className="gs-kip" role="tablist" aria-label="Sandbox kipi">
           <button role="tab" aria-selected={kayit.kip === SERBEST} className={kayit.kip === SERBEST ? "secili" : ""} onClick={() => kipSec(SERBEST)}>
@@ -182,6 +203,7 @@ export function GitSandbox({ gorevleriYukle, aktif }: { gorevleriYukle: () => Pr
           <input type="checkbox" checked={kayit.aciklamalar} onChange={(e) => setKayit((k) => ({ ...k, aciklamalar: e.target.checked }))} /> Türkçe açıklamalar
         </label>
         <button onClick={geriAl} disabled={!geriAlinabilir} title="Son komutu geri al">Geri al</button>
+        {!dar && <DuzenMenusu duzen={duzen} uygula={setDuzen} durum={() => {}} alan="git" />}
         <button onClick={bastan}>Baştan başlat</button>
       </div>
 
@@ -196,7 +218,9 @@ export function GitSandbox({ gorevleriYukle, aktif }: { gorevleriYukle: () => Pr
         />
       )}
 
-      {oturum ? (
+      {!oturum ? (
+        <GitIskeleti />
+      ) : dar ? (
         <div className="gs-izgara">
           <Terminal oturum={oturum} onKomut={komutGir} aktif={aktif && !editor} />
           <div className="panel gs-grafik">
@@ -207,8 +231,33 @@ export function GitSandbox({ gorevleriYukle, aktif }: { gorevleriYukle: () => Pr
           <UzakDepolar ortam={oturum.ortam} />
         </div>
       ) : (
-        <p className="empty">Görevler yükleniyor…</p>
+        <DuzenAlani duzen={duzen} degistir={setDuzen} menuAc={(x, y, ogeler) => setMenu({ x, y, ogeler })} paneller={{
+          terminal: {
+            ad: "Terminal",
+            sinif: "gs-terminal",
+            baslik: <span className="panel-ad">Terminal</span>,
+            govde: <Terminal oturum={oturum} onKomut={komutGir} aktif={aktif && !editor} cercevesiz />,
+          },
+          grafik: {
+            ad: "Commit grafiği",
+            sinif: "gs-grafik",
+            baslik: <span className="panel-ad">Commit grafiği</span>,
+            govde: <CommitGrafigi ortam={oturum.ortam} />,
+          },
+          alanlar: {
+            ad: "Alanlar",
+            sinif: "gs-alanlar-paneli",
+            baslik: <span className="panel-ad">Çalışma dizini, hazırlık alanı, depo</span>,
+            govde: (
+              <div className="gs-alanlar-kaydir">
+                <UcAlan ortam={oturum.ortam} onAc={dosyaAc} onYeni={yeniDosya} />
+                <UzakDepolar ortam={oturum.ortam} />
+              </div>
+            ),
+          },
+        }} />
       )}
+      {menu && <BaglamMenusu x={menu.x} y={menu.y} ogeler={menu.ogeler} kapat={() => setMenu(null)} />}
 
       {editor && <Editor yol={editor.yol} metin={editor.metin} onKaydet={dosyaKaydet} onKapat={() => setEditor(null)} />}
     </div>
