@@ -24,6 +24,17 @@ export interface Yenilik {
 
 export const YENILIKLER: Yenilik[] = [
   {
+    pr: 36,
+    tarih: "2026-11-11",
+    baslik: "Git ve GitHub pratiği hazırlanıyor: iskelet ve ilk 146 soru",
+    kitle: "yonetici",
+    maddeler: [
+      "Yeni pratik **Git ve GitHub** (`/git`, soru öneki `gt-`, katalog alanı Yazılım) açıldı ama henüz yayında değil: 18 ünite beş kademede (Acemi, Başlangıç, Orta, İleri, Usta).",
+      "Acemi kademesinin beş ünitesinde (sürüm kontrolü neden var, kurulum ve terminal, ilk depo ve üç alan, geçmişe bakmak, GitHub'a ilk adım) 146 soru: 91 kavram, 19 komut yazma, 36 senaryo sorusu. Senaryolarda Git'in gerçek hata çıktıları kod bloğu olarak gösteriliyor.",
+      "Yayından önce uzak D1'e `0033_git_ayarlari.sql` ve `0034_git_sorular.sql` uygulanmalı. Plan: `docs/plan-git-github-pratigi.md`.",
+    ],
+  },
+  {
     pr: 35,
     tarih: "2026-11-10",
     baslik: "Cevaplar anında, site daha hafif",
