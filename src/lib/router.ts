@@ -59,7 +59,7 @@ export function parsePath(path: string, search = ""): Route {
       // Pratiğin açılış sayfası (meta.anaSayfa); varsayılan karma test
       {
       const ana = PRATIK_YA_DA_KATALOG?.anaSayfa;
-      return ana === "lab" ? { page: "lab" } : ana === "simulasyon" ? { page: "simulasyon" } : { page: "pratik" };
+      return ana === "lab" ? { page: "lab" } : ana === "simulasyon" ? { page: "simulasyon" } : ana === "ders" ? { page: "ders" } : { page: "pratik" };
     }
     case "pratik":
       return { page: "pratik" };

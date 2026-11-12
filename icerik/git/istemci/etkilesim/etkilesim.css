@@ -1,0 +1,81 @@
+/* Git ve GitHub derslerinin etkileşimli şekilleri */
+.ge { max-width: 720px; margin: 0 auto; font-size: 14px; display: flex; flex-direction: column; gap: 8px; }
+.ge button.cip { cursor: pointer; font: inherit; font-size: 12.5px; }
+.ge button.cip:disabled { opacity: .45; cursor: default; }
+.ge button.cip[aria-pressed="true"] { background: var(--active); border-color: var(--btn-primary-border); font-weight: 600; }
+.ge-secim { display: flex; flex-wrap: wrap; gap: 6px; }
+.ge-not { margin: 0; color: var(--muted); }
+.ge-sonuc { margin: 0; padding: 8px 10px; border-radius: 4px; background: var(--section-header); color: var(--section-text); line-height: 1.5; }
+.ge-iyi { background: var(--tag-ders-bg); color: var(--tag-ders-text); }
+.ge-kotu { background: var(--tag-cikmis-bg); color: var(--tag-cikmis-text); }
+.ge-satir { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.ge-yeniden { margin-left: 8px; }
+.ge .mono, .ge-hash { font-family: var(--mono); }
+
+.ge-kaos { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+.ge-kaos button { font-size: 13px; padding: 4px 8px; }
+.ge-kaos button[aria-pressed="true"] { border-color: var(--error); }
+
+.ge-zaman { list-style: none; margin: 0; padding: 0 0 0 14px; border-left: 3px solid var(--link); display: flex; flex-direction: column; gap: 4px; }
+.ge-zaman button { display: flex; flex-wrap: wrap; gap: 4px 8px; width: 100%; text-align: left; align-items: baseline; position: relative; }
+.ge-zaman button::before { content: ""; position: absolute; left: -22px; top: 9px; width: 10px; height: 10px; border-radius: 50%; background: var(--panel); border: 3px solid var(--link); }
+.ge-zaman button[aria-pressed="true"] { background: var(--active); }
+.ge-zaman button[aria-pressed="true"]::before { background: var(--link); }
+.ge-hash { color: var(--warning); }
+.ge-kim { color: var(--muted); font-size: 12px; margin-left: auto; }
+.ge-dosya { margin: 0; padding: 8px 10px; background: var(--pre-bg); border: 1px solid var(--pre-border); font-size: 13px; line-height: 1.5; overflow-x: auto; }
+.ge-dosya span { display: block; white-space: pre; }
+.ge-ekle { background: rgb(40 160 70 / 16%); color: var(--green); }
+.ge-sil { background: rgb(210 50 50 / 14%); color: var(--error); text-decoration: line-through; }
+
+.ge-ag { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.ge-gelistiriciler { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+.ge-kutu { border: 1px solid var(--border); border-radius: 6px; padding: 8px 12px; background: var(--panel); display: flex; flex-direction: column; gap: 2px; min-width: 120px; text-align: center; transition: opacity .3s, border-color .3s; }
+.ge-kutu span { font-size: 12px; color: var(--muted); }
+.ge-sunucu { border-width: 2px; border-color: var(--link); }
+.ge-cokmus { border-color: var(--error); opacity: .6; }
+.ge-cokmus span { color: var(--error); font-weight: 600; }
+.ge-kopuk { border-style: dashed; opacity: .7; }
+.ge-isler { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 4px; }
+.ge-evet { color: var(--green); }
+.ge-hayir { color: var(--error); }
+
+.ge-oyun { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+.ge-oyun li { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; padding: 4px 6px; border-radius: 4px; border: 1px solid var(--border-soft); color: var(--text); }
+.ge-oyun li.ge-evet { border-color: var(--green); }
+.ge-oyun li.ge-hayir { border-color: var(--error); }
+.ge-oyun-ad { flex: 1; min-width: 160px; }
+.ge-oyun-dugmeler { display: flex; gap: 4px; }
+.ge-oyun-neden { flex-basis: 100%; font-size: 12.5px; color: var(--muted); }
+
+.ge-ucalan { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+.ge-alan { border: 1px solid var(--border); border-radius: 6px; padding: 6px 8px; display: flex; flex-direction: column; gap: 4px; min-height: 96px; background: var(--panel); }
+.ge-alan strong { font-size: 12.5px; }
+.ge-surum { font-family: var(--mono); font-size: 12.5px; padding: 2px 6px; border-radius: 3px; background: var(--tag-bg); transition: background .3s; }
+.ge-surum em { color: var(--muted); font-style: normal; font-size: 11px; }
+.ge-farkli { background: var(--tag-cikmis-bg); color: var(--tag-cikmis-text); }
+.ge-tablo { border-collapse: collapse; width: 100%; font-size: 13px; }
+.ge-tablo td { padding: 3px 4px; border-top: 1px solid var(--border-soft); vertical-align: middle; }
+.ge-tablo td:last-child { display: flex; flex-wrap: wrap; gap: 4px; }
+.ge-durum { color: var(--muted); font-size: 12px; white-space: nowrap; }
+
+.ge-form { display: grid; gap: 6px; }
+.ge-form label { display: flex; flex-direction: column; gap: 2px; font-size: 12.5px; color: var(--muted); }
+.ge-form textarea, .ge-form input { font-family: var(--mono); font-size: 13px; padding: 4px 6px; border: 1px solid var(--border); border-radius: 3px; background: var(--input); color: var(--text); }
+.ge-kimlik { display: grid; grid-template-columns: auto 1fr; gap: 2px 10px; margin: 0; }
+.ge-kimlik dt { color: var(--muted); font-size: 12.5px; }
+.ge-kimlik dd { margin: 0; overflow-wrap: anywhere; color: var(--warning); }
+.ge-farkli-harf { background: var(--warning); color: var(--panel); border-radius: 2px; }
+
+.ge-yu { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); gap: 8px; align-items: center; }
+.ge-seri { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; margin: 4px 0; }
+.ge-nokta { width: 26px; height: 26px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-weight: 700; font-size: 12px; color: #fff; }
+.ge-sen { background: #2f81f7; }
+.ge-ayse { background: #b05bd6; }
+.ge-oklar { display: flex; flex-direction: column; gap: 4px; font-family: var(--mono); font-size: 12px; color: var(--muted); text-align: center; }
+
+@media (max-width: 600px) {
+  .ge-ucalan { grid-template-columns: minmax(0, 1fr); }
+  .ge-yu { grid-template-columns: minmax(0, 1fr); }
+  .ge-oklar { flex-direction: row; justify-content: center; gap: 16px; }
+}

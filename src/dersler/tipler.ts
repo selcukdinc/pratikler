@@ -9,6 +9,8 @@
 // Tarihsel nedenle ünite numarasının alanı `hafta`dır: veritabanındaki week
 // sütunu, soru dosyaları ve ilerleme kayıtları bu adı kullanır.
 
+import type { Ortam } from "../gitsim/tipler";
+
 // Ünitelerin sınav dönemine göre gruplanması (kimyada 1-9 vize, 10-16 final).
 // Dönemi olmayan pratiklerde listeler tek grup halinde görünür.
 export type Donem = "vize" | "final";
@@ -35,6 +37,24 @@ export interface MiniMatlab {
   gorev?: string;
 }
 
+// Bölümde sanal Git'le çalışan küçük bir terminal (Git ve GitHub). Ortam her
+// açılışta kurulumdan yeniden kurulur; hedefler ortamın son hâline bakar.
+export interface MiniGit {
+  dosyalar?: Record<string, string>;
+  // Verilmezse src/gitsim/gorev.ts VARSAYILAN_KIMLIK
+  globalConfig?: Record<string, string>;
+  // Başlangıç durumunu kuran komutlar (görünmez)
+  kurulum?: string[];
+  // Öğrenciye ne deneyeceğini söyleyen kısa görev (~kod~ yazılabilir)
+  gorev?: string;
+  // Tek dokunuşla yazılan öneri komutları
+  oneriler?: string[];
+  hedefler?: { aciklama: string; denetle: (o: Ortam) => boolean }[];
+  // Commit grafiği ve üç alan şeridi (varsayılan: ikisi de görünür)
+  grafik?: boolean;
+  alanlar?: boolean;
+}
+
 export interface DersBolumu {
   baslik: string;
   metin: string;
@@ -45,6 +65,7 @@ export interface DersBolumu {
   dene?: string[];
   matlab?: MiniMatlab;
   sim?: MiniSim;
+  git?: MiniGit;
 }
 
 export interface Ders {

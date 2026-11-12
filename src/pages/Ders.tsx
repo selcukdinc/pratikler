@@ -19,6 +19,8 @@ import type { Question, SoruDurumlari } from "../../shared/api";
 const MiniMatlab = lazy(() => import("../components/MiniMatlab").then((m) => ({ default: m.MiniMatlab })));
 // Bölümdeki küçük VHDL benzetimi (FPGA): editör ve NVC ayrı parça olarak yüklenir
 const MiniSim = lazy(() => import("../components/MiniSim").then((m) => ({ default: m.MiniSim })));
+// Bölümdeki Git terminali (Git ve GitHub): sanal Git ayrı parça olarak yüklenir
+const MiniGit = lazy(() => import("../components/MiniGit").then((m) => ({ default: m.MiniGit })));
 
 // Ünitenin listede ve başlıklarda adı: "3. hafta" ya da proje haftası için "Proje"
 const uniteYazi = (no: number) => (dersBul(no)?.proje ? "Proje" : uniteNo(no));
@@ -69,6 +71,7 @@ function UniteSatiri({ no, ilerleme }: { no: number; ilerleme: DersIlerleme }) {
           {lab > 0 && <span className="tag">{lab} lab deneyi</span>}
           {d.bolumler.some((b) => b.matlab) && <span className="tag">{d.bolumler.filter((b) => b.matlab).length} MatStudio örneği</span>}
           {d.bolumler.some((b) => b.sim) && <span className="tag">{d.bolumler.filter((b) => b.sim).length} benzetim</span>}
+          {d.bolumler.some((b) => b.git) && <span className="tag">{d.bolumler.filter((b) => b.git).length} terminal alıştırması</span>}
           {d.test.length > 0 && <span className="tag">{d.test.length} soruluk test</span>}
         </span>
         {biten > 0 && <IlerlemeCubugu biten={biten} toplam={d.bolumler.length} />}
@@ -108,7 +111,21 @@ function DersListesi() {
           <span className="ders-devam-ok">Devam et →</span>
         </a>
       )}
-      {donemliMi() ? (
+      {PRATIK.uniteGruplari ? (
+        PRATIK.uniteGruplari.map((g, i) => {
+          const liste = uniteler.filter((no) => g.uniteler.includes(no));
+          if (!liste.length) return null;
+          return (
+            <section key={g.ad} aria-labelledby={`grup-${i}`}>
+              <h3 className="donem-baslik" id={`grup-${i}`}>{i + 1}. {g.ad}</h3>
+              {g.aciklama && <p className="hint grup-aciklama">{g.aciklama}</p>}
+              <ol className="ders-listesi">
+                {liste.map((no) => <UniteSatiri key={no} no={no} ilerleme={ilerleme} />)}
+              </ol>
+            </section>
+          );
+        })
+      ) : donemliMi() ? (
         DONEMLER.map((donem) => {
           const liste = uniteler.filter((no) => doneminiBul(no) === donem);
           if (!liste.length) return null;
@@ -229,6 +246,11 @@ function DersSayfasi({ ders }: { ders: DersVerisi }) {
           {b.sim && (
             <Suspense fallback={<p className="hint">Simülasyon yükleniyor…</p>}>
               <MiniSim key={`${ders.hafta}-${i}`} sim={b.sim} />
+            </Suspense>
+          )}
+          {b.git && (
+            <Suspense fallback={<p className="empty">Git terminali yükleniyor…</p>}>
+              <MiniGit key={`${ders.hafta}-${i}`} veri={b.git} />
             </Suspense>
           )}
           {b.lab && <LabBagi id={b.lab} />}

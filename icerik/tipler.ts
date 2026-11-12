@@ -72,8 +72,12 @@ export interface PratikMeta {
   yayinda: boolean;
   // $...$ ve $$...$$ formülleri KaTeX ile çizilir, A_x / m^2 indisleri dizilir
   latex: boolean;
-  // Alan adının kökünde açılan sayfa: karma test (varsayılan), Sanal Lab ya da VHDL simülasyon alanı
-  anaSayfa?: "pratik" | "lab" | "simulasyon";
+  // Alan adının kökünde açılan sayfa: karma test (varsayılan), Sanal Lab, VHDL simülasyon
+  // alanı ya da konu anlatımlarının listesi (yol haritası)
+  anaSayfa?: "pratik" | "lab" | "simulasyon" | "ders";
+  // Ders listesinde ünitelerin gruplanması (Git: Acemi, Başlangıç...). Verilmezse dersin
+  // dönemine (vize/final) göre ya da tek liste
+  uniteGruplari?: { ad: string; aciklama?: string; uniteler: number[] }[];
   // Yazma (yaz) sorularının cevap kutusunun altında mantık ve küme sembol klavyesi
   // çıkar (Ayrık); belirtilmezse çıkmaz
   yazSembolleri?: boolean;

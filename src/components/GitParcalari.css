@@ -1,5 +1,5 @@
-/* Git sandbox'ı. Renkler temanın değişkenlerinden; terminal her temada koyu. */
-.gs {
+/* Git sandbox'ı (.gs) ve derslerdeki mini terminal (.mg). Renkler temanın değişkenlerinden; terminal her temada koyu. */
+.gs, .mg {
   --gs-term-bg: #16181d;
   --gs-term-text: #d8dee9;
   --gs-term-muted: #8a93a3;
@@ -7,6 +7,8 @@
   --gs-kirmizi: #f0686a;
   --gs-sari: #d9a53a;
   --gs-mavi: #5fb3e8;
+}
+.gs {
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -16,8 +18,8 @@
   width: 100%;
   box-sizing: border-box;
 }
-.gs .panel-title { display: flex; align-items: center; gap: 8px; }
-.gs .panel-title .icon { margin-left: auto; font-size: 12px; color: var(--link); }
+.gs .panel-title, .mg .panel-title { display: flex; align-items: center; gap: 8px; }
+.gs .panel-title .icon, .mg .panel-title .icon { margin-left: auto; font-size: 12px; color: var(--link); }
 .gs-bosluk { flex: 1; }
 .gs-ust { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .gs-kip { display: inline-flex; border: 1px solid var(--border); border-radius: 4px; overflow: hidden; }
@@ -172,4 +174,21 @@ button.gs-dosya:hover { text-decoration: underline; color: var(--link); }
   .gs-alan { min-height: 0; }
   /* iOS'ta odaklanınca yakınlaştırmasın */
   .gs-girdi-satiri input { font-size: 16px; }
+}
+
+/* derslerdeki mini terminal */
+.mg { margin: 12px 0; display: flex; flex-direction: column; gap: 6px; }
+.mg-gorev { background: var(--section-header); color: var(--section-text); padding: 8px 12px; border-radius: 3px; font-size: 14px; line-height: 1.5; }
+.mg-gorev p { margin: 0; }
+.mg-hedefler { list-style: none; margin: 6px 0 0; padding: 0; }
+.mg-hedefler li { color: var(--muted); }
+.mg-hedefler li.tamam { color: var(--green); font-weight: 600; }
+.mg-izgara { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); gap: 6px; }
+.mg .gs-terminal, .mg .gs-grafik { height: 300px; grid-area: auto; }
+.mg-tek .gs-terminal { height: 260px; }
+.mg-tek { grid-template-columns: minmax(0, 1fr); }
+.mg-alt { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--muted); flex-wrap: wrap; }
+@media (max-width: 900px) {
+  .mg-izgara { grid-template-columns: minmax(0, 1fr); }
+  .mg .gs-grafik { height: auto; max-height: 240px; }
 }

@@ -24,6 +24,18 @@ export interface Yenilik {
 
 export const YENILIKLER: Yenilik[] = [
   {
+    pr: 39,
+    tarih: "2026-11-12",
+    baslik: "Git ve GitHub pratiği: Acemi kademesinin konu anlatımları",
+    kitle: "yonetici",
+    maddeler: [
+      "İlk beş ünitenin anlatımı: sürüm kontrolü neden var, kurulum ve terminal, ilk depo ve üç alan, geçmişe bakmak, GitHub'a ilk adım. Metinler kısa; her ünitede deneyerek öğrenilen parçalar var.",
+      "Ders bölümlerinde gerçek komutların yazıldığı terminal alıştırmaları: yanında canlı commit grafiği ve çalışma dizini, hazırlık alanı, depo şeridi; hedefler yazdıkça işaretleniyor (11 alıştırma).",
+      "Altı etkileşimli şekil: dosya adlarıyla sürüm tutma ile Git geçmişinin karşılaştırması, sunucu çökünce merkezi ve dağıtık model, \"Git mi platform mu?\" oyunu, üç alan arasında dosya taşıma, tek harfle değişen commit kimliği, push, pull ve reddedilen push.",
+      "Git pratiğinin açılış sayfası konu anlatımları; liste Acemi, Başlangıç, Orta, İleri, Usta kademelerine göre gruplanıyor (`meta.anaSayfa: \"ders\"`, `meta.uniteGruplari`).",
+    ],
+  },
+  {
     pr: 38,
     tarih: "2026-11-11",
     baslik: "Git ve GitHub pratiği: Git sandbox'ı ve ilk 11 görev",
