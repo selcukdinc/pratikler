@@ -13,6 +13,7 @@ import {
   UC_ORTAM, uzakDosya, uzakUc as kafeUc,
 } from "./kafe";
 import type { Ortam } from "../../../src/gitsim/tipler";
+import { uzakGecmisteYol } from "./dersler/unite-18";
 
 const HESAP_JS = "function topla(a, b) {\n  return a + b;\n}\n";
 
@@ -1352,10 +1353,164 @@ const blameGorevi: Gorev = {
   sonNot: "blame suçlu aramak için değil, bağlamı bulmak içindir: commit'i bulunca Mert'e neden eklediğini sorabilirsin. Mesajı \"Menü güncellendi\" yerine \"Su bedava\" olsaydı arama hiç gerekmezdi.",
 };
 
+// ---------------- Kademe 5: Profesyonel (Git'in içi, kurtarma) ----------------
+
+const nesneNotu: Gorev = {
+  id: "nesne-notu",
+  kademe: 5,
+  unite: 17,
+  baslik: "Nesne veritabanındaki not",
+  hikaye:
+    "Ayşe ayrılmadan önce depoya bir not bıraktı ama dosya olarak değil: `git hash-object -w` ile yalnızca nesne veritabanına yazdı. Kimliğinin `f26b` ile başladığını söyledi. " +
+    "Notu oku, `not.txt` adıyla kaydet ve commit'le.",
+  kurulum: [
+    "git init",
+    'echo "# Kasa" > README.md',
+    "git add .",
+    'git commit -m "Kasa"',
+    'echo "Kasa şifresi değişti, yeni şifre yöneticide." > gecici',
+    "git hash-object -w gecici",
+    "rm gecici",
+  ],
+  hedefler: [
+    { aciklama: "not.txt'de Ayşe'nin notu var", denetle: (o) => (o.dosyalar["not.txt"] ?? "").includes("yöneticide") },
+    { aciklama: "Not commit'lendi", denetle: (o) => (headDosyalari(o)["not.txt"] ?? "").includes("yöneticide") },
+  ],
+  ipuclari: [
+    "`git cat-file -t f26b` nesnenin türünü, `-p` içeriğini gösterir.",
+    "Çıktıyı dosyaya yönlendir: `git cat-file -p f26b > not.txt`, sonra `git add` ve `git commit`.",
+  ],
+  cozum: ["git cat-file -t f26b", "git cat-file -p f26b > not.txt", "git add not.txt", 'git commit -m "Ayşe\'nin notu"'],
+  sonNot: "Blob'un adı yoktu; adı ona tree verir. `git add` tam olarak bunu yaptı: içeriği (zaten var olan) blob'a, adı index'e yazdı.",
+};
+
+const resetFelaketi: Gorev = {
+  id: "reset-felaketi",
+  kademe: 5,
+  unite: 18,
+  baslik: "Reset'ten sonra bir commit daha",
+  hikaye:
+    "Dün akşam yorgunken `git reset --hard HEAD~2` yaptın; \"Ödeme\" ve \"İndirim\" commit'leri gitti (push edilmemişlerdi). Bu sabah fark etmeden üstüne \"Fiş\" commit'ini attın. " +
+    "Üç işin de main'de olsun; bu sabahki commit kaybolmasın.",
+  kurulum: [
+    "git init",
+    'echo "kahve 40" > menu.txt',
+    "git add .",
+    'git commit -m "Menü"',
+    'echo "export function ode() {}" > odeme.js',
+    "git add .",
+    'git commit -m "Ödeme"',
+    'echo "export const INDIRIM = 0.1;" > indirim.js',
+    "git add .",
+    'git commit -m "İndirim"',
+    "git reset --hard HEAD~2",
+    'echo "export function fis() {}" > fis.js',
+    "git add .",
+    'git commit -m "Fiş"',
+  ],
+  hedefler: [
+    { aciklama: "main'de odeme.js, indirim.js ve fis.js var", denetle: (o) => { const f = headDosyalari(o); return "odeme.js" in f && "indirim.js" in f && "fis.js" in f; } },
+    { aciklama: "Fiş commit'i main'in geçmişinde", denetle: (o) => { const d = o.depo!; const h = dalUcu(o, "main"); return !!h && gecmis(d, [h]).some((c) => commitOku(d, c).mesaj.trim() === "Fiş"); } },
+    { aciklama: "Çalışma dizini temiz, main'desin", denetle: (o) => temizMi(o) && dalAdiniAl(o) === "main" },
+  ],
+  ipuclari: [
+    "`git reflog`: reset'ten önce HEAD neredeydi? \"İndirim\" commit'inin kimliğini bul.",
+    "Reset'e geri dönmek bu sabahki commit'i kaybettirir. Kayıp iki commit'i bugünkünün üstüne `git cherry-pick` ile getir (ya da o commit'i `git merge` et).",
+    "Reset ORIG_HEAD'i eski yere yazdı: `git cherry-pick ORIG_HEAD~1`, sonra `git cherry-pick ORIG_HEAD`.",
+  ],
+  cozum: ["git reflog", "git cherry-pick ORIG_HEAD~1", "git cherry-pick ORIG_HEAD"],
+  sonNot: "Kayıp commit'ler reflog'da duruyordu. `reset --hard HEAD@{n}` bu sabahki işi silerdi; cherry-pick ikisini de korudu. Kimlikleri yeni, içerikleri aynı.",
+};
+
+const stashKurtar: Gorev = {
+  id: "stash-kurtar",
+  kademe: 5,
+  unite: 18,
+  baslik: "Düşen stash",
+  hikaye:
+    "Yarım kampanya kodunu stash'e koymuştun. Sonra listeyi temizlerken yanlışlıkla `git stash clear` yaptın ve üstüne bir commit attın. Kampanya kodu reflog'da da yok. " +
+    "Kodu geri getir ve commit'le.",
+  kurulum: [
+    "git init",
+    'echo "kahve 40" > menu.txt',
+    "git add .",
+    'git commit -m "Menü"',
+    'echo "export function kampanya() { return 0.15; }" > kampanya.js',
+    "git add kampanya.js",
+    'git stash push -m "kampanya"',
+    "git stash clear",
+    'echo "cay 20" >> menu.txt',
+    'git commit -am "Çay"',
+  ],
+  hedefler: [
+    { aciklama: "kampanya.js geri geldi ve commit'lendi", denetle: (o) => (headDosyalari(o)["kampanya.js"] ?? "").includes("0.15") },
+    { aciklama: "Çay commit'i duruyor", denetle: (o) => (headDosyalari(o)["menu.txt"] ?? "").includes("cay") },
+  ],
+  ipuclari: [
+    "`git fsck` hiçbir yerden ulaşılamayan (dangling) commit'leri listeler.",
+    "`git show <kimlik>` ile kampanya stash'i olduğunu doğrula, `git stash apply <kimlik>` ile uygula, sonra commit'le.",
+  ],
+  cozum: ["git fsck", "git show 473ef8a", "git stash apply 473ef8a", "git add kampanya.js", 'git commit -m "Kampanya"'],
+  sonNot: "Stash de bir commit'tir: düşürülünce silinmez, sahipsiz kalır. Birkaç hafta içinde `git gc` budayana kadar fsck ile bulunabilir.",
+};
+
+const VERI = "https://github.com/kafe-mavi/kasa.git";
+const filtreGorevi: Gorev = {
+  id: "gecmis-temizligi",
+  kademe: 5,
+  unite: 18,
+  baslik: "Geçmişteki veritabanı dökümü",
+  hikaye:
+    "Kasa deposunun geçmişinde, aylar önce yanlışlıkla commit'lenip sonra silinmiş `yedek.sql` var: müşteri adları ve telefonları. Depo herkese kapalı ama yeni bir ajans erişim alacak. " +
+    "Dosyayı main'in, dev'in ve v1.0 etiketinin geçmişinden çıkar ve GitHub'ı güncelle. Hiçbir dal ya da etiket kaybolmasın.",
+  kurulum: [
+    `@uzak ${VERI}`,
+    `@ayse git clone ${VERI}`,
+    '@ayse echo "# Kasa" > README.md',
+    "@ayse git add .",
+    '@ayse git commit -m "İlk sürüm"',
+    '@ayse echo "INSERT INTO musteri VALUES (\'Ali\', \'0555 000 00 00\');" > yedek.sql',
+    '@ayse echo "export function kasa() {}" > kasa.js',
+    "@ayse git add .",
+    '@ayse git commit -m "Kasa modülü"',
+    "@ayse git rm yedek.sql",
+    '@ayse git commit -m "Yedek silindi"',
+    "@ayse git tag -a v1.0 -m v1.0",
+    "@ayse git push --tags",
+    "@ayse git push",
+    "@ayse git switch -c dev",
+    '@ayse echo "export function rapor() {}" > rapor.js',
+    "@ayse git add .",
+    '@ayse git commit -m "Rapor"',
+    "@ayse git push -u origin dev",
+    `git clone ${VERI}`,
+  ],
+  hedefler: [
+    { aciklama: "GitHub'daki hiçbir commit'te yedek.sql yok", denetle: (o) => !!uzakBul(o, VERI) && !uzakGecmisteYol(o, VERI, "yedek.sql") },
+    {
+      aciklama: "GitHub'da main, dev ve v1.0 duruyor; kasa.js ve rapor.js yerinde",
+      denetle: (o) => {
+        const u = uzakBul(o, VERI);
+        const m = u?.refs["refs/heads/main"];
+        const dv = u?.refs["refs/heads/dev"];
+        return !!u && !!m && !!dv && !!u.refs["refs/tags/v1.0"] && "kasa.js" in commitAgaci(u, m) && "rapor.js" in commitAgaci(u, dv);
+      },
+    },
+  ],
+  ipuclari: [
+    "`git filter-repo --path yedek.sql --invert-paths` bütün dalları ve etiketleri yeniden yazar; taze clone'daki origin/dev de yerel dala çevrilir.",
+    "filter-repo origin'i kaldırır: `git remote add origin <adres>` ile geri ekle (adres: `" + VERI + "`).",
+    "`git push --force --all` dalları, `git push --force --tags` etiketleri gönderir.",
+  ],
+  cozum: ["git filter-repo --path yedek.sql --invert-paths", `git remote add origin ${VERI}`, "git push --force --all", "git push --force --tags"],
+  sonNot: "Yeniden yazılmış geçmiş bütün kimlikleri değiştirdi: ekipteki herkes yeniden clone etmeli, eski clone'lardan push edilirse dosya geri gelir. Kişisel veri sızdıysa veri sorumlusuna bildirmek de işin parçasıdır.",
+};
+
 export const GOREVLER: Gorev[] = [
   kimlik, ilkDepo, ilkCommit, secerekEkle, geriCek, gitignore, dedektif, envCikar, kurtar, mesajDuzelt, mainYap,
   dalAc, ileriSar, izBirak, yanlisDal, kopukKurtar, cakismaCoz, vazgec, canliGeriAl, acilStash, reflogKurtar,
   ilkPush, pushReddi, guvenliForce, budama, tekCommit, mesajDegistir, sirDrop, rebaseCakisma,
   korumaliMain, ciKirmizi, surumEtiketi, devdenAcilan, ucOrtam, hotfix,
   gecmisteAnahtar, sizintiGorevi, glAkis, cherryPickGorevi, bisectGorevi, blameGorevi,
+  nesneNotu, resetFelaketi, stashKurtar, filtreGorevi,
 ];

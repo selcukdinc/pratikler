@@ -24,6 +24,18 @@ export interface Yenilik {
 
 export const YENILIKLER: Yenilik[] = [
   {
+    pr: 45,
+    tarih: "2026-11-12",
+    baslik: "Git ve GitHub pratiği: Git'in içi ve kurtarma",
+    kitle: "yonetici",
+    maddeler: [
+      "17. ünite Git'in içi: blob, tree, commit ve tag nesneleri, SHA kimlikleri, .git klasörü, ref'ler ve plumbing komutları. Nesne gezgininde bir dosyayı değiştirip hangi nesnelerin yenilendiğini görebilir, SHA hesaplayıcıda kimliğin içerikten nasıl çıktığını deneyebilirsin.",
+      "18. ünite geçmişi onarmak ve kurtarma: reflog, fsck ile sahipsiz commit'ler, felaket odası, nesnelerin ne zaman silindiği, filter-repo ile geçmiş temizliği ve büyük depolar.",
+      "Sanal Git'e `ls-tree`, `update-ref`, `symbolic-ref`, `fsck`, `gc`, `prune`, `reflog expire`, `git stash apply <kimlik>` ve `git filter-repo` eklendi; filter-repo dışındakiler gerçek Git 2.43 ile karşılaştırılarak sınandı.",
+      "61 yeni soru ve dört Kademe 5 sandbox görevi: nesne veritabanındaki not, reset'ten sonra kurtarma, düşen stash, geçmişteki veritabanı dökümü.",
+    ],
+  },
+  {
     pr: 44,
     tarih: "2026-11-12",
     baslik: "Git ve GitHub pratiği: GitLab ve ileri araçlar",

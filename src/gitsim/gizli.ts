@@ -2,7 +2,7 @@
 // public depoları tarayan botlar bu tarayıcıyı kullanır. Anahtar biçimleri gerçek
 // sağlayıcılarınkine benzer ama depoda gerçek biçimli değer durmaz: KafePay hayalidir,
 // öteki biçimlerin örnek değerleri içerikte parçalardan birleştirilir.
-import { commitAgaci, commitOku, gecmis, icerik } from "./depo";
+import { commitAgaci, commitOku, gecmis, icerik, soy } from "./depo";
 import { sha1, baytlar } from "./sha1";
 import type { BulutAnahtari, Depo, Ortam } from "./tipler";
 import { ayir } from "./yardim";
@@ -54,7 +54,7 @@ export function commitlerdekiGizliler(d: Depo, baslar: string[], bilinen: string
 
 // Uzak deponun herhangi bir dalından ya da etiketinden ulaşılan geçmişte bu değer var mı
 export function gecmisteVar(d: Depo, deger: string): boolean {
-  const uclar = Object.entries(d.refs).filter(([r]) => r.startsWith("refs/")).map(([, h]) => h);
+  const uclar = Object.entries(d.refs).filter(([r]) => r.startsWith("refs/")).map(([, h]) => soy(d, h));
   for (const c of gecmis(d, uclar)) {
     for (const h of Object.values(commitAgaci(d, c))) if (icerik(d, h).includes(deger)) return true;
   }

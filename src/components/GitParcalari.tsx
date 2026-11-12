@@ -47,6 +47,7 @@ const YARDIM = [
   `Git: ${GIT_KOMUTLARI.join(", ")}`,
   "GitHub CLI: gh pr create, list, view, checks, review, merge, close (gh help)",
   "GitLab CLI: glab mr create, list, view, approve, merge, close; glab ci status",
+  "git filter-repo (ayrı bir araçtır): --path <yol> --invert-paths, --replace-text <dosya>, --force",
   "Sanal ödeme hizmeti: kafepay keys list, create, roll, revoke; kafepay logs",
   "İpucu: echo \"satır\" >> dosya ile dosyaya ekleyebilir, nano dosya ile editörde açabilirsin.",
   "Geri al düğmesi son komutu geri alır; Baştan başlat her şeyi sıfırlar.",
