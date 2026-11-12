@@ -3,6 +3,8 @@
 import { commitAgaci, commitOku, gecmis, icerik } from "../../../src/gitsim/depo";
 import type { Ortam, Platform, PullRequest } from "../../../src/gitsim/tipler";
 import { uzakBul, uzakDalUcu } from "../../../src/gitsim/uzak";
+import { gecmisteVar } from "../../../src/gitsim/gizli";
+import type { Olay } from "../../../src/gitsim/gorev";
 
 export const KAFE = "https://github.com/kafe-mavi/siparis.git";
 
@@ -61,3 +63,56 @@ export function uzakMesajlar(o: Ortam, dal: string): string[] {
 
 export const prler = (o: Ortam): PullRequest[] => uzakBul(o, KAFE)?.platform?.prler ?? [];
 export const prVar = (o: Ortam, f: (p: PullRequest) => boolean) => prler(o).some(f);
+
+// ---- 14. ünite: gizli anahtarlar ----
+// Kafe Mavi'nin ödeme modülü herkese açık (public) bir depoda; ödeme hizmeti hayali
+// KafePay'dir (kafepay komutu). Örnek anahtar parçalardan birleştirilir: depoda
+// gerçek biçimli bir değer durmaz (src/gitsim/gizli.ts).
+export const ODEME = "https://github.com/kafe-mavi/odeme.git";
+export const ORNEK_ANAHTAR = ["kp", "live", "Q7mZ2xR9tLw4Hc8Ny3Vb6Kd1"].join("_");
+
+export const ODEME_TEMEL = [
+  `@uzak ${ODEME}`,
+  `@anahtar live ${ORNEK_ANAHTAR}`,
+  `git clone ${ODEME}`,
+  'echo "# Kafe Mavi ödeme modülü" > README.md',
+  'echo "node_modules/" > .gitignore',
+  "git add .",
+  'git commit -m "İlk sürüm"',
+  "git push",
+];
+
+export const odemePlatformu = (ayar: Partial<Platform>) => `@platform ${ODEME} ${JSON.stringify(ayar)}`;
+
+// GitHub'daki geçmişin herhangi bir yerinde bu değer var mı
+export const odemedeVar = (o: Ortam, deger: string) => {
+  const u = uzakBul(o, ODEME);
+  return !!u && gecmisteVar(u, deger);
+};
+export const odemeUc = (o: Ortam, dal = "main") => uzakDalUcu(o, ODEME, dal);
+export function odemeDosyasi(o: Ortam, yol: string, dal = "main"): string | null {
+  const u = uzakBul(o, ODEME);
+  const h = odemeUc(o, dal);
+  if (!u || !h) return null;
+  const b = commitAgaci(u, h)[yol];
+  return b ? icerik(u, b) : null;
+}
+
+// Hesaptaki etkin anahtar; sızan anahtar iptal edildi mi
+export const etkinAnahtar = (o: Ortam) => o.bulut?.anahtarlar.find((a) => a.durum === "aktif") ?? null;
+export const ornekIptal = (o: Ortam) => o.bulut?.anahtarlar.find((a) => a.deger === ORNEK_ANAHTAR)?.durum === "iptal";
+export const sizdi = (o: Ortam) => !!o.bulut?.anahtarlar.some((a) => a.sizdi !== undefined);
+// .env'de etkin bir anahtar duruyor ve Git onu izlemiyor
+export function envHazir(o: Ortam): boolean {
+  const a = etkinAnahtar(o);
+  const d = o.depo;
+  return !!a && !!d && (o.dosyalar[".env"] ?? "").includes(a.deger) && !(".env" in d.index);
+}
+
+export const BOT_OLAYI: Olay = {
+  id: "bot",
+  kosul: sizdi,
+  kim: "bot",
+  komutlar: [],
+  bildirim: "🤖 41 saniye sonra: herkese açık depoları izleyen bir bot push'unu gördü, .env'deki KafePay anahtarını buldu ve denedi. Anahtar geçerli. Ne olduğunu görmek için: kafepay logs",
+};

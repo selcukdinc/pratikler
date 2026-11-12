@@ -24,6 +24,19 @@ export interface Yenilik {
 
 export const YENILIKLER: Yenilik[] = [
   {
+    pr: 43,
+    tarih: "2026-11-12",
+    baslik: "Git ve GitHub pratiği: gizli anahtarlar ve depo güvenliği",
+    kitle: "yonetici",
+    maddeler: [
+      "14. ünite **Gizli Anahtarlar ve Depo Güvenliği**: gizli bilgi nedir, botlar public depoları nasıl tarar, silmek neden yetmez, doğru müdahale sırası, önleme ve gözden kaçan yerler. 30 yeni soru.",
+      "**Sızıntı tatbikatı**: anahtarlı `.env`'i public depoya gönder, hızlandırılmış saatte botun anahtarı bulmasını ve zarar sayacını izle, müdahaleyi sırala, sonunda raporunu al. Aynı push'u push protection açıkken de dene.",
+      "**Anahtar avı**: on iki dosya parçasında sızıntıyı bul; `.env`, eski commit, defter çıktısı, CI günlüğü, ön yüz değişkeni ve özel SSH anahtarı.",
+      "Terminalde push protection (GH013 reddi), public depoyu tarayan bot ve anahtar iptal edip yenilediğin sanal ödeme hizmeti `kafepay`. Sandbox'a iki Usta görevi: eski commit'teki anahtar ve sızıntı tatbikatı.",
+      "Hakkında sayfasında **Sürümler** bölümü: pratiğin hazırlandığı tarih ve esas alınan Git, GitHub CLI ve GitHub sürümleri. Araçlar güncellenince içeriğin nasıl yenileneceği `docs/surum-guncelleme.md`'de.",
+    ],
+  },
+  {
     pr: 42,
     tarih: "2026-11-12",
     baslik: "Git ve GitHub pratiği: takım akışları, dal korumaları ve CI",

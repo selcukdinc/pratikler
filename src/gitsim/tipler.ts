@@ -176,6 +176,20 @@ export interface Platform {
   korumalar: Record<string, DalKorumasi>;
   ci?: CiAdimi[];
   prler: PullRequest[];
+  // Push protection: gizli bilgi içeren push reddedilir (GH013)
+  gizliKoruma?: boolean;
+  // Herkese açık depo: botlar her push'u tarar, buldukları etkin anahtarı kullanır
+  herkeseAcik?: boolean;
+}
+
+// Sanal ödeme hizmetindeki (KafePay) bir API anahtarı
+export interface BulutAnahtari {
+  ad: string;
+  deger: string;
+  durum: "aktif" | "iptal";
+  olusturma: number;
+  // Botların anahtarı public depoda bulduğu an
+  sizdi?: number;
 }
 
 export interface Ortam {
@@ -198,6 +212,8 @@ export interface Ortam {
   kokAd?: string;
   // Görev olaylarından tetiklenmiş olanlar
   tetiklenen?: string[];
+  // Kullanıcının sanal ödeme hizmeti hesabı (kafepay komutu, gizli.ts)
+  bulut?: { anahtarlar: BulutAnahtari[]; kayitlar: string[] };
 }
 
 export interface Sonuc {

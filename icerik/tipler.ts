@@ -65,6 +65,10 @@ export interface PratikMeta {
   tanitim: { baslik: string; giris: string; kitleler: { baslik: string; metin: string }[] };
   // Hakkında sayfasının sonuna eklenen not (ör. kurumla bağlantı olmadığı)
   bagimsizlikNotu?: string;
+  // Yazılım anlatan pratiklerde Hakkında'daki "Sürümler" bölümü: içeriğin hazırlandığı
+  // tarih ve esas alınan araç sürümleri. Araç güncellenince docs/surum-guncelleme.md
+  // adımlarıyla içerik yeni sürüme taşınır ve bu alan yenilenir.
+  surumler?: { tarih: string; araclar: { ad: string; surum: string; not?: string }[]; not?: string };
   // Bölüm birimi: "ünite" ya da "hafta"; menü rozeti için tek harf
   uniteAdi: string;
   uniteKisa: string;

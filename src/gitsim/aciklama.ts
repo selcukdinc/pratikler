@@ -48,6 +48,8 @@ const HATALAR: Kalip[] = [
   [/key does not contain a section/, () => "Ayar adı `bolum.ad` biçiminde olmalı, örneğin `user.name`."],
   [/Changes must be made through a pull request/, () =>
     "Dal korumalı: GitHub doğrudan push'u kabul etmiyor. Kendi dalını aç (`git switch -c feature/...`), oraya commit'le, dalı push et ve `gh pr create` ile pull request aç."],
+  [/GH013: Repository rule violations/, () =>
+    "Push protection: GitHub push'unda gizli bir anahtar buldu ve kabul etmedi. Anahtar GitHub'a hiç ulaşmadı, iptal etmen gerekmiyor. Değeri koddan çıkar (`.env` dosyasına taşı ve `.gitignore`'a ekle), anahtarın geçtiği commit'i düzelt (`git commit --amend` ya da `git rebase -i`) ve yeniden push et."],
   [/Cannot force-push to this branch/, () => "Korumalı dalda force push kapalı: paylaşılan geçmiş yeniden yazılamaz."],
   [/Cannot delete this branch/, () => "Korumalı dal silinemez. main, test ve dev gibi ortam dalları kalıcıdır."],
   [/Can not approve your own pull request/, () => "Kendi PR'ını onaylayamazsın; onayı bir ekip arkadaşın verir. İncelemenin amacı ikinci bir gözdür."],
@@ -184,7 +186,17 @@ function ghNotu(satir: string, cikti: string): string | null {
   return null;
 }
 
+function kafepayNotu(satir: string, once: Ortam, sonra: Ortam): string | null {
+  if (/keys\s+roll/.test(satir)) return "Eski anahtar iptal edildi, yerine yenisi üretildi. Yeni değeri yalnızca `.env` dosyasına yaz (`kafepay keys roll > .env`); koda ve commit'e girmesin.";
+  if (/keys\s+revoke/.test(satir)) return "Anahtar iptal edildi: artık onunla yapılan istekler reddedilir. Uygulaman çalışsın diye yeni bir anahtar üret (`kafepay keys create`).";
+  if (/keys\s+create/.test(satir)) return "Yeni anahtar üretildi. Değeri `.env` dosyasında tut, koda yazma.";
+  if (/logs/.test(satir) && sonra.bulut?.anahtarlar.some((a) => a.sizdi !== undefined)) return "Tanımadığın IP'lerden gelen istekler botların sızan anahtarı kullandığını gösteriyor. Zarar, anahtar iptal edilene kadar sürer.";
+  void once;
+  return null;
+}
+
 export function aciklama(satir: string, sonuc: KabukSonucu, once: Ortam, sonra: Ortam): string | null {
+  if (/^\s*kafepay\b/.test(satir) && sonuc.kod === 0) return kafepayNotu(satir, once, sonra);
   if (/^\s*gh\b/.test(satir) && sonuc.kod === 0) return ghNotu(satir, sonuc.cikti);
   for (const [k, f] of HATALAR) {
     const m = sonuc.cikti.match(k);

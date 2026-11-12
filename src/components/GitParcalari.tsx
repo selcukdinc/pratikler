@@ -44,6 +44,7 @@ const YARDIM = [
   "Kabuk: ls, cd, pwd, cat, echo, printf, touch, mkdir, rm, mv, cp, nano <dosya>, clear",
   `Git: ${GIT_KOMUTLARI.join(", ")}`,
   "GitHub CLI: gh pr create, list, view, checks, review, merge, close (gh help)",
+  "Sanal ödeme hizmeti: kafepay keys list, create, roll, revoke; kafepay logs",
   "İpucu: echo \"satır\" >> dosya ile dosyaya ekleyebilir, nano dosya ile editörde açabilirsin.",
   "Geri al düğmesi son komutu geri alır; Baştan başlat her şeyi sıfırlar.",
 ].join("\n");
@@ -101,7 +102,9 @@ function tamamla(o: Ortam, girdi: string): string | null {
   if (parcalar.length === 2 && parcalar[0] === "git") adaylar = GIT_KOMUTLARI;
   else if (parcalar.length === 2 && parcalar[0] === "gh") adaylar = ["pr"];
   else if (parcalar.length === 3 && parcalar[0] === "gh" && parcalar[1] === "pr") adaylar = ["create", "list", "view", "checks", "review", "merge", "close"];
-  else if (parcalar.length === 1) adaylar = ["git", "gh", "ls", "cd", "cat", "echo", "touch", "mkdir", "nano", "clear", "help"];
+  else if (parcalar.length === 2 && parcalar[0] === "kafepay") adaylar = ["keys", "logs"];
+  else if (parcalar.length === 3 && parcalar[0] === "kafepay" && parcalar[1] === "keys") adaylar = ["list", "create", "roll", "revoke"];
+  else if (parcalar.length === 1) adaylar = ["git", "gh", "kafepay", "ls", "cd", "cat", "echo", "touch", "mkdir", "nano", "clear", "help"];
   else {
     const d = o.depo;
     const dallar = d ? Object.keys(d.refs).filter((r) => r.startsWith("refs/heads/") || r.startsWith("refs/tags/")).map(dalAdi) : [];
