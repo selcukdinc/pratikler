@@ -39,6 +39,13 @@ export function Iskelet({ satir = 3 }: { satir?: number }) {
 export function SoruIskeleti({ adet = 3 }: { adet?: number }) {
   return (
     <Gecikmeli>
+      <SoruKartlari adet={adet} />
+    </Gecikmeli>
+  );
+}
+
+function SoruKartlari({ adet }: { adet: number }) {
+  return (
       <div className="iskelet-sayfa">
         {Array.from({ length: adet }, (_, i) => (
           <div key={i} className="question iskelet-soru">
@@ -51,7 +58,6 @@ export function SoruIskeleti({ adet = 3 }: { adet?: number }) {
           </div>
         ))}
       </div>
-    </Gecikmeli>
   );
 }
 
@@ -88,6 +94,80 @@ export function TabloIskeleti({ satir = 6 }: { satir?: number }) {
         </div>
         <div className="iskelet-blok">
           {Array.from({ length: satir }, (_, i) => <Cizgi key={i} boy="1.6em" />)}
+        </div>
+      </div>
+    </Gecikmeli>
+  );
+}
+
+// Çip satırları (süzgeçler, test ayarları): etiket ve birkaç çip
+function CipSatiri({ cip }: { cip: number }) {
+  return (
+    <div className="secici-satir iskelet-cipler">
+      <Cizgi en="48px" />
+      {Array.from({ length: cip }, (_, i) => <span key={i} className="iskelet iskelet-cip" />)}
+    </div>
+  );
+}
+
+// Soru havuzu: süzgeç satırları ve soru kartları
+export function HavuzIskeleti() {
+  return (
+    <Gecikmeli>
+      <div className="soru-suzgec iskelet-suzgec">
+        <CipSatiri cip={4} />
+        <CipSatiri cip={4} />
+        <CipSatiri cip={3} />
+      </div>
+      <SoruKartlari adet={2} />
+    </Gecikmeli>
+  );
+}
+
+// Karma test ayarları: giriş metni, üç seçim satırı, başlat düğmesi ve ünite listesi
+export function KarmaIskeleti() {
+  return (
+    <Gecikmeli>
+      <div className="iskelet-blok">
+        <Cizgi />
+        <Cizgi en="70%" />
+      </div>
+      <div className="karma-ayar iskelet-blok">
+        <CipSatiri cip={8} />
+        <CipSatiri cip={4} />
+        <CipSatiri cip={5} />
+        <Cizgi en="45%" />
+        <span className="iskelet iskelet-dugme" />
+      </div>
+      <div className="iskelet-blok">
+        {Array.from({ length: 4 }, (_, i) => <Cizgi key={i} en={`${60 - i * 5}%`} />)}
+      </div>
+    </Gecikmeli>
+  );
+}
+
+// Tekrar: ayar satırı, özet ve soru kartları
+export function TekrarIskeleti() {
+  return (
+    <Gecikmeli>
+      <div className="iskelet-blok">
+        <CipSatiri cip={5} />
+        <Cizgi en="55%" />
+      </div>
+      <SoruKartlari adet={2} />
+    </Gecikmeli>
+  );
+}
+
+// Git terminali (derslerdeki MiniGit ve sandbox): terminal ve grafik yan yana, altında üç alan
+export function GitIskeleti() {
+  return (
+    <Gecikmeli>
+      <div className="iskelet-git">
+        <span className="iskelet iskelet-terminal" />
+        <span className="iskelet iskelet-grafik" />
+        <div className="iskelet-alanlar">
+          <span className="iskelet" /><span className="iskelet" /><span className="iskelet" />
         </div>
       </div>
     </Gecikmeli>

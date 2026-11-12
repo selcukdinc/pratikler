@@ -10,7 +10,7 @@ import { KAYNAKLAR, QuestionCard, kaynagaUyar, karistir, type KaynakSecimi } fro
 import { PRATIK } from "../lib/pratik";
 import { benzerleriAyikla } from "../../shared/benzerler";
 import type { Question, SoruDurumlari, Topic } from "../../shared/api";
-import { SoruIskeleti } from "../components/Iskelet";
+import { KarmaIskeleti } from "../components/Iskelet";
 
 const SAYILAR = [10, 20, 30, 50, 0] as const;
 const AYAR = "pratik:karma-ayar";
@@ -105,7 +105,7 @@ export function Karma({ topics }: { topics: Topic[] }) {
   };
 
   if (hata) return <p className="empty">Sorular yüklenemedi: {hata}</p>;
-  if (!tekil) return <SoruIskeleti adet={1} />;
+  if (!tekil) return <div className="karma"><KarmaIskeleti /></div>;
 
   if (!test) {
     const uniteSec = (no: number) =>

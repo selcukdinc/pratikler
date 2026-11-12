@@ -15,7 +15,7 @@ import { benzerleriAyikla } from "../../shared/benzerler";
 import type { AnswerResult, Etiket, Question, SoruDurumlari, SoruIstatistigi, Topic } from "../../shared/api";
 import type { Answer, OzDegerlendirme } from "../../shared/grade";
 import { SembolKlavyesi, sembolEkle } from "../components/SembolKlavyesi";
-import { SoruIskeleti } from "../components/Iskelet";
+import { HavuzIskeleti, SoruIskeleti } from "../components/Iskelet";
 
 // Kod soruları (FPGA) editörü ve simülatörüyle ayrı parça olarak yalnızca gerektiğinde indirilir
 const KodSorusu = lazy(() => import("../components/KodSorusu").then((m) => ({ default: m.KodSorusu })));
@@ -568,7 +568,9 @@ export function Questions({ topic, hafta, topics }: { topic?: string; hafta?: nu
       )}
       {error ? (
         <p className="empty">Sorular yüklenemedi: {error}</p>
-      ) : !questions || !gorunen ? (
+      ) : !questions ? (
+        <HavuzIskeleti />
+      ) : !gorunen ? (
         <SoruIskeleti />
       ) : questions.length === 0 ? (
         <p className="empty">Burada henüz soru yok.</p>

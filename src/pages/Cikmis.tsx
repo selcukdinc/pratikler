@@ -9,6 +9,7 @@ import { api } from "../lib/api";
 import { href, tabanaEkle } from "../lib/router";
 import { inline, Markdown } from "../components/Markdown";
 import { QuestionCard, SoruMetni } from "./Questions";
+import { SoruIskeleti } from "../components/Iskelet";
 import { SINAVLAR, sinavBul, type CikmisSinav } from "../cikmis/sinavlar";
 import { dersBul } from "../dersler";
 import { DONEM_ADI, DONEMLER } from "../dersler/tipler";
@@ -135,7 +136,7 @@ function SinavSayfasi({ sinav }: { sinav: CikmisSinav }) {
   );
 
   if (hepsi === "hata") return <p className="bad">Sorular yüklenemedi.</p>;
-  if (!hepsi) return <p className="empty">Yükleniyor…</p>;
+  if (!hepsi) return <SoruIskeleti adet={2} />;
   if (sorular.length === 0) return <p className="empty">Bu sınavın soruları henüz açılmadı.</p>;
 
   const isaretli = Object.keys(secimler).length;
