@@ -1,7 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { GOREVLER } from "./gorevler";
-import { gitKomutuSayisi, gorevOrtami, tamamMi, yildiz, enAzKomut } from "../../../src/gitsim/gorev";
-import { calistir } from "../../../src/gitsim";
+import { cozumuCalistir, gitKomutuSayisi, gorevOrtami, tamamMi, yildiz, enAzKomut } from "../../../src/gitsim/gorev";
 
 describe("git sandbox görevleri", () => {
   it("kimlikler tek", () => {
@@ -12,12 +11,14 @@ describe("git sandbox görevleri", () => {
     it(`${g.id}: başlangıçta bitmemiş, örnek çözümle bitiyor`, () => {
       let o = gorevOrtami(g);
       expect(tamamMi(g, o)).toBe(false);
-      for (const s of g.cozum) {
-        const r = calistir(o, s);
-        // Çakışmayla duran birleştirme çözümün bir adımı olabilir
-        if (!r.ortam.depo?.islem) expect(r.sonuc.kod, `${s}\n${r.sonuc.cikti}`).toBe(0);
-        o = r.ortam;
-      }
+      o = cozumuCalistir(o, g.cozum, {
+        gorev: g,
+        editorCozum: g.editorCozum,
+        // Çakışmayla duran birleştirme ya da rebase çözümün bir adımı olabilir
+        adim: (s, kod, cikti, x) => {
+          if (!x.depo?.islem) expect(kod, `${s}\n${cikti}`).toBe(0);
+        },
+      });
       const tutmayan = g.hedefler.filter((h) => !h.denetle(o)).map((h) => h.aciklama);
       expect(tutmayan).toEqual([]);
       expect(yildiz(g, gitKomutuSayisi(g.cozum))).toBe(3);

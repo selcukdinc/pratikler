@@ -11,11 +11,13 @@ import { UNITE_6 } from "./dersler/unite-6";
 import { UNITE_7 } from "./dersler/unite-7";
 import { UNITE_8 } from "./dersler/unite-8";
 import { UNITE_9 } from "./dersler/unite-9";
+import { UNITE_10 } from "./dersler/unite-10";
+import { UNITE_11 } from "./dersler/unite-11";
 import { GORSELLER } from "./gorseller";
 import { ETKILESIMLER } from "./etkilesim";
 
 const icerik: PratikIstemciIcerigi = {
-  dersler: [UNITE_1, UNITE_2, UNITE_3, UNITE_4, UNITE_5, UNITE_6, UNITE_7, UNITE_8, UNITE_9],
+  dersler: [UNITE_1, UNITE_2, UNITE_3, UNITE_4, UNITE_5, UNITE_6, UNITE_7, UNITE_8, UNITE_9, UNITE_10, UNITE_11],
   // Soru kartındaki "Derste oku" bağlantısı: kavram -> bölüm (0'dan)
   kavramBolumu: {
     1: { "u1-neden": 0, "u1-git-github": 1, "u1-merkezi-dagitik": 2, "u1-tarihce": 3, "u1-temel": 4 },
@@ -27,6 +29,8 @@ const icerik: PratikIstemciIcerigi = {
     7: { "u7-neden": 0, "u7-isaretler": 1, "u7-cozum": 2, "u7-araclar": 3, "u7-onlem": 4 },
     8: { "u8-pr": 0, "u8-inceleme": 2, "u8-birlestirme-yontemi": 3, "u8-fork": 4, "u8-issue": 5 },
     9: { "u9-restore": 1, "u9-reset": 2, "u9-revert": 3, "u9-amend": 4, "u9-stash": 5, "u9-reflog": 6 },
+    10: { "u10-izleme": 0, "u10-fetch-pull": 1, "u10-push-reddi": 2, "u10-force": 3, "u10-remote-yonetimi": 4 },
+    11: { "u11-rebase-nedir": 0, "u11-merge-rebase": 1, "u11-etkilesimli": 2, "u11-altin-kural": 3, "u11-cakisma": 4 },
   },
   gorseller: GORSELLER,
   etkilesimler: ETKILESIMLER,

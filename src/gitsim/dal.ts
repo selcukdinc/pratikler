@@ -29,13 +29,39 @@ import {
 import { ucYollu } from "./fark";
 import { agacAc, agacYaz, blobIcerigi, blobYaz, GitHatasi, nesneKimligi, yaz } from "./nesne";
 import { status, statVeMod, suslemeler } from "./temel";
-import type { Commit, Depo, Kisi, Ortam } from "./tipler";
-import { ayir, degisimOzeti, ilk, mesajTemizle, ozetSatiri, var_ } from "./yardim";
+import type { Commit, Depo, Kisi, Ortam, RebaseKomutu } from "./tipler";
+import { ayir, degisimOzeti, ilk, mesajTemizle, ozetSatiri, tarih, var_ } from "./yardim";
 
 const GECERSIZ_DAL = /(^[-./])|(\.\.)|([\s~^:?*[\\])|(\/$)|(\.lock$)|(@\{)|(^@$)|(\.$)/;
 
 function dalAdiDenetle(ad: string) {
   if (!ad || GECERSIZ_DAL.test(ad)) throw new GitHatasi(`fatal: '${ad}' is not a valid branch name`);
+}
+
+// Geçerli dalın izlediği uzak dal ("origin/main"); yoksa null
+export function upstreamAdi(d: Depo): string | null {
+  const r = gecerliDal(d);
+  if (!r) return null;
+  const ad = dalAdi(r);
+  const uzak = d.config[`branch.${ad}.remote`];
+  const m = d.config[`branch.${ad}.merge`];
+  if (!uzak || !m) return null;
+  return uzak === "." ? dalAdi(m) : `${uzak}/${dalAdi(m)}`;
+}
+
+// "ahead 1, behind 2" ya da "gone" (git branch -vv)
+function izlemeOzeti(d: Depo, ad: string): string {
+  const uzak = d.config[`branch.${ad}.remote`];
+  const m = d.config[`branch.${ad}.merge`];
+  if (!uzak || !m) return "";
+  const gosterim = `${uzak}/${dalAdi(m)}`;
+  const u = d.refs[UZAK + gosterim];
+  if (!u) return `[${gosterim}: gone]`;
+  const h = d.refs[DAL + ad]!;
+  const once = gecmis(d, [h], [u]).length;
+  const geri = gecmis(d, [u], [h]).length;
+  const parca = [once ? `ahead ${once}` : "", geri ? `behind ${geri}` : ""].filter(Boolean).join(", ");
+  return `[${gosterim}${parca ? ": " + parca : ""}]`;
 }
 
 function cozumsuzIndex(d: Depo) {
@@ -119,12 +145,15 @@ export function branch(o: Ortam, args: string[]): string {
     const h = d.refs[r]!;
     const ad = dalAdi(r);
     let satir = `${r === dal ? "* " : "  "}${ayrintili ? ad.padEnd(genislik) + " " + kisa(h) + " " + ozetSatiri(commitOku(d, h).mesaj) : ad}`;
-    if (var_(a, "-vv") && d.config[`branch.${ad}.remote`]) satir = satir.replace(kisa(h) + " ", `${kisa(h)} [${d.config[`branch.${ad}.remote`]}/${dalAdi(d.config[`branch.${ad}.merge`] ?? "")}] `);
+    if (args.includes("-vv") && d.config[`branch.${ad}.remote`]) satir = satir.replace(kisa(h) + " ", `${kisa(h)} ${izlemeOzeti(d, ad)} `);
     c.push(satir);
   }
   if (var_(a, "-a", "--all", "-r")) {
     if (var_(a, "-r")) c.length = 0;
-    for (const r of Object.keys(d.refs).filter((x) => x.startsWith(UZAK)).sort()) c.push(`  ${var_(a, "-r") ? "" : "remotes/"}${dalAdi(r)}`);
+    for (const r of Object.keys(d.refs).filter((x) => x.startsWith(UZAK)).sort()) {
+      const sembol = d.semboller?.[r];
+      c.push(`  ${var_(a, "-r") ? "" : "remotes/"}${dalAdi(r)}${sembol ? ` -> ${dalAdi(sembol)}` : ""}`);
+    }
   }
   return c.join("\n");
 }
@@ -379,7 +408,7 @@ export function merge(o: Ortam, args: string[]): string {
   }
   if (d.islem?.tur === "merge") throw new GitHatasi("error: Merging is not possible because you have unmerged files.\nhint: Fix them up in the work tree, and then use 'git add/rm <file>'\nhint: as appropriate to mark resolution and make a commit.\nfatal: Exiting because of an unresolved conflict.");
   if (d.islem) throw new GitHatasi(`fatal: You have not concluded your ${d.islem.tur} (${d.islem.tur === "rebase" ? "rebase" : d.islem.tur.toUpperCase().replace("-", "_") + "_HEAD"} exists).`);
-  const hedefAd = a.kalan[0];
+  const hedefAd = a.kalan[0] ?? upstreamAdi(d);
   if (!hedefAd) throw new GitHatasi("fatal: No remote for the current branch.");
   const onlar = cozYumusak(d, hedefAd);
   if (!onlar) throw new GitHatasi(`merge: ${hedefAd} - not something we can merge`);
@@ -416,7 +445,7 @@ export function merge(o: Ortam, args: string[]): string {
     return [...r.satirlar, r.catismalar.length ? "Squash commit -- not updating HEAD\nAutomatic merge failed; fix conflicts and then commit the result." : "Squash commit -- not updating HEAD"].join("\n");
   }
   if (r.catismalar.length) {
-    d.islem = { tur: "merge", onlar, mesaj };
+    d.islem = { tur: "merge", onlar, mesaj, catismalar: r.catismalar };
     throw new GitHatasi([...r.satirlar, "Automatic merge failed; fix conflicts and then commit the result."].join("\n"), 1);
   }
   const ben = kisi(o);
@@ -637,23 +666,42 @@ export function rebase(o: Ortam, args: string[]): string {
     else {
       if (Object.keys(d.catisma).length)
         throw new GitHatasi(`${Object.keys(d.catisma).map((y) => `${y}: needs merge`).join("\n")}\nYou must edit all merge conflicts and then\nmark them as resolved using git add`, 1);
+      if (islem.editor) throw new GitHatasi("error: rebase editörde bekliyor; önce editörü kaydet ya da kapat.", 1);
+      if (!islem.duran) {
+        // edit'te durulmuştu: commit'lenmemiş hazırlık varsa Git uyarır
+        const s0 = durum(o, d);
+        if (s0.hazir.length)
+          throw new GitHatasi("error: you have staged changes in your working tree\nIf these changes are meant to be squashed into the previous commit, run:\n\n  git commit --amend \n\nIf they are meant to go into a new commit, run:\n\n  git commit \n\nIn both cases, once you're done, continue with:\n\n  git rebase --continue\n", 1);
+        islem.durdu = undefined;
+        return rebaseIlerle(o, d);
+      }
       const duran = islem.duran!;
       const agac = agacYaz(d, d.index);
       const head = headCommit(d)!;
+      let ozet = "";
       if (agac !== commitOku(d, head).agac) {
         const c = commitOku(d, duran);
         const yeni = commitYaz(d, { tur: "commit", agac, ebeveynler: [head], yazar: c.yazar, isleyen: kisi(o), mesaj: c.mesaj });
         d.head = { tur: "kopuk", hash: yeni };
         reflogYaz(d, yeni, `rebase (continue): ${ozetSatiri(c.mesaj)}`, null);
+        const deg = degisimOzeti(d, commitAgaci(d, head), agacAc(d, agac));
+        if (islem.etkilesimli) ozet = [`[detached HEAD ${kisa(yeni)}] ${ozetSatiri(c.mesaj)}`, ...(deg ? [deg] : [])].join("\n");
+      }
+      islem.duran = undefined;
+      try {
+        return [ozet, rebaseIlerle(o, d)].filter(Boolean).join("\n");
+      } catch (e) {
+        if (e instanceof GitHatasi && ozet) throw new GitHatasi(`${ozet}\n${e.message}`, e.kod);
+        throw e;
       }
     }
     islem.duran = undefined;
     return rebaseIlerle(o, d);
   }
   if (islem) throw new GitHatasi(`fatal: It seems that there is already a rebase-merge directory, and\nI wonder if you are in the middle of another rebase.`);
-  if (var_(a, "-i", "--interactive")) throw new GitHatasi("Etkileşimli rebase bu sandbox'ta görsel düzenleyiciyle yapılır (11. ünite); şimdilik `git rebase <dal>` kullan.", 1);
-  const upstreamAd = a.kalan[0];
-  if (!upstreamAd) throw new GitHatasi("fatal: no upstream configured for the current branch");
+  const upstreamAd = a.kalan[0] ?? upstreamAdi(d);
+  if (!upstreamAd)
+    throw new GitHatasi(`There is no tracking information for the current branch.\nPlease specify which branch you want to rebase against.\nSee git-rebase(1) for details.\n\n    git rebase '<branch>'\n\nIf you wish to set tracking information for this branch you can do so with:\n\n    git branch --set-upstream-to=<remote>/<branch> ${gecerliDal(d) ? dalAdi(gecerliDal(d)!) : "HEAD"}\n`, 1);
   const upstream = coz(d, upstreamAd);
   const ontoAd = ilk(a, "--onto");
   const onto = ontoAd ? coz(d, ontoAd) : upstream;
@@ -662,11 +710,21 @@ export function rebase(o: Ortam, args: string[]): string {
   const s = durum(o, d);
   if (s.hazir.length || s.hazirDegil.length) throw new GitHatasi("error: cannot rebase: You have unstaged changes.\nerror: Please commit or stash them.", 1);
   const dal = gecerliDal(d);
-  if (!ontoAd && ataMi(d, upstream, head)) return `Current branch ${dal ? dalAdi(dal) : "HEAD"} is up to date.`;
+  if (!ontoAd && ataMi(d, upstream, head) && !var_(a, "-i", "--interactive")) return `Current branch ${dal ? dalAdi(dal) : "HEAD"} is up to date.`;
   const ustYamalar = new Set(gecmis(d, [onto], [head]).map((h) => yamaKimligi(d, h)));
   const kalan = gecmis(d, [head], [upstream])
     .reverse()
     .filter((h) => commitOku(d, h).ebeveynler.length < 2 && !ustYamalar.has(yamaKimligi(d, h)));
+  if (var_(a, "-i", "--interactive")) {
+    // Etkileşimli: önce yapılacaklar listesi editörde açılır, HEAD henüz kımıldamaz
+    if (!kalan.length) {
+      d.islem = { tur: "rebase", dal, eskiUc: head, onto, kalan: [], etkilesimli: true, editor: "todo", editorMetni: "noop\n" + todoAciklamasi(d, upstream, head, onto, 0), saat: o.saat, baslangic: ontoAd ?? upstreamAd };
+      return "";
+    }
+    const satirlar = kalan.map((h) => `pick ${kisa(h)} ${ozetSatiri(commitOku(d, h).mesaj)}`);
+    d.islem = { tur: "rebase", dal, eskiUc: head, onto, kalan: [], etkilesimli: true, editor: "todo", editorMetni: satirlar.join("\n") + "\n" + todoAciklamasi(d, upstream, head, onto, kalan.length), saat: o.saat, baslangic: ontoAd ?? upstreamAd };
+    return "";
+  }
   d.origHead = head;
   agacaGec(o, d, onto);
   d.head = { tur: "kopuk", hash: onto };
@@ -675,25 +733,214 @@ export function rebase(o: Ortam, args: string[]): string {
   return rebaseIlerle(o, d);
 }
 
+function todoAciklamasi(d: Depo, upstream: string, head: string, onto: string, n: number): string {
+  return `
+# Rebase ${kisa(upstream)}..${kisa(head)} onto ${kisa(onto)} (${n} command${n === 1 ? "" : "s"})
+#
+# Commands:
+# p, pick <commit> = use commit
+# r, reword <commit> = use commit, but edit the commit message
+# e, edit <commit> = use commit, but stop for amending
+# s, squash <commit> = use commit, but meld into previous commit
+# f, fixup <commit> = like "squash" but keep only the previous
+#                    commit's log message
+# d, drop <commit> = remove commit
+#
+# These lines can be re-ordered; they are executed from top to bottom.
+#
+# If you remove a line here THAT COMMIT WILL BE LOST.
+#
+# However, if you remove everything, the rebase will be aborted.
+#
+`;
+}
+
+const KOMUT_ADLARI: Record<string, RebaseKomutu["islem"]> = { p: "pick", pick: "pick", r: "reword", reword: "reword", e: "edit", edit: "edit", s: "squash", squash: "squash", f: "fixup", fixup: "fixup", d: "drop", drop: "drop" };
+
+// Editör kapandı: yapılacaklar listesi ya da commit mesajı. Saat, komutun başladığı
+// andaki gibi kalır (gerçek Git'te hepsi aynı komutun içinde olur).
+export function rebaseEditorKapandi(o: Ortam, metin: string): string {
+  const d = depoGerekli(o);
+  const islem = d.islem;
+  if (islem?.tur !== "rebase" || !islem.editor) throw new GitHatasi("fatal: No rebase in progress?");
+  const saat = o.saat;
+  if (islem.saat !== undefined) o.saat = islem.saat;
+  try {
+    if (islem.editor === "todo") return todoUygula(o, d, metin);
+    // Commit mesajı (reword ya da squash): bekleyen commit yazılır, sıradakilere geçilir
+    const b = islem.bekleyen!;
+    const mesaj = mesajTemizle(metin.split("\n").filter((x) => !x.startsWith("#")).join("\n"));
+    islem.editor = undefined;
+    islem.editorMetni = undefined;
+    islem.bekleyen = undefined;
+    if (!mesaj) {
+      rebaseIptal(o, d);
+      throw new GitHatasi("Aborting commit due to empty commit message.\nRebase iptal edildi; dal eski hâline döndü.", 1);
+    }
+    const c = rebaseCommitYaz(o, d, b.agac, b.ebeveynler, b.yazar, mesaj, b.tur);
+    return [c, rebaseIlerle(o, d)].filter(Boolean).join("\n");
+  } finally {
+    o.saat = saat;
+  }
+}
+
+function todoUygula(o: Ortam, d: Depo, metin: string): string {
+  const islem = d.islem as Extract<NonNullable<Depo["islem"]>, { tur: "rebase" }>;
+  const komutlar: RebaseKomutu[] = [];
+  const satirlar = metin.split("\n");
+  for (let i = 0; i < satirlar.length; i++) {
+    const satir = satirlar[i]!.trim();
+    if (!satir || satir.startsWith("#") || satir === "noop") continue;
+    const [fiil, kimlik] = satir.split(/\s+/);
+    const islemAdi = KOMUT_ADLARI[fiil!];
+    const h = kimlik ? cozYumusak(d, kimlik) : null;
+    if (!islemAdi || !h || !commitMi(d, h)) {
+      d.islem = null;
+      throw new GitHatasi(`error: invalid line ${i + 1}: ${satir}\nRebase iptal edildi: satırlar "pick <kimlik> <mesaj>" biçiminde olmalı. Yeniden dene.`, 1);
+    }
+    if ((islemAdi === "squash" || islemAdi === "fixup") && !komutlar.some((k) => k.islem !== "drop")) {
+      d.islem = null;
+      throw new GitHatasi(`error: cannot '${islemAdi}' without a previous commit\nRebase iptal edildi.`, 1);
+    }
+    komutlar.push({ islem: islemAdi, hash: h });
+  }
+  if (!komutlar.length) {
+    d.islem = null;
+    throw new GitHatasi("error: nothing to do", 1);
+  }
+  islem.editor = undefined;
+  islem.editorMetni = undefined;
+  islem.komutlar = komutlar;
+  d.origHead = islem.eskiUc;
+  agacaGec(o, d, islem.onto);
+  d.head = { tur: "kopuk", hash: islem.onto };
+  reflogYaz(d, islem.onto, `rebase (start): checkout ${islem.baslangic ?? kisa(islem.onto)}`, null);
+  return rebaseIlerle(o, d);
+}
+
+function rebaseIptal(o: Ortam, d: Depo) {
+  const islem = d.islem;
+  if (islem?.tur !== "rebase") return;
+  agacaGec(o, d, islem.eskiUc, true);
+  if (islem.dal) {
+    d.refs[islem.dal] = islem.eskiUc;
+    d.head = { tur: "ref", ref: islem.dal };
+  } else d.head = { tur: "kopuk", hash: islem.eskiUc };
+  d.islem = null;
+}
+
+// reword ve squash'ta yazılan commit: "[detached HEAD abc1234] mesaj" özeti
+function rebaseCommitYaz(o: Ortam, d: Depo, agac: string, ebeveynler: string[], yazar: Kisi, mesaj: string, tur: string): string {
+  const h = commitYaz(d, { tur: "commit", agac, ebeveynler, yazar, isleyen: kisi(o), mesaj });
+  d.head = { tur: "kopuk", hash: h };
+  reflogYaz(d, h, `rebase (${tur}): ${ozetSatiri(mesaj)}`, null);
+  const ozet = degisimOzeti(d, commitAgaci(d, ebeveynler[0] ?? null), agacAc(d, agac));
+  return [`[detached HEAD ${kisa(h)}] ${ozetSatiri(mesaj)}`, ...(yazar.zaman !== o.saat ? [` Date: ${tarih(yazar.zaman)}`] : []), ...(ozet ? [ozet] : [])].join("\n");
+}
+
+const SIRA = ["1st", "2nd", "3rd"];
+const sira = (n: number) => SIRA[n - 1] ?? `${n}th`;
+
+// Squash zincirinin birleşik mesajı (editörde gösterilen)
+function birlesikMesaj(d: Depo, zincir: { hash: string; fixup: boolean }[]): string {
+  const p: string[] = [`# This is a combination of ${zincir.length} commits.`];
+  zincir.forEach((z, i) => {
+    const m = commitOku(d, z.hash).mesaj.replace(/\n$/, "");
+    if (i === 0) p.push(`# This is the ${sira(1)} commit message:`, "", m, "");
+    else if (z.fixup) p.push(`# The commit message #${i + 1} will be skipped:`, "", ...m.split("\n").map((x) => `# ${x}`), "");
+    else p.push(`# This is the commit message #${i + 1}:`, "", m, "");
+  });
+  return p.join("\n");
+}
+
 function rebaseIlerle(o: Ortam, d: Depo): string {
   const islem = d.islem;
   if (islem?.tur !== "rebase") return "";
   const c: string[] = [];
+  // Etkileşimli rebase: pick, reword, edit, squash, fixup, drop
+  while (islem.komutlar?.length) {
+    const k = islem.komutlar.shift()!;
+    (islem.yapilan ??= []).push(`${k.islem} ${kisa(k.hash)} ${ozetSatiri(commitOku(d, k.hash).mesaj)}`);
+    if (k.islem === "drop") continue;
+    if (k.islem === "squash" || k.islem === "fixup") continue;
+    const head = headCommit(d)!;
+    const cm = commitOku(d, k.hash);
+    // Ardından gelen squash/fixup zinciri
+    const zincir: { hash: string; fixup: boolean }[] = [{ hash: k.hash, fixup: false }];
+    while (islem.komutlar.length && (islem.komutlar[0]!.islem === "squash" || islem.komutlar[0]!.islem === "fixup")) {
+      const z = islem.komutlar.shift()!;
+      zincir.push({ hash: z.hash, fixup: z.islem === "fixup" });
+    }
+    let yeni: string | null;
+    if (cm.ebeveynler[0] === head && cm.ebeveynler.length === 1) {
+      // Yeri değişmeyen commit olduğu gibi alınır (ileri sarma)
+      agacaGec(o, d, k.hash);
+      d.head = { tur: "kopuk", hash: k.hash };
+      reflogYaz(d, k.hash, `rebase (pick): ${ozetSatiri(cm.mesaj)}`, null);
+      yeni = k.hash;
+    } else {
+      const r = uygula(o, d, k.hash, "rebase");
+      c.push(...r.satirlar);
+      if (r.catisma) {
+        islem.duran = k.hash;
+        islem.komutlar.unshift(...zincir.slice(1).map((z) => ({ islem: z.fixup ? ("fixup" as const) : ("squash" as const), hash: z.hash })));
+        throw new GitHatasi(rebaseCatismaMesaji(d, k.hash, c), 1);
+      }
+      yeni = r.commit;
+      if (yeni) {
+        d.head = { tur: "kopuk", hash: yeni };
+        reflogYaz(d, yeni, `rebase (pick): ${ozetSatiri(cm.mesaj)}`, null);
+      }
+    }
+    if (zincir.length > 1) {
+      // Zincirdeki değişiklikler sırayla uygulanır, sonunda tek commit'te birleşir
+      const ilk_ = headCommit(d)!;
+      for (const z of zincir.slice(1)) {
+        islem.yapilan.push(`${z.fixup ? "fixup" : "squash"} ${kisa(z.hash)} ${ozetSatiri(commitOku(d, z.hash).mesaj)}`);
+        const r = uygula(o, d, z.hash, "rebase");
+        c.push(...r.satirlar);
+        if (r.catisma) {
+          islem.duran = z.hash;
+          throw new GitHatasi(rebaseCatismaMesaji(d, z.hash, c), 1);
+        }
+        if (r.commit) d.head = { tur: "kopuk", hash: r.commit };
+      }
+      const ilkCommit = commitOku(d, ilk_);
+      const agac = commitOku(d, headCommit(d)!).agac;
+      d.head = { tur: "kopuk", hash: ilk_ };
+      if (zincir.slice(1).every((z) => z.fixup)) {
+        // fixup editör açmaz ve özet yazmaz
+        rebaseCommitYaz(o, d, agac, ilkCommit.ebeveynler, ilkCommit.yazar, ilkCommit.mesaj, "fixup");
+      } else {
+        islem.editor = "mesaj";
+        islem.editorMetni = birlesikMesaj(d, zincir);
+        islem.bekleyen = { agac, ebeveynler: ilkCommit.ebeveynler, yazar: ilkCommit.yazar, tur: "squash" };
+        return c.join("\n");
+      }
+    }
+    if (k.islem === "reword") {
+      const h = headCommit(d)!;
+      const hc = commitOku(d, h);
+      islem.editor = "mesaj";
+      islem.editorMetni = hc.mesaj;
+      islem.bekleyen = { agac: hc.agac, ebeveynler: hc.ebeveynler, yazar: hc.yazar, tur: "reword" };
+      return c.join("\n");
+    }
+    if (k.islem === "edit") {
+      const h = headCommit(d)!;
+      islem.duran = undefined;
+      islem.durdu = h;
+      c.push(`Stopped at ${kisa(h)}...  ${ozetSatiri(commitOku(d, h).mesaj)}`, "You can amend the commit now, with", "", "  git commit --amend ", "", "Once you are satisfied with your changes, run", "", "  git rebase --continue");
+      return c.join("\n");
+    }
+  }
   while (islem.kalan.length) {
     const h = islem.kalan.shift()!;
     const r = uygula(o, d, h, "rebase");
     c.push(...r.satirlar);
     if (r.catisma) {
       islem.duran = h;
-      c.push(
-        `error: could not apply ${kisa(h)}... ${ozetSatiri(commitOku(d, h).mesaj)}`,
-        "hint: Resolve all conflicts manually, mark them as resolved with",
-        'hint: "git add/rm <conflicted_files>", then run "git rebase --continue".',
-        'hint: You can instead skip this commit: run "git rebase --skip".',
-        'hint: To abort and get back to the state before "git rebase", run "git rebase --abort".',
-        `Could not apply ${kisa(h)}... ${ozetSatiri(commitOku(d, h).mesaj)}`,
-      );
-      throw new GitHatasi(c.join("\n"), 1);
+      throw new GitHatasi(rebaseCatismaMesaji(d, h, c), 1);
     }
     if (r.commit) {
       d.head = { tur: "kopuk", hash: r.commit };
@@ -709,6 +956,18 @@ function rebaseIlerle(o: Ortam, d: Depo): string {
   }
   d.islem = null;
   c.push(`Successfully rebased and updated ${islem.dal ?? "detached HEAD"}.`);
+  return c.join("\n");
+}
+
+function rebaseCatismaMesaji(d: Depo, h: string, c: string[]): string {
+  c.push(
+    `error: could not apply ${kisa(h)}... ${ozetSatiri(commitOku(d, h).mesaj)}`,
+    "hint: Resolve all conflicts manually, mark them as resolved with",
+    'hint: "git add/rm <conflicted_files>", then run "git rebase --continue".',
+    'hint: You can instead skip this commit: run "git rebase --skip".',
+    'hint: To abort and get back to the state before "git rebase", run "git rebase --abort".',
+    `Could not apply ${kisa(h)}... ${ozetSatiri(commitOku(d, h).mesaj)}`,
+  );
   return c.join("\n");
 }
 

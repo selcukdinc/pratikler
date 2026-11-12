@@ -2,8 +2,8 @@
 // başlangıçta tutmamalı ve önerilen komutlar sırayla yazılınca hepsi tutmalı.
 import { describe, expect, it } from "vitest";
 import icerik from "../index";
-import { calistir, kur, yeniOrtam } from "../../../../src/gitsim";
-import { VARSAYILAN_KIMLIK } from "../../../../src/gitsim/gorev";
+import { kur, yeniOrtam } from "../../../../src/gitsim";
+import { cozumuCalistir, VARSAYILAN_KIMLIK } from "../../../../src/gitsim/gorev";
 
 describe("git dersleri: terminal alıştırmaları", () => {
   for (const ders of icerik.dersler) {
@@ -13,7 +13,7 @@ describe("git dersleri: terminal alıştırmaları", () => {
       it(`Ü${ders.hafta} bölüm ${i + 1}: ${b.baslik}`, () => {
         let o = kur(yeniOrtam({ dosyalar: g.dosyalar, globalConfig: g.globalConfig ?? VARSAYILAN_KIMLIK }), g.kurulum ?? []);
         expect(g.hedefler!.every((h) => h.denetle(o))).toBe(false);
-        for (const s of g.oneriler ?? []) o = calistir(o, s).ortam;
+        o = cozumuCalistir(o, g.oneriler ?? [], { editorCozum: g.editorCozum });
         expect(g.hedefler!.filter((h) => !h.denetle(o)).map((h) => h.aciklama)).toEqual([]);
       });
     });

@@ -24,6 +24,19 @@ export interface Yenilik {
 
 export const YENILIKLER: Yenilik[] = [
   {
+    pr: 41,
+    tarih: "2026-11-12",
+    baslik: "Git ve GitHub pratiği: uzak depolar ve rebase",
+    kitle: "yonetici",
+    maddeler: [
+      "İki yeni ünite: Uzak Depolar Derinlemesine ve Rebase; 64 yeni soru (kavram, komut ve senaryo).",
+      "Sanal Git artık uzak depolarla çalışıyor: `clone`, `fetch`, `pull`, `push`, `--force-with-lease`, dal silme ve budama. Alıştırmalarda sanal ekip arkadaşın Ayşe aynı GitHub deposuna push ediyor; terminalin yanında uzak depodaki dallar görünüyor.",
+      "Etkileşimli rebase terminalde gerçekten çalışıyor: `git rebase -i` yapılacaklar listesini düzenleyicide açar; pick, reword, squash, fixup, drop ve edit desteklenir.",
+      "Üç yeni şekil: fetch ile pull'un farkını gösteren üç kutu, merge ile rebase'in karşılaştırması ve dokunarak düzenlenen etkileşimli rebase listesi.",
+      "Sandbox'a Kalfa kademesinin sekiz görevi eklendi: test'ten dal açıp göndermek, Ayşe'nin push'undan sonra reddedilen push, PR dalını güvenle güncellemek, dal budamak, dağınık commit'leri toplamak, ortadaki mesajı düzeltmek, gizli anahtarlı commit'i push'tan önce çıkarmak ve rebase çakışması.",
+    ],
+  },
+  {
     pr: 40,
     tarih: "2026-11-12",
     baslik: "Git ve GitHub pratiği: Başlangıç kademesi (dallar, çakışmalar, PR, geri almak)",
