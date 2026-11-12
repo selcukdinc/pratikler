@@ -65,6 +65,10 @@ export interface PratikMeta {
   tanitim: { baslik: string; giris: string; kitleler: { baslik: string; metin: string }[] };
   // Hakkında sayfasının sonuna eklenen not (ör. kurumla bağlantı olmadığı)
   bagimsizlikNotu?: string;
+  // Yazılım anlatan pratiklerde Hakkında'daki "Sürümler" bölümü: içeriğin hazırlandığı
+  // tarih ve esas alınan araç sürümleri. Araç güncellenince docs/surum-guncelleme.md
+  // adımlarıyla içerik yeni sürüme taşınır ve bu alan yenilenir.
+  surumler?: { tarih: string; araclar: { ad: string; surum: string; not?: string }[]; not?: string };
   // Bölüm birimi: "ünite" ya da "hafta"; menü rozeti için tek harf
   uniteAdi: string;
   uniteKisa: string;
@@ -72,8 +76,12 @@ export interface PratikMeta {
   yayinda: boolean;
   // $...$ ve $$...$$ formülleri KaTeX ile çizilir, A_x / m^2 indisleri dizilir
   latex: boolean;
-  // Alan adının kökünde açılan sayfa: karma test (varsayılan), Sanal Lab ya da VHDL simülasyon alanı
-  anaSayfa?: "pratik" | "lab" | "simulasyon";
+  // Alan adının kökünde açılan sayfa: karma test (varsayılan), Sanal Lab, VHDL simülasyon
+  // alanı ya da konu anlatımlarının listesi (yol haritası)
+  anaSayfa?: "pratik" | "lab" | "simulasyon" | "ders";
+  // Ders listesinde ünitelerin gruplanması (Git: Acemi, Başlangıç...). Verilmezse dersin
+  // dönemine (vize/final) göre ya da tek liste
+  uniteGruplari?: { ad: string; aciklama?: string; uniteler: number[] }[];
   // Yazma (yaz) sorularının cevap kutusunun altında mantık ve küme sembol klavyesi
   // çıkar (Ayrık); belirtilmezse çıkmaz
   yazSembolleri?: boolean;

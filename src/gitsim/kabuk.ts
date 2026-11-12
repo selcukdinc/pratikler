@@ -2,8 +2,14 @@
 // komutlarını (ls, cat, echo, touch, rm, mkdir, cd, pwd, mv, cp) çalıştırır ve
 // git komutlarını ilgili işleve yönlendirir.
 import * as dal from "./dal";
+import * as ic from "./ic";
+import * as ileri from "./ileri";
 import { GitHatasi } from "./nesne";
+import { gh } from "./platform";
+import { kafepay } from "./gizli";
+import { glab } from "./gitlab";
 import * as temel from "./temel";
+import * as uzak from "./uzak";
 import type { Ortam } from "./tipler";
 import { KOK, yolCoz } from "./yardim";
 
@@ -132,7 +138,7 @@ function komutCalistir(o: Ortam, parca: Belirtec[]): KabukSonucu {
     if (e instanceof GitHatasi) return { cikti: e.message, kod: e.kod };
     throw e;
   } finally {
-    if (ad === "git") o.saat += 60;
+    if (ad === "git" || ad === "gh" || ad === "glab" || ad === "kafepay") o.saat += 60;
   }
 }
 
@@ -173,9 +179,17 @@ function calistir(o: Ortam, ad: string, args: string[]): IcSonuc {
   switch (ad) {
     case "git":
       return gitCalistir(o, args);
+    case "gh":
+      return gh(o, args);
+    case "glab":
+      return glab(o, args);
+    case "kafepay":
+      return kafepay(o, args);
     case "pwd":
-      return tamam(o.cwd ? `${KOK}/${o.cwd}` : KOK);
+      return tamam(`${o.kokAd ? `/${o.kokAd}` : KOK}${o.cwd ? `/${o.cwd}` : ""}`);
     case "cd": {
+      // git clone ile açılan klasör: depo zaten onun içinde açılır
+      if (o.kokAd && !o.cwd && args[0]?.replace(/\/$/, "") === o.kokAd && !klasorVar(o, o.kokAd)) return tamam();
       const hedef = args[0] === undefined || args[0] === "~" ? "" : yolCoz(o, args[0]);
       if (!klasorVar(o, hedef)) return { cikti: `bash: cd: ${args[0]}: No such file or directory`, kod: 1 };
       o.cwd = hedef;
@@ -308,6 +322,13 @@ const KOMUTLAR: Record<string, (o: Ortam, a: string[]) => string> = {
   "hash-object": temel.hashObject,
   "rev-parse": temel.revParse,
   "show-ref": temel.showRef,
+  "ls-tree": ic.lsTree,
+  "update-ref": ic.updateRef,
+  "symbolic-ref": ic.symbolicRef,
+  fsck: ic.fsck,
+  gc: ic.gc,
+  prune: ic.prune,
+  "filter-repo": ic.filterRepo,
   branch: dal.branch,
   switch: dal.switchKomutu,
   checkout: dal.checkout,
@@ -319,6 +340,13 @@ const KOMUTLAR: Record<string, (o: Ortam, a: string[]) => string> = {
   stash: dal.stash,
   tag: dal.tag,
   reflog: dal.reflog,
+  bisect: ileri.bisect,
+  blame: ileri.blame,
+  clone: uzak.clone,
+  remote: uzak.remote,
+  fetch: uzak.fetch,
+  pull: uzak.pull,
+  push: uzak.push,
 };
 
 // Sandbox'ın tanıdığı git komutları (otomatik tamamlama ve yardım için)
@@ -353,8 +381,16 @@ function gitCalistir(o: Ortam, args: string[]): IcSonuc {
       kod: 1,
     };
   }
-  return tamam(f(o, kalan));
+  const cikti = f(o, kalan);
+  // Etkileşimli rebase editör bekliyor: arayüz yapılacaklar listesini ya da mesajı açar
+  const islem = o.depo?.islem;
+  if (islem?.tur === "rebase" && islem.editor) return { cikti, kod: 0, editor: islem.editor === "todo" ? REBASE_TODO : COMMIT_MESAJI };
+  return tamam(cikti);
 }
+
+// Git'in kendi dosyaları: editörde açılır ama çalışma dizininde durmaz
+export const REBASE_TODO = ".git/rebase-merge/git-rebase-todo";
+export const COMMIT_MESAJI = ".git/COMMIT_EDITMSG";
 
 // İki komut adı birbirine yakın mı (yazım hatası önerisi)
 function yakin(a: string, b: string): boolean {

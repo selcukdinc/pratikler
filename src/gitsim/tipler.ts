@@ -65,7 +65,7 @@ export interface CatismaGirdisi {
 
 // Yarıda kalmış birleştirme, cherry-pick, revert ya da rebase
 export type SuregelenIslem =
-  | { tur: "merge"; onlar: string; mesaj: string }
+  | { tur: "merge"; onlar: string; mesaj: string; catismalar?: string[] }
   | { tur: "cherry-pick"; commit: string; mesaj: string; yazar: Kisi }
   | { tur: "revert"; commit: string; mesaj: string }
   | {
@@ -79,7 +79,26 @@ export type SuregelenIslem =
       kalan: string[];
       // Çakışmada duran commit
       duran?: string;
+      // Etkileşimli rebase: sıradaki komutlar (kalan'ın yerine) ve editörde bekleyen adım
+      etkilesimli?: boolean;
+      komutlar?: RebaseKomutu[];
+      editor?: "todo" | "mesaj";
+      // Editörde düzenlenen metin ve editör kapanınca yazılacak commit
+      editorMetni?: string;
+      bekleyen?: { agac: string; ebeveynler: string[]; yazar: Kisi; tur: "reword" | "squash" };
+      // Komutun başladığı saat (editörden sonra yazılan commit'ler aynı zamanı alır)
+      saat?: number;
+      // reflog'daki "checkout <...>" adı ve edit'te durulan commit
+      baslangic?: string;
+      durdu?: string;
+      // Yapılan komutlar ("pick a1b2c3d mesaj"), git status için
+      yapilan?: string[];
     };
+
+export interface RebaseKomutu {
+  islem: "pick" | "reword" | "squash" | "fixup" | "drop" | "edit";
+  hash: string;
+}
 
 export interface StashKaydi {
   // Stash commit'i (ebeveynleri: HEAD ve index commit'i)
@@ -104,6 +123,77 @@ export interface Depo {
   stash: StashKaydi[];
   islem: SuregelenIslem | null;
   origHead?: string;
+  // Sembolik uzak ref'ler: "refs/remotes/origin/HEAD" -> "refs/remotes/origin/main"
+  semboller?: Record<string, string>;
+  // Uzak depo GitHub'daysa platformun durumu: dal korumaları, pull request'ler, CI
+  platform?: Platform;
+  // Süren git bisect: başlanan dal ve git bisect log kaydı (iyi/kötü işaretleri refs/bisect/ altında)
+  bisect?: { baslangic: string; log: string[] };
+}
+
+// GitHub'daki dal koruma kuralı (branch protection / ruleset)
+export interface DalKorumasi {
+  // Doğrudan push yok, değişiklik yalnızca PR ile
+  prZorunlu?: boolean;
+  // Birleştirmek için gereken onay sayısı
+  onay?: number;
+  // Durum denetimi (CI) geçmeden birleştirilemez
+  ci?: boolean;
+  // Varsayılan olarak korumalı dalda force push ve silme kapalıdır
+  zorlaSerbest?: boolean;
+  silmeSerbest?: boolean;
+}
+
+// Sanal CI'ın bir adımı: dalın son commit'indeki dosyalara bakar
+export interface CiAdimi {
+  ad: string;
+  // Hiçbir dosyada geçmemesi gereken metin (ör. "console.log")
+  yasak?: string;
+  // Bulunması gereken dosya (ör. "CHANGELOG.md")
+  dosya?: string;
+  // Akış kuralı: PR'da hedefte olmayan birleştirme commit'i ya da PR sahibinden başka
+  // birinin commit'i olmasın (dev'i toptan taşımak, dalı yanlış yerden açmak)
+  akis?: boolean;
+  // Kalınca gösterilen ileti
+  mesaj: string;
+}
+
+export interface PullRequest {
+  no: number;
+  baslik: string;
+  kaynak: string;
+  hedef: string;
+  yazar: string;
+  durum: "acik" | "birlesti" | "kapali";
+  // Onaylayanlar ve değişiklik isteyenler (ad)
+  onaylar: string[];
+  degisiklik: string[];
+  yontem?: "merge" | "squash" | "rebase";
+  birlesmeCommit?: string;
+}
+
+export interface Platform {
+  // "kafe-mavi/siparis"
+  ad: string;
+  // Verilmezse GitHub; GitLab'da PR'ın adı merge request (!N), komut glab
+  tur?: "github" | "gitlab";
+  korumalar: Record<string, DalKorumasi>;
+  ci?: CiAdimi[];
+  prler: PullRequest[];
+  // Push protection: gizli bilgi içeren push reddedilir (GH013)
+  gizliKoruma?: boolean;
+  // Herkese açık depo: botlar her push'u tarar, buldukları etkin anahtarı kullanır
+  herkeseAcik?: boolean;
+}
+
+// Sanal ödeme hizmetindeki (KafePay) bir API anahtarı
+export interface BulutAnahtari {
+  ad: string;
+  deger: string;
+  durum: "aktif" | "iptal";
+  olusturma: number;
+  // Botların anahtarı public depoda bulduğu an
+  sizdi?: number;
 }
 
 export interface Ortam {
@@ -118,6 +208,16 @@ export interface Ortam {
   globalConfig: Record<string, string>;
   // Bir sonraki commit'in zamanı (Unix saniyesi); her komuttan sonra ilerler
   saat: number;
+  // Sanal uzak depolar (GitHub/GitLab): normalleştirilmiş adres -> çıplak depo
+  uzaklar?: Record<string, Depo>;
+  // Sanal ekip arkadaşlarının kendi bilgisayarları (aynı uzak depolarla çalışır)
+  ekip?: Record<string, Ortam>;
+  // git clone ile açılan klasörün adı (istemde gösterilir)
+  kokAd?: string;
+  // Görev olaylarından tetiklenmiş olanlar
+  tetiklenen?: string[];
+  // Kullanıcının sanal ödeme hizmeti hesabı (kafepay komutu, gizli.ts)
+  bulut?: { anahtarlar: BulutAnahtari[]; kayitlar: string[] };
 }
 
 export interface Sonuc {

@@ -1,0 +1,235 @@
+// 18. ünite (Usta): geçmişi onarmak ve kurtarma. reflog, fsck ile sahipsiz nesneler,
+// felaket senaryoları, nesnelerin gerçekten ne zaman silindiği (gc, prune, reflog
+// expire), filter-repo ile geçmiş temizliği, büyük depolar ve performans.
+import { sorular, type Soru } from "./yardimci.ts";
+
+const U = 18;
+
+export const unite18: Soru[] = [
+  ...sorular(U, "u18-reflog", [
+    {
+      ad: "reflog-ne",
+      soru: "reflog neyi kaydeder?",
+      secenekler: ["HEAD'in ve dalların yerel hareketlerini", "Uzak depodaki bütün push'ları", "Yalnızca merge commit'lerini", "Silinen dosyaların içeriğini"],
+      aciklama: "HEAD ve her dal bir commit'ten ötekine her geçtiğinde (commit, reset, rebase, switch) reflog'a bir satır düşer. Yalnızca senin bilgisayarındadır; push edilmez.",
+    },
+    {
+      ad: "reflog-uzak",
+      dy: false,
+      soru: "reflog clone ile gelir; ekip arkadaşının reflog'unu kendi bilgisayarında görebilirsin.",
+      aciklama: "Yanlış. reflog yerel bir kayıttır, ne push ne clone ile taşınır. Bir commit yalnızca arkadaşının bilgisayarında kayıpsa onu ancak o kurtarabilir.",
+    },
+    {
+      ad: "head-at-1",
+      soru: "~HEAD@{1}~ neyi gösterir?",
+      secenekler: ["HEAD'in bir önceki konumunu", "HEAD'in ilk ebeveynini", "İkinci dalı", "Bir önceki etiketi"],
+      aciklama: "~HEAD@{n}~ reflog'daki n adım önceki konumdur; ~HEAD¬1~ ise geçmişteki ebeveyndir. Reset ya da rebase'ten hemen sonra ~HEAD@{1}~ işlemden önceki yerdir.",
+    },
+    {
+      ad: "dal-reflog",
+      zorluk: 2,
+      soru: "~main~ dalının dünkü hâlini gösteren yazımı seç.",
+      secenekler: ["main@{yesterday}", "main¬yesterday", "main^yesterday", "yesterday/main"],
+      aciklama: "~@{...}~ reflog'a bakar: ~main@{2}~ iki hareket önce, ~main@{yesterday}~ ya da ~main@{2.hours.ago}~ zamana göre. ~¬~ ve ~^~ ise geçmişteki ebeveynlere gider.",
+    },
+    {
+      ad: "reflog-komut",
+      soru: "HEAD'in hareket kaydını listeleyen komutu yaz.",
+      cevap: ["git reflog"],
+      aciklama: "~git reflog~ (~git reflog show HEAD~). Bir dalın kaydı için ~git reflog main~.",
+    },
+  ]),
+  ...sorular(U, "u18-fsck", [
+    {
+      ad: "dangling",
+      soru: "~git fsck~ çıktısındaki \"dangling commit\" ne demektir?",
+      secenekler: ["Hiçbir ref'in ulaşmadığı commit", "Çakışmalı bir commit", "İmzasız bir commit", "Push edilmemiş her commit"],
+      aciklama: "Sahipsiz (dangling) nesne, hiçbir dal, etiket, index ya da reflog kaydından ulaşılamayan ve başka bir sahipsiz nesnenin de göstermediği nesnedir. Silinmeyi bekler ama hâlâ okunabilir.",
+    },
+    {
+      ad: "stash-drop",
+      zorluk: 2,
+      senaryo: true,
+      soru: "Yanlışlıkla ~git stash drop~ yaptın; içinde bir günlük iş vardı. reflog'da da görünmüyor. Ne yaparsın?",
+      secenekler: ["git fsck ile sahipsiz commit'i bulup stash apply", "Stash'ler geri gelmez, baştan yazarım", "git stash pop ile geri alırım", "git reset --hard HEAD@{1} yaparım"],
+      aciklama: "Düşürülen stash commit'i silinmez, sahipsiz kalır. ~git fsck~ onu \"dangling commit\" olarak listeler; ~git show <kimlik>~ ile doğrulayıp ~git stash apply <kimlik>~ ile geri getirirsin.",
+    },
+    {
+      ad: "no-reflogs",
+      zorluk: 3,
+      soru: "Bir dalı ~git branch -D~ ile sildin ama ~git fsck~ hiçbir sahipsiz commit göstermiyor. Neden?",
+      secenekler: ["Commit'ler HEAD'in reflog'unda hâlâ kayıtlı", "fsck yalnızca blob'lara bakar", "Silinen dalın commit'leri hemen silinir", "fsck uzak depoya bakar"],
+      aciklama: "O dalda çalıştıysan commit'ler HEAD'in reflog'undan ulaşılabilir, fsck onları sahipsiz saymaz. ~git fsck --no-reflogs~ reflog'u yok sayar ve onları da gösterir; ama kurtarmanın kısa yolu zaten ~git reflog~'dur.",
+    },
+    {
+      ad: "dangling-blob",
+      zorluk: 2,
+      soru: "Bir dosyayı ~git add~ ettin, sonra değiştirip yeniden ~git add~ ettin ve commit'ledin. ~git fsck~ neden bir \"dangling blob\" gösterir?",
+      secenekler: ["İlk add'in blob'u sahipsiz kaldı", "Son commit'in tree'si bozulmuş", "Dosya iki ayrı commit'e girmiş", "Index dosyası bir şekilde silinmiş"],
+      aciklama: "~git add~ içeriği hemen blob olarak yazar. İkinci add index'i yeni blob'a çevirince ilki sahipsiz kalır. Commit'e hiç girmemiş bir içeriği kurtarmanın yolu budur: ~git cat-file -p <kimlik>~.",
+    },
+    {
+      ad: "kurtarma-dali",
+      soru: "fsck'nin gösterdiği ~a1b2c3d~ commit'ini ~kurtarilan~ adlı bir dala bağlayan komutu yaz.",
+      cevap: ["git branch kurtarilan a1b2c3d"],
+      aciklama: "~git branch kurtarilan a1b2c3d~. Commit artık bir ref'ten ulaşılabilir olduğu için çöp toplamada silinmez.",
+    },
+  ]),
+  ...sorular(U, "u18-felaket", [
+    {
+      ad: "reset-hard-geri",
+      senaryo: true,
+      soru: "~git reset --hard HEAD¬3~ yaptın ve üç commit'in kayboldu (push etmemiştin). En hızlı kurtarma hangisi?",
+      secenekler: ["git reset --hard HEAD@{1}", "git revert HEAD¬3", "git checkout -- .", "git pull"],
+      aciklama: "Reset'ten önceki konum reflog'da ~HEAD@{1}~'dir; oraya geri resetlemek üç commit'i geri getirir. ~ORIG_HEAD~ de reset'ten önceki yeri tutar.",
+    },
+    {
+      ad: "commitlenmemis",
+      zorluk: 2,
+      senaryo: true,
+      soru: "Hiç ~git add~ etmediğin değişiklikler ~git reset --hard~ ile gitti. reflog yardım eder mi?",
+      secenekler: ["Hayır; Git'e hiç girmedikleri için kayıt yok", "Evet; HEAD@{1}'e geri dönmek yeter", "Evet; git fsck onları sahipsiz bulur", "Evet; git stash pop onları getirir"],
+      aciklama: "Git yalnızca bir kez nesne olarak yazdığı içeriği kurtarabilir. Add edilmiş ama commit'lenmemiş içerik ~fsck~'de sahipsiz blob olarak bulunabilir; hiç add edilmemiş olan için tek umut editörün yerel geçmişidir.",
+    },
+    {
+      ad: "rebase-geri",
+      zorluk: 2,
+      senaryo: true,
+      soru: "Etkileşimli rebase'te yanlışlıkla bir commit'i ~drop~ ettin; rebase bitti. Rebase öncesine nasıl dönersin?",
+      secenekler: ["Reflog'da rebase öncesini bulup oraya reset --hard", "git rebase --abort", "git revert ile drop'u geri alırım", "Commit'i hatırladığım kadarıyla yeniden yazarım"],
+      aciklama: "Rebase bittikten sonra ~--abort~ işe yaramaz. ~git reflog~'da \"rebase (start)\" satırının hemen altındaki konum rebase öncesidir; ~git reset --hard <o konum>~ (ya da hemen sonra ~ORIG_HEAD~) dalı eski hâline döndürür.",
+    },
+    {
+      ad: "silinen-dal",
+      senaryo: true,
+      soru: "Birleştirilmemiş ~ozellik~ dalını ~git branch -D~ ile sildin. Nasıl geri getirirsin?",
+      secenekler: ["Reflog'daki son commit'inden dalı yeniden açarım", "git branch --undo ozellik ile geri alırım", "git pull origin ozellik ile geri çekerim", "Silinen dal hiçbir şekilde geri gelmez"],
+      aciklama: "Silme çıktısı dalın son kimliğini yazar (~Deleted branch ozellik (was a1b2c3d)~); yoksa ~git reflog~'da bulunur. ~git branch ozellik a1b2c3d~ dalı geri açar.",
+    },
+    {
+      ad: "force-push-kurtar",
+      zorluk: 3,
+      senaryo: true,
+      soru: "Bir ekip arkadaşı ~main~'i force push ile ezdi; senin yerelindeki ~origin/main~ eski hâli gösteriyor ve henüz fetch etmedin. Ne yaparsın?",
+      secenekler: ["Eski origin/main'i bir dala alırım", "Hemen git pull yapıp güncellerim", "Depomu silip yeniden clone ederim", "git push --force ile ben de ezerim"],
+      aciklama: "Fetch etmeden önce ~git branch kurtarma origin/main~ ile eski hâli sabitle. Fetch etsen bile ~origin/main@{1}~ reflog'da durur. Sonra ekiple konuşup doğru geçmişi (gerekirse ~--force-with-lease~ ile) geri koyarsınız.",
+    },
+  ]),
+  ...sorular(U, "u18-gc", [
+    {
+      ad: "ne-zaman-silinir",
+      zorluk: 2,
+      soru: "Sahipsiz bir commit varsayılan ayarlarla ne zaman gerçekten silinir?",
+      secenekler: ["Reflog kaydı dolup gc ile budanınca", "Hemen, sahipsiz kaldığı anda", "Bir sonraki push'ta", "Hiçbir zaman"],
+      aciklama: "Reflog kayıtları varsayılan 90 gün (erişilemeyenler 30 gün) tutulur; reflog'da olmayan gevşek nesneler de iki haftalık bir süreyle korunur. Bunlar dolduktan sonraki bir ~git gc~ nesneyi siler.",
+    },
+    {
+      ad: "prune-now",
+      zorluk: 3,
+      soru: "Sahipsiz nesneleri bekleme süresi olmadan hemen silmek için hangi iki komut birlikte kullanılır?",
+      secenekler: ["reflog expire --expire=now ve gc --prune=now", "git clean -fd ve git reset --hard HEAD", "git fsck --no-reflogs ve git branch -D", "git stash clear ve git pull --rebase"],
+      aciklama: "Önce reflog kayıtları silinir (yoksa nesneler reflog'dan ulaşılabilir kalır), sonra ~gc --prune=now~ erişilemeyenleri siler. filter-repo temizlikten sonra bunu kendisi yapar.",
+    },
+    {
+      ad: "gc-sonrasi",
+      dy: true,
+      soru: "~git reflog expire --expire=now --all~ ve ~git gc --prune=now~ çalıştırdıktan sonra, daha önce sahipsiz olan bir commit'i ~fsck~ ya da reflog ile geri getiremezsin.",
+      aciklama: "Doğru. Bu iki komut yerel kurtarma ağını kaldırır; yalnızca nesne hâlâ başka bir kopyada (uzak depo, ekip arkadaşı) duruyorsa geri gelir.",
+    },
+    {
+      ad: "gc-komut",
+      soru: "Depoyu bakımdan geçiren (paketleyen ve süresi dolanları temizleyen) komutu yaz.",
+      cevap: ["git gc"],
+      aciklama: "~git gc~. Git, çok sayıda gevşek nesne birikince ~git gc --auto~ ile bunu kendiliğinden de yapar.",
+    },
+  ]),
+  ...sorular(U, "u18-filter-repo", [
+    {
+      ad: "filter-repo-ne",
+      soru: "~git filter-repo~ ne için kullanılır?",
+      secenekler: ["Geçmişi baştan yazıp dosya ya da metin silmek", "Dalları ada göre filtreleyip listelemek", "Commit'leri yazarına göre aramak", "Çakışmaları kendiliğinden çözmek"],
+      aciklama: "filter-repo bütün commit'leri yeniden yazar: bir dosyayı ya da klasörü geçmişten çıkarır (~--path ... --invert-paths~), metni değiştirir (~--replace-text~), klasörü depo köküne taşır. Git ile gelmez, ayrıca kurulur.",
+    },
+    {
+      ad: "filter-branch",
+      zorluk: 2,
+      soru: "Git belgeleri neden ~git filter-branch~ yerine ~git filter-repo~ önerir?",
+      secenekler: ["filter-branch yavaş ve hataya açık", "filter-branch kaldırıldı", "filter-repo Git'e dahildir", "filter-branch yalnızca tek dalda çalışır"],
+      aciklama: "~git filter-branch~ hâlâ vardır ama çok yavaştır ve kolay yanlış kullanılır; belgesi de uyarıyla başlar. filter-repo hızlıdır, güvenli varsayılanlarla gelir. BFG Repo-Cleaner da büyük dosya ve gizli bilgi silmek için kullanılan bir başka araçtır.",
+    },
+    {
+      ad: "invert-paths",
+      zorluk: 2,
+      soru: "~tanitim.mp4~ dosyasını bütün geçmişten silen filter-repo komutunu yaz.",
+      cevap: ["git filter-repo --path tanitim.mp4 --invert-paths", "git filter-repo --invert-paths --path tanitim.mp4"],
+      aciklama: "~--path~ yalnızca o yolu tutar; ~--invert-paths~ seçimi ters çevirir: o yol dışındaki her şey kalır.",
+    },
+    {
+      ad: "origin-kalkar",
+      zorluk: 2,
+      soru: "filter-repo bittiğinde ~origin~ uzak deposu kaldırılmış olur. Neden?",
+      secenekler: ["Yeni geçmiş yanlışlıkla eskisinin üstüne gitmesin", "Uzak depo bozulduğu için", "filter-repo internet bağlantısını keser", "origin yalnızca clone'da gerekir"],
+      aciklama: "Yeniden yazılmış geçmişi göndermek bilinçli bir karar olmalı: origin'i yeniden ekler, bütün dalları ve etiketleri force push ile gönderir, ekibe yeniden clone etmesini söylersin.",
+    },
+    {
+      ad: "sonrasi",
+      zorluk: 3,
+      senaryo: true,
+      soru: "Geçmişten 2 GB'lık bir video sildin ve force push yaptın. Depo herkese açık ve 30 fork'u var. Video artık hiçbir yerde yok mu?",
+      secenekler: ["Fork'larda ve eski clone'larda hâlâ durabilir", "Evet, force push her kopyadan siler", "Evet, GitHub fork'ları da günceller", "Video yalnızca GitHub'ın önbelleğinde kalır"],
+      aciklama: "Geçmişi yeniden yazmak yalnızca senin deponu değiştirir. Fork'lar ve ekip arkadaşlarının clone'ları eski nesneleri taşır; GitHub'da eski commit'lere doğrudan bağlantılar da bir süre çalışabilir. Gizli bilgi sızdıysa asıl çözüm anahtarı iptal etmektir (14. ünite).",
+    },
+  ]),
+  ...sorular(U, "u18-buyuk-depo", [
+    {
+      ad: "shallow",
+      soru: "~git clone --depth 1~ ne indirir?",
+      secenekler: ["Yalnızca son commit'i ve dosyalarını", "Yalnızca bir dalın adını", "Bütün geçmişi ama dosyasız", "Yalnızca ilk commit'i"],
+      aciklama: "Sığ (shallow) clone geçmişi kırpar: son commit ve onun ağacı gelir. CI'da derleme için hızlıdır ama ~git log~ ve ~git blame~ eksik kalır; ~git fetch --unshallow~ geçmişin kalanını getirir.",
+    },
+    {
+      ad: "partial",
+      zorluk: 2,
+      soru: "~git clone --filter=blob:none~ (kısmi clone) sığ clone'dan nasıl ayrılır?",
+      secenekler: ["Commit'ler tam, içerikler gerektikçe iner", "Yalnızca son commit ve dosyaları gelir", "Yalnızca seçilen tek klasör gelir", "Hiçbir commit gelmez, yalnız dosyalar"],
+      aciklama: "Kısmi clone bütün commit ve tree'leri indirir ama blob'ları ilk ihtiyaçta getirir. Geçmiş tamdır; ~log~ çalışır, eski bir dosyayı açmak sunucudan indirme yapar.",
+    },
+    {
+      ad: "sparse",
+      zorluk: 2,
+      senaryo: true,
+      soru: "Monorepo'da yalnızca ~uygulamalar/kasa~ klasöründe çalışıyorsun; çalışma dizininde öteki yüzlerce klasör olmasın istiyorsun. Ne kullanırsın?",
+      secenekler: ["git sparse-checkout set uygulamalar/kasa", "git clone --depth 1", "git worktree add uygulamalar/kasa", "git submodule add uygulamalar/kasa"],
+      aciklama: "sparse-checkout depoyu tam tutar ama çalışma dizinine yalnızca seçilen klasörleri koyar. Kısmi clone (~--filter=blob:none~) ile birlikte kullanılınca öteki klasörlerin içerikleri hiç inmez.",
+    },
+    {
+      ad: "monorepo",
+      soru: "Monorepo nedir?",
+      secenekler: ["Birçok projenin tek depoda durması", "Tek dosyadan oluşan bir depo", "Yalnızca bir kişinin yazdığı depo", "Hiç dalı olmayan bir depo"],
+      aciklama: "Monorepo'da birçok uygulama ve kütüphane aynı depoda, aynı geçmişte durur. Ortak değişiklik tek commit'te yapılabilir; bedeli büyüyen depo ve araç gereksinimidir.",
+    },
+  ]),
+  ...sorular(U, "u18-performans", [
+    {
+      ad: "maintenance",
+      zorluk: 2,
+      soru: "~git maintenance start~ ne yapar?",
+      secenekler: ["Düzenli bakımı arka planda zamanlar", "Depoyu salt okunur hâle getirir", "Uzak depoyu her gece yedekler", "Bütün dalları main'e birleştirir"],
+      aciklama: "Büyük depolarda commit-graph yazma, arka planda fetch, gevşek nesneleri paketleme gibi görevleri işletim sisteminin zamanlayıcısıyla düzenli çalıştırır; günlük komutlar hızlı kalır.",
+    },
+    {
+      ad: "fsmonitor",
+      zorluk: 3,
+      soru: "Çok dosyalı bir depoda ~git status~ yavaş. Hangi ayar, bir dosya sistemi izleyicisiyle Git'in her dosyayı taramasını gereksiz kılar?",
+      secenekler: ["core.fsmonitor", "core.autocrlf", "pull.rebase", "init.defaultBranch"],
+      aciklama: "~core.fsmonitor~ açıkken bir arka plan süreci değişen dosyaları izler; ~status~ yalnızca onlara bakar. ~core.untrackedCache~ izlenmeyen dosya taramasını da hızlandırır.",
+    },
+    {
+      ad: "buyuk-dosya-neden",
+      senaryo: true,
+      soru: "Ekip her clone'un 15 dakika sürdüğünden yakınıyor; geçmişte bir zamanlar commit'lenmiş tasarım dosyaları var (şimdi silinmiş). Kalıcı çözüm hangisi?",
+      secenekler: ["Geçmişi filter-repo ile temizleyip LFS'e geçmek", "Dosyaları son commit'ten silmek", "Herkesin --depth 1 ile clone etmesi", "Daha hızlı internet"],
+      aciklama: "Silinen dosya geçmişte durdukça her clone onu indirir. filter-repo ile geçmişten çıkarılır, bundan sonraki büyük dosyalar LFS'e alınır. Sığ clone yalnızca belirtiyi hafifletir.",
+    },
+  ]),
+];

@@ -14,6 +14,20 @@ export function About() {
       <p>{PRATIK.aciklama} Açık kaynaklı, ücretsiz bir pratik sitesidir ve <a href={catiAdresi}>Pratikler</a> çatısı altındaki diğer sitelerle aynı hesabı kullanır.</p>
       <h3>Kaynak</h3>
       <Markdown text={PRATIK.kaynakAciklamasi} />
+      {PRATIK.surumler && (
+        <>
+          <h3>Sürümler</h3>
+          <p>Bu pratik <strong>{PRATIK.surumler.tarih}</strong> tarihinde şu sürümler esas alınarak hazırlandı:</p>
+          <ul>
+            {PRATIK.surumler.araclar.map((a) => (
+              <li key={a.ad}>
+                <strong>{a.ad} {a.surum}</strong>{a.not && <>: {a.not}</>}
+              </li>
+            ))}
+          </ul>
+          {PRATIK.surumler.not && <p>{PRATIK.surumler.not}</p>}
+        </>
+      )}
       <h3>Bağımsızlık</h3>
       <p>
         <strong>{BAGIMSIZLIK_BASLIK}</strong> {BAGIMSIZLIK_METNI}

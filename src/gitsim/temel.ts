@@ -94,9 +94,23 @@ export function status(o: Ortam, args: string[]): string {
   const c: string[] = [];
   if (dal) c.push(`On branch ${dalAdi(dal)}`);
   else c.push(`HEAD detached at ${kisa(headCommit(d)!)}`);
+  if (d.bisect) {
+    const b = d.bisect.baslangic;
+    c.push(`You are currently bisecting, started from branch '${b}'.`, '  (use "git bisect reset" to get back to the original branch)');
+  }
   const islem = d.islem;
   if (islem?.tur === "rebase") {
     c[0] = `interactive rebase in progress; onto ${kisa(islem.onto)}`;
+    if (islem.etkilesimli && islem.yapilan) {
+      const n = islem.yapilan.length;
+      c.push(`Last command${n === 1 ? "" : "s"} done (${n} command${n === 1 ? "" : "s"} done):`, ...islem.yapilan.slice(-2).map((x) => `   ${x}`));
+      if (n > 2) c.push("  (see more in file .git/rebase-merge/done)");
+      const kalan = islem.komutlar ?? [];
+      if (kalan.length) {
+        const m = kalan.length;
+        c.push(`Next command${m === 1 ? "" : "s"} to do (${m} remaining command${m === 1 ? "" : "s"}):`, ...kalan.slice(0, 2).map((k) => `   ${k.islem} ${kisa(k.hash)} ${ozetSatiri(commitOku(d, k.hash).mesaj)}`), '  (use "git rebase --edit-todo" to view and edit)');
+      } else c.push("No commands remaining.");
+    }
     c.push(`You are currently rebasing branch '${islem.dal ? dalAdi(islem.dal) : "HEAD"}' on '${kisa(islem.onto)}'.`);
     c.push(s.catisma.length ? '  (fix conflicts and then run "git rebase --continue")' : '  (all conflicts fixed: run "git rebase --continue")');
     c.push('  (use "git rebase --skip" to skip this patch)', '  (use "git rebase --abort" to check out the original branch)');
@@ -111,6 +125,7 @@ export function status(o: Ortam, args: string[]): string {
   if (upstream) c.push(upstream);
   if (commitYok) c.push("", "No commits yet", "");
   if (islem?.tur === "merge") {
+    if (upstream) bosluk(c);
     if (s.catisma.length) c.push("You have unmerged paths.", '  (fix conflicts and run "git commit")', '  (use "git merge --abort" to abort the merge)');
     else c.push("All conflicts fixed but you are still merging.", '  (use "git commit" to conclude merge)');
   }
@@ -122,7 +137,7 @@ export function status(o: Ortam, args: string[]): string {
   if (s.catisma.length) {
     bosluk(c);
     c.push("Unmerged paths:");
-    if (!islem || islem.tur === "revert") c.push('  (use "git restore --staged <file>..." to unstage)');
+    if (!islem || islem.tur === "revert" || (islem.tur === "rebase" && islem.etkilesimli)) c.push('  (use "git restore --staged <file>..." to unstage)');
     c.push('  (use "git add <file>..." to mark resolution)');
     for (const x of s.catisma) c.push(`\t${(x.tur + ":").padEnd(17)}${goreli(o, x.yol)}`);
   }
@@ -137,7 +152,7 @@ export function status(o: Ortam, args: string[]): string {
     for (const y of izlenmeyen) c.push(`\t${goreli(o, y)}`);
   }
   bosluk(c);
-  if (s.hazir.length || (islem?.tur === "merge" && s.catisma.length)) {
+  if (s.hazir.length) {
     // Git burada son bir boş satır bırakır
   } else if (s.hazirDegil.length || s.catisma.length) c.push('no changes added to commit (use "git add" and/or "git commit -a")');
   else if (izlenmeyen.length) c.push('nothing added to commit but untracked files present (use "git add" to track)');
@@ -164,6 +179,8 @@ export function upstreamSatiri(d: Depo): string | null {
   const u = d.refs[uzakRef];
   const h = headCommit(d);
   const gosterim = `${uzak}/${dalAdi(birlesim)}`;
+  // Henüz commit'i olmayan dalda Git upstream'den söz etmez
+  if (!u && !h) return null;
   if (!u) return `Your branch is based on '${gosterim}', but the upstream is gone.\n  (use "git branch --unset-upstream" to fixup)`;
   if (!h) return null;
   const once = gecmis(d, [h], [u]).length;
@@ -330,7 +347,11 @@ export function commit(o: Ortam, args: string[]): string {
   let mesaj: string | undefined;
   if (mesajlar) mesaj = mesajlar.join("\n\n");
   else if (amend && head) mesaj = commitOku(d, head).mesaj;
-  else if (islem && islem.tur !== "rebase") mesaj = islem.mesaj;
+  else if (islem && islem.tur !== "rebase") {
+    mesaj = islem.mesaj;
+    // --no-edit'te editör açılmadığı için "# Conflicts:" notu mesajda kalır
+    if (islem.tur === "merge" && var_(a, "--no-edit") && islem.catismalar?.length) mesaj += `\n# Conflicts:\n${islem.catismalar.map((y) => `#\t${y}`).join("\n")}\n`;
+  }
   if (mesaj === undefined)
     throw new GitHatasi("hint: Waiting for your editor to close the file...\nAborting commit due to empty commit message.\n(Bu sandbox'ta editör açılmaz: mesajı -m \"...\" ile ver.)", 1);
   mesaj = mesajTemizle(mesaj);
@@ -366,7 +387,8 @@ export function suslemeler(d: Depo, h: string): string {
   const s: string[] = [];
   const dal = gecerliDal(d);
   if (headCommit(d) === h) s.push(dal ? `HEAD -> ${dalAdi(dal)}` : "HEAD");
-  const refler = Object.keys(d.refs).sort();
+  // Git süslemeleri ref sırasının tersiyle yazar (etiket, uzak dallar, yerel dallar)
+  const refler = Object.keys(d.refs).sort().reverse();
   for (const r of refler) {
     if (r === dal) continue;
     const hedef = d.refs[r]!;
@@ -439,11 +461,20 @@ export function log(o: Ortam, args: string[]): string {
   return c.join("\n");
 }
 
+// git bisect'in bulduğu ilk kötü commit: süslemesiz başlık ve dosya özeti
+export function bisectGosterimi(d: Depo, h: string): string {
+  const cm = commitOku(d, h);
+  const s = commitBasligi(d, h, cm);
+  s[0] = `commit ${h}`;
+  const f = cm.ebeveynler.length > 1 ? "" : statVeMod(d, commitAgaci(d, cm.ebeveynler[0] ?? null), agacAc(d, cm.agac));
+  return [...s, ...(f ? ["", f] : [])].join("\n");
+}
+
 function commitBasligi(d: Depo, h: string, cm: Commit): string[] {
   const s = [`commit ${h}${suslemeler(d, h)}`];
   if (cm.ebeveynler.length > 1) s.push(`Merge: ${cm.ebeveynler.map(kisa).join(" ")}`);
   s.push(`Author: ${cm.yazar.ad} <${cm.yazar.eposta}>`, `Date:   ${tarih(cm.yazar.zaman)}`, "");
-  s.push(...cm.mesaj.replace(/\n$/, "").split("\n").map((x) => (x ? "    " + x : "")));
+  s.push(...cm.mesaj.replace(/\n$/, "").split("\n").map((x) => "    " + x));
   return s;
 }
 
@@ -606,16 +637,24 @@ export function catFile(o: Ortam, args: string[]): string {
   let h: string;
   const iki = rev.indexOf(":");
   if (iki >= 0) {
-    const ag = commitAgaci(d, coz(d, rev.slice(0, iki) || "HEAD"));
-    const yol = rev.slice(iki + 1);
-    if (!ag[yol]) throw new GitHatasi(`fatal: path '${yol}' does not exist in '${rev.slice(0, iki)}'`);
-    h = ag[yol]!;
+    const commit = coz(d, rev.slice(0, iki) || "HEAD");
+    const yol = rev.slice(iki + 1).replace(/\/$/, "");
+    // Klasör yolu tree'ye, dosya yolu blob'a çözülür
+    let n: string | undefined = oku(d, commit, "commit").agac;
+    for (const parca of yol ? yol.split("/") : []) {
+      const t: (typeof d.nesneler)[string] | undefined = d.nesneler[n!];
+      n = t?.tur === "tree" ? t.girdiler.find((g) => g.ad === parca)?.hash : undefined;
+      if (!n) break;
+    }
+    if (!n) throw new GitHatasi(`fatal: path '${yol}' does not exist in '${rev.slice(0, iki)}'`);
+    h = n;
   } else {
     const r = refAdi(d, rev) ?? (rev.includes("refs/") ? rev : null);
     h = r && d.refs[r] ? d.refs[r]! : (cozHam(d, rev) ?? "");
   }
   const n = d.nesneler[h];
   if (!n) throw new GitHatasi(`fatal: Not a valid object name ${rev}`);
+  if (var_(a, "-e")) return "";
   if (var_(a, "-t")) return n.tur;
   if (var_(a, "-s")) return String(new TextEncoder().encode(n.tur === "blob" ? n.icerik : "").length || govdeBoyu(n));
   if (n.tur === "blob") return n.icerik.replace(/\n$/, "");

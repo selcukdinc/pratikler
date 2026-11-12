@@ -23,6 +23,8 @@ import { dersBul } from "./dersler";
 const MatStudio = lazy(() => import("./pages/MatStudio").then((m) => ({ default: m.Sandbox })));
 // VHDL simülasyon alanı (FPGA) da öyle: editör ve NVC yalnızca açılınca indirilir
 const Simulasyon = lazy(() => import("./pages/Simulasyon").then((m) => ({ default: m.Sandbox })));
+// Git sandbox'ı (Git ve GitHub): sanal Git ve görevler yalnızca açılınca indirilir
+const GitSandbox = lazy(() => import("./pages/GitSandbox").then((m) => ({ default: m.GitSandbox })));
 // Sınav hazırlama yalnızca akademisyen ve yöneticiye açılır; ayrı parça olarak yüklenir
 const Sinavlar = lazy(() => import("./pages/Sinavlar").then((m) => ({ default: m.Sinavlar })));
 const HavuzGiris = lazy(() => import("./pages/HavuzGiris").then((m) => ({ default: m.HavuzGiris })));
@@ -46,6 +48,7 @@ function baslik(route: Route, topicTitle?: string): string {
     case "pratik": return "KARMA TEST - Karışık sorular, karışık şıklar";
     case "matstudio": return "MatStudio";
     case "simulasyon": return "SİMÜLASYON ALANI - VHDL yaz, benzetimini çalıştır";
+    case "sandbox": return "GIT SANDBOX - Gerçek komutlar, sanal depo";
     case "lab": return route.deney ? `SANAL LAB - ${deneyBul(route.deney)?.ad ?? "Deney"}` : "SANAL LAB";
     case "cikmis": return route.sinav ? `ÇIKMIŞ SORULAR - ${sinavBul(route.sinav)?.ad ?? "Sınav"}` : "ÇIKMIŞ SORULAR";
     case "sorular": return `SORU HAVUZU - ${topicTitle ?? (route.hafta ? uniteYazi(route.hafta) : "Tüm sorular")}`;
@@ -143,6 +146,11 @@ function PratikApp() {
   useEffect(() => {
     if (route.page === "simulasyon") setSimAcildi(true);
   }, [route]);
+  const gitSandboxYukle = OZELLIKLER.gitSandbox;
+  const [sandboxAcildi, setSandboxAcildi] = useState(route.page === "sandbox");
+  useEffect(() => {
+    if (route.page === "sandbox") setSandboxAcildi(true);
+  }, [route]);
   const [sonSorular, setSonSorular] = useState<{ topic?: string; hafta?: number } | null>(null);
   useEffect(() => {
     if (route.page === "sorular") setSonSorular({ topic: route.topic, hafta: route.hafta });
@@ -173,7 +181,14 @@ function PratikApp() {
             </Suspense>
           </div>
         )}
-        <OlcekliSayfa gizli={route.page === "matstudio" || route.page === "simulasyon"}>
+        {gitSandboxYukle && sandboxAcildi && (
+          <div className="sayfa-tut" hidden={route.page !== "sandbox"}>
+            <Suspense fallback={<p className="empty">Git sandbox yükleniyor…</p>}>
+              <GitSandbox gorevleriYukle={gitSandboxYukle} aktif={route.page === "sandbox"} />
+            </Suspense>
+          </div>
+        )}
+        <OlcekliSayfa gizli={route.page === "matstudio" || route.page === "simulasyon" || route.page === "sandbox"}>
           {route.page === "pratik" && <Karma topics={topics} />}
           {sorularProps && (
             <div className="sayfa-tut" hidden={route.page !== "sorular"}>
