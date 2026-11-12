@@ -24,7 +24,8 @@ export function yeniOrtam(s: OrtamSecenek = {}): Ortam {
     klasorler: [],
     cwd: "",
     depo: null,
-    globalConfig: { ...(s.globalConfig ?? {}) },
+    // Git ayar adlarında büyük-küçük harf önemsizdir; model küçük harfle saklar
+    globalConfig: Object.fromEntries(Object.entries(s.globalConfig ?? {}).map(([k, v]) => [k.toLowerCase(), v])),
     saat: s.saat ?? BASLANGIC_SAATI,
   };
 }

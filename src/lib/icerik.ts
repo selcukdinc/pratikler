@@ -13,6 +13,7 @@ import { GORSELLER } from "../gorseller";
 import { DENEYLER } from "../lab/deneyler";
 import { SINAVLAR } from "../cikmis/sinavlar";
 import type { ComponentType } from "react";
+import type { Gorev } from "../gitsim/gorev";
 import { ETKILESIMLER } from "../components/etkilesim";
 
 export interface PratikIstemciIcerigi {
@@ -28,10 +29,16 @@ export interface PratikIstemciIcerigi {
   matstudio?: boolean;
   // VHDL simülasyon alanı ve kod soruları (FPGA): menüde Simülasyon sayfası
   vhdl?: boolean;
+  // Git sandbox'ı (Git ve GitHub): menüde sayfası; görevler sayfa açılınca yüklenir
+  gitSandbox?: () => Promise<Gorev[]>;
 }
 
 // Açık pratiğin özellikleri; menü ve sayfalar buna bakar
-export const OZELLIKLER = { matstudio: false, vhdl: false };
+export const OZELLIKLER: { matstudio: boolean; vhdl: boolean; gitSandbox: (() => Promise<Gorev[]>) | null } = {
+  matstudio: false,
+  vhdl: false,
+  gitSandbox: null,
+};
 
 const MODULLER = import.meta.glob<{ default: PratikIstemciIcerigi }>("../../icerik/*/istemci/index.ts");
 
@@ -47,6 +54,7 @@ export function icerigiKur(i: PratikIstemciIcerigi) {
   Object.assign(ETKILESIMLER, i.etkilesimler ?? {});
   OZELLIKLER.matstudio = i.matstudio ?? false;
   OZELLIKLER.vhdl = i.vhdl ?? false;
+  OZELLIKLER.gitSandbox = i.gitSandbox ?? null;
 }
 
 export async function icerikYukle(pratikId: string | null): Promise<void> {
