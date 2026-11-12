@@ -24,6 +24,15 @@ export interface Yenilik {
 
 export const YENILIKLER: Yenilik[] = [
   {
+    pr: 43,
+    tarih: "2026-11-12",
+    baslik: "Git ve GitHub pratiği: gizli anahtarlar ve depo güvenliği",
+    kitle: "yonetici",
+    maddeler: [
+      "Hakkında sayfasında **Sürümler** bölümü: pratiğin hazırlandığı tarih ve esas alınan Git, GitHub CLI ve GitHub sürümleri. Araçlar güncellenince içeriğin nasıl yenileneceği `docs/surum-guncelleme.md`'de.",
+    ],
+  },
+  {
     pr: 42,
     tarih: "2026-11-12",
     baslik: "Git ve GitHub pratiği: takım akışları, dal korumaları ve CI",

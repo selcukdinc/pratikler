@@ -52,6 +52,15 @@ export const git: PratikMeta = {
       { baslik: "Takımda çalışan geliştiriciler", metin: "Rebase, takım akışları, dal korumaları, gizli anahtar güvenliği ve GitLab ile profesyonel düzeye çık." },
     ],
   },
+  surumler: {
+    tarih: "Kasım 2026",
+    araclar: [
+      { ad: "Git", surum: "2.43", not: "sanal terminalin çıktıları bu sürümle birebir karşılaştırıldı" },
+      { ad: "GitHub CLI (gh)", surum: "2.89", not: "gh pr komutları sadeleştirilmiş çıktıyla" },
+      { ad: "GitHub", surum: "Kasım 2026", not: "dal korumaları, PR onayları, Actions (actions/checkout@v4, actions/setup-node@v4)" },
+    ],
+    not: "Sonraki bir sürümde bir komut farklı çalışıyorsa sayfanın altındaki bağlantıdan bildir; içerik yeni sürüme göre güncellenir.",
+  },
   bagimsizlikNotu: "Bu site Git projesi, GitHub ya da GitLab tarafından hazırlanmamıştır ve onlarla bağlantılı değildir; adlar yalnızca anlatılan araçları belirtmek için geçer.",
   uniteAdi: "ünite",
   uniteKisa: "Ü",
