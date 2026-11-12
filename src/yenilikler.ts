@@ -24,6 +24,17 @@ export interface Yenilik {
 
 export const YENILIKLER: Yenilik[] = [
   {
+    pr: 37,
+    tarih: "2026-11-11",
+    baslik: "Git ve GitHub pratiği: tarayıcıda çalışan Git motoru",
+    kitle: "yonetici",
+    maddeler: [
+      "Sandbox ve derslerdeki mini terminaller için tarayıcıda çalışan bir Git modeli (`src/gitsim`): 27 git komutu (init, add, commit, status, log, diff, show, branch, switch, checkout, merge, reset, revert, cherry-pick, rebase, stash, tag, reflog, restore, rm, mv ve iç yapı komutları) ve küçük bir kabuk (ls, cd, cat, echo, printf, mkdir, rm, mv, touch). Sunucuya hiç istek atmaz.",
+      "Nesne kimlikleri gerçek Git'in biçimiyle hesaplanıyor: `src/gitsim/gitsim.test.ts` 45 senaryoyu hem motorda hem gerçek git'te aynı saatle çalıştırıp commit kimliklerini, dalları, index'i, çalışma dizinini ve komut çıktılarını birebir karşılaştırıyor (makinede git yoksa atlanır).",
+      "Henüz arayüzü yok; sandbox sayfası sıradaki PR'da.",
+    ],
+  },
+  {
     pr: 36,
     tarih: "2026-11-11",
     baslik: "Git ve GitHub pratiği hazırlanıyor: iskelet ve ilk 146 soru",
