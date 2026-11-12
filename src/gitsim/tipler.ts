@@ -125,6 +125,57 @@ export interface Depo {
   origHead?: string;
   // Sembolik uzak ref'ler: "refs/remotes/origin/HEAD" -> "refs/remotes/origin/main"
   semboller?: Record<string, string>;
+  // Uzak depo GitHub'daysa platformun durumu: dal korumaları, pull request'ler, CI
+  platform?: Platform;
+}
+
+// GitHub'daki dal koruma kuralı (branch protection / ruleset)
+export interface DalKorumasi {
+  // Doğrudan push yok, değişiklik yalnızca PR ile
+  prZorunlu?: boolean;
+  // Birleştirmek için gereken onay sayısı
+  onay?: number;
+  // Durum denetimi (CI) geçmeden birleştirilemez
+  ci?: boolean;
+  // Varsayılan olarak korumalı dalda force push ve silme kapalıdır
+  zorlaSerbest?: boolean;
+  silmeSerbest?: boolean;
+}
+
+// Sanal CI'ın bir adımı: dalın son commit'indeki dosyalara bakar
+export interface CiAdimi {
+  ad: string;
+  // Hiçbir dosyada geçmemesi gereken metin (ör. "console.log")
+  yasak?: string;
+  // Bulunması gereken dosya (ör. "CHANGELOG.md")
+  dosya?: string;
+  // Akış kuralı: PR'da hedefte olmayan birleştirme commit'i ya da PR sahibinden başka
+  // birinin commit'i olmasın (dev'i toptan taşımak, dalı yanlış yerden açmak)
+  akis?: boolean;
+  // Kalınca gösterilen ileti
+  mesaj: string;
+}
+
+export interface PullRequest {
+  no: number;
+  baslik: string;
+  kaynak: string;
+  hedef: string;
+  yazar: string;
+  durum: "acik" | "birlesti" | "kapali";
+  // Onaylayanlar ve değişiklik isteyenler (ad)
+  onaylar: string[];
+  degisiklik: string[];
+  yontem?: "merge" | "squash" | "rebase";
+  birlesmeCommit?: string;
+}
+
+export interface Platform {
+  // "kafe-mavi/siparis"
+  ad: string;
+  korumalar: Record<string, DalKorumasi>;
+  ci?: CiAdimi[];
+  prler: PullRequest[];
 }
 
 export interface Ortam {

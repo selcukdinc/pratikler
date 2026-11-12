@@ -24,6 +24,20 @@ export interface Yenilik {
 
 export const YENILIKLER: Yenilik[] = [
   {
+    pr: 42,
+    tarih: "2026-11-12",
+    baslik: "Git ve GitHub pratiği: takım akışları, dal korumaları ve CI",
+    kitle: "yonetici",
+    maddeler: [
+      "İki yeni ünite: Takım Akışları ve Korumalar ve Otomasyon; 66 yeni soru.",
+      "Sanal GitHub: korumalı dala doğrudan push gerçekteki gibi reddediliyor. Terminalde GitHub CLI'la (`gh pr create`, `view`, `checks`, `review`, `merge`) PR açıp birleştiriyorsun; onay ve CI kuralları uygulanıyor.",
+      "Sanal ekip arkadaşları PR'ları inceliyor: Ayşe değişiklik isteyebiliyor, düzeltince onaylıyor; Mert Release PR'ı onaylıyor.",
+      "Üç ortamlı akış (dev, test, main) hem oynatılabilir bir şekil hem baştan sona bir tatbikat olarak var: test'ten dal, PR 1 → dev, PR 2 → test, Release PR → main, dalı silmek. dev'i toptan taşımak gibi tuzaklar gösteriliyor.",
+      "İki yeni şekil daha: dal koruma paneli ve adım adım çalışan bir GitHub Actions iş akışı.",
+      "Sandbox'a altı görev: korumalı main'e push, kırmızı CI, sürüm etiketi, yanlış yerden açılan dal, üç ortamlı akış tatbikatı ve Cuma akşamı hotfix.",
+    ],
+  },
+  {
     pr: 41,
     tarih: "2026-11-12",
     baslik: "Git ve GitHub pratiği: uzak depolar ve rebase",

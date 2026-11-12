@@ -6,6 +6,7 @@ import { rebaseEditorKapandi } from "./dal";
 import { GitHatasi } from "./nesne";
 import type { Ortam } from "./tipler";
 import { uzakOlustur } from "./uzak";
+import { platformKur } from "./platform";
 
 export type { Ortam, Depo, Commit, Nesne } from "./tipler";
 export type { KabukSonucu } from "./kabuk";
@@ -45,13 +46,20 @@ export function calistir(o: Ortam, satir: string): { ortam: Ortam; sonuc: KabukS
 // Komutları sırayla çalıştırır (görevlerin başlangıç durumunu kurmak için);
 // başarısız komutta durur ve hatayı fırlatır. "! " ile başlayan komutun başarısız
 // olması beklenir (ör. çakışmayla duran bir birleştirme)
-// "@uzak <adres>" boş bir uzak depo açar, "@ayse <komut>" komutu ekip arkadaşının
+// "@uzak <adres>" boş bir uzak depo açar, "@platform <adres> <json>" GitHub'daki dal
+// korumalarını ve CI adımlarını tanımlar (platform.ts), "@ayse <komut>" komutu ekip arkadaşının
 // bilgisayarında çalıştırır (ilk komutu genellikle git clone olur).
 export function kur(o: Ortam, satirlar: string[]): Ortam {
   let x = o;
   for (const satir of satirlar) {
     const hataBekleniyor = satir.startsWith("! ");
     let s = hataBekleniyor ? satir.slice(2) : satir;
+    const pl = /^@platform (\S+) (.*)$/.exec(s);
+    if (pl) {
+      x = kopya(x);
+      platformKur(x, pl[1]!, JSON.parse(pl[2]!));
+      continue;
+    }
     if (s.startsWith("@uzak ")) {
       x = kopya(x);
       uzakOlustur(x, s.slice(6).trim());

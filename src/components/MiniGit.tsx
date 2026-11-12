@@ -4,7 +4,7 @@
 import { useMemo, useState } from "react";
 import { md, type MiniGit as MiniGitVerisi } from "../dersler/tipler";
 import { ekipCalistir, kur, yeniOrtam } from "../gitsim";
-import { VARSAYILAN_KIMLIK } from "../gitsim/gorev";
+import { olaylariIslet, VARSAYILAN_KIMLIK } from "../gitsim/gorev";
 import { CommitGrafigi, Editor, editorAc, oturumdaCalistir, oturumdaKaydet, satirIci, Terminal, UcAlan, UzakDepolar, type Oturum } from "./GitParcalari";
 
 function baslangic(v: MiniGitVerisi): Oturum {
@@ -23,6 +23,10 @@ export function MiniGit({ veri }: { veri: MiniGitVerisi }) {
 
   const komut = (satir: string) => {
     const r = oturumdaCalistir(oturum, satir, true);
+    if (veri.olaylar?.length) {
+      const ol = olaylariIslet(veri, r.oturum.ortam);
+      if (ol.bildirimler.length) r.oturum = { ...r.oturum, ortam: ol.ortam, satirlar: [...r.oturum.satirlar, ...ol.bildirimler.map((metin) => ({ tur: "olay" as const, metin }))] };
+    }
     setOturum({ ...r.oturum, satirlar: r.oturum.satirlar.slice(-120) });
     if (r.editor) setEditor(editorAc(r.oturum.ortam, r.editor));
   };

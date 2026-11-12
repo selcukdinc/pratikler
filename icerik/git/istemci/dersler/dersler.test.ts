@@ -13,7 +13,7 @@ describe("git dersleri: terminal alıştırmaları", () => {
       it(`Ü${ders.hafta} bölüm ${i + 1}: ${b.baslik}`, () => {
         let o = kur(yeniOrtam({ dosyalar: g.dosyalar, globalConfig: g.globalConfig ?? VARSAYILAN_KIMLIK }), g.kurulum ?? []);
         expect(g.hedefler!.every((h) => h.denetle(o))).toBe(false);
-        o = cozumuCalistir(o, g.oneriler ?? [], { editorCozum: g.editorCozum });
+        o = cozumuCalistir(o, g.oneriler ?? [], { editorCozum: g.editorCozum, gorev: g });
         expect(g.hedefler!.filter((h) => !h.denetle(o)).map((h) => h.aciklama)).toEqual([]);
       });
     });

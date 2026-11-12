@@ -6,6 +6,7 @@ import { satirFarki, satirlar } from "../../../../src/gitsim/fark";
 import { nesneKimligi } from "../../../../src/gitsim/nesne";
 import { CakismaEditoru, DalIsaretcisi, PullRequest, ResetKipleri } from "./kademe2";
 import { FetchPull, MergeRebase, RebaseListesi } from "./kademe3";
+import { IsAkisi, KorumaPaneli, UcOrtamAkisi } from "./platform";
 import "./etkilesim.css";
 
 type Ozellik = { g: Gorsel };
@@ -377,4 +378,7 @@ export const ETKILESIMLER: Record<string, ComponentType<Ozellik>> = {
   fetchPull: FetchPull,
   mergeRebase: MergeRebase,
   rebaseListesi: RebaseListesi,
+  ucOrtamAkisi: UcOrtamAkisi,
+  korumaPaneli: KorumaPaneli,
+  isAkisi: IsAkisi,
 };

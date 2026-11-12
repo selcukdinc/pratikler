@@ -9,6 +9,7 @@
 // Tarihsel nedenle ünite numarasının alanı `hafta`dır: veritabanındaki week
 // sütunu, soru dosyaları ve ilerleme kayıtları bu adı kullanır.
 
+import type { Olay } from "../gitsim/gorev";
 import type { Ortam } from "../gitsim/tipler";
 
 // Ünitelerin sınav dönemine göre gruplanması (kimyada 1-9 vize, 10-16 final).
@@ -56,6 +57,8 @@ export interface MiniGit {
   // Ekip arkadaşının yaptığı işler: düğmeye basınca komutlar onun bilgisayarında
   // çalışır (ör. push eder) ve terminale bildirim düşer
   ekip?: { dugme: string; kim: string; komutlar: string[]; bildirim: string }[];
+  // Koşulu tutunca kendiliğinden olan ekip olayları (ör. PR açılınca Ayşe onaylar)
+  olaylar?: Olay[];
   // Önerilen bir komut düzenleyici açarsa (ör. git rebase -i) testin metne
   // sırayla uyguladığı dönüşümler; öğrenci düzenleyicide kendisi yazar
   editorCozum?: ((metin: string) => string)[];

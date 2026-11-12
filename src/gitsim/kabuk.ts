@@ -3,6 +3,7 @@
 // git komutlarını ilgili işleve yönlendirir.
 import * as dal from "./dal";
 import { GitHatasi } from "./nesne";
+import { gh } from "./platform";
 import * as temel from "./temel";
 import * as uzak from "./uzak";
 import type { Ortam } from "./tipler";
@@ -133,7 +134,7 @@ function komutCalistir(o: Ortam, parca: Belirtec[]): KabukSonucu {
     if (e instanceof GitHatasi) return { cikti: e.message, kod: e.kod };
     throw e;
   } finally {
-    if (ad === "git") o.saat += 60;
+    if (ad === "git" || ad === "gh") o.saat += 60;
   }
 }
 
@@ -174,6 +175,8 @@ function calistir(o: Ortam, ad: string, args: string[]): IcSonuc {
   switch (ad) {
     case "git":
       return gitCalistir(o, args);
+    case "gh":
+      return gh(o, args);
     case "pwd":
       return tamam(`${o.kokAd ? `/${o.kokAd}` : KOK}${o.cwd ? `/${o.cwd}` : ""}`);
     case "cd": {

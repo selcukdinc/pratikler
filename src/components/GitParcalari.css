@@ -214,3 +214,14 @@ button.gs-dosya:hover { text-decoration: underline; color: var(--link); }
 .gs-uzak li .mono { color: var(--warning); }
 .gs-uzak-mesaj { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .gs-uzak-bos { color: var(--muted); font-size: 12.5px; margin: 4px 0 0; }
+
+/* Sanal GitHub: korumalı dallar ve pull request'ler */
+.gs-kilit { font-size: 12px; cursor: help; }
+.gs-prler { list-style: none; margin: 6px 0 0; padding: 6px 0 0; border-top: 1px solid var(--border); display: grid; gap: 4px; }
+.gs-pr { display: flex; flex-wrap: wrap; gap: 6px; align-items: baseline; font-size: 13px; }
+.gs-pr-durum { font-size: 11px; font-weight: 700; padding: 1px 6px; border-radius: 10px; color: #fff; background: #1f883d; }
+.gs-pr-birlesti .gs-pr-durum { background: #8250df; }
+.gs-pr-kapali .gs-pr-durum { background: #cf222e; }
+.gs-pr-dal { color: var(--muted); font-size: 12px; }
+.gs-pr-iyi { color: #1f883d; font-size: 12px; }
+.gs-pr-kotu { color: #cf222e; font-size: 12px; }

@@ -121,3 +121,20 @@
 .ge-todo-drop .ge-todo-mesaj { text-decoration: line-through; opacity: .6; }
 .ge-todo-squash, .ge-todo-fixup { margin-left: 18px; }
 .ge-todo-sonuc { margin: 4px 0 0; padding-left: 20px; text-align: left; }
+
+/* Ü12-13: üç ortam, koruma paneli, iş akışı */
+.ge-ortamlar { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 8px; }
+.ge-ortam { text-align: left; }
+.ge-isler-liste { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
+.ge .ge-is { font-size: 12px; padding: 2px 6px; border-radius: 10px; background: var(--border); color: var(--text); }
+.ge .ge-is-sen { background: #2f81f7; color: #fff; }
+.ge .ge-is-yarim { background: var(--warning); color: #000; }
+.ge-feature { border-style: dashed; }
+.ge-tuzak { border-color: var(--warning); }
+.ge-koruma { display: grid; gap: 6px; padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px; background: var(--panel); }
+.ge-koruma label { display: flex; gap: 6px; align-items: center; font-size: 14px; }
+.ge-girinti { padding-left: 24px; }
+.ge-yaml-izgara { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); gap: 8px; }
+@media (max-width: 640px) { .ge-yaml-izgara { grid-template-columns: 1fr; } }
+.ge-yaml-ad { color: var(--muted); }
+.ge-adimlar { margin: 0; padding-left: 20px; display: grid; gap: 4px; font-size: 14px; }
