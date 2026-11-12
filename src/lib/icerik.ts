@@ -14,6 +14,7 @@ import { DENEYLER } from "../lab/deneyler";
 import { SINAVLAR } from "../cikmis/sinavlar";
 import type { ComponentType } from "react";
 import type { Gorev } from "../gitsim/gorev";
+import type { SeviyeTestiTanimi } from "../components/SeviyeTesti";
 import { ETKILESIMLER } from "../components/etkilesim";
 
 export interface PratikIstemciIcerigi {
@@ -31,13 +32,16 @@ export interface PratikIstemciIcerigi {
   vhdl?: boolean;
   // Git sandbox'ı (Git ve GitHub): menüde sayfası; görevler sayfa açılınca yüklenir
   gitSandbox?: () => Promise<Gorev[]>;
+  // "Nereden başlamalıyım?" seviye testi (ders listesinin başında; uniteGruplari gerekir)
+  seviyeTesti?: SeviyeTestiTanimi;
 }
 
 // Açık pratiğin özellikleri; menü ve sayfalar buna bakar
-export const OZELLIKLER: { matstudio: boolean; vhdl: boolean; gitSandbox: (() => Promise<Gorev[]>) | null } = {
+export const OZELLIKLER: { matstudio: boolean; vhdl: boolean; gitSandbox: (() => Promise<Gorev[]>) | null; seviyeTesti: SeviyeTestiTanimi | null } = {
   matstudio: false,
   vhdl: false,
   gitSandbox: null,
+  seviyeTesti: null,
 };
 
 const MODULLER = import.meta.glob<{ default: PratikIstemciIcerigi }>("../../icerik/*/istemci/index.ts");
@@ -55,6 +59,7 @@ export function icerigiKur(i: PratikIstemciIcerigi) {
   OZELLIKLER.matstudio = i.matstudio ?? false;
   OZELLIKLER.vhdl = i.vhdl ?? false;
   OZELLIKLER.gitSandbox = i.gitSandbox ?? null;
+  OZELLIKLER.seviyeTesti = i.seviyeTesti ?? null;
 }
 
 export async function icerikYukle(pratikId: string | null): Promise<void> {

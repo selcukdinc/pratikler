@@ -22,6 +22,7 @@ import { UNITE_17 } from "./dersler/unite-17";
 import { UNITE_18 } from "./dersler/unite-18";
 import { GORSELLER } from "./gorseller";
 import { ETKILESIMLER } from "./etkilesim";
+import { SEVIYE_TESTI } from "./seviye";
 
 const icerik: PratikIstemciIcerigi = {
   dersler: [UNITE_1, UNITE_2, UNITE_3, UNITE_4, UNITE_5, UNITE_6, UNITE_7, UNITE_8, UNITE_9, UNITE_10, UNITE_11, UNITE_12, UNITE_13, UNITE_14, UNITE_15, UNITE_16, UNITE_17, UNITE_18],
@@ -49,6 +50,7 @@ const icerik: PratikIstemciIcerigi = {
   gorseller: GORSELLER,
   etkilesimler: ETKILESIMLER,
   gitSandbox: () => import("./gorevler").then((m) => m.GOREVLER),
+  seviyeTesti: SEVIYE_TESTI,
 };
 
 export default icerik;

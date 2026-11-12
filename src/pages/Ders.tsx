@@ -25,6 +25,8 @@ const MiniGit = lazy(() => import("../components/MiniGit").then((m) => ({ defaul
 // Ünitenin listede ve başlıklarda adı: "3. hafta" ya da proje haftası için "Proje"
 const uniteYazi = (no: number) => (dersBul(no)?.proje ? "Proje" : uniteNo(no));
 import { useDersIlerleme } from "../lib/dersIlerleme";
+import { OZELLIKLER } from "../lib/icerik";
+import { kayitliSeviye, SeviyeTesti } from "../components/SeviyeTesti";
 import { bolumBittiMi, type DersIlerleme } from "../../shared/dersIlerleme";
 
 
@@ -82,6 +84,7 @@ function UniteSatiri({ no, ilerleme }: { no: number; ilerleme: DersIlerleme }) {
 
 function DersListesi() {
   const { ilerleme } = useDersIlerleme();
+  const [onerilen, setOnerilen] = useState<number | null>(() => (OZELLIKLER.seviyeTesti ? kayitliSeviye() : null));
   const son = ilerleme.son;
   const sonDers = son ? dersBul(son.hafta) : undefined;
   const sonBolum = son && sonDers?.bolumler[son.bolum];
@@ -111,13 +114,17 @@ function DersListesi() {
           <span className="ders-devam-ok">Devam et →</span>
         </a>
       )}
+      {PRATIK.uniteGruplari && OZELLIKLER.seviyeTesti && <SeviyeTesti tanim={OZELLIKLER.seviyeTesti} onSonuc={setOnerilen} />}
       {PRATIK.uniteGruplari ? (
         PRATIK.uniteGruplari.map((g, i) => {
           const liste = uniteler.filter((no) => g.uniteler.includes(no));
           if (!liste.length) return null;
           return (
             <section key={g.ad} aria-labelledby={`grup-${i}`}>
-              <h3 className="donem-baslik" id={`grup-${i}`}>{i + 1}. {g.ad}</h3>
+              <h3 className="donem-baslik" id={`grup-${i}`}>
+                {i + 1}. {g.ad}
+                {onerilen === i && <span className="tag seviye-rozet">Önerilen başlangıç</span>}
+              </h3>
               {g.aciklama && <p className="hint grup-aciklama">{g.aciklama}</p>}
               <ol className="ders-listesi">
                 {liste.map((no) => <UniteSatiri key={no} no={no} ilerleme={ilerleme} />)}

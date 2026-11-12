@@ -24,6 +24,18 @@ export interface Yenilik {
 
 export const YENILIKLER: Yenilik[] = [
   {
+    pr: 46,
+    tarih: "2026-11-12",
+    baslik: "Yeni pratik: Git ve GitHub",
+    maddeler: [
+      "**Git ve GitHub Pratik** açıldı: pratikler.selcukdinc.dev/git. Git'i hiç duymamış olandan profesyonele beş kademede 18 ünite, 500'ü aşkın soru.",
+      "Derslerdeki terminaller ve **Git sandbox** tarayıcında çalışan sanal bir Git: komutları gerçekten yazarsın, sonucu commit grafiğinde ve uzak depoda görürsün. Sandbox'ta 45 görev ve sanal ekip arkadaşları var.",
+      "Konu anlatımlarının başındaki **seviye testi** 15 soruda nereden başlaman gerektiğini söyler.",
+      "Gerçek hayattan senaryolar: üç ortamlı takım akışı, korumalı dallar ve CI, public depoya sızan anahtar tatbikatı, GitLab, bisect ile hata avı, kaybolan commit'leri kurtarma.",
+      "Hakkında sayfası içeriğin hazırlandığı tarihi ve esas alınan Git, GitHub ve GitLab sürümlerini gösterir; bir komut yeni sürümde farklı çalışıyorsa sayfanın altındaki bağlantıdan bildirebilirsin.",
+    ],
+  },
+  {
     pr: 45,
     tarih: "2026-11-12",
     baslik: "Git ve GitHub pratiği: Git'in içi ve kurtarma",

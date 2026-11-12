@@ -8,9 +8,7 @@
 // çıktıları gerçek Git'teki gibi İngilizce bırakılır. Soru metinlerinde ` yerine ~,
 // gerçek ~ karakteri (HEAD~1, ¬/.gitconfig) için ¬ yazılır (scripts/sorular-sql.ts).
 //
-// Kavramlar ünite ünite eklenir: her kavramın en az bir sorusu olmalı
-// (shared/kavramlar.test.ts), o yüzden henüz sorusu yazılmamış ünitelerin
-// kavramları burada yoktur.
+// Her kavramın en az bir sorusu olmalı (shared/kavramlar.test.ts).
 import type { PratikMeta } from "../tipler.ts";
 
 // Ünitelerin kademeleri (dersler ve seviye testi bu gruplamayı kullanır)
@@ -37,7 +35,7 @@ export const git: PratikMeta = {
   ad: "Git ve GitHub",
   alan: "Yazılım",
   aciklama:
-    "Git'i hiç duymamış olandan profesyonele: commit, dal, birleştirme, çakışma, pull request, rebase, takım akışları, dal korumaları, gizli anahtar güvenliği, GitHub ve GitLab. Etkileşimli dersler, senaryo soruları ve tarayıcıda çalışan bir Git sandbox'ı.",
+    "Git'i hiç duymamış olandan profesyonele, beş kademede 18 ünite: commit, dal, çakışma, pull request, rebase, takım akışları, dal korumaları, gizli anahtar güvenliği, GitHub ve GitLab, Git'in iç yapısı ve kurtarma. Etkileşimli dersler, 500'ü aşkın soru ve tarayıcıda çalışan bir Git sandbox'ı.",
   kaynakAdi: "Pro Git, Git başvuru kılavuzu, GitHub ve GitLab belgeleri",
   kaynakAciklamasi:
     "Sorular ve dersler herkese açık kaynaklardan yararlanılarak **kendi cümlelerimizle** yazıldı: **Pro Git** kitabı (git-scm.com/book), Git'in başvuru kılavuzu (git-scm.com/docs), **GitHub Docs** ve **GitLab Docs**. Bu kaynaklardan metin kopyalanmadı; bir konuyu derinlemesine okumak istersen oralara bakabilirsin.\n\n" +
@@ -45,11 +43,12 @@ export const git: PratikMeta = {
   tanitim: {
     baslik: "Git ve GitHub'ı acemiden ustaya, deneyerek öğren",
     giris:
-      "Git ve GitHub Pratik, her geliştiricinin bilmesi gereken sürüm kontrolünü adım adım öğreten ücretsiz bir çalışma sitesi. İlk commit'inden etkileşimli rebase'e, pull request'ten dal korumalarına ve public depoya sızan gizli anahtarlara kadar her konu kısa anlatımlar, gerçek hayattan senaryolar ve sorularla işleniyor.",
+      "Git ve GitHub Pratik, her geliştiricinin bilmesi gereken sürüm kontrolünü adım adım öğreten ücretsiz bir çalışma sitesi. İlk commit'inden etkileşimli rebase'e, pull request'ten dal korumalarına, public depoya sızan gizli anahtarlardan kaybolan commit'leri kurtarmaya kadar her konu kısa anlatımlar, gerçek hayattan senaryolar ve sorularla işleniyor. Derslerdeki terminaller ve sandbox tarayıcında çalışan sanal bir Git'tir: komutları gerçekten yazar, sonucu commit grafiğinde görürsün. Nereden başlayacağını bilmiyorsan konu anlatımlarının başındaki seviye testini çöz.",
     kitleler: [
       { baslik: "Git'i ilk kez duyanlar", metin: "Sürüm kontrolünün neden var olduğundan başla; kurulum, terminal ve ilk commit'ini adım adım yap." },
       { baslik: "Commit atabilen ama dallardan çekinenler", metin: "Dal, birleştirme, çakışma, pull request ve geri alma komutlarını senaryolarla pekiştir." },
       { baslik: "Takımda çalışan geliştiriciler", metin: "Rebase, takım akışları, dal korumaları, gizli anahtar güvenliği ve GitLab ile profesyonel düzeye çık." },
+      { baslik: "Git'i derinlemesine öğrenmek isteyenler", metin: "Nesne veritabanını kimliklerine tıklayarak gez; reflog, fsck ve filter-repo ile felaketlerden kurtulmayı dene." },
     ],
   },
   surumler: {
@@ -58,13 +57,15 @@ export const git: PratikMeta = {
       { ad: "Git", surum: "2.43", not: "sanal terminalin çıktıları bu sürümle birebir karşılaştırıldı" },
       { ad: "GitHub CLI (gh)", surum: "2.89", not: "gh pr komutları sadeleştirilmiş çıktıyla" },
       { ad: "GitHub", surum: "Kasım 2026", not: "dal korumaları, PR onayları, Actions (actions/checkout@v4, actions/setup-node@v4)" },
+      { ad: "GitLab", surum: "Kasım 2026", not: "merge request, korumalı dallar, onay kuralları, .gitlab-ci.yml; glab çıktıları sadeleştirilmiş" },
+      { ad: "git filter-repo", surum: "2.47", not: "mesajları aracın kendisinden; davranışı sadeleştirilmiş" },
     ],
     not: "Sonraki bir sürümde bir komut farklı çalışıyorsa sayfanın altındaki bağlantıdan bildir; içerik yeni sürüme göre güncellenir.",
   },
   bagimsizlikNotu: "Bu site Git projesi, GitHub ya da GitLab tarafından hazırlanmamıştır ve onlarla bağlantılı değildir; adlar yalnızca anlatılan araçları belirtmek için geçer.",
   uniteAdi: "ünite",
   uniteKisa: "Ü",
-  yayinda: false,
+  yayinda: true,
   latex: false,
   // Açılış sayfası derslerin yol haritası
   anaSayfa: "ders",
