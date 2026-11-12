@@ -24,7 +24,7 @@ export interface Yenilik {
 
 export const YENILIKLER: Yenilik[] = [
   {
-    pr: 47,
+    pr: 48,
     tarih: "2026-11-12",
     baslik: "Çözdüğün sorular hemen görünür",
     maddeler: [
