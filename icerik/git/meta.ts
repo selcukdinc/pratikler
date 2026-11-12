@@ -15,6 +15,13 @@ import type { PratikMeta } from "../tipler.ts";
 
 // Ünitelerin kademeleri (dersler ve seviye testi bu gruplamayı kullanır)
 export const KADEME_ADLARI = ["Acemi", "Başlangıç", "Orta", "İleri", "Usta"] as const;
+const KADEME_ACIKLAMALARI = [
+  "Git'i hiç duymadıysan buradan başla: neden var, kurulum, ilk commit, geçmiş ve ilk GitHub deposu.",
+  "Dallar, birleştirme, çakışma çözme, geri alma ve pull request.",
+  "Uzak depolarla çalışma, rebase, takım akışları ve dal korumaları.",
+  "Gizli anahtar güvenliği, GitLab ve ileri araçlar.",
+  "Git'in iç yapısı ve felaketten kurtarma.",
+];
 export const UNITE_KADEMESI: Record<number, number> = {
   1: 0, 2: 0, 3: 0, 4: 0, 5: 0,
   6: 1, 7: 1, 8: 1, 9: 1,
@@ -50,6 +57,13 @@ export const git: PratikMeta = {
   uniteKisa: "Ü",
   yayinda: false,
   latex: false,
+  // Açılış sayfası derslerin yol haritası
+  anaSayfa: "ders",
+  uniteGruplari: KADEME_ADLARI.map((ad, k) => ({
+    ad,
+    aciklama: KADEME_ACIKLAMALARI[k],
+    uniteler: Object.entries(UNITE_KADEMESI).filter(([, x]) => x === k).map(([n]) => Number(n)),
+  })),
   logo: "/logolar/git.svg",
   etiketler: [
     { id: "kavram", ad: "Kavram", renk: "turetilmis", aciklama: "Bir kavramı ya da komutun ne yaptığını soran soru" },
