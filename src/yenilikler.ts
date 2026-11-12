@@ -24,6 +24,15 @@ export interface Yenilik {
 
 export const YENILIKLER: Yenilik[] = [
   {
+    pr: 50,
+    tarih: "2026-11-12",
+    baslik: "Git sandbox'ta pencere düzeni",
+    maddeler: [
+      "Git sandbox'taki terminal, commit grafiği ve alanlar paneli MatStudio ve VHDL simülasyon alanındaki gibi düzenlenir: aradaki çizgileri sürükleyerek boyutlandır, panelleri başlıklarından tutup yerlerini değiştir.",
+      "**Düzen** menüsünden varsayılana dönebilir, beğendiğin düzeni adıyla kaydedebilirsin. Giriş yaptıysan kayıtlı düzenlerin hesabında saklanır.",
+    ],
+  },
+  {
     pr: 49,
     tarih: "2026-11-12",
     baslik: "Geniş görünüm ve boyutlandırılan Git terminali",

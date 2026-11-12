@@ -10,8 +10,8 @@ import {
 } from "../../shared/duzen";
 
 // Tarayıcıdaki anahtarlar eski sitelerinkiyle aynıdır
-const AKTIF: Record<DuzenAlaniAdi, string> = { matstudio: "dsp-pratik:lab-duzen", vhdl: "fpga-pratik:sim-duzen" };
-const YEREL_LISTE: Record<DuzenAlaniAdi, string> = { matstudio: "dsp-pratik:lab-duzenleri", vhdl: "fpga-pratik:sim-duzenleri" };
+const AKTIF: Record<DuzenAlaniAdi, string> = { matstudio: "dsp-pratik:lab-duzen", vhdl: "fpga-pratik:sim-duzen", git: "pratik:git-duzen" };
+const YEREL_LISTE: Record<DuzenAlaniAdi, string> = { matstudio: "dsp-pratik:lab-duzenleri", vhdl: "fpga-pratik:sim-duzenleri", git: "pratik:git-duzenleri" };
 
 function oku<T>(anahtar: string, varsayilan: T): T {
   try {
