@@ -8,6 +8,7 @@ import { CakismaEditoru, DalIsaretcisi, PullRequest, ResetKipleri } from "./kade
 import { FetchPull, MergeRebase, RebaseListesi } from "./kademe3";
 import { IsAkisi, KorumaPaneli, UcOrtamAkisi } from "./platform";
 import { AnahtarAvi, SizintiTatbikati } from "./guvenlik";
+import { BisectOyunu, GitlabHatti, HangiArac, IkiPlatform } from "./ileri";
 import "./etkilesim.css";
 
 type Ozellik = { g: Gorsel };
@@ -384,4 +385,8 @@ export const ETKILESIMLER: Record<string, ComponentType<Ozellik>> = {
   isAkisi: IsAkisi,
   sizintiTatbikati: SizintiTatbikati,
   anahtarAvi: AnahtarAvi,
+  ikiPlatform: IkiPlatform,
+  gitlabHatti: GitlabHatti,
+  bisectOyunu: BisectOyunu,
+  hangiArac: HangiArac,
 };

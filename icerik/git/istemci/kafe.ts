@@ -116,3 +116,19 @@ export const BOT_OLAYI: Olay = {
   komutlar: [],
   bildirim: "🤖 41 saniye sonra: herkese açık depoları izleyen bir bot push'unu gördü, .env'deki KafePay anahtarını buldu ve denedi. Anahtar geçerli. Ne olduğunu görmek için: kafepay logs",
 };
+
+// ---- 15. ünite: GitLab ----
+// Kafe Mavi'nin GitLab'daki projesi: aynı akış, GitLab'ın terimleriyle (glab, !N)
+export const KAFE_GL = "https://gitlab.com/kafe-mavi/siparis.git";
+export const KAFE_GL_TEMEL = KAFE_TEMEL.map((s) => s.replaceAll(KAFE, KAFE_GL));
+export const glPlatform = (ayar: Partial<Platform>) => `@platform ${KAFE_GL} ${JSON.stringify(ayar)}`;
+export const glUc = (o: Ortam, dal: string) => uzakDalUcu(o, KAFE_GL, dal);
+export function glDosya(o: Ortam, dal: string, yol: string): string | null {
+  const u = uzakBul(o, KAFE_GL);
+  const h = glUc(o, dal);
+  if (!u || !h) return null;
+  const b = commitAgaci(u, h)[yol];
+  return b ? icerik(u, b) : null;
+}
+export const mrler = (o: Ortam): PullRequest[] => uzakBul(o, KAFE_GL)?.platform?.prler ?? [];
+export const mrVar = (o: Ortam, f: (p: PullRequest) => boolean) => mrler(o).some(f);

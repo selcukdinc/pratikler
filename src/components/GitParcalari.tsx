@@ -487,7 +487,7 @@ export function UzakDepolar({ ortam }: { ortam: Ortam }) {
         const varsayilan = d.head.tur === "ref" ? d.head.ref : null;
         return (
           <div key={adres} className="panel gs-uzak">
-            <div className="panel-title">Uzak depo (GitHub)</div>
+            <div className="panel-title">Uzak depo ({adres.includes("gitlab") ? "GitLab" : "GitHub"})</div>
             <div className="gs-uzak-adres">{adres}</div>
             {dallar.length ? (
               <ul>
