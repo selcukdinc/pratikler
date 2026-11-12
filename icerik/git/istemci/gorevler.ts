@@ -5,7 +5,8 @@ import type { Gorev } from "../../../src/gitsim/gorev";
 import {
   commitSayisi, dalAdiniAl, gecmisteVarMi, headDosyalari, izleniyor, sonMesaj, temizMi,
 } from "../../../src/gitsim/gorev";
-import { commitAgaci, commitOku, icerik, soy } from "../../../src/gitsim/depo";
+import { ataMi, commitAgaci, commitOku, gecmis, icerik, soy } from "../../../src/gitsim/depo";
+import { uzakBul, uzakDalUcu } from "../../../src/gitsim/uzak";
 import type { Ortam } from "../../../src/gitsim/tipler";
 
 const HESAP_JS = "function topla(a, b) {\n  return a + b;\n}\n";
@@ -552,7 +553,284 @@ const reflogKurtar: Gorev = {
   sonNot: "reflog yereldir ve kayıtlar varsayılan olarak 90 gün durur. Hiç commit'lenmemiş değişiklikleri ise hiçbir şey kurtaramaz.",
 };
 
+// ---------------- Kademe 3: Kalfa (uzak depolar, rebase) ----------------
+
+// Kafe Mavi'nin GitHub deposu: Ayşe açar, main ve test dallarını gönderir, sen klonlarsın
+const KAFE = "https://github.com/kafe-mavi/siparis.git";
+const KAFE_KUR = [
+  `@uzak ${KAFE}`,
+  `@ayse git clone ${KAFE}`,
+  '@ayse echo "kahve 40" > menu.txt',
+  '@ayse echo "# Kafe Mavi sipariş" > README.md',
+  "@ayse git add .",
+  '@ayse git commit -m "İlk sürüm"',
+  "@ayse git push",
+];
+const uzakUc = (o: Ortam, dal: string) => uzakDalUcu(o, KAFE, dal);
+const uzakMesajlar = (o: Ortam, dal: string): string[] => {
+  const u = uzakBul(o, KAFE);
+  const h = uzakUc(o, dal);
+  return u && h ? gecmis(u, [h]).map((c) => commitOku(u, c).mesaj.trim()) : [];
+};
+const uzakDuzMu = (o: Ortam, dal: string) => {
+  const u = uzakBul(o, KAFE);
+  const h = uzakUc(o, dal);
+  return !!u && !!h && gecmis(u, [h]).every((c) => commitOku(u, c).ebeveynler.length < 2);
+};
+const uzakAtaMi = (o: Ortam, ata: string | null, dal: string) => {
+  const u = uzakBul(o, KAFE);
+  const h = uzakUc(o, dal);
+  return !!u && !!h && !!ata && ataMi(u, ata, h);
+};
+// Dalın main'de olmayan commit'leri (yeniden eskiye)
+const dalinKendi = (o: Ortam, dal: string, taban = "main"): string[] => {
+  const d = o.depo;
+  const h = dalUcu(o, dal);
+  const t = dalUcu(o, taban);
+  return d && h ? gecmis(d, [h], t ? [t] : []) : [];
+};
+
+const ilkPush: Gorev = {
+  id: "ilk-push",
+  kademe: 3,
+  unite: 10,
+  baslik: "test'ten aç, kendi dalını gönder",
+  hikaye:
+    "Ekip akışı: özellik dalları `test`'ten açılır. Depoyu zaten klonladın. US-D03e için `feature/US-D03e-docker-compose-local` dalını " +
+    "GitHub'daki `test`'in ucundan aç, `docker-compose.yml` ekleyip commit'le ve dalı upstream'iyle birlikte GitHub'a gönder.",
+  kurulum: [...KAFE_KUR, "@ayse git switch -c test", '@ayse echo "test ortamı" > ortam.txt', "@ayse git add .", '@ayse git commit -m "Test ortamı"', "@ayse git push -u origin test", `git clone ${KAFE}`],
+  hedefler: [
+    { aciklama: "GitHub'da feature/US-D03e-docker-compose-local var", denetle: (o) => !!uzakUc(o, "feature/US-D03e-docker-compose-local") },
+    { aciklama: "Dal test'in ucundan açıldı", denetle: (o) => uzakAtaMi(o, uzakUc(o, "test"), "feature/US-D03e-docker-compose-local") },
+    { aciklama: "docker-compose.yml commit'lendi", denetle: (o) => { const h = uzakUc(o, "feature/US-D03e-docker-compose-local"); const u = uzakBul(o, KAFE); return !!u && !!h && "docker-compose.yml" in commitAgaci(u, h); } },
+    { aciklama: "Yerel dal upstream'ini izliyor", denetle: (o) => !!o.depo?.config["branch.feature/US-D03e-docker-compose-local.merge"] },
+  ],
+  ipuclari: [
+    "Klonda yalnızca main yerel dal olarak var; test'i `origin/test` olarak görürsün (`git branch -a`).",
+    "`git switch -c feature/US-D03e-docker-compose-local origin/test` dalı test'in ucundan açar.",
+    "İlk gönderimde upstream'i kur: `git push -u origin <dal>`.",
+  ],
+  cozum: [
+    "git switch -c feature/US-D03e-docker-compose-local origin/test",
+    'echo "services: {}" > docker-compose.yml',
+    "git add docker-compose.yml",
+    'git commit -m "Yerel docker compose"',
+    "git push -u origin feature/US-D03e-docker-compose-local",
+  ],
+  sonNot: "Sıradaki adım GitHub'da PR açmak: önce bu dal → dev, sorun yoksa aynı dal → test. 12. ünitede bu akışı korumalarıyla birlikte göreceksin.",
+};
+
+const pushReddi: Gorev = {
+  id: "push-reddi",
+  kademe: 3,
+  unite: 10,
+  baslik: "Reddedilen push",
+  hikaye:
+    "main'e küçük bir düzeltme gönderen tek kişi olduğunu sanıyorsun. `kampanya.txt` dosyasını oluşturup commit'le ve GitHub'a gönder. " +
+    "Bu arada Ayşe de boş durmayacak. Geçmişte gereksiz birleştirme commit'i olmasın.",
+  kurulum: [...KAFE_KUR, `git clone ${KAFE}`],
+  olaylar: [
+    {
+      id: "ayse-push",
+      // Sen main'de ilk yerel commit'ini attığında
+      kosul: (o) => { const d = o.depo; const h = dalUcu(o, "main"); const u = d?.refs["refs/remotes/origin/main"]; return !!d && !!h && !!u && h !== u && ataMi(d, u, h); },
+      kim: "ayse",
+      komutlar: ['echo "su 10" >> menu.txt', 'git commit -am "Su eklendi"', "git push"],
+      bildirim: "Ayşe az önce main'e \"Su eklendi\" commit'ini push etti.",
+    },
+  ],
+  hedefler: [
+    { aciklama: "GitHub'daki main'de senin kampanya commit'in var", denetle: (o) => { const u = uzakBul(o, KAFE); const h = uzakUc(o, "main"); return !!u && !!h && "kampanya.txt" in commitAgaci(u, h); } },
+    { aciklama: "Ayşe'nin commit'i kaybolmadı", denetle: (o) => uzakMesajlar(o, "main").includes("Su eklendi") },
+    { aciklama: "Birleştirme commit'i yok", denetle: (o) => uzakDuzMu(o, "main") },
+  ],
+  ipuclari: [
+    "Push \"fetch first\" diye reddedilirse GitHub'da sende olmayan commit vardır.",
+    "Uzaktakini alıp kendi commit'ini onun üstüne taşı: `git pull --rebase`, sonra yeniden `git push`.",
+  ],
+  cozum: ['echo "Kış kampanyası" > kampanya.txt', "git add kampanya.txt", 'git commit -m "Kampanya metni"', "git pull --rebase", "git push"],
+  enAz: 5,
+  sonNot: "`git config --global pull.rebase true` ile düz `git pull` da hep rebase yapar. Push'u önce deneyip reddedilmek olağandır; üç yıldız bu bir komutluk payı bırakır.",
+};
+
+const guvenliForce: Gorev = {
+  id: "guvenli-force",
+  kademe: 3,
+  unite: 10,
+  baslik: "PR dalını güncel tut",
+  hikaye:
+    "`ozellik` dalını GitHub'a gönderip PR açtın. İncelemede \"main çok ilerledi, dalını main'in üstüne al\" denildi. Dal yalnızca senin. " +
+    "Dalı GitHub'daki main'in son hâlinin üstüne taşı ve GitHub'daki dalı güvenli biçimde güncelle.",
+  kurulum: [
+    ...KAFE_KUR,
+    `git clone ${KAFE}`,
+    "git switch -c ozellik", 'echo "%20" > indirim.txt', "git add .", 'git commit -m "İndirim oranı"', "git push -u origin ozellik",
+    '@ayse echo "Adres: Liman Cad. 5" >> README.md', '@ayse git commit -am "Adres"', "@ayse git push",
+  ],
+  hedefler: [
+    { aciklama: "GitHub'daki ozellik, GitHub'daki main'in üstünde", denetle: (o) => uzakAtaMi(o, uzakUc(o, "main"), "ozellik") && uzakUc(o, "ozellik") !== uzakUc(o, "main") },
+    { aciklama: "Birleştirme commit'i yok", denetle: (o) => uzakDuzMu(o, "ozellik") },
+    { aciklama: "Yerel ozellik GitHub'la aynı", denetle: (o) => !!uzakUc(o, "ozellik") && uzakUc(o, "ozellik") === dalUcu(o, "ozellik") },
+  ],
+  ipuclari: [
+    "Önce uzaktaki main'i indir: `git fetch`.",
+    "`git rebase origin/main` dalını yeni main'in üstüne taşır.",
+    "Geçmiş değiştiği için düz push reddedilir. Düz `--force` yerine `git push --force-with-lease`.",
+  ],
+  cozum: ["git fetch", "git rebase origin/main", "git push --force-with-lease"],
+  sonNot: "`--force-with-lease`, GitHub'daki dal hâlâ senin son gördüğün yerdeyse ezer; arada biri push ettiyse reddeder. Ortak dallarda (main, test, dev) hiçbiri kullanılmaz.",
+};
+
+const budama: Gorev = {
+  id: "budama",
+  kademe: 3,
+  unite: 10,
+  baslik: "Dal mezarlığını temizle",
+  hikaye:
+    "`git branch -a` listen ölü dallarla dolu. Ayşe birleşen `eski-deneme` dalını GitHub'dan sildi ama sende izi duruyor. " +
+    "Senin `gecici` dalın da işini bitirdi. Ölü izi buda, `gecici`'yi hem GitHub'dan hem bilgisayarından sil.",
+  kurulum: [
+    ...KAFE_KUR,
+    "@ayse git switch -c eski-deneme", '@ayse echo "x" > deneme.txt', "@ayse git add .", '@ayse git commit -m "Deneme"', "@ayse git push -u origin eski-deneme",
+    `git clone ${KAFE}`,
+    "git switch -c gecici", "git push -u origin gecici", "git switch main",
+    "@ayse git push origin --delete eski-deneme",
+  ],
+  hedefler: [
+    { aciklama: "origin/eski-deneme izi temizlendi", denetle: (o) => !!o.depo && !o.depo.refs["refs/remotes/origin/eski-deneme"] },
+    { aciklama: "GitHub'da gecici yok", denetle: (o) => !!uzakUc(o, "main") && !uzakUc(o, "gecici") },
+    { aciklama: "Yerelde gecici yok", denetle: (o) => !!o.depo && !dalUcu(o, "gecici") },
+  ],
+  ipuclari: ["`git fetch --prune` uzakta silinmiş dalların izlerini siler.", "Uzaktaki dalı silmek: `git push origin --delete gecici`; yereldeki: `git branch -d gecici`."],
+  cozum: ["git fetch --prune", "git push origin --delete gecici", "git branch -d gecici"],
+  sonNot: "`git config --global fetch.prune true` dersen her fetch kendiliğinden budar.",
+};
+
+const WIP = {
+  dosyalar: SEPET,
+  kurulum: [
+    ...SEPET_KUR,
+    "git switch -c kupon",
+    'echo "export const KUPON = 10;" > kupon.js', "git add kupon.js", 'git commit -m "Kupon"',
+    'echo "// wip" >> kupon.js', 'git commit -am "wip"',
+    'echo "export const ALT = 50;" >> kupon.js', 'git commit -am "wip 2"',
+    'echo "test kupon" > kupon.test.js', "git add kupon.test.js", 'git commit -m "asdf"',
+  ],
+};
+
+const tekCommit: Gorev = {
+  id: "tek-commit",
+  kademe: 3,
+  unite: 11,
+  baslik: "Dağınık dalı tek commit yap",
+  hikaye:
+    "`kupon` dalında dört commit var: \"Kupon\", \"wip\", \"wip 2\" ve \"asdf\". Ekip kuralı: küçük işler PR'a tek commit olarak gelir. " +
+    "Etkileşimli rebase ile hepsini \"Kupon\" commit'ine kat. Hiçbir dosya kaybolmasın.",
+  ...WIP,
+  hedefler: [
+    { aciklama: "kupon dalında main'den sonra tek commit var", denetle: (o) => !o.depo?.islem && dalinKendi(o, "kupon").length === 1 },
+    { aciklama: "\"wip\" ya da \"asdf\" mesajı kalmadı", denetle: (o) => !!o.depo && !!dalUcu(o, "kupon") && !/wip|asdf/.test(commitOku(o.depo, dalUcu(o, "kupon")!).mesaj) },
+    { aciklama: "kupon.js ve kupon.test.js duruyor", denetle: (o) => { const f = headDosyalari(o); return (f["kupon.js"] ?? "").includes("ALT") && "kupon.test.js" in f; } },
+  ],
+  ipuclari: [
+    "`git rebase -i main` dalın main'de olmayan commit'lerini bir listede açar.",
+    "İlk satır pick kalsın; diğer üçünün başındaki pick'i `fixup` (ya da `f`) yap ve Kaydet.",
+  ],
+  cozum: ["git rebase -i main"],
+  editorCozum: [(m) => m.replace(/^pick (\w+) (wip|wip 2|asdf)$/gm, "fixup $1 $2")],
+  sonNot: "`squash` seçseydin Git mesajları birleştirmen için düzenleyiciyi bir kez daha açardı. Yeni commit'in kimliği değişti: dal push edilmişse güncellemek için `--force-with-lease` gerekir.",
+};
+
+const mesajDegistir: Gorev = {
+  id: "mesaj-degistir",
+  kademe: 3,
+  unite: 11,
+  baslik: "Ortadaki mesajı düzelt",
+  hikaye:
+    "Son commit değil, ondan önceki commit'in mesajı hatalı: \"Sepet tutari yanlis\" yazıyor, oysa commit vergi hesabını ekliyor. " +
+    "Mesajı \"Vergi hesabı eklendi\" yap. Diğer commit'ler ve içerikleri aynen kalsın.",
+  dosyalar: SEPET,
+  kurulum: [
+    ...SEPET_KUR,
+    'echo "export const VERGI = 0.2;" > vergi.js', "git add vergi.js", 'git commit -m "Sepet tutari yanlis"',
+    'echo "# Vergi" >> README.md', 'git commit -am "README güncellendi"',
+  ],
+  hedefler: [
+    { aciklama: "\"Vergi hesabı eklendi\" mesajlı commit var", denetle: (o) => { const d = o.depo; const h = dalUcu(o, "main"); return !!d && !!h && gecmis(d, [h]).some((c) => commitOku(d, c).mesaj.trim() === "Vergi hesabı eklendi"); } },
+    { aciklama: "Hatalı mesaj kalmadı, toplam üç commit", denetle: (o) => { const d = o.depo; const h = dalUcu(o, "main"); return !!d && !!h && dalCommitSayisi(o, "main") === 3 && !gecmis(d, [h]).some((c) => commitOku(d, c).mesaj.includes("yanlis")); } },
+    { aciklama: "Son commit hâlâ \"README güncellendi\"", denetle: (o) => !o.depo?.islem && sonMesaj(o) === "README güncellendi" },
+  ],
+  ipuclari: [
+    "`--amend` yalnızca son commit'i düzeltir. Daha eskisi için `git rebase -i HEAD~2`.",
+    "Hatalı satırın başındaki pick'i `reword` yap, kaydet; Git sonra mesajı soracak.",
+  ],
+  cozum: ["git rebase -i HEAD~2"],
+  editorCozum: [
+    (m) => m.replace(/^pick (\w+) Sepet tutari yanlis/m, "reword $1 Sepet tutari yanlis"),
+    (m) => m.replace(/^Sepet tutari yanlis$/m, "Vergi hesabı eklendi"),
+  ],
+  sonNot: "reword, commit'in içeriğine dokunmaz; ama mesaj da hash'in parçası olduğu için o commit ve ondan sonraki her commit yeni kimlik alır.",
+};
+
+const sirDrop: Gorev = {
+  id: "sir-drop",
+  kademe: 3,
+  unite: 11,
+  baslik: "Anahtarı push'tan önce çıkar",
+  hikaye:
+    "`odeme` dalında üç commit var. Ortadaki commit'e yanlışlıkla ödeme servisinin gizli anahtarını içeren `.env` dosyası girmiş. Neyse ki henüz push etmedin. " +
+    "O commit'i geçmişten tamamen çıkar; diğer iki commit kalsın.",
+  dosyalar: SEPET,
+  kurulum: [
+    ...SEPET_KUR,
+    "git switch -c odeme",
+    'echo "export function ode() {}" > odeme.js', "git add odeme.js", 'git commit -m "Ödeme iskeleti"',
+    'echo "ODEME_ANAHTARI=sk_live_51Hx9Q2eZvKYlo2C" > .env', "git add .env", 'git commit -m "Ayarlar"',
+    'echo "test ode" > odeme.test.js', "git add odeme.test.js", 'git commit -m "Ödeme testleri"',
+  ],
+  hedefler: [
+    { aciklama: "Dalın hiçbir commit'inde .env yok", denetle: (o) => { const d = o.depo; const h = dalUcu(o, "odeme"); return !!d && !!h && !d.islem && gecmis(d, [h]).every((c) => !(".env" in commitAgaci(d, c))); } },
+    { aciklama: "Ödeme iskeleti ve testleri duruyor", denetle: (o) => { const f = headDosyalari(o); return "odeme.js" in f && "odeme.test.js" in f; } },
+    { aciklama: "Dalda main'den sonra iki commit var", denetle: (o) => dalinKendi(o, "odeme").length === 2 },
+  ],
+  ipuclari: [
+    "Yeni bir commit'le .env'i silmek yetmez: anahtar eski commit'te durur ve push edince herkes görür.",
+    "`git rebase -i main` aç; \"Ayarlar\" satırının başını `drop` yap.",
+  ],
+  cozum: ["git rebase -i main"],
+  editorCozum: [(m) => m.replace(/^pick (\w+) Ayarlar$/m, "drop $1 Ayarlar")],
+  sonNot: "Sonraki adım: `.env`'i `.gitignore`'a ekle. Anahtar push edilmiş olsaydı geçmişi temizlemek yetmezdi; anahtarı hemen iptal edip yenilemek gerekirdi (14. ünite).",
+};
+
+const rebaseCakisma: Gorev = {
+  id: "rebase-cakisma",
+  kademe: 3,
+  unite: 11,
+  baslik: "Rebase yarıda kaldı",
+  hikaye:
+    "`ozellik` dalını main'in üstüne taşımak istiyorsun ama ikisi de `menu.txt`'te kahvenin fiyatını değiştirmiş. " +
+    "Rebase'i yap; çakışmada main'deki fiyat (kahve 50) kalsın, senin eklediğin süt satırı da korunsun.",
+  dosyalar: { "menu.txt": "kahve 40\ncay 20\n" },
+  kurulum: [
+    "git init", "git add .", 'git commit -m "Menü"',
+    "git switch -c ozellik", "printf 'kahve 45\\ncay 20\\nsut 15\\n' > menu.txt", 'git commit -am "Süt ve kahve zammı"',
+    "git switch main", "printf 'kahve 50\\ncay 20\\n' > menu.txt", 'git commit -am "Kahve 50"',
+    "git switch ozellik",
+  ],
+  hedefler: [
+    { aciklama: "Rebase bitti, ozellik main'in üstünde", denetle: (o) => { const d = o.depo; const m = dalUcu(o, "main"); const h = dalUcu(o, "ozellik"); return !!d && !d.islem && !!m && !!h && m !== h && ataMi(d, m, h); } },
+    { aciklama: "menu.txt'te işaret yok, kahve 50 ve süt var", denetle: (o) => { const f = headDosyalari(o)["menu.txt"] ?? ""; return !ISARET.test(f) && f.includes("kahve 50") && f.includes("sut 15"); } },
+  ],
+  ipuclari: [
+    "`git rebase main` çakışmada durur; `git status` ne yapacağını söyler.",
+    "Dosyayı düzelt (nano ya da printf), `git add menu.txt`, sonra `git rebase --continue`.",
+  ],
+  cozum: ["git rebase main", "printf 'kahve 50\\ncay 20\\nsut 15\\n' > menu.txt", "git add menu.txt", "git rebase --continue"],
+  sonNot: "Rebase'de `--ours` main tarafı, `--theirs` senin taşınan commit'indir; merge'tekinin tersi. İşler karışırsa `git rebase --abort` her şeyi başa alır.",
+};
+
 export const GOREVLER: Gorev[] = [
   kimlik, ilkDepo, ilkCommit, secerekEkle, geriCek, gitignore, dedektif, envCikar, kurtar, mesajDuzelt, mainYap,
   dalAc, ileriSar, izBirak, yanlisDal, kopukKurtar, cakismaCoz, vazgec, canliGeriAl, acilStash, reflogKurtar,
+  ilkPush, pushReddi, guvenliForce, budama, tekCommit, mesajDegistir, sirDrop, rebaseCakisma,
 ];

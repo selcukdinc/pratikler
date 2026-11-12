@@ -53,6 +53,12 @@ export interface MiniGit {
   // Commit grafiği ve üç alan şeridi (varsayılan: ikisi de görünür)
   grafik?: boolean;
   alanlar?: boolean;
+  // Ekip arkadaşının yaptığı işler: düğmeye basınca komutlar onun bilgisayarında
+  // çalışır (ör. push eder) ve terminale bildirim düşer
+  ekip?: { dugme: string; kim: string; komutlar: string[]; bildirim: string }[];
+  // Önerilen bir komut düzenleyici açarsa (ör. git rebase -i) testin metne
+  // sırayla uyguladığı dönüşümler; öğrenci düzenleyicide kendisi yazar
+  editorCozum?: ((metin: string) => string)[];
 }
 
 export interface DersBolumu {

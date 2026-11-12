@@ -192,3 +192,25 @@ button.gs-dosya:hover { text-decoration: underline; color: var(--link); }
   .mg-izgara { grid-template-columns: minmax(0, 1fr); }
   .mg .gs-grafik { height: auto; max-height: 240px; }
 }
+.gs-olay {
+  font-family: system-ui, sans-serif;
+  font-size: 13px;
+  white-space: normal;
+  background: rgb(232 179 95 / 14%);
+  border-left: 3px solid var(--gs-sari);
+  padding: 4px 8px;
+  margin: 4px 0;
+  border-radius: 0 3px 3px 0;
+  color: #fff;
+}
+.gs-olay code { background: rgb(255 255 255 / 10%); padding: 0 3px; border-radius: 2px; }
+
+/* Uzak depolar şeridi */
+.gs-uzaklar { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 8px; }
+.gs-uzak { flex: 1 1 280px; min-width: 0; }
+.gs-uzak-adres { font-family: var(--mono); font-size: 12px; color: var(--muted); overflow-wrap: anywhere; }
+.gs-uzak ul { list-style: none; margin: 4px 0 0; padding: 0; display: flex; flex-direction: column; gap: 2px; font-size: 12.5px; }
+.gs-uzak li { display: flex; gap: 6px; align-items: baseline; min-width: 0; }
+.gs-uzak li .mono { color: var(--warning); }
+.gs-uzak-mesaj { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.gs-uzak-bos { color: var(--muted); font-size: 12.5px; margin: 4px 0 0; }

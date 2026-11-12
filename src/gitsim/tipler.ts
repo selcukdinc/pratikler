@@ -65,7 +65,7 @@ export interface CatismaGirdisi {
 
 // Yarıda kalmış birleştirme, cherry-pick, revert ya da rebase
 export type SuregelenIslem =
-  | { tur: "merge"; onlar: string; mesaj: string }
+  | { tur: "merge"; onlar: string; mesaj: string; catismalar?: string[] }
   | { tur: "cherry-pick"; commit: string; mesaj: string; yazar: Kisi }
   | { tur: "revert"; commit: string; mesaj: string }
   | {
@@ -79,7 +79,26 @@ export type SuregelenIslem =
       kalan: string[];
       // Çakışmada duran commit
       duran?: string;
+      // Etkileşimli rebase: sıradaki komutlar (kalan'ın yerine) ve editörde bekleyen adım
+      etkilesimli?: boolean;
+      komutlar?: RebaseKomutu[];
+      editor?: "todo" | "mesaj";
+      // Editörde düzenlenen metin ve editör kapanınca yazılacak commit
+      editorMetni?: string;
+      bekleyen?: { agac: string; ebeveynler: string[]; yazar: Kisi; tur: "reword" | "squash" };
+      // Komutun başladığı saat (editörden sonra yazılan commit'ler aynı zamanı alır)
+      saat?: number;
+      // reflog'daki "checkout <...>" adı ve edit'te durulan commit
+      baslangic?: string;
+      durdu?: string;
+      // Yapılan komutlar ("pick a1b2c3d mesaj"), git status için
+      yapilan?: string[];
     };
+
+export interface RebaseKomutu {
+  islem: "pick" | "reword" | "squash" | "fixup" | "drop" | "edit";
+  hash: string;
+}
 
 export interface StashKaydi {
   // Stash commit'i (ebeveynleri: HEAD ve index commit'i)
@@ -104,6 +123,8 @@ export interface Depo {
   stash: StashKaydi[];
   islem: SuregelenIslem | null;
   origHead?: string;
+  // Sembolik uzak ref'ler: "refs/remotes/origin/HEAD" -> "refs/remotes/origin/main"
+  semboller?: Record<string, string>;
 }
 
 export interface Ortam {
@@ -118,6 +139,14 @@ export interface Ortam {
   globalConfig: Record<string, string>;
   // Bir sonraki commit'in zamanı (Unix saniyesi); her komuttan sonra ilerler
   saat: number;
+  // Sanal uzak depolar (GitHub/GitLab): normalleştirilmiş adres -> çıplak depo
+  uzaklar?: Record<string, Depo>;
+  // Sanal ekip arkadaşlarının kendi bilgisayarları (aynı uzak depolarla çalışır)
+  ekip?: Record<string, Ortam>;
+  // git clone ile açılan klasörün adı (istemde gösterilir)
+  kokAd?: string;
+  // Görev olaylarından tetiklenmiş olanlar
+  tetiklenen?: string[];
 }
 
 export interface Sonuc {

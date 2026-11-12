@@ -46,6 +46,24 @@ const HATALAR: Kalip[] = [
   [/cannot switch branch while/, () => "Yarıda kalmış bir işlem varken dal değiştirilemez. Önce işlemi bitir ya da `--abort` ile vazgeç."],
   [/tag '([^']*)' already exists/, (m) => `'${m[1]}' etiketi zaten var. Etiketler genelde taşınmaz; yeni bir ad seç.`],
   [/key does not contain a section/, () => "Ayar adı `bolum.ad` biçiminde olmalı, örneğin `user.name`."],
+  [/\(fetch first\)/, () =>
+    "Push reddedildi: uzak depoda senin bilgisayarında olmayan commit'ler var (biri senden önce push etmiş). Önce `git pull` ile onları al, gerekirse çakışmayı çöz, sonra yeniden push et. `--force` ile ezmek ekip arkadaşının işini siler."],
+  [/\(non-fast-forward\)/, () =>
+    "Push reddedildi: dalın uzaktakinin gerisinde ya da ondan ayrışmış. `git pull` (ya da `git pull --rebase`) ile birleştir, sonra push et."],
+  [/\(stale info\)/, () =>
+    "--force-with-lease seni korudu: uzak dal, senin son gördüğünden farklı (biri push etmiş). Önce `git fetch` ile bak; onun işini ezmeden ilerle."],
+  [/has no upstream branch/, () =>
+    "Bu dalın uzakta bir karşılığı (upstream) yok. İlk push'ta `git push -u origin <dal>` yaz; `-u` bundan sonra düz `git push` ve `git pull`'un nereye gideceğini kaydeder."],
+  [/No configured push destination|does not appear to be a git repository/, () =>
+    "Bu depoya bağlı bir uzak depo yok. `git remote add origin <adres>` ile bağla; `git remote -v` bağlı olanları gösterir."],
+  [/Repository not found|repository '.*' not found/, () => "Bu adreste bir depo yok (ya da erişimin yok). Adresi kontrol et."],
+  [/Need to specify how to reconcile divergent branches/, () =>
+    "Yerel dal ile uzak dal ayrışmış: ikisinde de diğerinde olmayan commit'ler var. Birleştirmek için `git pull --no-rebase`, kendi commit'lerini onların üstüne dizmek için `git pull --rebase` yaz."],
+  [/There is no tracking information for the current branch/, () =>
+    "Bu dal hiçbir uzak dalı izlemiyor. `git pull origin main` gibi açıkça söyle ya da `git branch --set-upstream-to=origin/main` ile bağla."],
+  [/remote (\S+) already exists/, (m) => `'${m[1]}' adında bir uzak depo zaten var. Adresini görmek için \`git remote -v\`, değiştirmek için \`git remote set-url\`.`],
+  [/could not apply ([0-9a-f]+)\.\.\./, (m) =>
+    `Rebase ${m[1]} commit'ini uygularken çakıştı. Dosyayı düzelt, \`git add\` yap ve \`git rebase --continue\`; vazgeçmek için \`git rebase --abort\`.`],
   [/hint: Waiting for your editor/, () => "Gerçek Git burada bir editör açardı. Sandbox'ta mesajı komutun içinde `-m \"...\"` ile ver."],
 ];
 
@@ -121,6 +139,24 @@ function basari(satir: string, once: Ortam, sonra: Ortam, cikti: string): string
       return args.includes("--global") && args.length >= 3 ? "Ayar bütün depoların için kaydedildi (~/.gitconfig)." : null;
     case "cherry-pick":
       return head !== onceHead ? "Seçilen commit'in değişikliği bu dala yeni bir commit olarak kopyalandı." : null;
+    case "clone":
+      return d ? "Uzak deponun bütün geçmişi bilgisayarına geldi. `origin` adıyla bağlandı; yerel dalın origin'deki karşılığını izliyor." : null;
+    case "remote":
+      if (args[0] === "add") return `Uzak depo '${args[1]}' adıyla kaydedildi. Henüz hiçbir şey gönderilmedi; \`git push -u ${args[1]} <dal>\` ile gönder.`;
+      if (args[0] === "remove" || args[0] === "rm") return "Uzak depo bağlantısı kaldırıldı; GitHub'daki depoya bir şey olmadı.";
+      return null;
+    case "fetch":
+      return cikti ? "Uzaktaki yenilikler indirildi ve `origin/...` dallarına yazıldı. Senin dalına dokunulmadı; almak için `git merge` ya da `git pull`." : "Uzakta yeni bir şey yok.";
+    case "pull":
+      if (/Fast-forward/.test(cikti)) return "pull = fetch + birleştirme. Uzaktaki commit'ler indirildi ve dalın ileri sarıldı.";
+      if (/Merge made by/.test(cikti)) return "pull = fetch + birleştirme. İki taraf da ilerlemişti; birleştirme commit'i oluştu.";
+      if (/Successfully rebased/.test(cikti)) return "pull --rebase: uzaktaki commit'ler alındı, senin commit'lerin onların üstüne yeniden dizildi (kimlikleri değişti).";
+      return /Already up to date/.test(cikti) ? "Dalın uzaktakiyle aynı; alınacak bir şey yok." : null;
+    case "push":
+      if (/Everything up-to-date/.test(cikti)) return "Uzak depo zaten güncel; gönderilecek yeni commit yok.";
+      if (/forced update/.test(cikti)) return "Zorla push: uzaktaki dal seninkiyle değiştirildi. Başkalarının bu daldaki işi gidebilir; paylaşılan dallarda yapma.";
+      if (/\[deleted\]/.test(cikti)) return "Dal uzak depodan silindi.";
+      return "Commit'lerin uzak depoya (GitHub) gönderildi; ekip arkadaşların artık `git pull` ile alabilir.";
     case "rebase":
       return head !== onceHead && !/CONFLICT/.test(cikti) ? "Dalın commit'leri yeni tabanın üstüne yeniden yazıldı; kimlikleri değişti." : null;
     default:

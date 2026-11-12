@@ -9,9 +9,11 @@ import { unite6 } from "./unite-6.ts";
 import { unite7 } from "./unite-7.ts";
 import { unite8 } from "./unite-8.ts";
 import { unite9 } from "./unite-9.ts";
+import { unite10 } from "./unite-10.ts";
+import { unite11 } from "./unite-11.ts";
 
 // Her ünite tek konu; konu kimliği gt-u<ünite>. Soruları henüz yazılmamış
 // ünitelerin konuları da şimdiden açılır (soru havuzunda boş görünür).
 export const konular: Konu[] = git.uniteler.map((u) => ({ id: `gt-u${u.no}`, baslik: u.baslik, hafta: u.no, sira: 1 }));
 
-export const sorular: Soru[] = [...unite1, ...unite2, ...unite3, ...unite4, ...unite5, ...unite6, ...unite7, ...unite8, ...unite9];
+export const sorular: Soru[] = [...unite1, ...unite2, ...unite3, ...unite4, ...unite5, ...unite6, ...unite7, ...unite8, ...unite9, ...unite10, ...unite11];

@@ -2,7 +2,7 @@
 // hâline bakan hedefler. Hedefler komutlara değil duruma bakar; aynı sonuca
 // giden her yol kabul edilir. Görev listesi pratiğin istemci içeriğinden gelir
 // (icerik/git/istemci, gitSandbox) ve sandbox sayfası açılınca yüklenir.
-import { kur, yeniOrtam } from "./index";
+import { calistir, editorIcerigi, editorKaydet, ekipCalistir, kur, yeniOrtam } from "./index";
 import { commitAgaci, commitOku, durum, gecerliDal, gecmis, headCommit, icerik, soy } from "./depo";
 import type { Depo, Ortam } from "./tipler";
 
@@ -33,6 +33,59 @@ export interface Gorev {
   enAz?: number;
   // Görev bitince gösterilen kısa not
   sonNot?: string;
+  // Sanal ekip arkadaşlarının olayları: koşul ilk kez tutunca komutlar onun
+  // bilgisayarında çalışır ve terminale bildirim düşer (ör. "Ayşe push etti")
+  olaylar?: Olay[];
+  // Çözümdeki bir komut düzenleyici açarsa (git rebase -i) testin metne sırayla
+  // uyguladığı dönüşümler
+  editorCozum?: ((metin: string) => string)[];
+}
+
+export interface Olay {
+  id: string;
+  kosul: (o: Ortam) => boolean;
+  kim: string;
+  komutlar: string[];
+  bildirim: string;
+}
+
+// Koşulu tutan ve henüz olmamış olayları işletir
+export function olaylariIslet(g: Gorev, o: Ortam): { ortam: Ortam; bildirimler: string[] } {
+  let x = o;
+  const bildirimler: string[] = [];
+  for (const olay of g.olaylar ?? []) {
+    if (x.tetiklenen?.includes(olay.id) || !olay.kosul(x)) continue;
+    for (const k of olay.komutlar) x = ekipCalistir(x, olay.kim, k).ortam;
+    x = { ...x, tetiklenen: [...(x.tetiklenen ?? []), olay.id] };
+    bildirimler.push(olay.bildirim);
+  }
+  return { ortam: x, bildirimler };
+}
+
+// Örnek çözümü çalıştırır: düzenleyici açılınca editorCozum'daki sıradaki
+// dönüşümü uygular, her adımdan sonra olayları işletir (testler kullanır)
+export function cozumuCalistir(
+  o: Ortam,
+  satirlar: string[],
+  secenek: { editorCozum?: ((metin: string) => string)[]; gorev?: Gorev; adim?: (satir: string, kod: number, cikti: string, o: Ortam) => void } = {},
+): Ortam {
+  const donusumler = [...(secenek.editorCozum ?? [])];
+  let x = o;
+  for (const s of satirlar) {
+    let r = calistir(x, s);
+    secenek.adim?.(s, r.sonuc.kod, r.sonuc.cikti, r.ortam);
+    while (r.sonuc.editor) {
+      const f = donusumler.shift();
+      if (!f) throw new Error(`düzenleyici açıldı ama editorCozum kalmadı: ${s}`);
+      const yol = r.sonuc.editor;
+      r = editorKaydet(r.ortam, yol, f(editorIcerigi(r.ortam, yol)));
+      secenek.adim?.(s, r.sonuc.kod, r.sonuc.cikti, r.ortam);
+    }
+    x = r.ortam;
+    if (secenek.gorev) x = olaylariIslet(secenek.gorev, x).ortam;
+  }
+  if (donusumler.length) throw new Error("kullanılmayan editorCozum kaldı");
+  return x;
 }
 
 export const VARSAYILAN_KIMLIK = {
@@ -47,7 +100,7 @@ export function gorevOrtami(g: Gorev): Ortam {
 }
 
 // Durumu yalnızca gösteren komutlar yıldız sayımına girmez: bakmak serbest
-const OKUYAN = new Set(["status", "log", "diff", "show", "reflog", "help", "--help", "ls-files", "cat-file", "rev-parse", "show-ref", "blame"]);
+const OKUYAN = new Set(["status", "log", "diff", "show", "reflog", "help", "--help", "ls-files", "cat-file", "rev-parse", "show-ref", "blame", "fetch"]);
 
 function degistirenMi(parca: string): boolean {
   const w = parca.trim().split(/\s+/);
@@ -56,6 +109,7 @@ function degistirenMi(parca: string): boolean {
   const kalan = w.slice(2);
   if ((alt === "branch" || alt === "tag") && kalan.every((x) => /^(-a|-v|-vv|-l|-r|--list|--all)$/.test(x))) return false;
   if (alt === "stash" && (kalan[0] === "list" || kalan[0] === "show")) return false;
+  if (alt === "remote" && (!kalan.length || kalan[0] === "-v" || kalan[0] === "get-url")) return false;
   if (alt === "config" && (kalan.some((x) => x === "--list" || x === "-l" || x === "--get") || kalan.filter((x) => !x.startsWith("-")).length === 1)) return false;
   return true;
 }

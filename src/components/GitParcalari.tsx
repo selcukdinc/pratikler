@@ -2,13 +2,13 @@
 // commit grafiği, üç alan şeridi ve editör. Komut çalıştırma saf bir işlevdir
 // (oturumdaCalistir); bileşenler yalnızca çizer.
 import { useEffect, useMemo, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
-import { calistir, GIT_KOMUTLARI, type Ortam } from "../gitsim";
+import { calistir, COMMIT_MESAJI, editorIcerigi, editorKaydet, GIT_KOMUTLARI, REBASE_TODO, type Ortam } from "../gitsim";
 import { aciklama } from "../gitsim/aciklama";
 import { grafikKur, type GrafikDugumu } from "../gitsim/grafik";
 import { commitAgaci, commitOku, dalAdi, durum, gecerliDal, headCommit, icerik, izlenmeyenOzet, kisa, yokSaymaKurallari, yokSayilir } from "../gitsim/depo";
 import "./GitParcalari.css";
 
-export type SatirTuru = "komut" | "cikti" | "hata" | "not" | "bilgi";
+export type SatirTuru = "komut" | "cikti" | "hata" | "not" | "bilgi" | "olay";
 export interface Satir {
   tur: SatirTuru;
   metin: string;
@@ -28,7 +28,7 @@ export function satirIci(metin: string): ReactNode[] {
 }
 
 export function istem(o: Ortam): string {
-  const yer = "/proje" + (o.cwd ? `/${o.cwd}` : "");
+  const yer = "/" + (o.kokAd ?? "proje") + (o.cwd ? `/${o.cwd}` : "");
   const d = o.depo;
   if (!d) return `${yer} $`;
   const r = gecerliDal(d);
@@ -70,6 +70,22 @@ export function oturumdaCalistir(oturum: Oturum, satir: string, aciklamalar: boo
   }
   return { oturum: { ortam: r.ortam, satirlar: yeni, komutlar }, editor: r.sonuc.editor, degisti: true };
 }
+
+// Editör kaydedildi: çalışma dizinindeki dosya yazılır ya da (rebase listesi, commit
+// mesajı) Git kaldığı yerden sürer ve çıktısı terminale düşer
+export function oturumdaKaydet(oturum: Oturum, yol: string, metin: string): { oturum: Oturum; editor?: { yol: string; metin: string } } {
+  const r = editorKaydet(oturum.ortam, yol, metin);
+  const ozel = gitDosyasi(yol);
+  const satirlar: Satir[] = [...oturum.satirlar];
+  if (ozel) {
+    if (r.sonuc.cikti) satirlar.push({ tur: r.sonuc.kod === 0 ? "cikti" : "hata", metin: r.sonuc.cikti });
+  } else satirlar.push({ tur: "bilgi", metin: `${yol} kaydedildi.` });
+  const editor = r.sonuc.editor ? { yol: r.sonuc.editor, metin: editorIcerigi(r.ortam, r.sonuc.editor) } : undefined;
+  return { oturum: { ...oturum, ortam: r.ortam, satirlar }, editor };
+}
+
+export const gitDosyasi = (yol: string) => yol === REBASE_TODO || yol === COMMIT_MESAJI;
+export const editorAc = (o: Ortam, yol: string) => ({ yol, metin: editorIcerigi(o, yol) });
 
 // ---------------- terminal ----------------
 
@@ -162,7 +178,7 @@ export function Terminal({ oturum, onKomut, aktif, hizliKomutlar = HIZLI }: { ot
       <div className="panel-title">Terminal</div>
       <div className="gs-ekran" ref={kaydirRef} onClick={() => window.getSelection()?.isCollapsed && girdiRef.current?.focus({ preventScroll: true })}>
         {oturum.satirlar.map((s, i) => (
-          <div key={i} className={`gs-satir gs-${s.tur}`}>
+          <div key={i} className={`gs-satir gs-${s.tur}`} {...(s.tur === "olay" ? { role: "status" } : {})}>
             {s.tur === "not" ? <><span className="gs-not-etiket">Ne oldu?</span> {satirIci(s.metin)}</> : <Renkli metin={s.metin} tur={s.tur} />}
           </div>
         ))}
@@ -403,7 +419,7 @@ export function Editor({ yol, metin, onKaydet, onKapat }: { yol: string; metin: 
   const alan = useRef<HTMLTextAreaElement>(null);
   useEffect(() => alan.current?.focus(), []);
   return (
-    <div className="gs-editor-arka" onClick={(e) => e.target === e.currentTarget && onKapat()}>
+    <div className="gs-editor-arka" onClick={(e) => e.target === e.currentTarget && (gitDosyasi(yol) ? onKaydet(yol, deger) : onKapat())}>
       <div className="panel gs-editor" role="dialog" aria-label={`${yol} düzenleniyor`}>
         <div className="panel-title">
           <span className="mono">{yol}</span>
@@ -416,7 +432,7 @@ export function Editor({ yol, metin, onKaydet, onKapat }: { yol: string; metin: 
           onChange={(e) => setDeger(e.target.value)}
           spellCheck={false}
           onKeyDown={(e) => {
-            if (e.key === "Escape") onKapat();
+            if (e.key === "Escape") (gitDosyasi(yol) ? onKaydet(yol, deger) : onKapat());
             if (e.key === "s" && (e.ctrlKey || e.metaKey)) {
               e.preventDefault();
               onKaydet(yol, deger);
@@ -424,12 +440,57 @@ export function Editor({ yol, metin, onKaydet, onKapat }: { yol: string; metin: 
           }}
         />
         <div className="gs-editor-alt">
-          <span className="gs-kisayol">Kaydedince dosya çalışma dizininde değişir; Git'e girmesi için yine <code>git add</code> gerekir.</span>
+          <span className="gs-kisayol">
+            {yol === REBASE_TODO
+              ? "Satırların başındaki komutu değiştir (pick, reword, squash, fixup, drop, edit), satırları yer değiştir ya da sil. Kaydedince rebase başlar."
+              : yol === COMMIT_MESAJI
+                ? "# ile başlayan satırlar mesaja girmez. Kaydedince commit yazılır ve rebase sürer."
+                : <>Kaydedince dosya çalışma dizininde değişir; Git'e girmesi için yine <code>git add</code> gerekir.</>}
+          </span>
           <span className="gs-bosluk" />
-          <button onClick={onKapat}>Vazgeç</button>
+          {!gitDosyasi(yol) && <button onClick={onKapat}>Vazgeç</button>}
           <button className="primary" onClick={() => onKaydet(yol, deger)}>Kaydet</button>
         </div>
       </div>
+    </div>
+  );
+}
+
+// ---------------- uzak depolar ----------------
+
+// Sanal GitHub'daki depoların dalları: push ve ekip arkadaşlarının push'u burada görünür
+export function UzakDepolar({ ortam }: { ortam: Ortam }) {
+  const uzaklar = Object.entries(ortam.uzaklar ?? {});
+  if (!uzaklar.length) return null;
+  return (
+    <div className="gs-uzaklar">
+      {uzaklar.map(([adres, d]) => {
+        const dallar = Object.keys(d.refs).filter((r) => r.startsWith("refs/heads/")).sort();
+        const varsayilan = d.head.tur === "ref" ? d.head.ref : null;
+        return (
+          <div key={adres} className="panel gs-uzak">
+            <div className="panel-title">Uzak depo (GitHub)</div>
+            <div className="gs-uzak-adres">{adres}</div>
+            {dallar.length ? (
+              <ul>
+                {dallar.map((r) => {
+                  const h = d.refs[r]!;
+                  return (
+                    <li key={r}>
+                      <strong>{dalAdi(r)}</strong>
+                      {r === varsayilan && <span className="gs-kisayol">varsayılan</span>}
+                      <span className="mono">{kisa(h)}</span>
+                      <span className="gs-uzak-mesaj">{commitOku(d, h).mesaj.split("\n")[0]}</span>
+                    </li>
+                  );
+                })}
+              </ul>
+            ) : (
+              <p className="gs-uzak-bos">Depo boş: henüz hiçbir şey push edilmedi.</p>
+            )}
+          </div>
+        );
+      })}
     </div>
   );
 }

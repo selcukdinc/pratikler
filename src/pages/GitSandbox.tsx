@@ -2,9 +2,10 @@
 // komutlar. Serbest alanda istediğini dener, görevlerde bir durumu çözersin.
 // Hiçbir şey sunucuya gitmez; durum tarayıcıda (localStorage) saklanır.
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { kopya, yeniOrtam, type Ortam } from "../gitsim";
-import { gitKomutuSayisi, gorevOrtami, enAzKomut, tamamMi, yildiz, type Gorev } from "../gitsim/gorev";
-import { CommitGrafigi, Editor, oturumdaCalistir, satirIci, Terminal, UcAlan, type Oturum, type Satir } from "../components/GitParcalari";
+import { yeniOrtam, type Ortam } from "../gitsim";
+import { gitKomutuSayisi, gorevOrtami, enAzKomut, olaylariIslet, tamamMi, yildiz, type Gorev } from "../gitsim/gorev";
+import { uzakOlustur } from "../gitsim/uzak";
+import { CommitGrafigi, Editor, editorAc, UzakDepolar, oturumdaCalistir, oturumdaKaydet, satirIci, Terminal, UcAlan, type Oturum, type Satir } from "../components/GitParcalari";
 
 const ANAHTAR = "git-pratik:sandbox";
 const SERBEST = "serbest";
@@ -19,14 +20,24 @@ interface Kayit {
   aciklamalar: boolean;
 }
 
+// Serbest alanda boş bir GitHub deposu hazırdır: remote add, push ve clone denenebilir
+const SERBEST_UZAK = "https://github.com/deniz/sandbox.git";
+
 const KARSILAMA: Satir[] = [
   { tur: "bilgi", metin: "Sanal Git terminali. Gerçek git komutlarını yaz; her şey tarayıcında olur, hiçbir şey bozulmaz." },
   { tur: "bilgi", metin: "Başlamak için: git init · Yardım: help · Ekranı temizle: clear" },
+  { tur: "bilgi", metin: `GitHub'da boş bir depon da hazır: ${SERBEST_UZAK} (git remote add origin ... ile bağla, git push ile gönder).` },
 ];
+
+function serbestOrtam(): Ortam {
+  const o = yeniOrtam({ dosyalar: { "README.md": "# Sandbox\n\nBurada istediğin gibi dene.\n" } });
+  uzakOlustur(o, SERBEST_UZAK);
+  return o;
+}
 
 function serbestOturum(): Oturum {
   return {
-    ortam: yeniOrtam({ dosyalar: { "README.md": "# Sandbox\n\nBurada istediğin gibi dene.\n" } }),
+    ortam: serbestOrtam(),
     satirlar: KARSILAMA,
     komutlar: [],
   };
@@ -88,8 +99,13 @@ export function GitSandbox({ gorevleriYukle, aktif }: { gorevleriYukle: () => Pr
     (satir: string) => {
       if (!oturum) return;
       const r = oturumdaCalistir(oturum, satir, kayit.aciklamalar);
+      // Ekip arkadaşlarının olayları (push, yeni dal...) komuttan sonra işler
+      if (gorev?.olaylar && r.degisti) {
+        const ol = olaylariIslet(gorev, r.oturum.ortam);
+        if (ol.bildirimler.length) r.oturum = { ...r.oturum, ortam: ol.ortam, satirlar: [...r.oturum.satirlar, ...ol.bildirimler.map((metin) => ({ tur: "olay" as const, metin }))] };
+      }
       oturumYaz(kayit.kip, r.oturum, r.degisti ? oturum : null);
-      if (r.editor) setEditor({ yol: r.editor, metin: r.oturum.ortam.dosyalar[r.editor] ?? "" });
+      if (r.editor) setEditor(editorAc(r.oturum.ortam, r.editor));
     },
     [oturum, kayit.kip, kayit.aciklamalar, oturumYaz],
   );
@@ -120,10 +136,9 @@ export function GitSandbox({ gorevleriYukle, aktif }: { gorevleriYukle: () => Pr
 
   const dosyaKaydet = (yol: string, metin: string) => {
     if (!oturum) return;
-    const o = kopya(oturum.ortam);
-    o.dosyalar[yol] = metin;
-    oturumYaz(kayit.kip, { ...oturum, ortam: o, satirlar: [...oturum.satirlar, { tur: "bilgi", metin: `${yol} kaydedildi.` }] }, oturum);
-    setEditor(null);
+    const r = oturumdaKaydet(oturum, yol, metin);
+    oturumYaz(kayit.kip, r.oturum, oturum);
+    setEditor(r.editor ?? null);
   };
   const dosyaAc = (yol: string) => oturum && setEditor({ yol, metin: oturum.ortam.dosyalar[yol] ?? "" });
   const yeniDosya = () => {
@@ -189,6 +204,7 @@ export function GitSandbox({ gorevleriYukle, aktif }: { gorevleriYukle: () => Pr
             <CommitGrafigi ortam={oturum.ortam} />
           </div>
           <UcAlan ortam={oturum.ortam} onAc={dosyaAc} onYeni={yeniDosya} />
+          <UzakDepolar ortam={oturum.ortam} />
         </div>
       ) : (
         <p className="empty">Görevler yükleniyor…</p>

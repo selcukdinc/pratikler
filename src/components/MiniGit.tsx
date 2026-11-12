@@ -3,9 +3,9 @@
 // yenilenince baştan başlar.
 import { useMemo, useState } from "react";
 import { md, type MiniGit as MiniGitVerisi } from "../dersler/tipler";
-import { kopya, kur, yeniOrtam } from "../gitsim";
+import { ekipCalistir, kur, yeniOrtam } from "../gitsim";
 import { VARSAYILAN_KIMLIK } from "../gitsim/gorev";
-import { CommitGrafigi, Editor, oturumdaCalistir, satirIci, Terminal, UcAlan, type Oturum } from "./GitParcalari";
+import { CommitGrafigi, Editor, editorAc, oturumdaCalistir, oturumdaKaydet, satirIci, Terminal, UcAlan, UzakDepolar, type Oturum } from "./GitParcalari";
 
 function baslangic(v: MiniGitVerisi): Oturum {
   const o = kur(yeniOrtam({ dosyalar: v.dosyalar, globalConfig: v.globalConfig ?? VARSAYILAN_KIMLIK }), v.kurulum ?? []);
@@ -24,13 +24,17 @@ export function MiniGit({ veri }: { veri: MiniGitVerisi }) {
   const komut = (satir: string) => {
     const r = oturumdaCalistir(oturum, satir, true);
     setOturum({ ...r.oturum, satirlar: r.oturum.satirlar.slice(-120) });
-    if (r.editor) setEditor({ yol: r.editor, metin: r.oturum.ortam.dosyalar[r.editor] ?? "" });
+    if (r.editor) setEditor(editorAc(r.oturum.ortam, r.editor));
+  };
+  const ekipYapsin = (e: NonNullable<MiniGitVerisi["ekip"]>[number]) => {
+    let o = oturum.ortam;
+    for (const k of e.komutlar) o = ekipCalistir(o, e.kim, k).ortam;
+    setOturum({ ...oturum, ortam: o, satirlar: [...oturum.satirlar, { tur: "olay", metin: e.bildirim }] });
   };
   const kaydet = (yol: string, metin: string) => {
-    const o = kopya(oturum.ortam);
-    o.dosyalar[yol] = metin;
-    setOturum({ ...oturum, ortam: o, satirlar: [...oturum.satirlar, { tur: "bilgi", metin: `${yol} kaydedildi.` }] });
-    setEditor(null);
+    const r = oturumdaKaydet(oturum, yol, metin);
+    setOturum(r.oturum);
+    setEditor(r.editor ?? null);
   };
 
   return (
@@ -61,7 +65,11 @@ export function MiniGit({ veri }: { veri: MiniGitVerisi }) {
         const ad = prompt("Dosyanın adı:")?.trim();
         if (ad) setEditor({ yol: ad, metin: oturum.ortam.dosyalar[ad] ?? "" });
       }} />}
+      <UzakDepolar ortam={oturum.ortam} />
       <div className="mg-alt">
+        {veri.ekip?.map((e) => (
+          <button key={e.dugme} className="cip" onClick={() => ekipYapsin(e)}>{e.dugme}</button>
+        ))}
         {hedefler.length > 0 && <span aria-live="polite">{tutan === hedefler.length ? "Hepsi tamam!" : `${tutan}/${hedefler.length} hedef`}</span>}
         <span className="gs-bosluk" />
         <button onClick={() => setOturum(baslangic(veri))}>Baştan</button>

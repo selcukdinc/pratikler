@@ -151,7 +151,7 @@ Bu sefer işin kolay tarafını dene: ~indirim~ dalının sürümü tamamen doğ
 Çakışmalar tamamen bitmez ama küçültülebilir:
 
 - **Küçük ve kısa ömürlü dallar**: bir dal haftalarca açık kalırsa ana dal çok ilerler ve çakışma büyür. İşi küçük parçalara böl, sık birleştir.
-- **Ana dalı sık al**: uzun süren bir işte ara ara ~git merge main~ yapıp (ya da 10. ünitede göreceğin rebase ile) güncel kal; çakışmaları küçükken çöz.
+- **Ana dalı sık al**: uzun süren bir işte ara ara ~git merge main~ yapıp (ya da 11. ünitede göreceğin rebase ile) güncel kal; çakışmaları küçükken çöz.
 - **Ortak biçimlendirici**: biri sekme biri boşluk kullanırsa her satır "değişmiş" görünür. Prettier, Black gibi bir biçimlendiriciyi herkes aynı ayarla kullanmalı.
 - **İletişim**: aynı dosyada büyük bir değişiklik yapacaksan ekibe haber ver.
 - **Kilit dosyaları** (~package-lock.json~ gibi): elle düzenleme; birini seçip bağımlılıkları yeniden kurarak dosyayı yeniden üret.
