@@ -17,6 +17,7 @@ export const adresAnahtari = (url: string) => url.replace(/\/+$/, "").replace(/\
 const gosterim = (url: string) => url.replace(/\/+$/, "").replace(/\.git$/, "");
 
 const GITHUB = /^https:\/\/github\.com\//;
+const GITLAB = /^https:\/\/gitlab\.com\//;
 
 // Boş bir uzak depo oluşturur (GitHub'da "New repository")
 export function uzakOlustur(o: Ortam, url: string, varsayilanDal = "main"): Depo {
@@ -409,7 +410,7 @@ export function push(o: Ortam, args: string[]): string {
     const red = pushKorumasi(uzak, ref, tur);
     if (!red) return false;
     uzakSatirlari.push(...red);
-    satirlar.push({ kod: "!", ozet: "[remote rejected]", kaynak, hedef, hata: "protected branch hook declined", reddedildi: true });
+    satirlar.push({ kod: "!", ozet: "[remote rejected]", kaynak, hedef, hata: uzak.platform?.tur === "gitlab" ? "pre-receive hook declined" : "protected branch hook declined", reddedildi: true });
     return true;
   };
   for (const spec of refspecler) {
@@ -453,7 +454,7 @@ export function push(o: Ortam, args: string[]): string {
     if (uzakHash === undefined) {
       kod = "*";
       ozet = etiketMi ? "[new tag]" : "[new branch]";
-      if (!etiketMi && GITHUB.test(url)) githubNotu.push(kisaHedef);
+      if (!etiketMi && (GITHUB.test(url) || GITLAB.test(url))) githubNotu.push(kisaHedef);
     } else if (etiketMi && !zorla && !arti) {
       satirlar.push({ kod: "!", ozet: "[rejected]", kaynak: kisaKaynak, hedef: kisaHedef, hata: "already exists", reddedildi: true });
       continue;
@@ -510,7 +511,8 @@ export function push(o: Ortam, args: string[]): string {
   else {
     if (githubNotu.length) {
       for (const dal of githubNotu) {
-        c.push("remote: ", `remote: Create a pull request for '${dal}' on GitHub by visiting:`, `remote:      ${gosterim(url)}/pull/new/${dal}`, "remote: ");
+        if (GITLAB.test(url)) c.push("remote: ", `remote: To create a merge request for ${dal}, visit:`, `remote:   ${gosterim(url)}/-/merge_requests/new?merge_request%5Bsource_branch%5D=${encodeURIComponent(dal)}`, "remote: ");
+        else c.push("remote: ", `remote: Create a pull request for '${dal}' on GitHub by visiting:`, `remote:      ${gosterim(url)}/pull/new/${dal}`, "remote: ");
       }
     }
     c.push(...uzakSatirlari);

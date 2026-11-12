@@ -13,6 +13,8 @@ import { ayir, ilk, var_ } from "./yardim";
 const GITHUB = /^https:\/\/github\.com\/([^/]+\/[^/]+?)(\.git)?\/?$/;
 
 export const githubAdi = (url: string) => GITHUB.exec(url)?.[1] ?? null;
+const GITLAB = /^https:\/\/gitlab\.com\/(.+?)(\.git)?\/?$/;
+export const gitlabAdi = (url: string) => GITLAB.exec(url)?.[1] ?? null;
 
 // Uzak deponun platform durumu (yoksa açılır)
 export function platformu(uzak: Depo, ad: string): Platform {
@@ -23,7 +25,9 @@ export function platformu(uzak: Depo, ad: string): Platform {
 export function platformKur(o: Ortam, url: string, ayar: Partial<Platform>) {
   const uzak = uzakBul(o, url);
   if (!uzak) throw new Error(`uzak depo yok: ${url}`);
-  const p = platformu(uzak, githubAdi(url) ?? adresAnahtari(url));
+  const gl = gitlabAdi(url);
+  const p = platformu(uzak, githubAdi(url) ?? gl ?? adresAnahtari(url));
+  if (gl) p.tur = "gitlab";
   if (ayar.korumalar) p.korumalar = { ...p.korumalar, ...ayar.korumalar };
   if (ayar.ci) p.ci = ayar.ci;
   if (ayar.gizliKoruma !== undefined) p.gizliKoruma = ayar.gizliKoruma;
@@ -43,6 +47,13 @@ export function pushKorumasi(uzak: Depo, ref: string, tur: "guncelle" | "zorla" 
     : k.prZorunlu ? "Changes must be made through a pull request."
     : null;
   if (!neden) return null;
+  if (uzak.platform?.tur === "gitlab") {
+    const gl =
+      tur === "sil" ? "You can only delete protected branches using the web interface."
+      : tur === "zorla" ? "You are not allowed to force push code to a protected branch on this project."
+      : "You are not allowed to push code to protected branches on this project.";
+    return ["remote: GitLab: " + gl];
+  }
   return [`remote: error: GH006: Protected branch update failed for ${ref}.`, `remote: error: ${neden}`];
 }
 
@@ -97,7 +108,7 @@ function geciciOrtam(uzak: Depo, ad: string, eposta: string, saat: number): Orta
 }
 
 // Birleştirmeyi dener; çakışırsa null. Başarılıysa hedef dalın yeni ucu.
-function sunucudaBirlestir(o: Ortam, uzak: Depo, pr: PullRequest, yontem: "merge" | "squash" | "rebase", ben: { ad: string; eposta: string }): string | null {
+export function sunucudaBirlestir(o: Ortam, uzak: Depo, pr: PullRequest, yontem: "merge" | "squash" | "rebase", ben: { ad: string; eposta: string }): string | null {
   const kaynakUc = uzak.refs[DAL + pr.kaynak]!;
   const hedefUc = uzak.refs[DAL + pr.hedef]!;
   const t = geciciOrtam(uzak, ben.ad, ben.eposta, o.saat);
@@ -112,7 +123,11 @@ function sunucudaBirlestir(o: Ortam, uzak: Depo, pr: PullRequest, yontem: "merge
       d.head = { tur: "ref", ref: DAL + pr.hedef };
       agacaGec(t, d, hedefUc, true);
       const sahip = (uzak.platform?.ad ?? "").split("/")[0];
-      merge(t, ["--no-ff", "-m", `Merge pull request #${pr.no} from ${sahip}/${pr.kaynak}\n\n${pr.baslik}`, kaynakUc]);
+      const mesaj =
+        uzak.platform?.tur === "gitlab"
+          ? `Merge branch '${pr.kaynak}' into '${pr.hedef}'\n\n${pr.baslik}\n\nSee merge request ${uzak.platform.ad}!${pr.no}`
+          : `Merge pull request #${pr.no} from ${sahip}/${pr.kaynak}\n\n${pr.baslik}`;
+      merge(t, ["--no-ff", "-m", mesaj, kaynakUc]);
       if (d.islem) return null;
     }
   } catch (e) {
@@ -122,7 +137,8 @@ function sunucudaBirlestir(o: Ortam, uzak: Depo, pr: PullRequest, yontem: "merge
   let uc = headCommit(d)!;
   if (yontem === "squash") {
     const zaman = { ad: ben.ad, eposta: ben.eposta, zaman: o.saat };
-    uc = yaz(d, { tur: "commit", agac: commitOku(d, uc).agac, ebeveynler: [hedefUc], yazar: zaman, isleyen: zaman, mesaj: `${pr.baslik} (#${pr.no})\n` });
+    const mesaj = uzak.platform?.tur === "gitlab" ? `${pr.baslik}\n` : `${pr.baslik} (#${pr.no})\n`;
+    uc = yaz(d, { tur: "commit", agac: commitOku(d, uc).agac, ebeveynler: [hedefUc], yazar: zaman, isleyen: zaman, mesaj });
   }
   nesneleriKopyala(d, uzak, [uc]);
   return uc;
@@ -153,10 +169,10 @@ function baglam(o: Ortam): { uzak: Depo; p: Platform; url: string } {
   return { uzak, p: platformu(uzak, ad), url: `https://github.com/${ad}` };
 }
 
-const kim = (o: Ortam) => ({ ad: o.depo?.config["user.name"] ?? o.globalConfig["user.name"] ?? "sen", eposta: o.depo?.config["user.email"] ?? o.globalConfig["user.email"] ?? "" });
+export const kim = (o: Ortam) => ({ ad: o.depo?.config["user.name"] ?? o.globalConfig["user.name"] ?? "sen", eposta: o.depo?.config["user.email"] ?? o.globalConfig["user.email"] ?? "" });
 
 // "1", "#1" ya da dal adı; verilmezse bulunduğun dalın açık PR'ı
-function prBul(o: Ortam, p: Platform, secici: string | undefined): PullRequest {
+export function prBul(o: Ortam, p: Platform, secici: string | undefined): PullRequest {
   const d = o.depo!;
   const dal = secici ?? (d.head.tur === "ref" ? d.head.ref.slice(DAL.length) : null);
   if (!dal) throw new GitHatasi("could not determine current branch: not on any branch", 1);

@@ -127,6 +127,8 @@ export interface Depo {
   semboller?: Record<string, string>;
   // Uzak depo GitHub'daysa platformun durumu: dal korumaları, pull request'ler, CI
   platform?: Platform;
+  // Süren git bisect: başlanan dal ve git bisect log kaydı (iyi/kötü işaretleri refs/bisect/ altında)
+  bisect?: { baslangic: string; log: string[] };
 }
 
 // GitHub'daki dal koruma kuralı (branch protection / ruleset)
@@ -173,6 +175,8 @@ export interface PullRequest {
 export interface Platform {
   // "kafe-mavi/siparis"
   ad: string;
+  // Verilmezse GitHub; GitLab'da PR'ın adı merge request (!N), komut glab
+  tur?: "github" | "gitlab";
   korumalar: Record<string, DalKorumasi>;
   ci?: CiAdimi[];
   prler: PullRequest[];

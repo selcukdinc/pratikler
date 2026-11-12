@@ -7,6 +7,7 @@ import { aciklama } from "../gitsim/aciklama";
 import { grafikKur, type GrafikDugumu } from "../gitsim/grafik";
 import { commitAgaci, commitOku, dalAdi, durum, gecerliDal, headCommit, icerik, izlenmeyenOzet, kisa, yokSaymaKurallari, yokSayilir } from "../gitsim/depo";
 import { engeller, prCi } from "../gitsim/platform";
+import { mrEngelleri } from "../gitsim/gitlab";
 import type { DalKorumasi } from "../gitsim/tipler";
 import "./GitParcalari.css";
 
@@ -37,6 +38,7 @@ export function istem(o: Ortam): string {
   let dal = r ? dalAdi(r) : `(${kisa(d.head.tur === "kopuk" ? d.head.hash : "")}...)`;
   const islem = d.islem?.tur;
   if (islem) dal += "|" + { merge: "MERGING", "cherry-pick": "CHERRY-PICKING", revert: "REVERTING", rebase: "REBASE" }[islem];
+  else if (d.bisect) dal += "|BISECTING";
   return `${yer} (${dal}) $`;
 }
 
@@ -44,6 +46,7 @@ const YARDIM = [
   "Kabuk: ls, cd, pwd, cat, echo, printf, touch, mkdir, rm, mv, cp, nano <dosya>, clear",
   `Git: ${GIT_KOMUTLARI.join(", ")}`,
   "GitHub CLI: gh pr create, list, view, checks, review, merge, close (gh help)",
+  "GitLab CLI: glab mr create, list, view, approve, merge, close; glab ci status",
   "Sanal ödeme hizmeti: kafepay keys list, create, roll, revoke; kafepay logs",
   "İpucu: echo \"satır\" >> dosya ile dosyaya ekleyebilir, nano dosya ile editörde açabilirsin.",
   "Geri al düğmesi son komutu geri alır; Baştan başlat her şeyi sıfırlar.",
@@ -102,9 +105,11 @@ function tamamla(o: Ortam, girdi: string): string | null {
   if (parcalar.length === 2 && parcalar[0] === "git") adaylar = GIT_KOMUTLARI;
   else if (parcalar.length === 2 && parcalar[0] === "gh") adaylar = ["pr"];
   else if (parcalar.length === 3 && parcalar[0] === "gh" && parcalar[1] === "pr") adaylar = ["create", "list", "view", "checks", "review", "merge", "close"];
+  else if (parcalar.length === 2 && parcalar[0] === "glab") adaylar = ["mr", "ci"];
+  else if (parcalar.length === 3 && parcalar[0] === "glab" && parcalar[1] === "mr") adaylar = ["create", "list", "view", "approve", "merge", "close"];
   else if (parcalar.length === 2 && parcalar[0] === "kafepay") adaylar = ["keys", "logs"];
   else if (parcalar.length === 3 && parcalar[0] === "kafepay" && parcalar[1] === "keys") adaylar = ["list", "create", "roll", "revoke"];
-  else if (parcalar.length === 1) adaylar = ["git", "gh", "kafepay", "ls", "cd", "cat", "echo", "touch", "mkdir", "nano", "clear", "help"];
+  else if (parcalar.length === 1) adaylar = ["git", "gh", "glab", "kafepay", "ls", "cd", "cat", "echo", "touch", "mkdir", "nano", "clear", "help"];
   else {
     const d = o.depo;
     const dallar = d ? Object.keys(d.refs).filter((r) => r.startsWith("refs/heads/") || r.startsWith("refs/tags/")).map(dalAdi) : [];
@@ -503,14 +508,15 @@ export function UzakDepolar({ ortam }: { ortam: Ortam }) {
               <p className="gs-uzak-bos">Depo boş: henüz hiçbir şey push edilmedi.</p>
             )}
             {!!d.platform?.prler.length && (
-              <ul className="gs-prler" aria-label="Pull request'ler">
+              <ul className="gs-prler" aria-label={d.platform.tur === "gitlab" ? "Merge request'ler" : "Pull request'ler"}>
                 {[...d.platform.prler].reverse().map((pr) => {
                   const ci = pr.durum === "acik" ? prCi(d, pr) : [];
-                  const e = pr.durum === "acik" ? engeller(d, pr) : [];
+                  const gl = d.platform?.tur === "gitlab";
+                  const e = pr.durum === "acik" ? (gl ? mrEngelleri(d, pr) : engeller(d, pr)) : [];
                   return (
                     <li key={pr.no} className={`gs-pr gs-pr-${pr.durum}`}>
                       <span className="gs-pr-durum">{{ acik: "Açık", birlesti: "Birleşti", kapali: "Kapandı" }[pr.durum]}</span>
-                      <strong>#{pr.no}</strong> {pr.baslik}
+                      <strong>{gl ? "!" : "#"}{pr.no}</strong> {pr.baslik}
                       <span className="mono gs-pr-dal">{pr.kaynak} → {pr.hedef}</span>
                       {ci.length > 0 && <span className={ci.every((c) => c.gecti) ? "gs-pr-iyi" : "gs-pr-kotu"}>{ci.every((c) => c.gecti) ? "✓ CI" : "✗ CI"}</span>}
                       {pr.onaylar.length > 0 && <span className="gs-pr-iyi">✓ {pr.onaylar.join(", ")}</span>}
