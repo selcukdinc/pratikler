@@ -24,6 +24,18 @@ export interface Yenilik {
 
 export const YENILIKLER: Yenilik[] = [
   {
+    pr: 40,
+    tarih: "2026-11-12",
+    baslik: "Git ve GitHub pratiği: Başlangıç kademesi (dallar, çakışmalar, PR, geri almak)",
+    kitle: "yonetici",
+    maddeler: [
+      "Dört yeni ünite: Dallar, Çakışmalar, GitHub'da Birlikte Çalışmak ve Geri Almak; 95 yeni soru (kavram, komut ve senaryo).",
+      "Derslerde dokunarak öğrenilen dört yeni şekil: dal işaretçileri, çakışma editörü, baştan sona bir pull request ve reset kiplerinin karşılaştırması.",
+      "Dokuz yeni terminal alıştırması: dal açıp birleştirmek, gerçek bir çakışmayı çözmek, reset, revert, stash ve reflog ile kurtarma.",
+      "Sandbox'a Başlangıç kademesinin on görevi eklendi: yanlış dalda kalan commit'ler, kopuk HEAD'de kalan iş, canlıdaki hatayı geri almak, kaybolan commit'leri reflog'la bulmak ve daha fazlası.",
+    ],
+  },
+  {
     pr: 39,
     tarih: "2026-11-12",
     baslik: "Git ve GitHub pratiği: Acemi kademesinin konu anlatımları",

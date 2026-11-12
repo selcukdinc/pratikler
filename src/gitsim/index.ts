@@ -40,12 +40,15 @@ export function calistir(o: Ortam, satir: string): { ortam: Ortam; sonuc: KabukS
 }
 
 // Komutları sırayla çalıştırır (görevlerin başlangıç durumunu kurmak için);
-// başarısız komutta durur ve hatayı fırlatır
+// başarısız komutta durur ve hatayı fırlatır. "! " ile başlayan komutun başarısız
+// olması beklenir (ör. çakışmayla duran bir birleştirme)
 export function kur(o: Ortam, satirlar: string[]): Ortam {
   let x = o;
-  for (const s of satirlar) {
+  for (const satir of satirlar) {
+    const hataBekleniyor = satir.startsWith("! ");
+    const s = hataBekleniyor ? satir.slice(2) : satir;
     const r = calistir(x, s);
-    if (r.sonuc.kod !== 0) throw new Error(`kurulum komutu başarısız: ${s}\n${r.sonuc.cikti}`);
+    if ((r.sonuc.kod !== 0) !== hataBekleniyor) throw new Error(`kurulum komutu ${hataBekleniyor ? "başarılı oldu" : "başarısız"}: ${s}\n${r.sonuc.cikti}`);
     x = r.ortam;
   }
   return x;

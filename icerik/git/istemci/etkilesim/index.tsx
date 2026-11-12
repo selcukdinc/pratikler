@@ -4,6 +4,7 @@ import { useMemo, useState, type ComponentType } from "react";
 import type { Gorsel } from "../../../../src/gorseller/tip";
 import { satirFarki, satirlar } from "../../../../src/gitsim/fark";
 import { nesneKimligi } from "../../../../src/gitsim/nesne";
+import { CakismaEditoru, DalIsaretcisi, PullRequest, ResetKipleri } from "./kademe2";
 import "./etkilesim.css";
 
 type Ozellik = { g: Gorsel };
@@ -368,4 +369,8 @@ export const ETKILESIMLER: Record<string, ComponentType<Ozellik>> = {
   ucAlan: UcAlanAkisi,
   commitKimligi: CommitKimligi,
   yerelUzak: YerelUzak,
+  dalIsaretcisi: DalIsaretcisi,
+  cakismaEditoru: CakismaEditoru,
+  pullRequest: PullRequest,
+  resetKipleri: ResetKipleri,
 };
