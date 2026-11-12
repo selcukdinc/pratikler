@@ -50,7 +50,7 @@ export interface Olay {
 }
 
 // Koşulu tutan ve henüz olmamış olayları işletir
-export function olaylariIslet(g: Gorev, o: Ortam): { ortam: Ortam; bildirimler: string[] } {
+export function olaylariIslet(g: { olaylar?: Olay[] }, o: Ortam): { ortam: Ortam; bildirimler: string[] } {
   let x = o;
   const bildirimler: string[] = [];
   for (const olay of g.olaylar ?? []) {
@@ -67,7 +67,7 @@ export function olaylariIslet(g: Gorev, o: Ortam): { ortam: Ortam; bildirimler: 
 export function cozumuCalistir(
   o: Ortam,
   satirlar: string[],
-  secenek: { editorCozum?: ((metin: string) => string)[]; gorev?: Gorev; adim?: (satir: string, kod: number, cikti: string, o: Ortam) => void } = {},
+  secenek: { editorCozum?: ((metin: string) => string)[]; gorev?: { olaylar?: Olay[] }; adim?: (satir: string, kod: number, cikti: string, o: Ortam) => void } = {},
 ): Ortam {
   const donusumler = [...(secenek.editorCozum ?? [])];
   let x = o;
@@ -104,6 +104,8 @@ const OKUYAN = new Set(["status", "log", "diff", "show", "reflog", "help", "--he
 
 function degistirenMi(parca: string): boolean {
   const w = parca.trim().split(/\s+/);
+  // GitHub CLI: PR açmak, onaylamak, birleştirmek, kapatmak sayılır; bakmak sayılmaz
+  if (w[0] === "gh") return w[1] === "pr" && ["create", "review", "merge", "close"].includes(w[2] ?? "");
   if (w[0] !== "git" || !w[1] || OKUYAN.has(w[1])) return false;
   const alt = w[1];
   const kalan = w.slice(2);

@@ -39,13 +39,23 @@ const HATALAR: Kalip[] = [
   [/ambiguous argument '([^']*)': unknown revision/, (m) => `Git '${m[1]}' adını bir commit'e ya da dosyaya çeviremedi. Yazımı kontrol et.`],
   [/Not possible to fast-forward/, () => "İki dal ayrışmış; ileri sarma (fast-forward) yapılamıyor. Birleştirme commit'i için `--ff-only` olmadan dene."],
   [/is not a git command/, () => "Böyle bir git komutu yok; yazım hatası olabilir. Git'in önerisine bak."],
-  [/command not found/, () => "Bu sandbox yalnızca git ve temel kabuk komutlarını (ls, cd, cat, echo, touch, mkdir, rm, mv, cp, nano) tanır."],
+  [/command not found/, () => "Bu sandbox yalnızca git, gh (GitHub CLI) ve temel kabuk komutlarını (ls, cd, cat, echo, touch, mkdir, rm, mv, cp, nano) tanır."],
   [/No stash entries found/, () => "Kenarda bekleyen bir stash yok."],
   [/You have nothing to amend/, () => "Düzeltilecek bir commit yok; önce ilk commit'i oluştur."],
   [/You have not concluded your (merge|cherry-pick|revert|rebase)/, (m) => `Yarım kalmış bir ${m[1]} var. Önce bitir (\`--continue\`) ya da vazgeç (\`--abort\`).`],
   [/cannot switch branch while/, () => "Yarıda kalmış bir işlem varken dal değiştirilemez. Önce işlemi bitir ya da `--abort` ile vazgeç."],
   [/tag '([^']*)' already exists/, (m) => `'${m[1]}' etiketi zaten var. Etiketler genelde taşınmaz; yeni bir ad seç.`],
   [/key does not contain a section/, () => "Ayar adı `bolum.ad` biçiminde olmalı, örneğin `user.name`."],
+  [/Changes must be made through a pull request/, () =>
+    "Dal korumalı: GitHub doğrudan push'u kabul etmiyor. Kendi dalını aç (`git switch -c feature/...`), oraya commit'le, dalı push et ve `gh pr create` ile pull request aç."],
+  [/Cannot force-push to this branch/, () => "Korumalı dalda force push kapalı: paylaşılan geçmiş yeniden yazılamaz."],
+  [/Cannot delete this branch/, () => "Korumalı dal silinemez. main, test ve dev gibi ortam dalları kalıcıdır."],
+  [/Can not approve your own pull request/, () => "Kendi PR'ını onaylayamazsın; onayı bir ekip arkadaşın verir. İncelemenin amacı ikinci bir gözdür."],
+  [/is not mergeable: the base branch policy/, () => "Hedef dalın kuralları henüz sağlanmadı: listede eksik onay ya da kırmızı CI var. `gh pr checks` ile CI'a, `gh pr view` ile durumuna bak."],
+  [/the merge commit cannot be cleanly created/, () => "PR'ın dalı hedefle çakışıyor. Hedefi kendi dalına al (merge ya da rebase), çakışmayı çöz, push et; PR kendiliğinden güncellenir."],
+  [/must first push the current branch/, () => "PR açmadan önce dalın GitHub'da olmalı: `git push -u origin <dal>`."],
+  [/No commits between/, () => "Dalında hedefte olmayan commit yok; açılacak bir değişiklik yok."],
+  [/Some checks were not successful/, () => "CI kırmızı: kırmızı adımın iletisine bak, dalında düzelt, commit'le ve push et. PR kendiliğinden yeniden denetlenir."],
   [/\(fetch first\)/, () =>
     "Push reddedildi: uzak depoda senin bilgisayarında olmayan commit'ler var (biri senden önce push etmiş). Önce `git pull` ile onları al, gerekirse çakışmayı çöz, sonra yeniden push et. `--force` ile ezmek ekip arkadaşının işini siler."],
   [/\(non-fast-forward\)/, () =>
@@ -164,7 +174,18 @@ function basari(satir: string, once: Ortam, sonra: Ortam, cikti: string): string
   }
 }
 
+function ghNotu(satir: string, cikti: string): string | null {
+  if (/^Creating pull request/m.test(cikti)) return "Pull request açıldı. Ekip arkadaşların inceleyip onaylayacak; CI dalını denetleyecek. Durumu `gh pr view` ile izle.";
+  if (/^✓ Approved/m.test(cikti)) return "Onay verildi.";
+  if (/^✓ (Merged|Squashed and merged|Rebased and merged)/m.test(cikti))
+    return "PR birleşti; değişiklik artık GitHub'daki hedef dalda. Kendi bilgisayarında görmek için `git fetch` (ya da hedef dala geçip `git pull`).";
+  if (/^All checks were successful/m.test(cikti)) return "CI yeşil: bütün denetimler geçti.";
+  void satir;
+  return null;
+}
+
 export function aciklama(satir: string, sonuc: KabukSonucu, once: Ortam, sonra: Ortam): string | null {
+  if (/^\s*gh\b/.test(satir) && sonuc.kod === 0) return ghNotu(satir, sonuc.cikti);
   for (const [k, f] of HATALAR) {
     const m = sonuc.cikti.match(k);
     if (m) return f(m);

@@ -4,6 +4,7 @@
 // ortamlarından push eder (ekipCalistir).
 import { agacaGec, ataMi, ayar, cozYumusak, DAL, dalAdi, depoGerekli, ETIKET, gecerliDal, headCommit, kisa, reflogYaz, UZAK, yeniDepo } from "./depo";
 import { merge, rebase } from "./dal";
+import { pushKorumasi } from "./platform";
 import { GitHatasi } from "./nesne";
 import type { Depo, Nesne, Ortam } from "./tipler";
 import { ayir, ilk, var_ } from "./yardim";
@@ -32,7 +33,7 @@ function bulunamadi(url: string): GitHatasi {
 }
 
 // Bir commit'ten ulaşılan bütün nesneleri (commit, ağaç, blob, etiket) kaynaktan hedefe kopyalar
-function nesneleriKopyala(kaynak: Depo, hedef: Depo, baslar: string[]) {
+export function nesneleriKopyala(kaynak: Depo, hedef: Depo, baslar: string[]) {
   const yigin = [...baslar];
   while (yigin.length) {
     const h = yigin.pop()!;
@@ -70,7 +71,7 @@ function uzakDepo(o: Ortam, d: Depo, ad: string): { url: string; uzak: Depo } {
   return { url, uzak };
 }
 
-const uzakHeadDali = (u: Depo) => (u.head.tur === "ref" ? u.head.ref : null);
+export const uzakHeadDali = (u: Depo) => (u.head.tur === "ref" ? u.head.ref : null);
 
 // ---- clone ----
 
@@ -401,6 +402,15 @@ export function push(o: Ortam, args: string[]): string {
   const satirlar: PushSatiri[] = [];
   const izlenecek: string[] = [];
   const githubNotu: string[] = [];
+  // Sunucunun (GitHub) "remote:" satırları, ör. korumalı dal reddi
+  const uzakSatirlari: string[] = [];
+  const korumaReddi = (ref: string, tur: "guncelle" | "zorla" | "sil", kaynak: string | undefined, hedef: string) => {
+    const red = pushKorumasi(uzak, ref, tur);
+    if (!red) return false;
+    uzakSatirlari.push(...red);
+    satirlar.push({ kod: "!", ozet: "[remote rejected]", kaynak, hedef, hata: "protected branch hook declined", reddedildi: true });
+    return true;
+  };
   for (const spec of refspecler) {
     const arti = spec.startsWith("+");
     const temiz = arti ? spec.slice(1) : spec;
@@ -415,6 +425,7 @@ export function push(o: Ortam, args: string[]): string {
     if (!kaynak) {
       const uzakRef = hedef.startsWith("refs/") ? hedef : uzak.refs[ETIKET + hedef] !== undefined && uzak.refs[DAL + hedef] === undefined ? ETIKET + hedef : DAL + hedef;
       if (uzak.refs[uzakRef] === undefined) throw new GitHatasi(`error: unable to delete '${hedef}': remote ref does not exist\nerror: failed to push some refs to '${url}'`, 1);
+      if (korumaReddi(uzakRef, "sil", undefined, dalAdi(uzakRef))) continue;
       delete uzak.refs[uzakRef];
       if (uzakRef.startsWith(DAL)) delete d.refs[`${UZAK}${uzakAd}/${dalAdi(uzakRef)}`];
       sembolleriGuncelle(d);
@@ -459,10 +470,12 @@ export function push(o: Ortam, args: string[]): string {
         satirlar.push({ kod: "!", ozet: "[rejected]", kaynak: kisaKaynak, hedef: kisaHedef, hata: d.nesneler[uzakHash] ? "non-fast-forward" : "fetch first", reddedildi: true });
         continue;
       }
+      if (korumaReddi(hedefRef, "zorla", kisaKaynak, kisaHedef)) continue;
       kod = "+";
       ozet = `${kisa(uzakHash)}...${kisa(yerelHash)}`;
       hata = "forced update";
     }
+    if (kod !== "+" && korumaReddi(hedefRef, "guncelle", kisaKaynak, kisaHedef)) continue;
     nesneleriKopyala(d, uzak, [yerelHash]);
     uzak.refs[hedefRef] = yerelHash;
     // Boş depoya ilk push: varsayılan dal yoksa ilk gelen dal olur (GitHub gibi)
@@ -488,6 +501,7 @@ export function push(o: Ortam, args: string[]): string {
         c.push("remote: ", `remote: Create a pull request for '${dal}' on GitHub by visiting:`, `remote:      ${gosterim(url)}/pull/new/${dal}`, "remote: ");
       }
     }
+    c.push(...uzakSatirlari);
     c.push(`To ${url}`);
     for (const s of gorunen) c.push(` ${s.kod} ${s.ozet.padEnd(17)} ${s.kaynak ? `${s.kaynak} -> ${s.hedef}` : s.hedef}${s.hata ? ` (${s.hata})` : ""}`);
   }

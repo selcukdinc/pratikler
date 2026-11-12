@@ -6,7 +6,9 @@ import {
   commitSayisi, dalAdiniAl, gecmisteVarMi, headDosyalari, izleniyor, sonMesaj, temizMi,
 } from "../../../src/gitsim/gorev";
 import { ataMi, commitAgaci, commitOku, gecmis, icerik, soy } from "../../../src/gitsim/depo";
+import { prCi } from "../../../src/gitsim/platform";
 import { uzakBul, uzakDalUcu } from "../../../src/gitsim/uzak";
+import { CI_LINT, KAFE_TEMEL, platform, prVar, UC_ORTAM, uzakDosya, uzakUc as kafeUc } from "./kafe";
 import type { Ortam } from "../../../src/gitsim/tipler";
 
 const HESAP_JS = "function topla(a, b) {\n  return a + b;\n}\n";
@@ -829,8 +831,241 @@ const rebaseCakisma: Gorev = {
   sonNot: "Rebase'de `--ours` main tarafı, `--theirs` senin taşınan commit'indir; merge'tekinin tersi. İşler karışırsa `git rebase --abort` her şeyi başa alır.",
 };
 
+// ---------------- Kademe 3-4: korumalar, PR, CI ve üç ortamlı akış ----------------
+
+const korumaliMain: Gorev = {
+  id: "korumali-main",
+  kademe: 3,
+  unite: 13,
+  baslik: "Korumalı main'e push",
+  hikaye:
+    "Menüye limonata ekleyip main'de commit'ledin. Ama GitHub'da main korumalı: doğrudan push kabul edilmiyor. " +
+    "İşini kaybetmeden commit'i `feature/menu-limonata` dalına taşı, yerel main'i GitHub'dakine eşitle ve main'e PR aç.",
+  kurulum: [...KAFE_TEMEL, platform({ korumalar: { main: { prZorunlu: true } } }), `git clone ${KAFE}`, 'echo "limonata 30" >> menu.txt', 'git commit -am "Limonata eklendi"'],
+  hedefler: [
+    { aciklama: "Yerel main GitHub'daki main'le aynı", denetle: (o) => !!kafeUc(o, "main") && dalUcu(o, "main") === kafeUc(o, "main") },
+    { aciklama: "Limonata GitHub'da feature/menu-limonata dalında", denetle: (o) => (uzakDosya(o, "feature/menu-limonata", "menu.txt") ?? "").includes("limonata") },
+    { aciklama: "main'e PR açıldı", denetle: (o) => prVar(o, (p) => p.hedef === "main" && p.kaynak === "feature/menu-limonata") },
+  ],
+  ipuclari: [
+    "Önce `git push` deneyip reddi okuyabilirsin: GH006, \"Changes must be made through a pull request\".",
+    "`git branch feature/menu-limonata` commit'in olduğu yerde dal açar; sonra `git reset --hard origin/main` ile main'i geri al.",
+    "Dala geç, `git push -u origin feature/menu-limonata`, sonra `gh pr create --base main --title \"Limonata\"`.",
+  ],
+  cozum: [
+    "git branch feature/menu-limonata",
+    "git reset --hard origin/main",
+    "git switch feature/menu-limonata",
+    "git push -u origin feature/menu-limonata",
+    'gh pr create --base main --title "Limonata"',
+  ],
+  enAz: 6,
+  sonNot: "Korumalı dalda red bir hata değil, kuralın işlediğinin kanıtı. Commit'i bir dala almak işini korur; main'i geri sarmak yalnızca yerel kopyanı düzeltir.",
+};
+
+const ciKirmizi: Gorev = {
+  id: "ci-kirmizi",
+  kademe: 3,
+  unite: 13,
+  baslik: "Kırmızı CI",
+  hikaye:
+    "Hazırlık süresi PR'ını açtın ama birleşmiyor. main'in kuralı: CI yeşil olmalı ve bir onay gerekli. " +
+    "CI'ın neden kırmızı olduğunu bul, dalında düzelt; Ayşe yeşili görünce onaylayacak. Sonra PR'ı birleştir.",
+  kurulum: [
+    ...KAFE_TEMEL,
+    platform({ korumalar: { main: { prZorunlu: true, onay: 1, ci: true } }, ci: [CI_LINT] }),
+    `git clone ${KAFE}`,
+    "git switch -c feature/hazirlik-suresi",
+    "printf 'export const SURE = 5;\\nconsole.log(SURE);\\n' > siparis.js",
+    "git add siparis.js",
+    'git commit -m "Hazırlık süresi"',
+    "git push -u origin feature/hazirlik-suresi",
+    'gh pr create --base main --title "Hazırlık süresi"',
+  ],
+  olaylar: [
+    {
+      id: "ayse-onay",
+      kosul: (o) => { const f = uzakDosya(o, "feature/hazirlik-suresi", "siparis.js"); return f !== null && !f.includes("console.log"); },
+      kim: "ayse",
+      komutlar: ["gh pr review feature/hazirlik-suresi --approve"],
+      bildirim: "CI yeşile döndü; Ayşe PR'ı inceleyip onayladı.",
+    },
+  ],
+  hedefler: [
+    { aciklama: "PR birleşti", denetle: (o) => prVar(o, (p) => p.durum === "birlesti") },
+    { aciklama: "GitHub'daki main'de console.log yok", denetle: (o) => { const f = uzakDosya(o, "main", "siparis.js"); return f !== null && !f.includes("console.log"); } },
+  ],
+  ipuclari: ["`gh pr checks` hangi adımın neden kırmızı olduğunu söyler.", "Satırı silip aynı dala commit'le ve push et; PR kendiliğinden güncellenir.", "Onay gelince `gh pr merge --merge`."],
+  cozum: ['echo "export const SURE = 5;" > siparis.js', 'git commit -am "console.log kaldırıldı"', "git push", "gh pr merge --merge"],
+  sonNot: "Kuralı kapatmak ya da yöneticiden zorla birleştirmesini istemek sorunu canlıya taşırdı. CI'ın işi tam olarak bu satırı yakalamaktı.",
+};
+
+const surumEtiketi: Gorev = {
+  id: "surum-etiketi",
+  kademe: 3,
+  unite: 12,
+  baslik: "Yeni sürümü işaretle",
+  hikaye:
+    "v1.2.0 eski bir commit'te duruyor ve GitHub'da. O günden beri main'e iki yeni özellik (geriye uyumlu) girdi. " +
+    "SemVer'e göre doğru numarayla son commit'e açıklamalı bir etiket koy ve GitHub'a gönder. Eski etikete dokunma.",
+  kurulum: [
+    ...KAFE_TEMEL,
+    `git clone ${KAFE}`,
+    'git tag -a v1.2.0 -m "Sürüm 1.2.0"',
+    "git push origin v1.2.0",
+    'echo "cay 20" >> menu.txt', 'git commit -am "feat: çay"',
+    'echo "su 10" >> menu.txt', 'git commit -am "feat: su"',
+    "git push",
+  ],
+  hedefler: [
+    { aciklama: "GitHub'da v1.3.0 etiketi var", denetle: (o) => !!uzakBul(o, KAFE)?.refs["refs/tags/v1.3.0"] },
+    { aciklama: "v1.3.0 açıklamalı ve main'in son commit'inde", denetle: (o) => { const u = uzakBul(o, KAFE); const h = u?.refs["refs/tags/v1.3.0"]; const n = h ? u!.nesneler[h] : undefined; return n?.tur === "tag" && n.nesne === kafeUc(o, "main"); } },
+    { aciklama: "v1.2.0 yerinde duruyor", denetle: (o) => { const u = uzakBul(o, KAFE); const h = u?.refs["refs/tags/v1.2.0"]; const n = h ? u!.nesneler[h] : undefined; return n?.tur === "tag" && n.nesne !== kafeUc(o, "main"); } },
+  ],
+  ipuclari: [
+    "Geriye uyumlu yeni özellik MINOR'u artırır: 1.2.0 → 1.3.0.",
+    "`git tag -a v1.3.0 -m \"Sürüm 1.3.0\"`, sonra `git push origin v1.3.0` (düz push etiketi göndermez).",
+  ],
+  cozum: ['git tag -a v1.3.0 -m "Sürüm 1.3.0"', "git push origin v1.3.0"],
+  sonNot: "Etiket hep aynı commit'i gösterir; canlıdaki sürümün hangi kod olduğu her zaman bilinir. Hata düzeltmesi olsaydı v1.2.1, uyumu bozan değişiklik olsaydı v2.0.0 olurdu.",
+};
+
+const LOGIN = "feature/US-D12-login-validation";
+
+const devdenAcilan: Gorev = {
+  id: "devden-acilan",
+  kademe: 4,
+  unite: 12,
+  baslik: "Yanlış yerden açılan dal",
+  hikaye:
+    `Giriş doğrulaması için \`${LOGIN}\` dalını açıp bir commit attın; henüz push etmedin. Sonra fark ettin: dalı test'ten değil dev'den açmışsın ` +
+    "ve dev'de Mert'in yarım ödeme işi var. Dalı test'in üstüne taşı, gönder ve test'e PR aç. CI'daki akış kuralı yeşil olmalı.",
+  kurulum: [...UC_ORTAM, `git switch -c ${LOGIN} origin/dev`, 'echo "export const gecerli = (p) => p.length > 0;" > giris.js', "git add giris.js", 'git commit -m "Boş parola reddediliyor"'],
+  hedefler: [
+    { aciklama: "Dal GitHub'da ve giris.js içinde", denetle: (o) => uzakDosya(o, LOGIN, "giris.js") !== null },
+    { aciklama: "Dalda Mert'in yarım işi yok", denetle: (o) => !!kafeUc(o, LOGIN) && uzakDosya(o, LOGIN, "odeme.js") === null },
+    { aciklama: "test'e PR açıldı ve CI yeşil", denetle: (o) => { const u = uzakBul(o, KAFE); return !!u && (u.platform?.prler ?? []).some((p) => p.hedef === "test" && p.kaynak === LOGIN && prCi(u, p).every((c) => c.gecti)); } },
+  ],
+  ipuclari: [
+    "Dalında dev'e özgü commit'ler var: `git log --oneline origin/test..HEAD` ile gör.",
+    "`git rebase --onto origin/test origin/dev` yalnızca dev'den sonraki (senin) commit'lerini test'in üstüne taşır.",
+    `Sonra \`git push -u origin ${LOGIN}\` ve \`gh pr create --base test --title "..."\`.`,
+  ],
+  cozum: ["git rebase --onto origin/test origin/dev", `git push -u origin ${LOGIN}`, 'gh pr create --base test --title "Giriş doğrulaması"'],
+  sonNot: "Dal dev'den açılsaydı PR test'e Mert'in yarım işini de taşırdı. Henüz push etmediğin için geçmişi yeniden yazmak serbestti; push etmiş olsaydın taşıdıktan sonra --force-with-lease gerekirdi.",
+};
+
+const FEATURE = "feature/US-D03e-docker-compose-local";
+
+const ucOrtam: Gorev = {
+  id: "uc-ortam",
+  kademe: 4,
+  unite: 12,
+  baslik: "Tatbikat: dev → test → main",
+  hikaye:
+    "Üç ortamlı akışın tamamı. main, test ve dev korumalı; dev ve main için bir onay gerekli, CI'da lint ve akış kuralı var. dev'de Mert'in yarım ödeme işi bekliyor. " +
+    `US-D03e için \`${FEATURE}\` dalında \`docker-compose.yml\` ekle; dev'e, sonra test'e taşı, Release PR ile canlıya (main) çıkar ve dalı sil. Mert'in yarım işi canlıya gitmesin.`,
+  kurulum: UC_ORTAM,
+  olaylar: [
+    {
+      id: "ayse-dev",
+      kosul: (o) => prVar(o, (p) => p.durum === "acik" && p.hedef === "dev" && !p.onaylar.length),
+      kim: "ayse",
+      komutlar: [`gh pr review ${FEATURE} --approve`],
+      bildirim: "Ayşe dev'e açtığın PR'ı inceledi ve onayladı.",
+    },
+    {
+      id: "mert-release",
+      kosul: (o) => prVar(o, (p) => p.durum === "acik" && p.hedef === "main" && p.kaynak === "test" && !p.onaylar.length),
+      kim: "mert",
+      komutlar: ["gh pr review test --approve"],
+      bildirim: "QA test ortamında doğruladı; Mert Release PR'ı onayladı.",
+    },
+  ],
+  hedefler: [
+    { aciklama: "docker-compose.yml dev'de", denetle: (o) => uzakDosya(o, "dev", "docker-compose.yml") !== null },
+    { aciklama: "docker-compose.yml test'te", denetle: (o) => uzakDosya(o, "test", "docker-compose.yml") !== null },
+    { aciklama: "docker-compose.yml canlıda (main)", denetle: (o) => uzakDosya(o, "main", "docker-compose.yml") !== null },
+    { aciklama: "Mert'in yarım işi test'e ve main'e gitmedi", denetle: (o) => !!kafeUc(o, "main") && uzakDosya(o, "main", "odeme.js") === null && uzakDosya(o, "test", "odeme.js") === null },
+    { aciklama: "Feature dalı GitHub'dan silindi", denetle: (o) => !!kafeUc(o, "main") && !kafeUc(o, FEATURE) && prVar(o, () => true) },
+  ],
+  ipuclari: [
+    "Dal test'ten açılır: `git fetch`, sonra `git switch -c <dal> origin/test`.",
+    "PR 1: `gh pr create --base dev --title \"...\"`; Ayşe onaylayınca `gh pr merge --merge`.",
+    "PR 2 aynı daldan: `gh pr create --base test ...`; birleştirirken `--delete-branch` ile dalı da sil.",
+    "Release PR: `gh pr create --base main --head test --title \"Sürüm 1.4\"`, onay gelince `gh pr merge test --merge`.",
+  ],
+  cozum: [
+    "git fetch",
+    `git switch -c ${FEATURE} origin/test`,
+    'echo "services: {}" > docker-compose.yml',
+    "git add docker-compose.yml",
+    'git commit -m "Yerel docker compose"',
+    `git push -u origin ${FEATURE}`,
+    'gh pr create --base dev --title "Docker compose"',
+    "gh pr merge --merge",
+    'gh pr create --base test --title "Docker compose"',
+    "gh pr merge --merge --delete-branch",
+    'gh pr create --base main --head test --title "Sürüm 1.4"',
+    "gh pr merge test --merge",
+  ],
+  sonNot: "Kağıttaki süreç: test'ten dal, PR 1 → dev, aynı dal PR 2 → test, QA doğrulaması, Release PR test → main, dal silinir. dev hiçbir zaman toptan test'e taşınmadı; Mert'in yarım işi dev'de kendi PR'ını bekliyor.",
+};
+
+const hotfix: Gorev = {
+  id: "hotfix",
+  kademe: 4,
+  unite: 12,
+  baslik: "Cuma akşamı hotfix",
+  hikaye:
+    "Canlıda kahvenin fiyatı 40 görünüyor, 45 olmalı; kasada sorun çıkıyor. Düzeltme canlıdan (main'den) açılan bir hotfix dalıyla yapılır ve önce main'e girer. " +
+    "Ama orada kalırsa bir sonraki sürümde hata geri gelir: aynı düzeltme test'e ve dev'e de ulaşmalı. main ve dev'e Ayşe onay verecek.",
+  kurulum: UC_ORTAM,
+  olaylar: [
+    {
+      id: "ayse-main",
+      kosul: (o) => prVar(o, (p) => p.durum === "acik" && p.hedef === "main" && !p.onaylar.length),
+      kim: "ayse",
+      komutlar: ["gh pr review hotfix/kahve-fiyati --approve"],
+      bildirim: "Ayşe hotfix PR'ını hemen inceleyip onayladı.",
+    },
+    {
+      id: "ayse-dev",
+      kosul: (o) => prVar(o, (p) => p.durum === "acik" && p.hedef === "dev" && !p.onaylar.length),
+      kim: "ayse",
+      komutlar: ["gh pr review hotfix/kahve-fiyati --approve"],
+      bildirim: "Ayşe dev'e açılan PR'ı da onayladı.",
+    },
+  ],
+  hedefler: [
+    { aciklama: "Canlıda (main) kahve 45", denetle: (o) => (uzakDosya(o, "main", "menu.txt") ?? "").includes("kahve 45") },
+    { aciklama: "test'te kahve 45", denetle: (o) => (uzakDosya(o, "test", "menu.txt") ?? "").includes("kahve 45") },
+    { aciklama: "dev'de kahve 45", denetle: (o) => (uzakDosya(o, "dev", "menu.txt") ?? "").includes("kahve 45") },
+    { aciklama: "main'e yarım ödeme işi girmedi", denetle: (o) => !!kafeUc(o, "main") && uzakDosya(o, "main", "odeme.js") === null },
+  ],
+  ipuclari: [
+    "Hotfix canlıdaki koddan açılır: `git switch -c hotfix/kahve-fiyati origin/main`.",
+    "Düzelt, push et, `gh pr create --base main ...`; onay gelince birleştir.",
+    "Aynı daldan test'e ve dev'e de PR aç ve birleştir.",
+  ],
+  cozum: [
+    "git switch -c hotfix/kahve-fiyati origin/main",
+    'echo "kahve 45" > menu.txt',
+    'git commit -am "Kahve fiyatı 45"',
+    "git push -u origin hotfix/kahve-fiyati",
+    'gh pr create --base main --title "Kahve fiyatı"',
+    "gh pr merge --merge",
+    'gh pr create --base test --title "Kahve fiyatı"',
+    "gh pr merge --merge",
+    'gh pr create --base dev --title "Kahve fiyatı"',
+    "gh pr merge --merge",
+  ],
+  sonNot: "Git Flow'daki hotfix kuralının üç ortamlı karşılığı: canlıdan aç, önce canlıya, sonra bütün ortamlara. Düzeltme yalnızca main'de kalsaydı bir sonraki Release PR (test → main) onu geri alırdı.",
+};
+
 export const GOREVLER: Gorev[] = [
   kimlik, ilkDepo, ilkCommit, secerekEkle, geriCek, gitignore, dedektif, envCikar, kurtar, mesajDuzelt, mainYap,
   dalAc, ileriSar, izBirak, yanlisDal, kopukKurtar, cakismaCoz, vazgec, canliGeriAl, acilStash, reflogKurtar,
   ilkPush, pushReddi, guvenliForce, budama, tekCommit, mesajDegistir, sirDrop, rebaseCakisma,
+  korumaliMain, ciKirmizi, surumEtiketi, devdenAcilan, ucOrtam, hotfix,
 ];

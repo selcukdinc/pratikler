@@ -6,6 +6,8 @@ import { calistir, COMMIT_MESAJI, editorIcerigi, editorKaydet, GIT_KOMUTLARI, RE
 import { aciklama } from "../gitsim/aciklama";
 import { grafikKur, type GrafikDugumu } from "../gitsim/grafik";
 import { commitAgaci, commitOku, dalAdi, durum, gecerliDal, headCommit, icerik, izlenmeyenOzet, kisa, yokSaymaKurallari, yokSayilir } from "../gitsim/depo";
+import { engeller, prCi } from "../gitsim/platform";
+import type { DalKorumasi } from "../gitsim/tipler";
 import "./GitParcalari.css";
 
 export type SatirTuru = "komut" | "cikti" | "hata" | "not" | "bilgi" | "olay";
@@ -41,6 +43,7 @@ export function istem(o: Ortam): string {
 const YARDIM = [
   "Kabuk: ls, cd, pwd, cat, echo, printf, touch, mkdir, rm, mv, cp, nano <dosya>, clear",
   `Git: ${GIT_KOMUTLARI.join(", ")}`,
+  "GitHub CLI: gh pr create, list, view, checks, review, merge, close (gh help)",
   "İpucu: echo \"satır\" >> dosya ile dosyaya ekleyebilir, nano dosya ile editörde açabilirsin.",
   "Geri al düğmesi son komutu geri alır; Baştan başlat her şeyi sıfırlar.",
 ].join("\n");
@@ -96,7 +99,9 @@ function tamamla(o: Ortam, girdi: string): string | null {
   const son = parcalar[parcalar.length - 1] ?? "";
   let adaylar: string[];
   if (parcalar.length === 2 && parcalar[0] === "git") adaylar = GIT_KOMUTLARI;
-  else if (parcalar.length === 1) adaylar = ["git", "ls", "cd", "cat", "echo", "touch", "mkdir", "nano", "clear", "help"];
+  else if (parcalar.length === 2 && parcalar[0] === "gh") adaylar = ["pr"];
+  else if (parcalar.length === 3 && parcalar[0] === "gh" && parcalar[1] === "pr") adaylar = ["create", "list", "view", "checks", "review", "merge", "close"];
+  else if (parcalar.length === 1) adaylar = ["git", "gh", "ls", "cd", "cat", "echo", "touch", "mkdir", "nano", "clear", "help"];
   else {
     const d = o.depo;
     const dallar = d ? Object.keys(d.refs).filter((r) => r.startsWith("refs/heads/") || r.startsWith("refs/tags/")).map(dalAdi) : [];
@@ -459,6 +464,11 @@ export function Editor({ yol, metin, onKaydet, onKapat }: { yol: string; metin: 
 // ---------------- uzak depolar ----------------
 
 // Sanal GitHub'daki depoların dalları: push ve ekip arkadaşlarının push'u burada görünür
+function korumaOzeti(k: DalKorumasi): string {
+  const p = [k.prZorunlu ? "doğrudan push yok, PR zorunlu" : null, k.onay ? `${k.onay} onay` : null, k.ci ? "CI geçmeli" : null, k.zorlaSerbest ? null : "force push kapalı"];
+  return p.filter(Boolean).join(", ");
+}
+
 export function UzakDepolar({ ortam }: { ortam: Ortam }) {
   const uzaklar = Object.entries(ortam.uzaklar ?? {});
   if (!uzaklar.length) return null;
@@ -478,6 +488,7 @@ export function UzakDepolar({ ortam }: { ortam: Ortam }) {
                   return (
                     <li key={r}>
                       <strong>{dalAdi(r)}</strong>
+                      {d.platform?.korumalar[dalAdi(r)] && <span className="gs-kilit" title={korumaOzeti(d.platform.korumalar[dalAdi(r)]!)} aria-label={`korumalı: ${korumaOzeti(d.platform.korumalar[dalAdi(r)]!)}`}>🔒</span>}
                       {r === varsayilan && <span className="gs-kisayol">varsayılan</span>}
                       <span className="mono">{kisa(h)}</span>
                       <span className="gs-uzak-mesaj">{commitOku(d, h).mesaj.split("\n")[0]}</span>
@@ -487,6 +498,24 @@ export function UzakDepolar({ ortam }: { ortam: Ortam }) {
               </ul>
             ) : (
               <p className="gs-uzak-bos">Depo boş: henüz hiçbir şey push edilmedi.</p>
+            )}
+            {!!d.platform?.prler.length && (
+              <ul className="gs-prler" aria-label="Pull request'ler">
+                {[...d.platform.prler].reverse().map((pr) => {
+                  const ci = pr.durum === "acik" ? prCi(d, pr) : [];
+                  const e = pr.durum === "acik" ? engeller(d, pr) : [];
+                  return (
+                    <li key={pr.no} className={`gs-pr gs-pr-${pr.durum}`}>
+                      <span className="gs-pr-durum">{{ acik: "Açık", birlesti: "Birleşti", kapali: "Kapandı" }[pr.durum]}</span>
+                      <strong>#{pr.no}</strong> {pr.baslik}
+                      <span className="mono gs-pr-dal">{pr.kaynak} → {pr.hedef}</span>
+                      {ci.length > 0 && <span className={ci.every((c) => c.gecti) ? "gs-pr-iyi" : "gs-pr-kotu"}>{ci.every((c) => c.gecti) ? "✓ CI" : "✗ CI"}</span>}
+                      {pr.onaylar.length > 0 && <span className="gs-pr-iyi">✓ {pr.onaylar.join(", ")}</span>}
+                      {pr.durum === "acik" && <span className={e.length ? "gs-pr-kotu" : "gs-pr-iyi"}>{e.length ? "birleştirilemez" : "birleştirilebilir"}</span>}
+                    </li>
+                  );
+                })}
+              </ul>
             )}
           </div>
         );
