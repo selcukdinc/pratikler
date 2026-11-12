@@ -1134,6 +1134,12 @@ body.boyutlaniyor-dikey { cursor: ns-resize; user-select: none; }
 .sandbox .log { font-size: calc(12px * var(--yazi-olcek)); }
 
 .olcek-dugmeleri { display: inline-flex; }
+.tam-en-dugme { padding: 0 8px; white-space: nowrap; }
+.tam-en-dugme[aria-pressed="true"] { background: var(--active); border-color: var(--btn-primary-border); }
+/* Tam genişlik: sayfaların en büyük genişlik sınırı kalkar (src/lib/tamEn.ts) */
+:root[data-tam-en] .sayfa-olcek > :not(.sayfa-tut):not(.hesap-sayfa),
+:root[data-tam-en] .sayfa-olcek > .sayfa-tut > * { max-width: none; }
+:root[data-tam-en] [data-genis] .mini-sim.yan { --mini-en: calc(var(--sayfa-en, 900px) - 48px); }
 .olcek-dugmeleri button { padding: 0 7px; border-radius: 0; font-variant-numeric: tabular-nums; }
 .olcek-dugmeleri button:first-child { border-radius: 3px 0 0 3px; }
 .olcek-dugmeleri button:last-child { border-radius: 0 3px 3px 0; }

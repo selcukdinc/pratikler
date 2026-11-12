@@ -20,6 +20,7 @@
         var o = 0;
         try { o = Number(localStorage.getItem("pratik:yazi-olcek")); } catch (e) {}
         if (o >= 85 && o <= 150) document.documentElement.style.setProperty("--yazi-olcek", String(o / 100));
+        try { if (localStorage.getItem("pratik:tam-en") === "1") document.documentElement.dataset.tamEn = ""; } catch (e) {}
       })();
     </script>
   </head>

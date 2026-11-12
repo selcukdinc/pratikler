@@ -183,13 +183,14 @@ button.gs-dosya:hover { text-decoration: underline; color: var(--link); }
 .mg-hedefler { list-style: none; margin: 6px 0 0; padding: 0; }
 .mg-hedefler li { color: var(--muted); }
 .mg-hedefler li.tamam { color: var(--green); font-weight: 600; }
-.mg-izgara { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); gap: 6px; }
-.mg .gs-terminal, .mg .gs-grafik { height: 300px; grid-area: auto; }
-.mg-tek .gs-terminal { height: 260px; }
+.mg-izgara { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); gap: 0; }
+.mg-tek .gs-terminal { height: var(--mg-boy, 260px); }
+.mg .gs-terminal, .mg .gs-grafik { height: var(--mg-boy, 300px); grid-area: auto; }
 .mg-tek { grid-template-columns: minmax(0, 1fr); }
 .mg-alt { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--muted); flex-wrap: wrap; }
 @media (max-width: 900px) {
-  .mg-izgara { grid-template-columns: minmax(0, 1fr); }
+  .mg-izgara { grid-template-columns: minmax(0, 1fr) !important; gap: 6px; }
+  .mg .bolucu-dikey { display: none; }
   .mg .gs-grafik { height: auto; max-height: 240px; }
 }
 .gs-olay {
@@ -225,3 +226,14 @@ button.gs-dosya:hover { text-decoration: underline; color: var(--link); }
 .gs-pr-dal { color: var(--muted); font-size: 12px; }
 .gs-pr-iyi { color: #1f883d; font-size: 12px; }
 .gs-pr-kotu { color: #cf222e; font-size: 12px; }
+
+/* Boyutlandırma çizgileri (src/components/Bolucu.tsx) */
+.bolucu { touch-action: none; background: transparent; position: relative; }
+.bolucu::after { content: ""; position: absolute; background: var(--border); border-radius: 2px; }
+.bolucu:hover::after, .bolucu:focus-visible::after { background: var(--btn-primary-border); }
+.bolucu:focus-visible { outline: none; }
+.bolucu-dikey { cursor: col-resize; }
+.bolucu-dikey::after { left: 3px; width: 2px; top: 30%; bottom: 30%; }
+.bolucu-yatay { cursor: row-resize; height: 8px; margin-top: -4px; }
+.bolucu-yatay::after { top: 3px; height: 2px; left: 45%; right: 45%; }
+body.bolucu-suruklen { user-select: none; }

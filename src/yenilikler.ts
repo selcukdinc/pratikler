@@ -24,6 +24,15 @@ export interface Yenilik {
 
 export const YENILIKLER: Yenilik[] = [
   {
+    pr: 49,
+    tarih: "2026-11-12",
+    baslik: "Geniş görünüm ve boyutlandırılan Git terminali",
+    maddeler: [
+      "Üst çubuktaki **Geniş** düğmesi sayfaların iki yanındaki boşluğu kaldırır; içerik ekranın tamamını kullanır. Seçimin bu tarayıcıda hatırlanır ve bütün pratiklerde geçerlidir.",
+      "Git konu anlatımlarında terminal ile commit grafiği arasındaki çizgiyi sürükleyerek genişliklerini, altındaki çizgiyi sürükleyerek yüksekliği değiştirebilirsin. Çift tıklamak varsayılana döndürür.",
+    ],
+  },
+  {
     pr: 48,
     tarih: "2026-11-12",
     baslik: "Çözdüğün sorular hemen görünür",

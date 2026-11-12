@@ -13,6 +13,7 @@ import { Avatar } from "./Avatar";
 import { inline } from "./Markdown";
 import { KutlamaBildirimi } from "./Kutlama";
 import { OlcekDugmeleri } from "./Olcek";
+import { useTamEn } from "../lib/tamEn";
 import { gorulmemisSayisi, hesapla, useSonGorulen, uyeRolu } from "../lib/yenilik";
 import { GUNLUK_OLAYI, gunlukTekrar } from "../lib/tekrarAyar";
 import { sinavYetkisi, yoneticiMi } from "../lib/yetki";
@@ -106,6 +107,17 @@ export function TemaDugmesi() {
   );
 }
 
+// Tam genişlik anahtarı: sayfaların yanlarındaki boşluğu kaldırır
+function TamEnDugmesi() {
+  const [acik, sec] = useTamEn();
+  return (
+    <button type="button" className="tam-en-dugme" aria-pressed={acik} onClick={() => sec(!acik)}
+      title={acik ? "Dar görünüme dön" : "Geniş görünüm: sayfa ekranın iki yanına kadar yayılır"}>
+      Geniş
+    </button>
+  );
+}
+
 // Dar ekranda metin boyutu ve tema başlıkta yer kaplamasın diye tek bir
 // "Görünüm" menüsüne toplanır; geniş ekranda ikisi başlıkta açık durur.
 function GorunumAyarlari({ route }: { route: Route }) {
@@ -123,6 +135,7 @@ function GorunumAyarlari({ route }: { route: Route }) {
   return (
     <>
       <span className="gorunum-satir">
+        <TamEnDugmesi />
         <OlcekDugmeleri />
         <TemaDugmesi />
       </span>

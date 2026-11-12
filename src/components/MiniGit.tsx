@@ -1,11 +1,14 @@
 // Ders bölümündeki küçük Git terminali: bölümün kurduğu ortamda gerçek komutlar,
 // yanında commit grafiği ve üç alan şeridi. Sunucuya istek atmaz; sayfa
 // yenilenince baştan başlar.
-import { useMemo, useState } from "react";
+import { useMemo, useState, type CSSProperties } from "react";
+import { DikeyBolucu, YatayBolucu, useKalici } from "./Bolucu";
 import { md, type MiniGit as MiniGitVerisi } from "../dersler/tipler";
 import { ekipCalistir, kur, yeniOrtam } from "../gitsim";
 import { olaylariIslet, VARSAYILAN_KIMLIK } from "../gitsim/gorev";
 import { CommitGrafigi, Editor, editorAc, oturumdaCalistir, oturumdaKaydet, satirIci, Terminal, UcAlan, UzakDepolar, type Oturum } from "./GitParcalari";
+
+const MG_BOY = 300;
 
 function baslangic(v: MiniGitVerisi): Oturum {
   const o = kur(yeniOrtam({ dosyalar: v.dosyalar, globalConfig: v.globalConfig ?? VARSAYILAN_KIMLIK }), v.kurulum ?? []);
@@ -41,6 +44,10 @@ export function MiniGit({ veri }: { veri: MiniGitVerisi }) {
     setEditor(r.editor ?? null);
   };
 
+  // Terminal/grafik oranı ve yüksekliği bütün derslerde ortaktır, tarayıcıda hatırlanır
+  const [oran, setOran] = useKalici("pratik:mg-oran", 0.6);
+  const [boy, setBoy] = useKalici("pratik:mg-boy", MG_BOY);
+
   return (
     <div className="mg" role="group" aria-label="Git terminali">
       {(veri.gorev || hedefler.length > 0) && (
@@ -56,8 +63,10 @@ export function MiniGit({ veri }: { veri: MiniGitVerisi }) {
           )}
         </div>
       )}
-      <div className={`mg-izgara${grafik ? "" : " mg-tek"}`}>
+      <div className={`mg-izgara${grafik ? "" : " mg-tek"}`}
+        style={{ "--mg-boy": `${boy}px`, ...(grafik ? { gridTemplateColumns: `minmax(0, ${oran}fr) 8px minmax(0, ${1 - oran}fr)` } : {}) } as CSSProperties}>
         <Terminal oturum={oturum} onKomut={komut} aktif={false} hizliKomutlar={veri.oneriler ?? ["git status", "git log --oneline"]} />
+        {grafik && <DikeyBolucu oran={oran} degistir={setOran} etiket="Terminal ve grafiği boyutlandır" />}
         {grafik && (
           <div className="panel gs-grafik">
             <div className="panel-title">Commit grafiği</div>
@@ -65,6 +74,7 @@ export function MiniGit({ veri }: { veri: MiniGitVerisi }) {
           </div>
         )}
       </div>
+      <YatayBolucu boy={boy} degistir={setBoy} varsayilan={MG_BOY} etiket="Terminalin yüksekliğini değiştir" />
       {alanlar && <UcAlan ortam={oturum.ortam} onAc={(yol) => setEditor({ yol, metin: oturum.ortam.dosyalar[yol] ?? "" })} onYeni={() => {
         const ad = prompt("Dosyanın adı:")?.trim();
         if (ad) setEditor({ yol: ad, metin: oturum.ortam.dosyalar[ad] ?? "" });
