@@ -11,7 +11,7 @@ import { BAGIMSIZLIK_BASLIK, BAGIMSIZLIK_METNI } from "../lib/bagimsizlik";
 
 const KITLELER = PRATIK.tanitim.kitleler;
 
-const ADIMLAR = [
+const GENEL_ADIMLAR = [
   {
     baslik: "1. Karma test çöz",
     metin: `Üniteleri, kaynağı (${PRATIK.etiketler.map((e) => e.ad).join(", ")}) ve soru sayısını seç. Sorular karışık sırayla, şıklar karışık yerlerde gelir; sonunda puanını ve yanlışlarını görürsün.`,
@@ -38,6 +38,18 @@ const ADIMLAR = [
   },
 ];
 
+// Pratik kendi adımlarını verdiyse onlar (ör. Git: dersler, terminal, sandbox)
+const ADIMLAR = PRATIK.tanitim.adimlar
+  ? PRATIK.tanitim.adimlar.map((a) => ({ baslik: a.baslik, metin: a.metin, bag: { page: a.sayfa } as const, bagMetni: a.bagMetni }))
+  : GENEL_ADIMLAR;
+
+const ARTILAR = PRATIK.tanitim.artilar ?? [
+  { baslik: "Ezber değil kalıp:", metin: "sorular ve şıklar her seferinde yer değiştirir." },
+  { baslik: "Gerçek sorulara odak:", metin: "istersen türetilmiş soruları gizleyip yalnız kitap ve çıkmış sorularla çalışırsın." },
+  { baslik: "Unutmadan pekiştirme:", metin: "yanlışların, unutmaya başladığın aralıklarla yeniden karşına çıkar." },
+  { baslik: "Gizlilik:", metin: "reklam ve takip çerezi yok." },
+];
+
 export function Tanitim() {
   useEffect(() => {
     try {
@@ -55,8 +67,17 @@ export function Tanitim() {
           <strong>{BAGIMSIZLIK_BASLIK}</strong> {BAGIMSIZLIK_METNI}
         </p>
         <div className="tanitim-dugmeler">
-          <a className="buton primary" href={href({ page: "pratik" })}>Karma teste başla</a>
-          <a className="buton" href={href({ page: "sorular" })}>Soru havuzu</a>
+          {PRATIK.tanitim.adimlar ? (
+            <>
+              <a className="buton primary" href={href({ page: "ders" })}>Konu anlatımlarına başla</a>
+              {PRATIK.tanitim.adimlar.some((a) => a.sayfa === "sandbox") && <a className="buton" href={href({ page: "sandbox" })}>Sandbox'ı aç</a>}
+            </>
+          ) : (
+            <>
+              <a className="buton primary" href={href({ page: "pratik" })}>Karma teste başla</a>
+              <a className="buton" href={href({ page: "sorular" })}>Soru havuzu</a>
+            </>
+          )}
         </div>
       </header>
 
@@ -90,10 +111,7 @@ export function Tanitim() {
       <section className="tanitim-alt">
         <h3>Senin için ne değişir?</h3>
         <ul>
-          <li><strong>Ezber değil kalıp:</strong> sorular ve şıklar her seferinde yer değiştirir.</li>
-          <li><strong>Gerçek sorulara odak:</strong> istersen türetilmiş soruları gizleyip yalnız kitap ve çıkmış sorularla çalışırsın.</li>
-          <li><strong>Unutmadan pekiştirme:</strong> yanlışların, unutmaya başladığın aralıklarla yeniden karşına çıkar.</li>
-          <li><strong>Gizlilik:</strong> reklam ve takip çerezi yok.</li>
+          {ARTILAR.map((a) => <li key={a.baslik}><strong>{a.baslik}</strong> {a.metin}</li>)}
         </ul>
         <p>
           Aklına takılan bir şey mi var? <a href={href({ page: "sss" })}>Sık sorulan sorulara</a> göz at.

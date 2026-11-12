@@ -2086,4 +2086,7 @@ polygon.g-ok-7 { fill: var(--ok-7); stroke: none; }
 .seviye-dokum .seviye-gecti { color: var(--green); }
 .seviye-dokum .seviye-gecti::before { content: "✓ "; }
 .seviye-git { font-weight: 600; }
+.seviye-ozet { border-color: var(--border); padding: 6px 12px; font-size: 14px; }
+.seviye-ust { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; margin-bottom: 6px; }
+.seviye-ust h2 { margin: 2px 0; font-size: 20px; }
 .seviye-rozet { margin-left: 8px; font-size: 12px; vertical-align: middle; background: var(--tag-ders-bg); color: var(--tag-ders-text); }

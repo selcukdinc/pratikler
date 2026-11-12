@@ -27,7 +27,7 @@ const MiniGit = lazy(() => import("../components/MiniGit").then((m) => ({ defaul
 const uniteYazi = (no: number) => (dersBul(no)?.proje ? "Proje" : uniteNo(no));
 import { useDersIlerleme } from "../lib/dersIlerleme";
 import { OZELLIKLER } from "../lib/icerik";
-import { kayitliSeviye, SeviyeTesti } from "../components/SeviyeTesti";
+import { kayitliSeviye, SEVIYE_PARCASI, SeviyeKarti, SeviyeTestiEkrani } from "../components/SeviyeTesti";
 import { bolumBittiMi, type DersIlerleme } from "../../shared/dersIlerleme";
 
 
@@ -83,6 +83,22 @@ function UniteSatiri({ no, ilerleme }: { no: number; ilerleme: DersIlerleme }) {
   );
 }
 
+// Seviye testi ekranı adresin parçasıyla açılır; tarayıcının geri tuşu listeye döner
+function useSeviyeEkrani(): [boolean, () => void] {
+  const [acik, setAcik] = useState(() => location.hash === SEVIYE_PARCASI);
+  useEffect(() => {
+    const f = () => setAcik(location.hash === SEVIYE_PARCASI);
+    window.addEventListener("hashchange", f);
+    return () => window.removeEventListener("hashchange", f);
+  }, []);
+  const kapat = () => {
+    history.replaceState(history.state, "", location.pathname + location.search);
+    setAcik(false);
+    window.scrollTo(0, 0);
+  };
+  return [acik, kapat];
+}
+
 function DersListesi() {
   const { ilerleme } = useDersIlerleme();
   const [onerilen, setOnerilen] = useState<number | null>(() => (OZELLIKLER.seviyeTesti ? kayitliSeviye() : null));
@@ -92,6 +108,10 @@ function DersListesi() {
   // Pratiğin üniteleri ve (ünite listesinde olmasa da) dersi yazılmış üniteler
   const uniteler = [...new Set([...PRATIK.uniteler.map((u) => u.no), ...DERSLER.map((d) => d.hafta)])].sort((a, b) => a - b);
   const hazir = DERSLER.some((d) => d.bolumler.length > 0);
+  const [testAcik, testiKapat] = useSeviyeEkrani();
+  const seviyeTesti = PRATIK.uniteGruplari ? OZELLIKLER.seviyeTesti : undefined;
+  if (seviyeTesti && testAcik)
+    return <SeviyeTestiEkrani tanim={seviyeTesti} onSonuc={setOnerilen} kapat={testiKapat} />;
   return (
     <div className="ders-sayfa">
       <p className="ders-giris">
@@ -115,7 +135,7 @@ function DersListesi() {
           <span className="ders-devam-ok">Devam et →</span>
         </a>
       )}
-      {PRATIK.uniteGruplari && OZELLIKLER.seviyeTesti && <SeviyeTesti tanim={OZELLIKLER.seviyeTesti} onSonuc={setOnerilen} />}
+      {seviyeTesti && <SeviyeKarti tanim={seviyeTesti} seviye={onerilen} ac={() => (location.hash = SEVIYE_PARCASI)} />}
       {PRATIK.uniteGruplari ? (
         PRATIK.uniteGruplari.map((g, i) => {
           const liste = uniteler.filter((no) => g.uniteler.includes(no));

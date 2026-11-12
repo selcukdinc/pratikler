@@ -24,6 +24,15 @@ export interface Yenilik {
 
 export const YENILIKLER: Yenilik[] = [
   {
+    pr: 51,
+    tarih: "2026-11-12",
+    baslik: "Seviye testi kendi ekranında, Git'e özel Nasıl kullanılır",
+    maddeler: [
+      "Git pratiğinde **Nereden başlamalıyım?** testi artık kendi ekranında açılır. Testi çözdüysen ünite listesinin başında yalnızca önerilen başlangıç kademen ve **Yeniden çöz** bağlantısı kalır.",
+      "Git pratiğinin **Nasıl kullanılır** sayfası bu pratiğe göre yeniden yazıldı: seviye testi, derslerdeki terminal, sandbox görevleri, soru havuzu ve tekrar.",
+    ],
+  },
+  {
     pr: 50,
     tarih: "2026-11-12",
     baslik: "Git sandbox'ta pencere düzeni",
