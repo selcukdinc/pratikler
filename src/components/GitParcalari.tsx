@@ -182,8 +182,8 @@ export function Terminal({ oturum, onKomut, aktif, hizliKomutlar = HIZLI }: { ot
         </div>
       </div>
       <div className="gs-hizli" aria-label="Hazır komutlar">
-        {hizliKomutlar.map((k) => (
-          <button key={k} onClick={() => hizli(k)}>{k}</button>
+        {hizliKomutlar.map((k, i) => (
+          <button key={i} onClick={() => hizli(k)}>{k}</button>
         ))}
       </div>
     </div>

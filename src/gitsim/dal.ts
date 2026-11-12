@@ -243,6 +243,24 @@ export function checkout(o: Ortam, args: string[]): string {
     cozumsuzIndex(d);
     return yeniDalAc(o, d, yeni, a.kalan[0], a.deger.has("-B"));
   }
+  // checkout --ours/--theirs dosya: çakışmalı dosyanın bir tarafı çalışma dizinine
+  // yazılır; index çakışmalı kalır, çözüldüğünü git add söyler
+  const taraf = var_(a, "--ours") ? "biz" : var_(a, "--theirs") ? "onlar" : null;
+  if (taraf) {
+    const liste = (a.yollar ?? a.kalan).map((x) => (o.cwd ? `${o.cwd}/${x}` : x));
+    if (!liste.length) throw new GitHatasi("fatal: '--ours/--theirs' cannot be used with switching branches", 128);
+    for (const y of liste) {
+      const c = d.catisma[y];
+      if (!c) {
+        if (!(y in d.index)) throw new GitHatasi(`error: pathspec '${y}' did not match any file(s) known to git`, 1);
+        continue;
+      }
+      const h = c[taraf];
+      if (!h) throw new GitHatasi(`error: path '${y}' does not have ${taraf === "biz" ? "our" : "their"} version`, 1);
+      o.dosyalar[y] = blobIcerigi(d, h);
+    }
+    return `Updated ${liste.length} path${liste.length === 1 ? "" : "s"} from the index`;
+  }
   // checkout [rev] -- yollar  ya da  checkout dosya
   const yollar = a.yollar;
   const ilkArg = a.kalan[0];

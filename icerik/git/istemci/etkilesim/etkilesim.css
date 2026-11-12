@@ -79,3 +79,31 @@
   .ge-yu { grid-template-columns: minmax(0, 1fr); }
   .ge-oklar { flex-direction: row; justify-content: center; gap: 16px; }
 }
+
+/* Kademe 2 */
+.ge code { font-family: var(--mono); font-size: 12.5px; background: var(--tag-bg); padding: 0 4px; border-radius: 3px; }
+.ge-dal-izgara { display: flex; flex-direction: column; gap: 6px; overflow-x: auto; padding: 6px; border: 1px solid var(--border-soft); border-radius: 6px; background: var(--panel); }
+.ge-serit { display: flex; align-items: flex-start; gap: 6px; min-height: 58px; }
+.ge-serit-ad { flex: 0 0 92px; font-size: 12px; color: var(--muted); padding-top: 4px; }
+.ge-hucre { flex: 0 0 64px; display: flex; flex-direction: column; align-items: center; gap: 3px; position: relative; }
+.ge-hucre.dolu::before { content: ""; position: absolute; top: 12px; right: 50%; width: 64px; height: 2px; background: var(--border); z-index: 0; }
+.ge-hucre .ge-nokta { position: relative; z-index: 1; }
+.ge-birlesim { outline: 3px double var(--warning); }
+.ge-isaretciler { display: flex; flex-direction: column; gap: 2px; align-items: center; }
+.ge-isaretci { font-family: var(--mono); font-size: 11px; padding: 0 5px; border-radius: 3px; border: 1px solid var(--link); color: var(--link); white-space: nowrap; }
+.ge-isaretci.etkin { background: var(--link); color: var(--panel); }
+.ge-cakisma { font-family: var(--mono); font-size: 13px; line-height: 1.45; padding: 6px 8px; border: 1px solid var(--border); border-radius: 4px; background: var(--input); color: var(--text); width: 100%; box-sizing: border-box; resize: vertical; }
+.ge-pr { border: 1px solid var(--border); border-radius: 6px; padding: 10px; background: var(--panel); }
+.ge-pr-baslik { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.ge-pr-no { color: var(--muted); }
+.ge-pr-durum { font-size: 12px; font-weight: 600; padding: 2px 8px; border-radius: 12px; background: #1f883d; color: #fff; }
+.ge-pr-durum.birlesti { background: #8250df; }
+.ge-pr-dal { flex-basis: 100%; font-size: 12.5px; color: var(--muted); }
+.ge-pr-akis { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 4px; }
+.ge-pr-kontroller { border: 1px solid var(--border-soft); border-radius: 4px; padding: 6px 8px; display: flex; flex-direction: column; gap: 2px; font-size: 13px; }
+.ge-pr-birlestir { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.ge-pr-birlestir select { font: inherit; font-size: 13px; padding: 3px 6px; background: var(--input); color: var(--text); border: 1px solid var(--border); border-radius: 3px; }
+.ge-gecmis { margin: 4px 0; font-family: var(--mono); font-size: 12.5px; white-space: pre; overflow-x: auto; }
+.ge-sonuc p { margin: 0; }
+.ge-degisti { border-color: var(--warning); }
+.ge-degisti .ge-surum { background: var(--tag-cikmis-bg); color: var(--tag-cikmis-text); }

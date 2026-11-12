@@ -191,6 +191,13 @@ const SENARYOLAR: Record<string, string[]> = {
     "git merge x",
     "git merge --abort",
   ],
+  "çakışmada --theirs ve --ours": [
+    "git init", "echo bir > f.txt", "echo a > g.txt", "git add .", "git commit -m ilk",
+    "git switch -c x", "echo iki > f.txt", "echo b > g.txt", "git commit -am x",
+    "git switch main", "echo üç > f.txt", "echo c > g.txt", "git commit -am m",
+    "! git merge x", "! git checkout --theirs f.txt", "! git checkout --ours g.txt", "! git ls-files -s", "! git status -s",
+    "git add .", "git commit -m birlesti",
+  ],
   "silme ile değiştirme çakışması": ["git init", "echo bir > f.txt", "git add .", "git commit -m ilk", "git switch -c x", "git rm f.txt", "git commit -m sil", "git switch main", "echo iki > f.txt", "git commit -am iki", "git merge x"],
   "reset kipleri": [
     ...ILK,

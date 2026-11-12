@@ -14,7 +14,8 @@ describe("git sandbox görevleri", () => {
       expect(tamamMi(g, o)).toBe(false);
       for (const s of g.cozum) {
         const r = calistir(o, s);
-        expect(r.sonuc.kod, `${s}\n${r.sonuc.cikti}`).toBe(0);
+        // Çakışmayla duran birleştirme çözümün bir adımı olabilir
+        if (!r.ortam.depo?.islem) expect(r.sonuc.kod, `${s}\n${r.sonuc.cikti}`).toBe(0);
         o = r.ortam;
       }
       const tutmayan = g.hedefler.filter((h) => !h.denetle(o)).map((h) => h.aciklama);

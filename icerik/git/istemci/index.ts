@@ -7,11 +7,15 @@ import { UNITE_2 } from "./dersler/unite-2";
 import { UNITE_3 } from "./dersler/unite-3";
 import { UNITE_4 } from "./dersler/unite-4";
 import { UNITE_5 } from "./dersler/unite-5";
+import { UNITE_6 } from "./dersler/unite-6";
+import { UNITE_7 } from "./dersler/unite-7";
+import { UNITE_8 } from "./dersler/unite-8";
+import { UNITE_9 } from "./dersler/unite-9";
 import { GORSELLER } from "./gorseller";
 import { ETKILESIMLER } from "./etkilesim";
 
 const icerik: PratikIstemciIcerigi = {
-  dersler: [UNITE_1, UNITE_2, UNITE_3, UNITE_4, UNITE_5],
+  dersler: [UNITE_1, UNITE_2, UNITE_3, UNITE_4, UNITE_5, UNITE_6, UNITE_7, UNITE_8, UNITE_9],
   // Soru kartındaki "Derste oku" bağlantısı: kavram -> bölüm (0'dan)
   kavramBolumu: {
     1: { "u1-neden": 0, "u1-git-github": 1, "u1-merkezi-dagitik": 2, "u1-tarihce": 3, "u1-temel": 4 },
@@ -19,6 +23,10 @@ const icerik: PratikIstemciIcerigi = {
     3: { "u3-init": 0, "u3-uc-alan": 1, "u3-status": 2, "u3-add": 3, "u3-commit": 4 },
     4: { "u4-log": 0, "u4-diff": 1, "u4-show-hash": 2, "u4-mesaj": 3, "u4-gitignore": 4 },
     5: { "u5-hesap-depo": 0, "u5-gorunurluk": 1, "u5-readme-lisans": 2, "u5-clone": 3, "u5-remote-push": 4, "u5-pull": 5, "u5-kimlik": 6 },
+    6: { "u6-dal-nedir": 0, "u6-olustur-gec": 1, "u6-kopuk-head": 2, "u6-merge": 3, "u6-dal-yonetimi": 4 },
+    7: { "u7-neden": 0, "u7-isaretler": 1, "u7-cozum": 2, "u7-araclar": 3, "u7-onlem": 4 },
+    8: { "u8-pr": 0, "u8-inceleme": 2, "u8-birlestirme-yontemi": 3, "u8-fork": 4, "u8-issue": 5 },
+    9: { "u9-restore": 1, "u9-reset": 2, "u9-revert": 3, "u9-amend": 4, "u9-stash": 5, "u9-reflog": 6 },
   },
   gorseller: GORSELLER,
   etkilesimler: ETKILESIMLER,

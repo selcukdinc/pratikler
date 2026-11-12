@@ -45,7 +45,7 @@ Aşağıdaki terminal gerçek değil ama gerçeği gibi davranır. Dene:
         dosyalar: { "notlar.txt": "Git öğreniyorum.\n" },
         globalConfig: {},
         gorev: "Bir ~proje~ klasörü aç, içine gir ve ~pwd~ ile nerede olduğunu gör.",
-        oneriler: ["pwd", "ls", "mkdir proje", "cd proje", "cd .."],
+        oneriler: ["pwd", "ls", "mkdir proje", "cd proje", "pwd"],
         hedefler: [
           { aciklama: "~proje~ klasörü var", denetle: (o) => o.klasorler.includes("proje") || Object.keys(o.dosyalar).some((y) => y.startsWith("proje/")) },
           { aciklama: "Şu an ~proje~ klasörünün içindesin", denetle: (o) => o.cwd === "proje" },
@@ -76,7 +76,7 @@ GitHub'da kullandığın e-postayı yazarsan commit'lerin profiline bağlanır. 
         globalConfig: {},
         kurulum: ["git init", "git add ."],
         gorev: "Önce ~git commit -m \"ilk\"~ yazıp hatayı gör. Sonra adını ve e-postanı global olarak ayarla ve commit'i tekrarla.",
-        oneriler: ['git commit -m "ilk"', 'git config --global user.name "Adın Soyadın"', "git config --global user.email posta@ornek.com", "git config --list"],
+        oneriler: ['git commit -m "ilk"', 'git config --global user.name "Adın Soyadın"', "git config --global user.email posta@ornek.com", "git config --list", 'git commit -m "ilk"'],
         hedefler: [
           { aciklama: "~user.name~ ayarlı", denetle: (o) => !!o.globalConfig["user.name"] || !!o.depo?.config["user.name"] },
           { aciklama: "~user.email~ ayarlı", denetle: (o) => !!o.globalConfig["user.email"] || !!o.depo?.config["user.email"] },
