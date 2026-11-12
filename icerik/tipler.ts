@@ -8,6 +8,9 @@ import type { KodBilgisi } from "../shared/kod.ts";
 // Soru metinlerinde ` yerine ~ yazılır (TypeScript şablon dizgilerinde ters tırnak
 // kaçış gerektirdiği için). Üretici ~ karakterlerini ` ile değiştirir.
 
+// Nasıl kullanılır adımlarının bağlanabildiği sayfalar
+export type TanitimSayfasi = "ders" | "sandbox" | "pratik" | "sorular" | "tekrar" | "ilerleme" | "terimler";
+
 export interface Unite {
   no: number;
   baslik: string;
@@ -62,7 +65,16 @@ export interface PratikMeta {
   // "Sorular nereden geliyor?" cevabı ve Hakkında'daki kaynak paragrafı (Markdown)
   kaynakAciklamasi: string;
   // Tanıtım sayfasının başlığı, giriş paragrafı ve "Kimler için?" kartları
-  tanitim: { baslik: string; giris: string; kitleler: { baslik: string; metin: string }[] };
+  // Nasıl kullanılır sayfası. adimlar verilmezse genel soru pratiği adımları (karma test,
+  // soru havuzu, tekrar, ilerleme) gösterilir; verilirse ilk ikisi başlıktaki düğmeler olur.
+  // artilar "Senin için ne değişir?" maddelerinin yerine geçer.
+  tanitim: {
+    baslik: string;
+    giris: string;
+    kitleler: { baslik: string; metin: string }[];
+    adimlar?: { baslik: string; metin: string; sayfa: TanitimSayfasi; bagMetni: string }[];
+    artilar?: { baslik: string; metin: string }[];
+  };
   // Hakkında sayfasının sonuna eklenen not (ör. kurumla bağlantı olmadığı)
   bagimsizlikNotu?: string;
   // Yazılım anlatan pratiklerde Hakkında'daki "Sürümler" bölümü: içeriğin hazırlandığı

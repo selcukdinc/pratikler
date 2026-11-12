@@ -378,9 +378,13 @@ async function dersIlerlemeleri(db: D1Database, kullanici: string): Promise<Reco
   }
 }
 
-// Pencere düzenleri kişiye aittir: MatStudio (DSP) lab_duzenleri'nde, VHDL simülasyon alanı (FPGA) sim_duzenleri'nde
-const duzenAlani = (c: { req: { query: (k: string) => string | undefined } }) => (c.req.query("alan") === "vhdl" ? "vhdl" : "matstudio");
-const DUZEN_SUTUNU = { matstudio: "lab_duzenleri", vhdl: "sim_duzenleri" } as const;
+// Pencere düzenleri kişiye aittir: MatStudio (DSP) lab_duzenleri'nde, VHDL simülasyon alanı (FPGA) sim_duzenleri'nde,
+// Git sandbox git_duzenleri'nde
+const duzenAlani = (c: { req: { query: (k: string) => string | undefined } }) => {
+  const a = c.req.query("alan");
+  return a === "vhdl" || a === "git" ? a : "matstudio";
+};
+const DUZEN_SUTUNU = { matstudio: "lab_duzenleri", vhdl: "sim_duzenleri", git: "git_duzenleri" } as const;
 
 ayarlar.get("/duzenler", async (c) => {
   const alan = duzenAlani(c);

@@ -134,7 +134,10 @@ function tamamla(o: Ortam, girdi: string): string | null {
   return parcalar.join(" ");
 }
 
-export function Terminal({ oturum, onKomut, aktif, hizliKomutlar = HIZLI }: { oturum: Oturum; onKomut: (s: string) => void; aktif: boolean; hizliKomutlar?: string[] }) {
+// cercevesiz: sandbox'ın pencere düzeninde panelin başlığını düzen çizer, burada yalnızca gövde
+export function Terminal({ oturum, onKomut, aktif, hizliKomutlar = HIZLI, cercevesiz }: {
+  oturum: Oturum; onKomut: (s: string) => void; aktif: boolean; hizliKomutlar?: string[]; cercevesiz?: boolean;
+}) {
   const [girdi, setGirdi] = useState("");
   const [gecmisYeri, setGecmisYeri] = useState<number | null>(null);
   const girdiRef = useRef<HTMLInputElement>(null);
@@ -188,8 +191,8 @@ export function Terminal({ oturum, onKomut, aktif, hizliKomutlar = HIZLI }: { ot
   };
 
   return (
-    <div className="panel gs-terminal">
-      <div className="panel-title">Terminal</div>
+    <div className={cercevesiz ? "gs-terminal-govde" : "panel gs-terminal"}>
+      {!cercevesiz && <div className="panel-title">Terminal</div>}
       <div className="gs-ekran" ref={kaydirRef} onClick={() => window.getSelection()?.isCollapsed && girdiRef.current?.focus({ preventScroll: true })}>
         {oturum.satirlar.map((s, i) => (
           <div key={i} className={`gs-satir gs-${s.tur}`} {...(s.tur === "olay" ? { role: "status" } : {})}>

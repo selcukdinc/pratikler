@@ -5,11 +5,13 @@
 
 // MatStudio: editor betik, figure grafik penceresi, command komut penceresi, workspace değişkenler
 // VHDL: sources dosyalar, editor kod, waves dalga ekranı, bottom mesajlar ve günlük
-export type DuzenAlaniAdi = "matstudio" | "vhdl";
-export type PanelId = "editor" | "figure" | "command" | "workspace" | "sources" | "waves" | "bottom";
+// Git sandbox: terminal, commit grafiği, alanlar (çalışma dizini, hazırlık alanı, depo ve uzak depolar)
+export type DuzenAlaniAdi = "matstudio" | "vhdl" | "git";
+export type PanelId = "editor" | "figure" | "command" | "workspace" | "sources" | "waves" | "bottom" | "terminal" | "grafik" | "alanlar";
 export const ALAN_PANELLERI: Record<DuzenAlaniAdi, PanelId[]> = {
   matstudio: ["editor", "figure", "command", "workspace"],
   vhdl: ["sources", "editor", "waves", "bottom"],
+  git: ["terminal", "grafik", "alanlar"],
 };
 export const PANELLER = ALAN_PANELLERI.matstudio;
 
@@ -52,11 +54,20 @@ export const VARSAYILAN_DUZENLER: Record<DuzenAlaniAdi, Duzen> = {
     alt: [{ id: "bottom", oran: 1 }],
     ustOran: 0.72,
   },
+  git: {
+    ust: [
+      { id: "terminal", oran: 0.55 },
+      { id: "grafik", oran: 0.45 },
+    ],
+    alt: [{ id: "alanlar", oran: 1 }],
+    ustOran: 0.62,
+  },
 };
 
 // Düzende geçen panellerden hangi alana ait olduğunu bulur (editor ikisinde de var)
 function alanBul(d: Partial<Duzen>): DuzenAlaniAdi {
   const idler = [...(Array.isArray(d.ust) ? d.ust : []), ...(Array.isArray(d.alt) ? d.alt : [])].map((p) => (p as PanelYeri | null)?.id);
+  if (idler.some((id) => id === "terminal" || id === "grafik" || id === "alanlar")) return "git";
   return idler.some((id) => id === "sources" || id === "waves" || id === "bottom") ? "vhdl" : "matstudio";
 }
 

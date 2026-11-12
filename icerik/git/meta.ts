@@ -50,6 +50,44 @@ export const git: PratikMeta = {
       { baslik: "Takımda çalışan geliştiriciler", metin: "Rebase, takım akışları, dal korumaları, gizli anahtar güvenliği ve GitLab ile profesyonel düzeye çık." },
       { baslik: "Git'i derinlemesine öğrenmek isteyenler", metin: "Nesne veritabanını kimliklerine tıklayarak gez; reflog, fsck ve filter-repo ile felaketlerden kurtulmayı dene." },
     ],
+    adimlar: [
+      {
+        baslik: "1. Seviyeni bul, konu anlatımıyla başla",
+        metin: "Konu anlatımlarının başındaki 15 soruluk seviye testi, beş kademeden (Acemi, Başlangıç, Orta, İleri, Usta) hangisinden başlaman gerektiğini söyler. Her ünite kısa bölümlerden oluşur; bitirdiğin bölümü işaretle, kaldığın yer listenin başında durur.",
+        sayfa: "ders",
+        bagMetni: "Konu anlatımlarını aç",
+      },
+      {
+        baslik: "2. Derslerdeki terminalde komutları dene",
+        metin: "Bölümlerdeki \"Dene\" kutuları gerçek bir Git terminali açar. Komutu yaz ya da hazır düğmeye dokun; commit grafiği, çalışma dizini, hazırlık alanı ve depo anında değişir. Hedefler tamamlandıkça işaretlenir; bir şey bozulursa Baştan'a bas. Terminalin boyutunu kenarlarındaki çizgileri sürükleyerek değiştirebilirsin.",
+        sayfa: "ders",
+        bagMetni: "Derslere git",
+      },
+      {
+        baslik: "3. Git sandbox'ta görevleri çöz",
+        metin: "Serbest alanda istediğin komutu dene ya da görevlere geç: çakışma çözmek, PR açmak, sızan anahtarı temizlemek, kaybolan commit'i kurtarmak gibi gerçek hayattan senaryolar. Hedefler komuta değil sonuca bakar; az komutla bitirene üç yıldız. GitHub ve GitLab uzak depoları, ekip arkadaşının push'ları ve CI adımları sanal olarak çalışır.",
+        sayfa: "sandbox",
+        bagMetni: "Sandbox'ı aç",
+      },
+      {
+        baslik: "4. Soru havuzu ve karma testle pekiştir",
+        metin: "Her ünitenin sonunda kısa bir test var. Soru havuzunda soruları türe göre (çoktan seçmeli, doğru/yanlış, komut yazma, senaryo) ve zorluğa göre süzebilir, çözmediklerine odaklanabilirsin. Karma test seçtiğin ünitelerden karışık bir test kurar.",
+        sayfa: "sorular",
+        bagMetni: "Soru havuzunu aç",
+      },
+      {
+        baslik: "5. Yanlışlarını tekrar et, ilerlemeni izle",
+        metin: "Yanlış yaptığın sorular aralıklı tekrarla birkaç gün sonra Tekrar sayfasına düşer. İlerlemem sayfası hangi ünitede ne kadar çözdüğünü ve zayıf kavramlarını gösterir. Bir komutun ya da terimin anlamını unuttuysan Terimler sayfasına bak.",
+        sayfa: "tekrar",
+        bagMetni: "Tekrar sayfasını aç",
+      },
+    ],
+    artilar: [
+      { baslik: "Kurulum yok:", metin: "terminal ve sanal Git tarayıcında çalışır; bilgisayarına hiçbir şey kurmadan dener, bozsan da Baştan'a basarsın." },
+      { baslik: "Gerçek çıktılar:", metin: "komut çıktıları Git 2.43'ün çıktılarıyla birebir karşılaştırıldı; kendi bilgisayarında aynısını görürsün." },
+      { baslik: "Senaryolarla:", metin: "sorular ve görevler ekiplerin gerçekten yaşadığı durumlara dayanır: çakışan dallar, korumalı main, sızan anahtar, kaybolan commit." },
+      { baslik: "Gizlilik:", metin: "reklam ve takip çerezi yok; seviye testinin sonucu yalnızca tarayıcında saklanır." },
+    ],
   },
   surumler: {
     tarih: "Kasım 2026",

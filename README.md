@@ -1,18 +1,31 @@
 # Pratikler
 
-Ders ve kitaplar için açık kaynaklı, ücretsiz soru çalışma siteleri; hepsi tek kod tabanı, tek hesap.
+Ders, kitap ve beceriler için açık kaynaklı, ücretsiz çalışma siteleri: konu anlatımları, soru havuzu, karma test ve aralıklı tekrar. Hepsi tek kod tabanı, tek Cloudflare Worker ve tek hesapla çalışır.
 
-**Site:** [pratikler.selcukdinc.dev](https://pratikler.selcukdinc.dev)
+**Site:** [pratikler.selcukdinc.dev](https://pratikler.selcukdinc.dev). Her pratik bu adresin bir yolundadır.
 
-| Pratik | Adres | Kaynak |
+| Pratik | Adres | İçerik |
 | --- | --- | --- |
-| Tıp Elektroniği | [pratikler.selcukdinc.dev/tipelektronigi](https://pratikler.selcukdinc.dev/tipelektronigi) | Ders notları (1-4. hafta), Semmlow ve Subasi |
+| Git ve GitHub | [/git](https://pratikler.selcukdinc.dev/git) | Acemiden ustaya 5 kademe, 18 ünite; derslerde ve sandbox'ta tarayıcıda çalışan sanal Git, GitHub ve GitLab, seviye testi |
+| FPGA | [/fpga](https://pratikler.selcukdinc.dev/fpga) | VHDL dersleri, otomatik sınanan kod soruları, tarayıcıda VHDL simülatörü (NVC) |
+| DSP | [/dsp](https://pratikler.selcukdinc.dev/dsp) | Sayısal sinyal işleme: etkileşimli şekilli dersler, MatStudio betik ortamı |
+| Kimya | [/kimya](https://pratikler.selcukdinc.dev/kimya) | Genel Kimya: ünite anlatımları, Sanal Lab deneyleri, çıkmış sorular |
+| Fizik | [/fizik](https://pratikler.selcukdinc.dev/fizik) | Fizik I çözümlü örnekler ve adım adım çözülen türetilmiş sorular |
+| Ayrık | [/ayrik](https://pratikler.selcukdinc.dev/ayrik) | Ayrık Matematik (Rosen): mantık, ispat, kümeler, fonksiyonlar |
+| Tıp Elektroniği | [/tipelektronigi](https://pratikler.selcukdinc.dev/tipelektronigi) | Fizyolojik sinyaller, ölçüm zinciri, EKG, EEG, EMG ve sensörler |
+| Biyomedikal | [/biyomedikal](https://pratikler.selcukdinc.dev/biyomedikal) | Biyomedikal veri işleme: sinyal ve görüntü işleme, Fourier ve dalgacık dönüşümü |
+| İş İngilizcesi | [/isingilizcesi](https://pratikler.selcukdinc.dev/isingilizcesi) | Elektrik-elektronik için iş İngilizcesi quizleri |
+| İşletme | [/isletme](https://pratikler.selcukdinc.dev/isletme) | İşletme Bilimine Giriş |
+| Girişimcilik | [/girisimcilik](https://pratikler.selcukdinc.dev/girisimcilik) | KOSGEB Girişimcilik El Kitabı soruları ve çıkmış sorular |
+| 6. Sınıf Türkçe | [/sinif6/turkce](https://pratikler.selcukdinc.dev/sinif6/turkce) | MEB programına ve ortak yazılı sınavlara göre okuma, söz varlığı, yazım |
 
 ## Neler var?
 
-- **Karma test:** Seçtiğin ünitelerden sorular karışık sırayla, şıklar karışık yerlerde gelir.
-- **Etiketli sorular:** her soru kaynağını (ders notu, kitap, çıkmış soru...) gösterir.
-- **Soru havuzu**, **aralıklı tekrar** ve **ilerleme** sayfaları.
+- **Konu anlatımları:** kısa bölümler, şekiller ve bölüm sonunda "Kendini dene" soruları; ilerlemen ve kaldığın yer hatırlanır.
+- **Soru havuzu ve karma test:** sorular kaynağına (kitap, çıkmış, türetilmiş...) göre etiketlidir; karma testte sorular ve şıklar karışık gelir.
+- **Aralıklı tekrar** ve **ilerleme** sayfaları; yanlışların birkaç gün arayla yeniden karşına çıkar.
+- **Tarayıcıda çalışan araçlar:** Git pratiğinde sanal Git terminali ve görevli sandbox, FPGA'da VHDL simülatörü, DSP'de MatStudio, Kimya'da Sanal Lab.
+- **Görünüm:** metin boyutu, tema ve ekranı tam kullanan geniş görünüm; MatStudio, VHDL alanı ve Git sandbox'ta panelleri sürükleyip boyutlandırabilirsin.
 - **Formüller** KaTeX ile dizilir.
 - **Tek hesap:** bir kez giriş yap, bütün pratiklerde ilerlemen kaydedilsin; misafir olarak da çözebilirsin.
 
@@ -32,12 +45,13 @@ Gereksinim: Node.js 22.12 veya üstü.
 ```sh
 npm install
 npm run db:migrate:local   # yerel veritabanına şema ve sorular
-npm run dev                # http://localhost:5173/?pratik=tip-elektronigi
+npm run dev                # http://localhost:5173/git (ya da /?pratik=<id>)
 npm test
 ```
 
-- Pratikler `icerik/<pratik>/` altındadır (`meta.ts` + `sorular/`). Çalışma kuralları için [CLAUDE.md](CLAUDE.md).
-- Yerelde `?pratik=<id>` bir pratiği, `?pratik=katalog` çatı sayfasını açar; seçim tarayıcıda hatırlanır.
+- Pratikler `icerik/<pratik>/` altındadır (`meta.ts`, `sorular/`, isteğe bağlı `istemci/`). Çalışma kuralları için [CLAUDE.md](CLAUDE.md).
+- Denetimler: `npm run denetle` (`tsc -b`, `vitest run`, `vite build`).
+- Yerelde pratiğin yolu (`/git`) ya da `?pratik=<id>` bir pratiği, `?pratik=katalog` çatı sayfasını açar; seçim tarayıcıda hatırlanır.
 - Sorular değişince: `npm run sorular:sql -- <pratik> migrations/NNNN_ad.sql`.
 - Eski bir siteyi (kimya, fpga...) platforma taşıma adımları: [docs/tasima.md](docs/tasima.md). Veri `npm run tasi` ile taşınır (Node.js 22.13+ `node:sqlite` kullanır).
 - Kayıt, doğrulama e-postası gerektirdiği için yalnızca `RESEND_API_KEY` tanımlıyken açılır. Yerelde `.dev.vars` dosyasına `EPOSTA_KONSOL=1` yazarsan kodlar `npm run dev` çıktısına düşer.
