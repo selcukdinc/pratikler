@@ -12,7 +12,7 @@ import { PRATIK_YA_DA_KATALOG } from "./pratik";
 import type { HavuzBilgisi, HavuzOzeti, Sinav, SinavBelgesi, SinavOzeti, SinavSorusu } from "../../shared/sinav";
 import { havuzBasligi } from "./havuz";
 import {
-  durumlariKur, gunlukEsitle, hedefDegisti, kapanisiDinle, kuyruguGonder, kuyruguKur, yerelCevapla, yerelCozum, yerelDurumlar,
+  durumIsle, durumlariKur, gunlukEsitle, hedefDegisti, kapanisiDinle, kuyruguGonder, kuyruguKur, yerelCevapla, yerelCozum, yerelDurumlar,
   type GonderimSonucu,
 } from "./kuyruk";
 import { GUNLUK_TEKRAR, gunlukGecerli } from "../../shared/tekrar";
@@ -78,7 +78,9 @@ const OKUNMAMIS_OMRU_MS = 5 * 60_000;
 
 function baslangic(): Promise<Baslangic> {
   if (!bas) basAn = Date.now();
-  bas ??= get<Baslangic>(`/baslangic${PRATIK_ID ? `?gunluk=${yerelGunlukTekrar()}` : ""}`).then((b) => {
+  // Bekleyen cevaplar önce gönderilir: paket, gönderim kaydedilmeden okunup kuyruk
+  // boşaldıktan sonra işlenirse çözülen sorular yerelde "çözülmemiş" görünürdü
+  bas ??= kuyruguGonder().then(() => get<Baslangic>(`/baslangic${PRATIK_ID ? `?gunluk=${yerelGunlukTekrar()}` : ""}`)).then((b) => {
     okunmamis = { deger: b.okunmamis, an: Date.now() };
     if (b.pratik) {
       durumlariKur(b.pratik.durumlar, b.pratik.gunluk);
@@ -227,6 +229,7 @@ export const api = {
     }
     const r = await post<AnswerResult>(`/questions/${encodeURIComponent(q.id)}/answer`, { answer });
     if (!r.ok) throw new Error(r.hata.error);
+    durumIsle(q.id, r.data.correct);
     gunlukEsitle(r.data.gunluk);
     kutlamaBildir(r.data.gunluk);
     return r.data;

@@ -19,6 +19,8 @@ import { Questions } from "./pages/Questions";
 import { OZELLIKLER } from "./lib/icerik";
 import { dersBul } from "./dersler";
 
+import { GitIskeleti } from "./components/Iskelet";
+
 // MatStudio yalnızca açan pratikte ayrı parça olarak indirilir (editör ve yorumlayıcı)
 const MatStudio = lazy(() => import("./pages/MatStudio").then((m) => ({ default: m.Sandbox })));
 // VHDL simülasyon alanı (FPGA) da öyle: editör ve NVC yalnızca açılınca indirilir
@@ -183,7 +185,7 @@ function PratikApp() {
         )}
         {gitSandboxYukle && sandboxAcildi && (
           <div className="sayfa-tut" hidden={route.page !== "sandbox"}>
-            <Suspense fallback={<p className="empty">Git sandbox yükleniyor…</p>}>
+            <Suspense fallback={<div className="gs"><GitIskeleti /></div>}>
               <GitSandbox gorevleriYukle={gitSandboxYukle} aktif={route.page === "sandbox"} />
             </Suspense>
           </div>

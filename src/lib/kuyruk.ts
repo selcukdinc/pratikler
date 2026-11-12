@@ -98,7 +98,8 @@ export function gunlukEsitle(g: GunlukDurum | undefined) {
   gunluk = { ...g };
 }
 
-function durumIsle(id: string, dogru: boolean) {
+// Sunucuda puanlanan cevaplar (kod soruları) da buradan işlenir
+export function durumIsle(id: string, dogru: boolean) {
   durumlar[id] = dogru || durumlar[id] === "dogru" ? "dogru" : "yanlis";
 }
 

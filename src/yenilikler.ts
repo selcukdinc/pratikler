@@ -24,6 +24,15 @@ export interface Yenilik {
 
 export const YENILIKLER: Yenilik[] = [
   {
+    pr: 47,
+    tarih: "2026-11-12",
+    baslik: "Çözdüğün sorular hemen görünür",
+    maddeler: [
+      "Derste ya da testte çözdüğün sorular, Soru havuzuna geçtiğinde sayfayı yenilemeden çözülmüş görünür.",
+      "Soru havuzu, Karma test, Tekrar, Çıkmış sorular ve Git terminali yüklenirken gösterilen bekleme görüntüsü artık açılacak ekranın düzenine benziyor.",
+    ],
+  },
+  {
     pr: 46,
     tarih: "2026-11-12",
     baslik: "Yeni pratik: Git ve GitHub",

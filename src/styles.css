@@ -1678,6 +1678,15 @@ polygon.g-ok-7 { fill: var(--ok-7); stroke: none; }
 .iskelet-kutular { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
 .iskelet-kart { pointer-events: none; }
 .questions > .iskelet-kap, .tekrar > .iskelet-kap { padding: 0 2px; }
+.iskelet-cipler { overflow: hidden; }
+.iskelet-cip { width: 56px; height: 22px; border-radius: 12px; flex: none; }
+.iskelet-dugme { width: 160px; height: 30px; border-radius: 4px; }
+.iskelet-suzgec { margin-bottom: 4px; }
+.iskelet-git { display: grid; grid-template-columns: 3fr 2fr; gap: 8px; padding: 8px 0; }
+.iskelet-git > .iskelet { height: 260px; }
+.iskelet-alanlar { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.iskelet-alanlar > .iskelet { height: 150px; }
+@media (max-width: 700px) { .iskelet-git { grid-template-columns: 1fr; } .iskelet-grafik { display: none; } }
 
 /* Katalog kartı: solda logo, sağda ad ve açıklama */
 .katalog-kart { flex-direction: row; align-items: flex-start; gap: 14px; }

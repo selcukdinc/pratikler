@@ -5,6 +5,7 @@ import { Avatar } from "../components/Avatar";
 import { AvatarSecici } from "../components/AvatarSecici";
 import { uye, useOturum } from "../lib/oturum";
 import type { Profil as ProfilVerisi } from "../../shared/api";
+import { Iskelet } from "../components/Iskelet";
 
 const tarih = (ms: number) => new Date(ms).toLocaleDateString("tr-TR", { day: "numeric", month: "long", year: "numeric" });
 
@@ -23,7 +24,7 @@ export function Profil({ ad }: { ad: string }) {
   }, [ad]);
 
   if (yok) return <p className="empty">Böyle bir kullanıcı bulunamadı.</p>;
-  if (!p) return <p className="empty">Yükleniyor…</p>;
+  if (!p) return <Iskelet satir={5} />;
   if (p.gizli) {
     return (
       <div className="profil">

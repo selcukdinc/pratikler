@@ -8,6 +8,7 @@ import { href, tabanaEkle } from "../lib/router";
 import { Markdown, inline } from "../components/Markdown";
 import { PRATIK, uniteBul, uniteYazi as uniteNo } from "../lib/pratik";
 import { QuestionCard } from "./Questions";
+import { GitIskeleti, SoruIskeleti } from "../components/Iskelet";
 import { bolumId } from "../dersler/bolumBul";
 import { DERSLER, dersBul, doneminiBul, donemliMi } from "../dersler";
 import { DONEM_ADI, DONEMLER } from "../dersler/tipler";
@@ -186,7 +187,7 @@ function KendiniDene({ ids, sorular, durumlar }: { ids: string[]; sorular: SoruD
 
 function KonuSonuTesti({ ders, sorular: hepsi, durumlar }: { ders: DersVerisi; sorular: SoruDurumu; durumlar: SoruDurumlari }) {
   if (hepsi === "hata") return <p className="bad">Sorular yüklenemedi.</p>;
-  if (!hepsi) return <p className="empty">Yükleniyor…</p>;
+  if (!hepsi) return <SoruIskeleti adet={2} />;
   const sorular = ders.test.map((id) => hepsi.get(id)).filter((q): q is Question => !!q);
   if (sorular.length === 0) return <p className="empty">Bu ünitenin soruları henüz açılmadı.</p>;
   return (
@@ -256,7 +257,7 @@ function DersSayfasi({ ders }: { ders: DersVerisi }) {
             </Suspense>
           )}
           {b.git && (
-            <Suspense fallback={<p className="empty">Git terminali yükleniyor…</p>}>
+            <Suspense fallback={<GitIskeleti />}>
               <MiniGit key={`${ders.hafta}-${i}`} veri={b.git} />
             </Suspense>
           )}
