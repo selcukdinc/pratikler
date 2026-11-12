@@ -175,3 +175,34 @@
 .ge-b-aday:not(.ge-b-kotu) { border-color: var(--link); }
 .ge-b-oneri { outline: 2px solid var(--warning); font-weight: 700; }
 @media (max-width: 560px) { .ge-hat { grid-template-columns: 1fr; } }
+
+/* Ü17-18: nesne gezgini, SHA hesaplayıcı, felaket odası, clone türleri */
+.ge-ng { display: grid; grid-template-columns: minmax(180px, 1fr) 2fr; gap: 10px; }
+@media (max-width: 640px) { .ge-ng { grid-template-columns: 1fr; } }
+.ge-ng-gecmis { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.ge-ng-gecmis ol { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; font-size: 13px; }
+.ge-ng-duzen { display: flex; gap: 6px; align-items: center; font-size: 13px; }
+.ge-ng-duzen select, .ge-ng-girdi, .ge-sha-girdi input { font-family: var(--mono); font-size: 13px; min-width: 0; padding: 4px 6px; border: 1px solid var(--border); border-radius: 4px; background: var(--input); color: var(--text); }
+.ge-ng-nesne { min-width: 0; border: 1px solid var(--pre-border); border-radius: 6px; padding: 8px; background: var(--pre-bg); }
+.ge-ng-nesne pre { margin: 6px 0; font-family: var(--mono); font-size: 12.5px; white-space: pre-wrap; overflow-wrap: anywhere; }
+.ge-ng-baslik code { font-size: 11.5px; overflow-wrap: anywhere; color: var(--muted); }
+.ge-ng-tur { display: inline-block; font-family: var(--mono); font-size: 12px; padding: 1px 6px; border-radius: 3px; background: var(--tag-bg); color: var(--text); }
+.ge-ng-commit { background: var(--tag-ges-bg); color: var(--tag-ges-text); }
+.ge-ng-tree { background: var(--tag-ders-bg); color: var(--tag-ders-text); }
+.ge-ng-blob { background: var(--tag-original-bg); color: var(--tag-original-text); }
+.ge-ng-kimlik { font-family: var(--mono); font-size: 12.5px; padding: 0 3px; border: 1px solid var(--border); border-radius: 3px; background: var(--panel); color: var(--link); cursor: pointer; }
+.ge-ng-kimlik[aria-pressed="true"] { background: var(--active); }
+.ge-ng-yeni { border-color: var(--warning); color: var(--warning); font-weight: 600; }
+.ge-sha-girdi { display: flex; flex-direction: column; gap: 4px; font-size: 13px; }
+.ge-sha-kutu { font-size: 13px; }
+.ge-sha-cikti { margin: 0; font-family: var(--mono); font-size: 12.5px; white-space: pre-wrap; overflow-wrap: anywhere; padding: 8px; border-radius: 4px; background: var(--pre-bg); border: 1px solid var(--pre-border); }
+.ge-felaket { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.ge-felaket li { display: flex; flex-direction: column; gap: 6px; padding: 6px 8px; border-radius: 4px; border: 1px solid var(--border-soft); }
+.ge-felaket li.ge-evet { border-color: var(--green); }
+.ge-felaket li.ge-hayir { border-color: var(--error); }
+.ge-felaket code { font-size: 12px; overflow-wrap: anywhere; }
+.ge-clone { border-collapse: collapse; font-size: 13px; }
+.ge-clone th, .ge-clone td { text-align: left; padding: 4px 10px; border-bottom: 1px solid var(--border-soft); }
+.ge-clone-hepsi { color: var(--green); }
+.ge-clone-son, .ge-clone-secili { color: var(--warning); }
+.ge-clone-gerektikce { color: var(--link); }

@@ -8,6 +8,11 @@ import type { Ortam } from "./tipler";
 type Kalip = [RegExp, (m: RegExpMatchArray) => string];
 
 const HATALAR: Kalip[] = [
+  [/Refusing to destructively overwrite repo history/, () =>
+    "filter-repo geçmişi geri dönüşsüz yeniden yazar; bu yüzden taze bir clone'da çalışmak ister. Önerilen: depoyu yeniden clone et ve orada çalıştır. Bu kopyada devam etmek istiyorsan `--force` ekle."],
+  [/update_ref failed for ref '([^']*)': cannot lock ref '[^']*': is at (\w+) but expected (\w+)/, (m) =>
+    `${m[1]} beklediğin commit'te değil (şu an ${m[2]!.slice(0, 7)}); update-ref güvenlik için durdu. Üçüncü değer "şu an buradaysa değiştir" demektir.`],
+  [/ref HEAD is not a symbolic ref/, () => "HEAD bir dalı değil, doğrudan bir commit'i gösteriyor (kopuk HEAD). Bir dala dönmek için `git switch <dal>`."],
   [/not a git repository/, () => "Burada henüz bir Git deposu yok. Önce `git init` ile klasörü depoya çevir (ya da `cd /proje` ile proje köküne dön)."],
   [/Author identity unknown|Please tell me who you are/, () =>
     "Git commit'e kimin adını yazacağını bilmiyor. Bir kez `git config --global user.name \"Adın\"` ve `git config --global user.email \"posta@adresin\"` yaz, sonra commit'i tekrarla."],
@@ -184,6 +189,21 @@ function basari(satir: string, once: Ortam, sonra: Ortam, cikti: string): string
       if (/Switched to branch|Already on/.test(cikti)) return "Bisect bitti; başladığın dala döndün.";
       return null;
     }
+    case "fsck":
+      if (/dangling commit/.test(cikti)) return "Hiçbir dalın, etiketin ya da reflog'un göstermediği (sahipsiz) commit'ler var. Kurtarmak için kimliğiyle `git branch kurtarilan <kimlik>`; önce `git show <kimlik>` ile içine bak.";
+      if (/dangling blob/.test(cikti)) return "Sahipsiz blob: bir zamanlar `git add` edilip commit'e girmemiş bir dosya içeriği. `git cat-file -p <kimlik>` ile okuyabilirsin.";
+      return cikti ? null : "Depo sağlam ve sahipsiz nesne yok. Silinen dalların commit'leri hâlâ reflog'da duruyorsa fsck onları sahipsiz saymaz; `--no-reflogs` ile reflog'u yok sayarak bak.";
+    case "ls-tree":
+      return "Bir ağaç (tree) nesnesinin içi: her satırda tür, kimlik ve ad. `tree` satırları alt klasörlerdir; `-r` ile içlerine iner.";
+    case "update-ref":
+      return "Ref doğrudan yazıldı: dal ya da etiket artık verdiğin commit'i gösteriyor. `git branch` ve `git reset` bunu senin yerine yapan porselen komutlardır.";
+    case "gc":
+    case "prune":
+      return "Erişilemeyen nesneler silindi (reflog'da kaydı olanlar korunur). Bundan sonra o commit'leri reflog ya da fsck ile geri getiremezsin.";
+    case "filter-repo":
+      return /Completely finished/.test(cikti)
+        ? "Geçmiş baştan yazıldı: bütün commit kimlikleri değişti, eski nesneler silindi ve origin kaldırıldı. Uzak depoya göndermek için origin'i yeniden ekleyip bütün dalları ve etiketleri zorla push etmen, ekibin de yeniden clone etmesi gerekir."
+        : null;
     case "blame":
       return "Her satırın solunda o satırı en son değiştiren commit, yazarı ve tarihi var. Satırın neden öyle olduğunu görmek için `git show <commit>`.";
     case "rebase":

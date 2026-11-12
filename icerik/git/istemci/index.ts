@@ -18,11 +18,13 @@ import { UNITE_13 } from "./dersler/unite-13";
 import { UNITE_14 } from "./dersler/unite-14";
 import { UNITE_15 } from "./dersler/unite-15";
 import { UNITE_16 } from "./dersler/unite-16";
+import { UNITE_17 } from "./dersler/unite-17";
+import { UNITE_18 } from "./dersler/unite-18";
 import { GORSELLER } from "./gorseller";
 import { ETKILESIMLER } from "./etkilesim";
 
 const icerik: PratikIstemciIcerigi = {
-  dersler: [UNITE_1, UNITE_2, UNITE_3, UNITE_4, UNITE_5, UNITE_6, UNITE_7, UNITE_8, UNITE_9, UNITE_10, UNITE_11, UNITE_12, UNITE_13, UNITE_14, UNITE_15, UNITE_16],
+  dersler: [UNITE_1, UNITE_2, UNITE_3, UNITE_4, UNITE_5, UNITE_6, UNITE_7, UNITE_8, UNITE_9, UNITE_10, UNITE_11, UNITE_12, UNITE_13, UNITE_14, UNITE_15, UNITE_16, UNITE_17, UNITE_18],
   // Soru kartındaki "Derste oku" bağlantısı: kavram -> bölüm (0'dan)
   kavramBolumu: {
     1: { "u1-neden": 0, "u1-git-github": 1, "u1-merkezi-dagitik": 2, "u1-tarihce": 3, "u1-temel": 4 },
@@ -41,6 +43,8 @@ const icerik: PratikIstemciIcerigi = {
     14: { "u14-gizli-nedir": 0, "u14-botlar": 1, "u14-silmek-yetmez": 2, "u14-mudahale": 3, "u14-onleme": 4, "u14-tarama": 5, "u14-on-yuz": 6 },
     15: { "u15-gitlab-nedir": 0, "u15-karsilik": 1, "u15-mr": 2, "u15-korumali": 3, "u15-gitlab-ci": 4, "u15-self-hosted": 5, "u15-tasima": 6 },
     16: { "u16-cherry-pick": 0, "u16-bisect": 1, "u16-blame": 2, "u16-worktree": 3, "u16-submodule": 3, "u16-hooks": 4, "u16-lfs": 5, "u16-imza": 6 },
+    17: { "u17-nesneler": 0, "u17-sha": 1, "u17-git-klasoru": 2, "u17-refs": 3, "u17-plumbing": 4, "u17-packfile": 5, "u17-degisim": 6 },
+    18: { "u18-reflog": 0, "u18-felaket": 1, "u18-fsck": 2, "u18-gc": 3, "u18-filter-repo": 4, "u18-buyuk-depo": 5, "u18-performans": 6 },
   },
   gorseller: GORSELLER,
   etkilesimler: ETKILESIMLER,

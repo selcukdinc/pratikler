@@ -1,5 +1,6 @@
 // Dal ve geçmiş komutları: branch, switch, checkout, merge, reset, revert,
 // cherry-pick, rebase, stash, tag, reflog.
+import { reflogExpire } from "./ic";
 import {
   agacaGec,
   ataMi,
@@ -1032,9 +1033,17 @@ export function stash(o: Ortam, args: string[]): string {
     case "drop":
     case "pop":
     case "apply": {
-      if (!d.stash.length) throw new GitHatasi("error: No stash entries found.", 1);
-      const i = sec();
-      const k = kayit(i);
+      // git stash apply <kimlik>: düşürülmüş bir stash'in commit'i (fsck ile bulunur)
+      const ham = a.kalan[0];
+      const kimlikle = alt === "apply" && !!ham && !/^(?:stash@\{)?\d+\}?$/.test(ham);
+      if (!kimlikle && !d.stash.length) throw new GitHatasi("error: No stash entries found.", 1);
+      if (kimlikle) {
+        const h = cozYumusak(d, ham!);
+        const n = h ? d.nesneler[h] : null;
+        if (!h || n?.tur !== "commit" || n.ebeveynler.length < 2) throw new GitHatasi(`error: '${ham}' is not a stash-like commit`, 1);
+      }
+      const i = kimlikle ? -1 : sec();
+      const k = kimlikle ? { hash: cozYumusak(d, ham!)!, mesaj: "" } : kayit(i);
       const c: string[] = [];
       if (alt !== "drop") {
         if (!head) throw new GitHatasi("error: no HEAD", 1);
@@ -1116,6 +1125,7 @@ export function tag(o: Ortam, args: string[]): string {
 // ---- reflog ----
 
 export function reflog(o: Ortam, args: string[]): string {
+  if (args[0] === "expire") return reflogExpire(o, args.slice(1));
   const d = depoGerekli(o);
   const a = ayir(args);
   const hedef = a.kalan.filter((x) => x !== "show")[0];

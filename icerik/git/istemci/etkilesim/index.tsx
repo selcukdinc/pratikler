@@ -9,6 +9,7 @@ import { FetchPull, MergeRebase, RebaseListesi } from "./kademe3";
 import { IsAkisi, KorumaPaneli, UcOrtamAkisi } from "./platform";
 import { AnahtarAvi, SizintiTatbikati } from "./guvenlik";
 import { BisectOyunu, GitlabHatti, HangiArac, IkiPlatform } from "./ileri";
+import { CloneTurleri, FelaketOdasi, NesneGezgini, ShaHesaplayici } from "./ic";
 import "./etkilesim.css";
 
 type Ozellik = { g: Gorsel };
@@ -389,4 +390,8 @@ export const ETKILESIMLER: Record<string, ComponentType<Ozellik>> = {
   gitlabHatti: GitlabHatti,
   bisectOyunu: BisectOyunu,
   hangiArac: HangiArac,
+  nesneGezgini: NesneGezgini,
+  shaHesaplayici: ShaHesaplayici,
+  felaketOdasi: FelaketOdasi,
+  cloneTurleri: CloneTurleri,
 };

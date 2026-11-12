@@ -637,16 +637,24 @@ export function catFile(o: Ortam, args: string[]): string {
   let h: string;
   const iki = rev.indexOf(":");
   if (iki >= 0) {
-    const ag = commitAgaci(d, coz(d, rev.slice(0, iki) || "HEAD"));
-    const yol = rev.slice(iki + 1);
-    if (!ag[yol]) throw new GitHatasi(`fatal: path '${yol}' does not exist in '${rev.slice(0, iki)}'`);
-    h = ag[yol]!;
+    const commit = coz(d, rev.slice(0, iki) || "HEAD");
+    const yol = rev.slice(iki + 1).replace(/\/$/, "");
+    // Klasör yolu tree'ye, dosya yolu blob'a çözülür
+    let n: string | undefined = oku(d, commit, "commit").agac;
+    for (const parca of yol ? yol.split("/") : []) {
+      const t: (typeof d.nesneler)[string] | undefined = d.nesneler[n!];
+      n = t?.tur === "tree" ? t.girdiler.find((g) => g.ad === parca)?.hash : undefined;
+      if (!n) break;
+    }
+    if (!n) throw new GitHatasi(`fatal: path '${yol}' does not exist in '${rev.slice(0, iki)}'`);
+    h = n;
   } else {
     const r = refAdi(d, rev) ?? (rev.includes("refs/") ? rev : null);
     h = r && d.refs[r] ? d.refs[r]! : (cozHam(d, rev) ?? "");
   }
   const n = d.nesneler[h];
   if (!n) throw new GitHatasi(`fatal: Not a valid object name ${rev}`);
+  if (var_(a, "-e")) return "";
   if (var_(a, "-t")) return n.tur;
   if (var_(a, "-s")) return String(new TextEncoder().encode(n.tur === "blob" ? n.icerik : "").length || govdeBoyu(n));
   if (n.tur === "blob") return n.icerik.replace(/\n$/, "");

@@ -2,6 +2,7 @@
 // komutlarını (ls, cat, echo, touch, rm, mkdir, cd, pwd, mv, cp) çalıştırır ve
 // git komutlarını ilgili işleve yönlendirir.
 import * as dal from "./dal";
+import * as ic from "./ic";
 import * as ileri from "./ileri";
 import { GitHatasi } from "./nesne";
 import { gh } from "./platform";
@@ -321,6 +322,13 @@ const KOMUTLAR: Record<string, (o: Ortam, a: string[]) => string> = {
   "hash-object": temel.hashObject,
   "rev-parse": temel.revParse,
   "show-ref": temel.showRef,
+  "ls-tree": ic.lsTree,
+  "update-ref": ic.updateRef,
+  "symbolic-ref": ic.symbolicRef,
+  fsck: ic.fsck,
+  gc: ic.gc,
+  prune: ic.prune,
+  "filter-repo": ic.filterRepo,
   branch: dal.branch,
   switch: dal.switchKomutu,
   checkout: dal.checkout,
