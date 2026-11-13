@@ -1218,7 +1218,7 @@ body.boyutlaniyor-dikey { cursor: ns-resize; user-select: none; }
 .tag.yakinda, .nav-rozet.yakinda-rozet { background: var(--mark-warning); color: var(--text); }
 
 /* Karma test */
-.karma { max-width: 860px; display: flex; flex-direction: column; gap: 12px; }
+.karma { max-width: 860px; padding: 8px 16px 40px; display: flex; flex-direction: column; gap: 12px; }
 .karma-giris { margin: 0; }
 .karma-ayar { display: flex; flex-direction: column; gap: 10px; padding: 12px; border: 1px solid var(--border); border-radius: 4px; background: var(--panel); }
 .karma-ayar .secici-satir { flex-wrap: wrap; }

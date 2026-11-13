@@ -24,6 +24,12 @@ export interface Yenilik {
 
 export const YENILIKLER: Yenilik[] = [
   {
+    pr: 52,
+    tarih: "2026-11-13",
+    baslik: "Karma test geniş görünümde kenarlara yapışmıyor",
+    maddeler: ["Karma test sayfası artık diğer sayfalar gibi kenarlardan boşluk bırakıyor; Geniş görünümü açınca içerik ekranın kenarına dayanmıyor."],
+  },
+  {
     pr: 51,
     tarih: "2026-11-12",
     baslik: "Seviye testi kendi ekranında, Git'e özel Nasıl kullanılır",
