@@ -152,15 +152,15 @@ export function SeviyeTestiEkrani({ tanim, onSonuc, kapat }: { tanim: SeviyeTest
         <ol className="seviye-sorular">
           {tanim.sorular.map((s, i) => (
             <li key={i}>
-              <fieldset>
-                <legend>{inline(s.soru)}</legend>
+              <div className="seviye-soru" role="group" aria-labelledby={`seviye-soru-${i}`}>
+                <div className="seviye-soru-metin" id={`seviye-soru-${i}`}>{inline(s.soru)}</div>
                 {[...s.secenekler.map((x, j) => [x, j] as const), ["Bilmiyorum", BILMIYORUM] as const].map(([x, j]) => (
                   <label key={j} className="seviye-sik">
                     <input type="radio" name={`seviye-${i}`} checked={cevaplar[i] === j} onChange={() => setCevaplar({ ...cevaplar, [i]: j })} />
                     <span>{inline(x)}</span>
                   </label>
                 ))}
-              </fieldset>
+              </div>
             </li>
           ))}
         </ol>

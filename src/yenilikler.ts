@@ -24,6 +24,12 @@ export interface Yenilik {
 
 export const YENILIKLER: Yenilik[] = [
   {
+    pr: 53,
+    tarih: "2026-11-13",
+    baslik: "Seviye testinde soru numaraları sorunun yanında",
+    maddeler: ["Seviye testinde soru numarası artık ilk şıkkın değil, sorunun kendi satırının yanında başlıyor."],
+  },
+  {
     pr: 52,
     tarih: "2026-11-13",
     baslik: "Karma test geniş görünümde kenarlara yapışmıyor",
