@@ -20,6 +20,7 @@ import { DENEYLER } from "./lab";
 const icerik: PratikIstemciIcerigi = {
   dersler: [UNITE_1, UNITE_2, UNITE_3, UNITE_4, UNITE_5, UNITE_6, UNITE_7, UNITE_8, UNITE_9, UNITE_10, UNITE_11, UNITE_12],
   // Soru kartındaki "Derste oku" bağlantısı: kavram -> bölüm (0'dan)
+  mesajlasma: true,
   kavramBolumu: {
     1: { "u1-hedefler": 0, "u1-kerckhoffs": 1, "u1-anahtar": 2, "u1-kodlama": 3, "u1-uc-islem": 3, "u1-bayt": 4, "u1-simetrik-asimetrik": 5, "u1-tehdit": 6 },
     2: { "u2-entropi": 0, "u2-parola": 1, "u2-prng": 2, "u2-csprng": 3, "u2-trng": 4, "u2-sapma": 5, "u2-hatalar": 6 },
