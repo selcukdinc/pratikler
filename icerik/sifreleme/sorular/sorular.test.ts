@@ -191,4 +191,14 @@ describe("şifreleme: hesapların cevap anahtarı", () => {
     expect(sayiDogru("u11-k-bul", String(bulunan))).toBe(true);
     expect(mod((10n * bulunan - 30n) * modTers(r, n), n)).toBe(d);
   });
+  it("mesajlaşma hesapları", () => {
+    // X3DH: IK_A-SPK_M, EK_A-IK_M, EK_A-SPK_M, EK_A-OPK_M
+    expect(sayiDogru("u13-dh-sayisi", String(["IK_A·SPK_M", "EK_A·IK_M", "EK_A·SPK_M", "EK_A·OPK_M"].length))).toBe(true);
+    expect(sayiDogru("u13-kac-adim", String(4 - 1))).toBe(true);
+    expect(sayiDogru("u13-basamak", String(12 * 5))).toBe(true);
+    expect(sayiDogru("u14-ikili", String(100 - 1))).toBe(true);
+    expect(sayiDogru("u14-cikinca", String((5 - 1) * (5 - 2)))).toBe(true);
+    expect(sayiDogru("u14-log", String(Math.log2(1024)))).toBe(true);
+    expect(sayiDogru("u14-kac-sifreleme", String(2 + (3 - 1)))).toBe(true);
+  });
 });

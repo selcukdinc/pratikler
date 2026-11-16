@@ -9,6 +9,7 @@ import { EnigmaMakinesi, FrekansTezgahi, SezarCarki, VigenereKirici } from "./kl
 import { AesTurGezgini, BitCevirme, ChachaCeyrek, EcbMaskot, ModOynatici, XorTuvali } from "./simetrik";
 import { CakismaAvi, CigEtkisi, DogumGunu, HkdfTuretici, HmacAdimlari, KabaKuvvetSure, LengthExtension, Pbkdf2Olcer, Sha256Gezgini, SizanVeritabani } from "./hash";
 import { DhRenk, DhSayilar, EgriFp, EgriReel, ImzaTezgahi, MitmSahnesi, RsaTezgahi, SertifikaZinciri, TlsEl } from "./acik";
+import { Circir, GrupAnahtari, GuvenlikNumarasi, MetadataDedektifi, X3dhUcgeni } from "./mesajlasma";
 import "./etkilesim.css";
 
 export const ETKILESIMLER: Record<string, ComponentType<{ g: Gorsel }>> = {
@@ -50,4 +51,9 @@ export const ETKILESIMLER: Record<string, ComponentType<{ g: Gorsel }>> = {
   tlsEl: TlsEl,
   sertifikaZinciri: SertifikaZinciri,
   mitmSahnesi: MitmSahnesi,
+  circir: Circir,
+  x3dhUcgeni: X3dhUcgeni,
+  guvenlikNumarasi: GuvenlikNumarasi,
+  grupAnahtari: GrupAnahtari,
+  metadataDedektifi: MetadataDedektifi,
 };
