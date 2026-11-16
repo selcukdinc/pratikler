@@ -9,8 +9,9 @@ import { SIZAN_OZET } from "./unite-9.ts";
 import { dolgu, sha256Oyuncak } from "../../../src/kripto/oyuncak/sha256.ts";
 import { aesBlok, anahtarGenislet, S_KUTUSU } from "../../../src/kripto/oyuncak/aes.ts";
 import { dolgula } from "../../../src/kripto/oyuncak/modlar.ts";
+import { ayrikLog, carpanlaraAyir, dh, egrideMi, rsaAnahtari, rsaCoz, rsaSifrele, skalerCarp, tersi, topla } from "../../../src/kripto/oyuncak/acik.ts";
 import { ALFABE, atbas, citCoz, frekans, sezarCoz, vigenereCoz, yerineKoy } from "../../../src/kripto/oyuncak/klasik.ts";
-import { ebob, gfCarp, lcg, modTers, modUs, phi } from "../../../src/kripto/oyuncak/sayi.ts";
+import { ebob, gfCarp, lcg, mod, modTers, modUs, phi } from "../../../src/kripto/oyuncak/sayi.ts";
 import { base64tenBayt, bayttanMetin, hex, hextenBayt, metindenBayt, xorBayt } from "../../../src/kripto/bayt.ts";
 import { sayiEslesir, metinEslesir } from "../../../shared/grade.ts";
 
@@ -151,5 +152,43 @@ describe("şifreleme: hesapların cevap anahtarı", () => {
     expect(hex(sha256Oyuncak(metindenBayt(mcqDogru("u9-sizan-ozet"))))).toBe(SIZAN_OZET);
     for (const s of bul("u9-sizan-ozet").tip === "mcq" ? (bul("u9-sizan-ozet") as { secenekler: string[] }).secenekler.slice(1) : [])
       expect(hex(sha256Oyuncak(metindenBayt(s)))).not.toBe(SIZAN_OZET);
+  });
+  it("açık anahtar hesapları", () => {
+    expect(sayiDogru("u10-cift-sayisi", String((100 * 99) / 2))).toBe(true);
+    const d = dh(5n, 23n, 6n, 15n);
+    expect(sayiDogru("u10-dh-A", String(d.A))).toBe(true);
+    expect(d.B).toBe(19n);
+    expect(sayiDogru("u10-dh-sir", String(d.sirAyse))).toBe(true);
+    const a = ayrikLog(5n, 8n, 23n)!.x;
+    expect(sayiDogru("u10-dh-dinleyici", String(modUs(19n, a, 23n)))).toBe(true);
+    let x = 1n;
+    while (modUs(2n, x, 11n) !== 9n) x++;
+    expect(sayiDogru("u10-kucuk", String(x))).toBe(true);
+    const k = rsaAnahtari(11n, 17n, 7n);
+    expect(sayiDogru("u10-n", String(k.n))).toBe(true);
+    expect(sayiDogru("u10-phi", String(k.phi))).toBe(true);
+    expect(sayiDogru("u10-d", String(k.d))).toBe(true);
+    expect(sayiDogru("u10-sifrele", String(rsaSifrele(88n, k)))).toBe(true);
+    const c = carpanlaraAyir(187n)!;
+    const kirik = rsaAnahtari(c.p, c.q, 7n);
+    expect(sayiDogru("u10-kir", String(rsaCoz(11n, kirik)))).toBe(true);
+  });
+  it("eliptik eğri ve imza hesapları", () => {
+    const E = { a: 2n, b: 3n, p: 97n };
+    const P = { x: 3n, y: 6n };
+    expect(egrideMi(P, E)).toBe(true);
+    expect(sayiDogru("u11-ters", String(tersi(P, E)!.y))).toBe(true);
+    expect(sayiDogru("u11-ikiye-katla", String(topla(P, P, E)!.x))).toBe(true);
+    const katla = skalerCarp(13n, P, E).adimlar.filter((a) => a.islem === "ikiye katla").length;
+    expect(sayiDogru("u11-ciftle-topla", String(katla))).toBe(true);
+    expect(skalerCarp(5n, P, E).sonuc).toBeNull();
+    expect(skalerCarp(7n, P, E).sonuc).toEqual(topla(P, P, E));
+    // Aynı k ile iki oyuncak ECDSA imzası: n = 101, d = 17, k = 29, r = 45
+    const n = 101n, d = 17n, k = 29n, r = 45n;
+    const s = (z: bigint) => mod(modTers(k, n) * (z + r * d), n);
+    expect([s(30n), s(55n)]).toEqual([10n, 84n]);
+    const bulunan = mod((30n - 55n) * modTers(mod(10n - 84n, n), n), n);
+    expect(sayiDogru("u11-k-bul", String(bulunan))).toBe(true);
+    expect(mod((10n * bulunan - 30n) * modTers(r, n), n)).toBe(d);
   });
 });

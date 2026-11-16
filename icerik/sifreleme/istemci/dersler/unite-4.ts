@@ -47,7 +47,7 @@ Tezgahtaki "Sıklık sırasıyla eşleştir" düğmesi yalnız bir başlangıç 
     {
       baslik: "Vigenère: kayma harften harfe değişir",
       metin: md(`
-16. yüzyılda bulunan ve adını Blaise de Vigenère'den alan şifre, frekans analizini şaşırtmak için **birden çok** Sezar kullanır. Anahtar bir kelimedir, örneğin ~KOD~: 1., 4., 7. harfler K kadar (13), 2., 5., 8. harfler O kadar (17), 3., 6., 9. harfler D kadar (4) kaydırılır. Aynı harf farklı konumlarda farklı harflere döner; buna **çok alfabeli** şifre denir.
+Adını Blaise de Vigenère'den alan ve 16. yüzyılda bulunan şifre, frekans analizini şaşırtmak için **birden çok** Sezar kullanır. Anahtar bir kelimedir, örneğin ~KOD~: 1., 4., 7. harfler K kadar (13), 2., 5., 8. harfler O kadar (17), 3., 6., 9. harfler D kadar (4) kaydırılır. Aynı harf farklı konumlarda farklı harflere döner; buna **çok alfabeli** şifre denir.
 
 $$C_i = (M_i + K_{i \\bmod L}) \\bmod 29$$
 

@@ -24,6 +24,18 @@ export interface Yenilik {
 
 export const YENILIKLER: Yenilik[] = [
   {
+    pr: 58,
+    tarih: "2026-11-16",
+    baslik: "Şifreleme pratiği: açık anahtar, imzalar ve TLS",
+    kitle: "yonetici",
+    maddeler: [
+      "10-12. üniteler eklendi: anahtar dağıtım sorunu, Diffie-Hellman ve ayrık logaritma, ortadaki adam, RSA ve ders kitabı RSA'nın açıkları (OAEP), anahtar boyları; eliptik eğrilerde nokta toplama, ECDH ve X25519, ECDSA ve Ed25519, nonce tekrarıyla anahtar sızması; sertifika zinciri, iptal ve Certificate Transparency, TLS 1.3 el sıkışması, anahtar takvimi ve HTTPS'in korumadıkları. 19 bölüm, 71 yeni soru.",
+      "Dokuz yeni etkileşimli şekil, hepsi Sanal Lab'de de açılıyor: boya karıştırarak Diffie-Hellman (ortadaki adamla), sayılarla DH ve dinleyici, oyuncak RSA tezgahı (çarpanlara ayırıp 2048 bit için süre tahmini), gerçek sayılarda ve mod 97'de eliptik eğri, imza tezgahı (gerçek Ed25519; aynı nonce'lu iki imzadan özel anahtar), TLS 1.3 el sıkışması (gerçek X25519, imza, HKDF ve AES-GCM), sertifika zinciri ve kafedeki ortadaki adam.",
+      "Oyuncak RSA, DH ve eliptik eğri `src/kripto/oyuncak/acik.ts`'te; imza ve anahtar değişimi için Web Crypto sarmalayıcıları (Ed25519/P-256, X25519/P-256) eklendi ve sınanıyor. Hesap sorularının cevapları oyuncak uygulamalarla denetleniyor.",
+      "Yayından önce uzak D1'e `0046_sifreleme_acik.sql` uygulanmalı.",
+    ],
+  },
+  {
     pr: 57,
     tarih: "2026-11-16",
     baslik: "Şifreleme pratiği: hash, HMAC ve parola saklama",

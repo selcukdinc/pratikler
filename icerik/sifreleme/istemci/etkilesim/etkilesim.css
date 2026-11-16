@@ -115,8 +115,52 @@ button.sf-bayt { cursor: pointer; }
 .sf-tablo td.sf-tekrar-2 { background: var(--active); }
 .sf-tablo td.sf-tekrar-3 { background: var(--section-header); color: var(--section-text); }
 
+/* Açık anahtar: renk karıştırma */
+.sf-boya { display: flex; gap: 8px; align-items: center; font-size: 13px; }
+.sf-boya-kutu { width: 28px; height: 28px; border-radius: 50%; border: 1px solid var(--border); flex: none; }
+.sf button.sf-renk-dugme { width: 26px; height: 26px; border-radius: 50%; border: 2px solid var(--border); cursor: pointer; padding: 0; }
+.sf button.sf-renk-dugme[aria-pressed="true"] { outline: 2px solid var(--link); outline-offset: 2px; }
+
+/* Eliptik eğri */
+.sf-egri { width: 100%; max-width: 420px; align-self: center; background: var(--panel); border: 1px solid var(--border); border-radius: 6px; }
+.sf-egri-fp { max-width: 340px; cursor: crosshair; }
+.sf-egri-zemin { fill: transparent; }
+.sf-eksen-cizgi { stroke: var(--border); stroke-width: 1; }
+.sf-egri-yol { fill: none; stroke: var(--link); stroke-width: 2.2; }
+.sf-egri-dogru { stroke: var(--muted); stroke-width: 1.4; }
+.sf-egri-yansima { stroke: var(--warning); stroke-width: 1.4; stroke-dasharray: 4 3; }
+.sf-egri-ucuncu { fill: none; stroke: var(--warning); stroke-width: 2; }
+.sf-egri-toplam { fill: var(--warning); stroke: var(--text); stroke-width: 1; }
+.sf-egri-p { fill: var(--tag-cikmis-text); }
+.sf-egri-q { fill: var(--tag-ders-text); }
+.sf-egri-yazi { font-size: 12px; fill: var(--text); font-family: var(--mono); }
+.sf-egri-nokta { fill: var(--muted); }
+.sf-egri-gezilen { fill: var(--link); }
+.sf-egri-iz { fill: none; stroke: var(--link); stroke-width: .8; opacity: .45; }
+
+/* TLS el sıkışması */
+.sf-tls { display: grid; grid-template-columns: minmax(180px, 230px) 1fr; gap: 8px; }
+.sf-tls-liste { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 3px; }
+.sf-tls-liste button { width: 100%; text-align: left; font: inherit; font-size: 12.5px; padding: 4px 8px; border: 1px solid var(--border); border-radius: 4px; background: var(--panel); color: var(--text); cursor: pointer; display: flex; flex-direction: column; }
+.sf-tls-liste .sf-tls-simdi button { background: var(--active); border-color: var(--btn-primary-border); font-weight: 600; }
+.sf-tls-liste .sf-tls-sonra button { opacity: .55; }
+.sf-tls-yon { font-size: 11px; color: var(--muted); font-weight: 400; }
+
+/* Sertifika zinciri ve MITM */
+.sf-zincir { display: flex; flex-direction: column; gap: 6px; }
+.sf-zincir > .sf-kutu + .sf-kutu { position: relative; }
+.sf-kirik { border-color: var(--tag-cikmis-text); }
+.sf-kontrol { margin: 0; padding: 0; list-style: none; font-size: 13px; }
+.sf-tamam { color: var(--tag-ders-text); }
+.sf-hata { color: var(--tag-cikmis-text); font-weight: 600; }
+.sf-sahne { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.sf-sahne > .sf-kutu { flex: none; font-weight: 600; }
+.sf-sahne-hat { flex: 1; min-width: 120px; text-align: center; border-top: 2px dashed var(--border); padding-top: 4px; font-size: 12.5px; color: var(--muted); }
+.sf-sahne-saldirgan { border-top-color: var(--tag-cikmis-text); color: var(--tag-cikmis-text); font-weight: 600; }
+
 @media (max-width: 520px) {
   .sf-durum { grid-template-columns: repeat(4, 38px); }
   .sf-tus { width: 26px; height: 26px; font-size: 12px; }
   .sf-klavye > div { gap: 2px; }
+  .sf-tls { grid-template-columns: 1fr; }
 }
