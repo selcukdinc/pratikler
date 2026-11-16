@@ -26,6 +26,10 @@ const saldiri = (ad: "NonceSurukle" | "PaddingOracle" | "ZamanlamaSaldirisi" | "
 const kuantum = (ad: "LweOyunu" | "KuantumEtki" | "OyuncakKem") =>
   lazy(() => import("./etkilesim/kuantum").then((m) => ({ default: () => createElement(m[ad]) })));
 
+const vaka = (ad: "VakaTablosu" | "GeriBildirimAlistirmasi" | "PaylasimAlistirmasi") =>
+  lazy(() => import("./etkilesim/vaka").then((m) => ({ default: () => createElement(m[ad]) })));
+const atolye = lazy(() => import("./etkilesim/atolye").then((m) => ({ default: m.KodAtolyesi })));
+
 export const DENEYLER: Deney[] = [
   { id: "uc-kutu", ad: "Kodlama, hash ve şifreleme", unite: 1, bilesen: bilesen("UcKutu"), ozet: "Aynı metni Base64 ile kodla, SHA-256 ile hash'ini al ve AES-GCM ile şifrele. Hangisi anahtarsız geri döner, hangisi hiç dönmez?" },
   { id: "bayt", ad: "Bayt dönüştürücü", unite: 1, bilesen: bilesen("BaytDonusturucu"), ozet: "Metin, hex ve Base64 arasında çevir; her karakterin UTF-8 baytlarını ve bitlerini gör." },
@@ -79,4 +83,8 @@ export const DENEYLER: Deney[] = [
   { id: "lwe", ad: "Gürültülü denklemler", unite: 18, bilesen: kuantum("LweOyunu"), ozet: "Gürültüsüz denklemleri Gauss elemeyle çöz, sonra gürültü ekle ve aynı yöntemin nasıl çöktüğünü gör." },
   { id: "kuantum-etki", ad: "Kuantum etki tablosu", unite: 18, bilesen: kuantum("KuantumEtki"), ozet: "Shor ve Grover hangi algoritmayı ne kadar zayıflatır? Mosca eşitsizliğiyle geçişe kalan süreni hesapla." },
   { id: "oyuncak-kem", ad: "Oyuncak ML-KEM", unite: 18, bilesen: kuantum("OyuncakKem"), ozet: "Küçük bir modül-LWE ile sırrı kapsülle ve aç; gürültüyü büyüt, hataları gör, gerçek boyları karşılaştır." },
+  { id: "vakalar", ad: "Gerçek uygulamalar", unite: 19, bilesen: vaka("VakaTablosu"), ozet: "WhatsApp, Signal, Telegram, iMessage ve PGP'yi altı güvenlik özelliğinde karşılaştır; her birini simülatörde aç." },
+  { id: "geri-bildirim", ad: "Tasarım: anonim geri bildirim", unite: 19, bilesen: vaka("GeriBildirimAlistirmasi"), ozet: "Eleştiri yürütücülere gitsin, yazar platformu işletenlerden gizli kalsın. Tehditleri seç, dört mimariyi karşılaştır." },
+  { id: "paylasim", ad: "Tasarım: kişisel paylaşım", unite: 19, bilesen: vaka("PaylasimAlistirmasi"), ozet: "Dokuz aylık bir paylaşım uygulaması: konum bilgisi, kayıp telefon, ses kaydı ve kripto-silme." },
+  { id: "kod-atolyesi", ad: "Web Crypto kod atölyesi", unite: 19, bilesen: atolye, ozet: "crypto.subtle çağrılarını kendin yaz: hash, HMAC, AES-GCM, PBKDF2, HKDF, ECDH, imza ve bir nonce saldırısı." },
 ];

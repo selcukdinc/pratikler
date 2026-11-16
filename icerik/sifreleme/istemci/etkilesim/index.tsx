@@ -1,7 +1,7 @@
 // Şifreleme derslerinin etkileşimli şekilleri: Gorsel.etkilesim adı -> bileşen.
 // Gerçek işlemler Web Crypto ile, eğitim uygulamaları src/kripto/oyuncak ile yapılır;
 // her şekil hangisini kullandığını rozetiyle söyler (src/kripto/Rozet.tsx).
-import type { ComponentType } from "react";
+import { Suspense, lazy, type ComponentType } from "react";
 import type { Gorsel } from "../../../../src/gorseller/tip";
 import { BaytDonusturucu, EntropiOlcer, HedefEslestir, LcgOyunu, RastgeleMi, UcKutu } from "./temeller";
 import { KareCarp, ModulerSaat, OklidTablosu } from "./matematik";
@@ -14,7 +14,16 @@ import { AnahtarZinciri, KurtarmaSenaryosu, NotDefteri } from "./depolama";
 import { GorselPaylar, GoruntuSifreleme, LsbGizleyici } from "./gizleme";
 import { GucAnalizi, NonceSurukle, PaddingOracle, ZamanlamaSaldirisi } from "./saldiri";
 import { KuantumEtki, LweOyunu, OyuncakKem } from "./kuantum";
+import { GeriBildirimAlistirmasi, PaylasimAlistirmasi, VakaTablosu } from "./vaka";
 import "./etkilesim.css";
+
+// Kod atölyesi CodeMirror'ı getirir; yalnız açıldığında yüklenir
+const Atolye = lazy(() => import("./atolye").then((m) => ({ default: m.KodAtolyesi })));
+const KodAtolyesi = () => (
+  <Suspense fallback={<p className="sf-not">Kod atölyesi yükleniyor…</p>}>
+    <Atolye />
+  </Suspense>
+);
 
 export const ETKILESIMLER: Record<string, ComponentType<{ g: Gorsel }>> = {
   ucKutu: UcKutu,
@@ -73,4 +82,8 @@ export const ETKILESIMLER: Record<string, ComponentType<{ g: Gorsel }>> = {
   lweOyunu: LweOyunu,
   kuantumEtki: KuantumEtki,
   oyuncakKem: OyuncakKem,
+  vakaTablosu: VakaTablosu,
+  geriBildirim: GeriBildirimAlistirmasi,
+  paylasim: PaylasimAlistirmasi,
+  kodAtolyesi: KodAtolyesi,
 };

@@ -1,6 +1,6 @@
 # Sürüm güncelleme
 
-Yazılım anlatan pratikler (şimdilik Git ve GitHub) belli araç sürümlerine göre hazırlanır.
+Yazılım anlatan pratikler (Git ve GitHub, Şifreleme) belli araç sürümlerine göre hazırlanır.
 Esas alınan sürümler pratiğin `meta.ts`'indeki `surumler` alanındadır ve Hakkında
 sayfasının "Sürümler" bölümünde görünür. Bir kullanıcı "yeni sürümde komut çalışmıyor"
 dediğinde yöneticinin "siteyi güncelle" demesi yeterlidir; işi yapan şu adımları izler.
@@ -27,3 +27,12 @@ dediğinde yöneticinin "siteyi güncelle" demesi yeterlidir; işi yapan şu ad�
    araçların yeni sürümleri ve notları. CLAUDE.md'deki "git 2.43" ibaresini de yenile.
 6. **Kayıt ve denetim.** `src/yenilikler.ts`'e herkese açık bir kayıt ("Git X.Y'ye
    güncellendi" ve değişen davranışlar), sonra `npm run denetle`.
+
+## Şifreleme (`icerik/sifreleme`)
+
+Ürün bilgileri `meta.surumler.tarih` itibarıyladır (şu an Kasım 2026). Güncellerken:
+
+1. **Vaka çalışmaları:** `src/kripto/mesajlasma/vakalar.ts`'teki her ürünün özetini, notlarını, özellik tablosunu ve simülatör ayarını ürünün kendi güvenlik belgesiyle karşılaştır (kaynak bağlantısı her vakada). `VAKA_TARIHI`'ni değiştir. Ayar değiştiyse `src/kripto/tasarim.test.ts`'teki beklentileri güncelle.
+2. **Ders ve sorular:** 13, 14, 18 ve 19. ünitelerde "Kasım 2026", "2025'te" gibi tarihli cümleleri ara (`grep -rn "2026\|2025" icerik/sifreleme`); doğru-yanlış sorularındaki tarihleri de düzelt, sonra `npm run sorular:sql -- sifreleme migrations/NNNN_ad.sql`.
+3. **Post-kuantum:** TLS'teki varsayılan grup, Signal ve iMessage'ın PQ protokolleri ve devlet takvimleri (18. ünitenin son bölümü).
+4. `meta.surumler.tarih` ve `src/yenilikler.ts` kaydı.

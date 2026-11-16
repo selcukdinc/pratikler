@@ -24,6 +24,7 @@ import {
 } from "../kripto/mesajlasma/model";
 import { gercekOturum, type GercekOturum } from "../kripto/mesajlasma/gercek";
 import { GOREVLER, tamamlananlariOku, tamamlananlariYaz } from "../kripto/mesajlasma/gorevler";
+import { VAKA_TARIHI, VAKALAR } from "../kripto/mesajlasma/vakalar";
 import "./mesajlasma.css";
 
 const AD = { ayse: "Ayşe", mert: "Mert" } as const;
@@ -58,6 +59,13 @@ function hashtenTasarim(): Tasarim {
   return (m && tasarimOku(decodeURIComponent(m[1]!))) || VARSAYILAN;
 }
 
+function hashtenVaka(): string | null {
+  const m = /vaka=([a-z-]+)/.exec(location.hash);
+  return m && VAKALAR.some((v) => v.id === m[1]) ? m[1]! : null;
+}
+
+const ayniTasarim = (a: Tasarim, b: Tasarim) => (Object.keys(a) as (keyof Tasarim)[]).every((k) => a[k] === b[k]);
+
 type Sekme = "tasarim" | "sohbet" | "saldirgan";
 
 export function Mesajlasma() {
@@ -74,17 +82,20 @@ export function Mesajlasma() {
   const [kopyalandi, setKopyalandi] = useState(false);
   const [tamamlanan, setTamamlanan] = useState<Set<string>>(tamamlananlariOku);
   const [acikGorev, setAcikGorev] = useState<string | null>(null);
+  const [vakaId, setVakaId] = useState<string | null>(hashtenVaka);
   const sohbetRef = useRef<HTMLOListElement>(null);
   // Açılışta sohbetin sonu görünsün
   useEffect(() => {
     const el = sohbetRef.current;
     if (el) el.scrollTop = el.scrollHeight;
   }, [mesajlar.length]);
+  // Hazır ayar yalnız tasarım onunla aynı kaldıkça seçili görünür
+  const vaka = VAKALAR.find((v) => v.id === vakaId && ayniTasarim(v.tasarim, tasarim));
   const ayarla = <K extends keyof Tasarim>(k: K, v: Tasarim[K]) => setTasarim((t) => ({ ...t, [k]: v }));
 
   useEffect(() => {
-    history.replaceState(null, "", `${location.pathname}${location.search}#tasarim=${tasarimYaz(tasarim)}`);
-  }, [tasarim]);
+    history.replaceState(null, "", `${location.pathname}${location.search}#tasarim=${tasarimYaz(tasarim)}${vaka ? `&vaka=${vaka.id}` : ""}`);
+  }, [tasarim, vaka]);
   useEffect(() => {
     let iptal = false;
     setGercek(null);
@@ -143,6 +154,40 @@ export function Mesajlasma() {
   const tasarimPaneli = (
     <section className="ms-panel" aria-label="Tasarım">
       <h3>Tasarım</h3>
+      <Alan baslik="Hazır ayarlar: gerçek uygulamalar">
+        <div className="ms-cipler" role="group" aria-label="Hazır ayarlar">
+          {VAKALAR.map((v) => (
+            <button
+              key={v.id}
+              type="button"
+              className="cip"
+              aria-pressed={vaka?.id === v.id}
+              onClick={() => {
+                setTasarim(v.tasarim);
+                setVakaId(v.id);
+              }}
+            >
+              {v.ad}
+            </button>
+          ))}
+        </div>
+        {vaka && (
+          <div className="ms-vaka">
+            <p>{vaka.ozet}</p>
+            <ul>
+              {vaka.notlar.map((n) => (
+                <li key={n}>{n}</li>
+              ))}
+            </ul>
+            <p className="ms-not">
+              Bu bir modeldir; tarih: {VAKA_TARIHI}. Kaynak:{" "}
+              <a href={vaka.kaynak.url} target="_blank" rel="noreferrer">
+                {vaka.kaynak.ad}
+              </a>
+            </p>
+          </div>
+        )}
+      </Alan>
       <Alan baslik="Koruma katmanı">
         <Cipler
           ad="Koruma katmanı"

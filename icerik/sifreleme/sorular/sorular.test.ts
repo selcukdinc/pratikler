@@ -223,4 +223,10 @@ describe("şifreleme: hesapların cevap anahtarı", () => {
     expect(sayiDogru("u18-kaba", String(97 ** 3))).toBe(true);
     expect(sayiDogru("u18-boy", String(1184 + 32))).toBe(true);
   });
+
+  it("tasarım ve Web Crypto hesapları", () => {
+    expect(sayiDogru("u19-yenileme", "100")).toBe(true);
+    expect(sayiDogru("u19-gcm-boy", String(12 + "Merhaba Mert".length + 16))).toBe(true);
+    expect(sayiDogru("u19-imza-boy", String(2 * 32))).toBe(true);
+  });
 });
