@@ -18,9 +18,10 @@ import { unite15 } from "./unite-15.ts";
 import { unite16 } from "./unite-16.ts";
 import { unite17 } from "./unite-17.ts";
 import { unite18 } from "./unite-18.ts";
+import { unite19 } from "./unite-19.ts";
 
 // Her ünite tek konu; konu kimliği sf-u<ünite>. Soruları henüz yazılmamış
 // ünitelerin konuları da şimdiden açılır (soru havuzunda boş görünür).
 export const konular: Konu[] = sifreleme.uniteler.map((u) => ({ id: `sf-u${u.no}`, baslik: u.baslik, hafta: u.no, sira: 1 }));
 
-export const sorular: Soru[] = [...unite1, ...unite2, ...unite3, ...unite4, ...unite5, ...unite6, ...unite7, ...unite8, ...unite9, ...unite10, ...unite11, ...unite12, ...unite13, ...unite14, ...unite15, ...unite16, ...unite17, ...unite18];
+export const sorular: Soru[] = [...unite1, ...unite2, ...unite3, ...unite4, ...unite5, ...unite6, ...unite7, ...unite8, ...unite9, ...unite10, ...unite11, ...unite12, ...unite13, ...unite14, ...unite15, ...unite16, ...unite17, ...unite18, ...unite19];

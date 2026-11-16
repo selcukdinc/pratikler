@@ -24,6 +24,19 @@ export interface Yenilik {
 
 export const YENILIKLER: Yenilik[] = [
   {
+    pr: 63,
+    tarih: "2026-11-16",
+    baslik: "Şifreleme: vaka çalışmaları, tasarım alıştırmaları ve kod atölyesi",
+    maddeler: [
+      "**19. ünite: Vaka çalışmaları ve tasarım.** WhatsApp, Signal, Telegram'ın iki sohbet türü, iMessage ve PGP'li e-posta altı güvenlik özelliğinde yan yana. Şifreli e-postanın neden yaygınlaşmadığını ve bir tehdit modelinin mimariyi nasıl belirlediğini öğren.",
+      "**Mesajlaşma simülatöründe hazır ayarlar.** Bu ürünlerin altı sadeleştirilmiş modelini tek dokunuşla aç, yedi saldırganın gözünden neyin değiştiğine bak. Her ayar kısa notlar ve kaynak bağlantısıyla gelir.",
+      "**İki tasarım alıştırması.** Anonim bir geri bildirim platformu ve dokuz aylık bir kişisel paylaşım uygulaması için tehdit kartlarını seç, dört mimariyi karşılaştır, ürün sahibine sorulacak kararların etkisini gör.",
+      "**Web Crypto kod atölyesi.** Hash, HMAC, AES-GCM, PBKDF2, HKDF, ECDH ve imza çağrılarını kendin yaz; son görevde nonce tekrarlayan bir sistemi kır. Kod yalnız tarayıcında çalışır.",
+      "Nasıl kullanılır sayfası Şifreleme'ye özel adımlarla yenilendi; Hakkında'da içeriğin hazırlandığı tarih görünüyor.",
+      { kitle: "yonetici", metin: "7 kavram, 27 soru (yeni `tasarim` etiketi), bir ders, dört şekil (hepsi Sanal Lab'de). Vakalar `src/kripto/mesajlasma/vakalar.ts`, alıştırmalar `src/kripto/tasarim.ts`, atölye `src/kripto/atolye.ts` ve Web Worker'ı; atölyenin her görevinin örnek çözümü testte çalıştırılır. Güncelleme adımları `docs/surum-guncelleme.md`. Soru göçü `0050_sifreleme_tasarim.sql`." },
+    ],
+  },
+  {
     pr: 62,
     tarih: "2026-11-16",
     baslik: "Şifreleme: saldırılar ve post-kuantum kriptografi",

@@ -63,4 +63,8 @@ export const GORSELLER: Gorsel[] = [
   g("G-S18-01", "Gürültülü denklemler", "Mod 97'de 1-3 bilinmeyenli doğrusal denklemler gürültülü ve gürültüsüz üretilir; Gauss elemesi ile kaba kuvvetin sonuçları karşılaştırılır.", "a·s + e ≡ b (mod 97)", "lweOyunu"),
   g("G-S18-02", "Kuantum etki tablosu", "Yaygın algoritmaların klasik güvenliği ile Shor ve Grover karşısındaki durumu listelenir; Mosca eşitsizliğiyle geçişe kalan süre hesaplanır.", "x + y > z ?", "kuantumEtki"),
   g("G-S18-03", "Oyuncak ML-KEM", "16 katsayılı modül-LWE ile anahtar üretilir, bir sır kapsüllenip açılır; çözmede kalan katsayılar ve karar eşikleri çizilir, gürültü büyüyünce hatalar görülür. Gerçek ML-KEM ve X25519 boyları karşılaştırılır.", "v − sᵀu ≈ ⌈q/2⌋·m", "oyuncakKem"),
+  g("G-S19-01", "Gerçek uygulamalar", "WhatsApp, Signal, Telegram'ın iki sohbet türü, iMessage ve PGP'li e-posta altı güvenlik özelliğinde karşılaştırılır; her biri mesajlaşma simülatöründe hazır ayar olarak açılır.", "E2EE · yedek · metadata", "vakaTablosu"),
+  g("G-S19-02", "Anonim geri bildirim platformu", "Tehdit kartları seçilir, dört mimari (düz sunucu, şifreli zarf, eşikli zarf, anonim üyelik belgesi) her tehdide karşı korur, kısmen korur ya da korumaz diye işaretlenir.", "içerik ≠ yazar", "geriBildirim"),
+  g("G-S19-03", "Kişisel paylaşım uygulaması", "Dokuz aylık küçük bir paylaşım uygulaması için tehdit kartları ve dört mimari karşılaştırılır; ses kaydı seçeneği açılınca yeni bir tehdit belirir.", "EXIF · kurtarma · kripto-silme", "paylasim"),
+  g("G-S19-04", "Web Crypto kod atölyesi", "Öğrenci crypto.subtle çağrılarını kendisi yazar; kod tarayıcıda ayrı bir iş parçacığında çalışır ve sonuç beklenenle karşılaştırılır.", "crypto.subtle", "kodAtolyesi"),
 ];
