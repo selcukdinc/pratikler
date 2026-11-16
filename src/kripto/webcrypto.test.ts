@@ -14,3 +14,16 @@ describe("Web Crypto sarmalayıcıları", () => {
     await expect(aesGcmCoz(k, nonce, sifreli)).rejects.toThrow();
   });
 });
+
+describe("AES-CTR ve tek blok", () => {
+  it("FIPS-197 vektörü ve CTR'nin kendi tersi olması", async () => {
+    const { aesTekBlok, aesAnahtariAl, aesCtr } = await import("./webcrypto");
+    const { hex, hextenBayt } = await import("./bayt");
+    const k = Uint8Array.from({ length: 16 }, (_, i) => i);
+    expect(hex(await aesTekBlok(k, hextenBayt("00112233445566778899aabbccddeeff")))).toBe("69c4e0d86a7b0430d8cdb78070b4c55a");
+    const a = await aesAnahtariAl(k, "AES-CTR");
+    const s = new Uint8Array(16);
+    const m = metindenBayt("ödeme: 100 TL");
+    expect(bayttanMetin(await aesCtr(a, s, await aesCtr(a, s, m)))).toBe("ödeme: 100 TL");
+  });
+});

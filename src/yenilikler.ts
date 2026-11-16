@@ -24,6 +24,18 @@ export interface Yenilik {
 
 export const YENILIKLER: Yenilik[] = [
   {
+    pr: 56,
+    tarih: "2026-11-16",
+    baslik: "Şifreleme pratiği: one-time pad, AES ve blok modları",
+    kitle: "yonetici",
+    maddeler: [
+      "5. ve 6. ünite eklendi (Simetrik dünya grubunun ilk ikisi): one-time pad ve anahtar tekrarı, blok şifre fikri, DES'ten AES'e, AES'in tur adımları ve anahtar genişletme; ECB, CBC, dolgu, CTR, AES-GCM, ChaCha20-Poly1305 ve mod seçimi. 14 bölüm, 68 yeni soru.",
+      "Altı yeni deney: XOR tuvali (anahtarı iki kez kullanınca görüntüler belirir), AES tur gezgini (bir biti çevir, yayılmayı turdan tura izle; sonuç Web Crypto ile karşılaştırılır), ECB maskot deneyi (kendi baykuşumuz ya da yüklenen görsel; tahmin et, sonra gör), hata yayılımı, bit çevirme saldırısı (gerçek AES-CTR ile AES-GCM) ve ChaCha20 çeyrek turu.",
+      "Oyuncak AES, blok modları ve ChaCha20 `src/kripto/oyuncak` altında; FIPS-197 ve RFC 8439 test vektörleriyle ve Web Crypto ile karşılaştırılarak sınanıyor.",
+      "Yayından önce uzak D1'e `0044_sifreleme_simetrik.sql` uygulanmalı.",
+    ],
+  },
+  {
     pr: 55,
     tarih: "2026-11-16",
     baslik: "Şifreleme pratiği: ilk dört ünitenin dersleri ve 11 deney",

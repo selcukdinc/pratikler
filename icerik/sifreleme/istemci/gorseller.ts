@@ -20,4 +20,10 @@ export const GORSELLER: Gorsel[] = [
   g("G-S4-02", "Frekans analizi tezgahı", "Yerine koymayla şifrelenmiş metnin harf sıklıkları Türkçe ya da İngilizce ortalamayla karşılaştırılır; harfler eşleştirildikçe metin açılır.", "Z %11 → A?", "frekansTezgahi"),
   g("G-S4-03", "Vigenère kırıcı", "Anahtar uzunluğu çakışma indeksiyle bulunur, her grubun kayması ki-kare testiyle tahmin edilir ve metin çözülür.", "L = 5 → KALEM", "vigenereKirici"),
   g("G-S4-04", "Enigma", "Üç rotorlu Enigma'da tuşa basınca rotorlar döner, akımın fiş tablosu, rotorlar ve yansıtıcıdan geçtiği yol gösterilir ve lamba yanar.", "A → … → yansıtıcı → … → B", "enigma"),
+  g("G-S5-01", "XOR tuvali: anahtarı iki kez kullanmak", "İki yazı aynı rastgele bit anahtarıyla XOR'lanır; şifreli görüntüler tek başına gürültüdür, ama ikisi XOR'lanınca anahtar düşer ve iki yazı üst üste okunur.", "(1 ⊕ K) ⊕ (2 ⊕ K) = 1 ⊕ 2", "xorTuvali"),
+  g("G-S5-02", "AES tur gezgini", "AES'in 4×4 durum matrisi her adımda (SubBytes, ShiftRows, MixColumns, AddRoundKey) gösterilir; girişte bir bit çevrilince farklılaşan baytlar turdan tura renklenir ve sonuç Web Crypto ile karşılaştırılır.", "00112233… → 69c4e0d8…", "aesTurGezgini"),
+  g("G-S6-01", "ECB maskot deneyi", "Düz renkli bir maskot ya da kullanıcının kendi görseli AES ile ECB, CBC ve CTR modlarında şifrelenir; ECB'de şeklin hatları seçilir, öteki modlarda gürültü kalır.", "ECB · CBC · CTR", "ecbMaskot"),
+  g("G-S6-02", "Hata yayılımı: ECB, CBC, CTR", "Dört bloklu bir mesajın şifreli baytlarından biri çevrilince alıcının çözdüğü metinde hangi baytların bozulduğu her modda gösterilir.", "C₂'de 1 bit → P₂ bozuk, P₃'te 1 bit", "modOynatici"),
+  g("G-S6-03", "Bit çevirme: CTR ile GCM", "Anahtarı bilmeyen saldırgan şifreli ödeme mesajının bir baytını XOR'layarak tutarı değiştirir; AES-CTR değişikliği fark etmez, AES-GCM reddeder.", "0100 TL → 9100 TL?", "bitCevirme"),
+  g("G-S6-04", "ChaCha20 çeyrek turu", "Dört 32 bitlik kelime üzerinde 12 adımlık toplama, XOR ve döndürme dizisi adım adım gösterilir.", "a += b; d ^= a; d <<<= 16 …", "chachaCeyrek"),
 ];

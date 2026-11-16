@@ -6,6 +6,7 @@ import type { Gorsel } from "../../../../src/gorseller/tip";
 import { BaytDonusturucu, EntropiOlcer, HedefEslestir, LcgOyunu, RastgeleMi, UcKutu } from "./temeller";
 import { KareCarp, ModulerSaat, OklidTablosu } from "./matematik";
 import { EnigmaMakinesi, FrekansTezgahi, SezarCarki, VigenereKirici } from "./klasik";
+import { AesTurGezgini, BitCevirme, ChachaCeyrek, EcbMaskot, ModOynatici, XorTuvali } from "./simetrik";
 import "./etkilesim.css";
 
 export const ETKILESIMLER: Record<string, ComponentType<{ g: Gorsel }>> = {
@@ -22,4 +23,10 @@ export const ETKILESIMLER: Record<string, ComponentType<{ g: Gorsel }>> = {
   frekansTezgahi: () => <FrekansTezgahi />,
   vigenereKirici: () => <VigenereKirici />,
   enigma: EnigmaMakinesi,
+  xorTuvali: XorTuvali,
+  aesTurGezgini: AesTurGezgini,
+  ecbMaskot: EcbMaskot,
+  modOynatici: ModOynatici,
+  bitCevirme: BitCevirme,
+  chachaCeyrek: ChachaCeyrek,
 };
