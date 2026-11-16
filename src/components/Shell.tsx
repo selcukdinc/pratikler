@@ -35,6 +35,7 @@ const IKONLAR = {
   matstudio: "M7 5l12 7-12 7z",
   simulasyon: "M3 12h3l2-6 4 12 2-6h7",
   sandbox: "M4 5h16v14H4zM7.5 9.5l3 2.5-3 2.5M12.5 15h4",
+  mesajlasma: "M4 5h16v11H9l-5 4zM12 8.5a1.5 1.5 0 00-1.5 1.5v1h3v-1A1.5 1.5 0 0012 8.5zM10 11h4v3h-4z",
   cikmis: "M6 3h9l4 4v14H6zM14 3v5h5M9 13h7M9 17h5",
   ders: "M4 5a2 2 0 012-2h13v16H6a2 2 0 00-2 2zM4 5v16M8 7h7M8 11h7",
   sorular: "M9 6h11M9 12h11M9 18h11M4 6h.01M4 12h.01M4 18h.01",
@@ -67,6 +68,7 @@ const ETKIN: Partial<Record<Route["page"], Route["page"][]>> = {
   matstudio: ["matstudio"],
   simulasyon: ["simulasyon"],
   sandbox: ["sandbox"],
+  mesajlasma: ["mesajlasma"],
   cikmis: ["cikmis"],
 };
 
@@ -361,6 +363,7 @@ export function Shell({ route, currentWeek, title, status, duyuru, children }: P
         {OZELLIKLER.matstudio && <NavLink to={{ page: "matstudio" }} current={route} ikon="matstudio">MatStudio</NavLink>}
         {OZELLIKLER.vhdl && <NavLink to={{ page: "simulasyon" }} current={route} ikon="simulasyon">Simülasyon alanı</NavLink>}
         {OZELLIKLER.gitSandbox && <NavLink to={{ page: "sandbox" }} current={route} ikon="sandbox">Git sandbox</NavLink>}
+        {OZELLIKLER.mesajlasma && <NavLink to={{ page: "mesajlasma" }} current={route} ikon="mesajlasma">Mesajlaşma simülatörü</NavLink>}
         <NavLink to={{ page: "pratik" }} current={route} ikon="pratik">Karma test</NavLink>
 
         <div className="nav-section">ÇALIŞ</div>

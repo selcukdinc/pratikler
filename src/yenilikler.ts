@@ -24,6 +24,18 @@ export interface Yenilik {
 
 export const YENILIKLER: Yenilik[] = [
   {
+    pr: 59,
+    tarih: "2026-11-16",
+    baslik: "Şifreleme pratiği: mesajlaşma simülatörü",
+    kitle: "yonetici",
+    maddeler: [
+      "Menüde yeni sayfa: **Mesajlaşma simülatörü** (`/sifreleme/mesajlasma`). Koruma katmanını (şifresiz, yalnız TLS, sabit anahtarlı ya da Double Ratchet'li uçtan uca), anahtarların yerini, bulut yedeğini, gizli göndereni, güvenlik numarası doğrulamasını, kaybolan mesajları ve ekran kilidini seç; yedi saldırganın Ayşe ile Mert'in her mesajından ne gördüğünü renklerle ve gerekçesiyle gör.",
+      "Anahtar ele geçirme zaman çizelgesi: bir anahtarın hangi mesajda çalındığını seç, saldırganın okuyabildiği mesajlar kırmızıya boyansın. Double Ratchet'te ileri gizlilik ve ele geçirme sonrası güvenlik tek bakışta görünür.",
+      "Ekrandaki şifreli baytlar, mesaj, zincir ve kök anahtarları Web Crypto ile gerçekten üretiliyor (X25519, HKDF, HMAC, AES-GCM). Tasarım adres çubuğundaki bağlantıyla paylaşılabiliyor; sayfa sunucuya hiç istek atmıyor.",
+      "Görünürlük kuralları `src/kripto/mesajlasma/model.ts`'te ve her rol × her koruma katmanı tablosuyla sınanıyor. Görevler ve hazır ayarlar sonraki PR'larda.",
+    ],
+  },
+  {
     pr: 58,
     tarih: "2026-11-16",
     baslik: "Şifreleme pratiği: açık anahtar, imzalar ve TLS",
