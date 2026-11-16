@@ -24,6 +24,19 @@ export interface Yenilik {
 
 export const YENILIKLER: Yenilik[] = [
   {
+    pr: 60,
+    tarih: "2026-11-16",
+    baslik: "Yeni pratik: Şifreleme",
+    maddeler: [
+      "**Şifreleme** pratiği açıldı (`/sifreleme`). Sezar'dan AES'e, hash ve parola saklamadan RSA, eliptik eğriler ve TLS'e, uçtan uca şifreli mesajlaşmaya kadar 14 ünite ve 350'yi aşkın soru. Kalan üniteler (sıfır bilgili depolama, görsel kriptografi, uygulama hataları, post-kuantum ve tasarım) yakında.",
+      "Her ders bir deneyle başlar: Enigma'yı çevir, ECB'nin maskotu nasıl ele verdiğini gör, SHA-256'yı adım adım hesapla, TLS el sıkışmasını mesaj mesaj izle. Gerçek şifreleme işlemleri tarayıcının Web Crypto'suyla yapılır; eğitim için yazılan küçük uygulamalar \"oyuncak\" diye etiketlidir.",
+      "**Mesajlaşma simülatörü:** Kendi mesajlaşma uygulamanı tasarla. Şifrelemeyi, anahtarların yerini, yedeği ve kaybolan mesajları seç; ağı dinleyenden çalınan telefona yedi saldırganın her mesajdan ne gördüğüne bak. 14 görevle ileri gizliliği, sahte anahtar saldırısını ve en zayıf halkayı kendin bul.",
+      { kitle: "yonetici", metin: "13. ünite (Uçtan uca şifreleme ve Double Ratchet) ve 14. ünite (Gruplar, cihazlar ve metadata): 15 kavram, 37 soru, iki ders. Yeni şekiller: gerçek anahtarlarla cırcır dişlileri, X3DH'nin dört DH hesabı, güvenlik numarası oyunu, Sender Keys ile MLS ağacı karşılaştırması ve metadata dedektifi; beşi de Sanal Lab'de." },
+      { kitle: "yonetici", metin: "Mesajlaşma simülatörüne **Görevler** paneli: 14 hedef tasarımın durumuna bakar, örnek çözümleri testte kendi hedefini sağlar ve varsayılan tasarım hiçbirini sağlamaz (`src/kripto/mesajlasma/gorevler.ts`). İlerleme yalnız tarayıcıda tutulur." },
+      { kitle: "yonetici", metin: "Pratik yayında (`yayinda: true`). Soru göçü `0047_sifreleme_mesajlasma.sql`." },
+    ],
+  },
+  {
     pr: 59,
     tarih: "2026-11-16",
     baslik: "Şifreleme pratiği: mesajlaşma simülatörü",

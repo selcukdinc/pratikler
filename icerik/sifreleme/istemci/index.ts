@@ -13,12 +13,14 @@ import { UNITE_9 } from "./dersler/unite-9";
 import { UNITE_10 } from "./dersler/unite-10";
 import { UNITE_11 } from "./dersler/unite-11";
 import { UNITE_12 } from "./dersler/unite-12";
+import { UNITE_13 } from "./dersler/unite-13";
+import { UNITE_14 } from "./dersler/unite-14";
 import { GORSELLER } from "./gorseller";
 import { ETKILESIMLER } from "./etkilesim";
 import { DENEYLER } from "./lab";
 
 const icerik: PratikIstemciIcerigi = {
-  dersler: [UNITE_1, UNITE_2, UNITE_3, UNITE_4, UNITE_5, UNITE_6, UNITE_7, UNITE_8, UNITE_9, UNITE_10, UNITE_11, UNITE_12],
+  dersler: [UNITE_1, UNITE_2, UNITE_3, UNITE_4, UNITE_5, UNITE_6, UNITE_7, UNITE_8, UNITE_9, UNITE_10, UNITE_11, UNITE_12, UNITE_13, UNITE_14],
   // Soru kartındaki "Derste oku" bağlantısı: kavram -> bölüm (0'dan)
   mesajlasma: true,
   kavramBolumu: {
@@ -34,6 +36,8 @@ const icerik: PratikIstemciIcerigi = {
     10: { "u10-dagitim": 0, "u10-dh": 1, "u10-ayrik-log": 2, "u10-mitm": 3, "u10-rsa": 4, "u10-rsa-dolgu": 5, "u10-carpan": 6 },
     11: { "u11-nokta": 0, "u11-fp": 1, "u11-ecdh": 2, "u11-imza": 3, "u11-ecdsa": 4, "u11-nonce": 5 },
     12: { "u12-sahiplik": 0, "u12-sertifika": 1, "u12-iptal": 2, "u12-tls": 3, "u12-anahtar-takvimi": 4, "u12-mitm": 5 },
+    13: { "u13-e2ee": 0, "u13-prekey": 1, "u13-x3dh": 2, "u13-simetrik": 3, "u13-dh": 4, "u13-fs-pcs": 5, "u13-sira": 6, "u13-guvenlik-no": 7 },
+    14: { "u14-sender-keys": 0, "u14-mls": 1, "u14-cihaz": 2, "u14-yedek": 3, "u14-metadata": 4, "u14-sealed": 5, "u14-kesif": 5 },
   },
   gorseller: GORSELLER,
   etkilesimler: ETKILESIMLER,

@@ -158,6 +158,19 @@ button.sf-bayt { cursor: pointer; }
 .sf-sahne-hat { flex: 1; min-width: 120px; text-align: center; border-top: 2px dashed var(--border); padding-top: 4px; font-size: 12.5px; color: var(--muted); }
 .sf-sahne-saldirgan { border-top-color: var(--tag-cikmis-text); color: var(--tag-cikmis-text); font-weight: 600; }
 
+/* Mesajlaşma: cırcır, X3DH, güvenlik numarası, grup ağacı */
+.sf-circir { width: 100%; max-width: 440px; align-self: center; }
+.sf-disli { fill: var(--panel); stroke-width: 2.5; }
+.sf-disli-kol { stroke-width: 3; }
+.sf-tablo tr.sf-silindi td { color: var(--muted); }
+.sf-x3dh-cizgi { stroke: var(--border); stroke-width: 2; }
+.sf-x3dh-secili { stroke: var(--warning); stroke-width: 3.5; }
+.sf-x3dh-kutu { fill: var(--panel); stroke: var(--link); stroke-width: 1.5; }
+.sf-numara { display: grid; grid-template-columns: repeat(4, auto); gap: 4px 10px; justify-content: start; font-size: 15px; }
+.sf-dugum { fill: var(--panel); stroke: var(--link); stroke-width: 1.5; }
+.sf-dugum-yol { fill: var(--warning); stroke: var(--text); stroke-width: 1; }
+.sf-dugum-cikan { fill: var(--tag-cikmis-bg); stroke: var(--tag-cikmis-text); stroke-width: 2; stroke-dasharray: 3 2; }
+
 @media (max-width: 520px) {
   .sf-durum { grid-template-columns: repeat(4, 38px); }
   .sf-tus { width: 26px; height: 26px; font-size: 12px; }

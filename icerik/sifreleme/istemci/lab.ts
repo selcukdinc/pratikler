@@ -15,6 +15,8 @@ const hash = (ad: "CigEtkisi" | "Sha256Gezgini" | "CakismaAvi" | "LengthExtensio
   lazy(() => import("./etkilesim/hash").then((m) => ({ default: () => createElement(m[ad]) })));
 const acik = (ad: "DhRenk" | "DhSayilar" | "RsaTezgahi" | "EgriReel" | "EgriFp" | "ImzaTezgahi" | "TlsEl" | "SertifikaZinciri" | "MitmSahnesi") =>
   lazy(() => import("./etkilesim/acik").then((m) => ({ default: () => createElement(m[ad]) })));
+const mesajlasma = (ad: "Circir" | "X3dhUcgeni" | "GuvenlikNumarasi" | "GrupAnahtari" | "MetadataDedektifi") =>
+  lazy(() => import("./etkilesim/mesajlasma").then((m) => ({ default: () => createElement(m[ad]) })));
 
 export const DENEYLER: Deney[] = [
   { id: "uc-kutu", ad: "Kodlama, hash ve şifreleme", unite: 1, bilesen: bilesen("UcKutu"), ozet: "Aynı metni Base64 ile kodla, SHA-256 ile hash'ini al ve AES-GCM ile şifrele. Hangisi anahtarsız geri döner, hangisi hiç dönmez?" },
@@ -51,4 +53,9 @@ export const DENEYLER: Deney[] = [
   { id: "tls", ad: "TLS 1.3 el sıkışması", unite: 12, bilesen: acik("TlsEl"), ozet: "El sıkışmayı mesaj mesaj izle; dinleyicinin ne gördüğünü ve anahtar takviminin nasıl ilerlediğini gör." },
   { id: "sertifika", ad: "Sertifika zinciri", unite: 12, bilesen: acik("SertifikaZinciri"), ozet: "Gerçek imzalı üç halkalı bir zinciri kır: adı değiştir, süreyi geçir, sahte kök kullan." },
   { id: "mitm", ad: "Kafedeki ortadaki adam", unite: 12, bilesen: acik("MitmSahnesi"), ozet: "HTTP, HTTPS, sahte sertifika, HTTP'ye düşürme ve HSTS: saldırgan her senaryoda neyi görür?" },
+  { id: "circir", ad: "Double Ratchet cırcırı", unite: 13, bilesen: mesajlasma("Circir"), ozet: "Mesaj gönderdikçe zincir dişlisinin, konuşma sırası değişince DH dişlisinin döndüğünü gerçek anahtarlarla izle." },
+  { id: "x3dh", ad: "X3DH üçgeni", unite: 13, bilesen: mesajlasma("X3dhUcgeni"), ozet: "Çevrimdışı birine ilk mesajın anahtarını dört Diffie-Hellman hesabıyla kur; tek kullanımlık ön anahtarı aç ve kapat." },
+  { id: "guvenlik-no", ad: "Güvenlik numarası oyunu", unite: 13, bilesen: mesajlasma("GuvenlikNumarasi"), ozet: "Sunucu bazen araya kendi anahtarını koyuyor. İki ekrandaki numaraları karşılaştırıp yakalayabilir misin?" },
+  { id: "grup", ad: "Sender Keys ve MLS", unite: 14, bilesen: mesajlasma("GrupAnahtari"), ozet: "Gruptan bir üye çıkar; Sender Keys'te kaç anahtar mesajı, MLS ağacında kaç düğüm güncellemesi gerektiğini karşılaştır." },
+  { id: "metadata", ad: "Metadata dedektifi", unite: 14, bilesen: mesajlasma("MetadataDedektifi"), ozet: "İçerik şifreli; elinde yalnız sunucu kayıtları var. Kim kiminle ne hakkında konuşuyor?" },
 ];

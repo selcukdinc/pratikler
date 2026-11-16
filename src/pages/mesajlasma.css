@@ -70,3 +70,14 @@
   .ms-izgara[data-sekme="saldirgan"] .ms-sutun:not(.ms-s-saldirgan) { display: none; }
   .ms-degerler { grid-template-columns: 1fr; }
 }
+
+.ms-gorevler { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 6px; align-items: start; }
+.ms-gorev { border: 1px solid var(--border); border-radius: 5px; background: var(--window); }
+.ms-gorev-simdi { border-color: var(--tag-ders-text); }
+.ms-gorev-ust { width: 100%; display: flex; gap: 8px; align-items: center; padding: 7px 9px; border: 0; background: none; color: inherit; font: inherit; text-align: left; cursor: pointer; }
+.ms-gorev-baslik { flex: 1; font-size: 13.5px; font-weight: 600; }
+.ms-gorev-isaret { flex: none; width: 18px; height: 18px; border-radius: 50%; border: 1px solid var(--border); display: inline-flex; align-items: center; justify-content: center; font-size: 12px; }
+.ms-gorev-bitti { background: var(--tag-ders-bg); color: var(--tag-ders-text); border-color: var(--tag-ders-text); }
+.ms-gorev-govde { padding: 0 9px 9px; display: flex; flex-direction: column; gap: 6px; font-size: 13px; line-height: 1.45; }
+.ms-gorev-govde p { margin: 0; }
+.ms-gorev-govde summary { cursor: pointer; font-size: 12.5px; }

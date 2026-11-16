@@ -23,6 +23,7 @@ import {
   type Tasarim,
 } from "../kripto/mesajlasma/model";
 import { gercekOturum, type GercekOturum } from "../kripto/mesajlasma/gercek";
+import { GOREVLER, tamamlananlariOku, tamamlananlariYaz } from "../kripto/mesajlasma/gorevler";
 import "./mesajlasma.css";
 
 const AD = { ayse: "Ayşe", mert: "Mert" } as const;
@@ -71,6 +72,8 @@ export function Mesajlasma() {
   const [yeni, setYeni] = useState("");
   const [yazan, setYazan] = useState<"ayse" | "mert">("ayse");
   const [kopyalandi, setKopyalandi] = useState(false);
+  const [tamamlanan, setTamamlanan] = useState<Set<string>>(tamamlananlariOku);
+  const [acikGorev, setAcikGorev] = useState<string | null>(null);
   const sohbetRef = useRef<HTMLOListElement>(null);
   // Açılışta sohbetin sonu görünsün
   useEffect(() => {
@@ -90,6 +93,16 @@ export function Mesajlasma() {
       iptal = true;
     };
   }, [tasarim.koruma, mesajlar]);
+
+  // Görevler tasarımın durumuna bakar; sağlanan hedef bu cihazda tamamlandı olarak saklanır
+  const saglanan = useMemo(() => new Set(GOREVLER.filter((g) => g.hedef(tasarim)).map((g) => g.id)), [tasarim]);
+  useEffect(() => {
+    const yeniler = [...saglanan].filter((id) => !tamamlanan.has(id));
+    if (!yeniler.length) return;
+    const s = new Set([...tamamlanan, ...yeniler]);
+    setTamamlanan(s);
+    tamamlananlariYaz(s);
+  }, [saglanan, tamamlanan]);
 
   const gorunumler = useMemo(() => mesajlar.map((m) => gorunum(tasarim, rol, m)), [tasarim, rol, mesajlar]);
   const k = Math.min(calinma, mesajlar.length - 1);
@@ -338,6 +351,61 @@ export function Mesajlasma() {
         <p className="ms-not">
           Kırmızı: saldırgan okur. Yeşil: güvende. Çerçeveli kutu anahtarın çalındığı an. Double Ratchet'te geçmişin yeşil kalması ileri gizlilik, birkaç mesaj sonra yeniden yeşile dönmesi ele geçirme sonrası güvenliktir.
         </p>
+      </section>
+
+      <section className="ms-panel" aria-label="Görevler">
+        <h3>
+          Görevler <span className="ms-not">({tamamlanan.size}/{GOREVLER.length} tamamlandı)</span>
+        </h3>
+        <p className="ms-not">Her görev bir hedef söylüyor; ayarları değiştirerek sağla. Hedef sağlanınca görev işaretlenir ve bu cihazda hatırlanır. Zaman çizelgesi görevlerinde anahtar 13. mesajda çalınır.</p>
+        <ol className="ms-gorevler">
+          {GOREVLER.map((g) => {
+            const simdi = saglanan.has(g.id);
+            const bitti = tamamlanan.has(g.id);
+            const acik = acikGorev === g.id;
+            return (
+              <li key={g.id} className={`ms-gorev${simdi ? " ms-gorev-simdi" : ""}`}>
+                <button type="button" className="ms-gorev-ust" aria-expanded={acik} onClick={() => setAcikGorev(acik ? null : g.id)}>
+                  <span className={`ms-gorev-isaret${bitti ? " ms-gorev-bitti" : ""}`} aria-label={bitti ? "Tamamlandı" : "Tamamlanmadı"}>
+                    {bitti ? "✓" : ""}
+                  </span>
+                  <span className="ms-gorev-baslik">{g.baslik}</span>
+                  <span className="ms-not">{g.unite}. ünite</span>
+                </button>
+                {acik && (
+                  <div className="ms-gorev-govde">
+                    <p>{g.aciklama}</p>
+                    <p className={`ms-neden ${simdi ? "ms-d-bayt" : "ms-d-hicbiri"}`}>{simdi ? "Şu anki tasarım bu hedefi sağlıyor." : "Şu anki tasarım bu hedefi henüz sağlamıyor."}</p>
+                    <details>
+                      <summary>İpucu</summary>
+                      <p className="ms-not">{g.ipucu}</p>
+                    </details>
+                    {!simdi && (
+                      <button type="button" className="cip" onClick={() => setTasarim(g.ornek)}>
+                        Örnek çözümü yükle
+                      </button>
+                    )}
+                  </div>
+                )}
+              </li>
+            );
+          })}
+        </ol>
+        {tamamlanan.size > 0 && (
+          <div className="ms-satir">
+            <button
+              type="button"
+              className="cip"
+              onClick={() => {
+                const s = new Set<string>();
+                setTamamlanan(s);
+                tamamlananlariYaz(s);
+              }}
+            >
+              İlerlemeyi sıfırla
+            </button>
+          </div>
+        )}
       </section>
     </div>
   );
