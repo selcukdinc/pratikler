@@ -191,3 +191,26 @@ button.sf-bayt { cursor: pointer; }
 .sf-tuval-pay canvas { max-width: 340px; }
 .sf-hist-cizgi { width: 100%; max-width: 220px; height: 70px; border: 1px solid var(--border); border-radius: 4px; background: var(--panel); }
 .sf-hist-cizgi polyline { fill: none; stroke: var(--link); stroke-width: 1.2; }
+
+/* 17. ünite: saldırılar */
+.sf-kirp { overflow-wrap: anywhere; font-size: 12px; }
+.sf-surukle { display: flex; flex-direction: column; gap: 2px; overflow-x: auto; font-size: 13px; }
+.sf-surukle > div { white-space: nowrap; }
+.sf-surukle span { display: inline-block; width: 1.05em; text-align: center; color: var(--muted); }
+.sf-surukle .sf-surukle-kelime { color: var(--text); background: var(--active); }
+.sf-surukle .sf-surukle-iyi { color: var(--tag-ders-text); background: var(--tag-ders-bg); font-weight: 700; }
+.sf-surukle .sf-surukle-kotu { color: var(--tag-cikmis-text); background: var(--tag-cikmis-bg); }
+.sf-kahin { display: grid; grid-template-columns: repeat(16, minmax(0, 1fr)); gap: 2px; max-width: 520px; }
+.sf-kahin .sf-kahin-acik { background: var(--tag-cikmis-bg); color: var(--tag-cikmis-text); font-weight: 700; }
+.sf-cubuk-vurgu { background: var(--warning) !important; }
+.sf-cpa { width: 100%; max-width: 620px; border: 1px solid var(--border); border-radius: 4px; background: var(--panel); }
+.sf-cpa-cubuk { fill: var(--muted); }
+.sf-cpa-dogru { fill: var(--error); }
+.sf-cpa-enIyi { fill: var(--warning); }
+/* 18. ünite: kafes */
+.sf-kem-sifir { fill: var(--active); opacity: 0.6; }
+.sf-kem-dogru { fill: var(--link); }
+.sf-kem-yanlis { fill: var(--error); }
+.sf-boy { display: grid; grid-template-columns: 110px 1fr; gap: 2px 8px; align-items: center; font-size: 12.5px; }
+.sf-boy .sf-not { grid-column: 2; }
+.sf-boy-cubuk { height: 10px; border-radius: 3px; background: var(--link); min-width: 2px; }

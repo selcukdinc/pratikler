@@ -21,6 +21,10 @@ const depolama = (ad: "AnahtarZinciri" | "KurtarmaSenaryosu" | "NotDefteri") =>
   lazy(() => import("./etkilesim/depolama").then((m) => ({ default: () => createElement(m[ad]) })));
 const gizleme = (ad: "GorselPaylar" | "LsbGizleyici" | "GoruntuSifreleme") =>
   lazy(() => import("./etkilesim/gizleme").then((m) => ({ default: () => createElement(m[ad]) })));
+const saldiri = (ad: "NonceSurukle" | "PaddingOracle" | "ZamanlamaSaldirisi" | "GucAnalizi") =>
+  lazy(() => import("./etkilesim/saldiri").then((m) => ({ default: () => createElement(m[ad]) })));
+const kuantum = (ad: "LweOyunu" | "KuantumEtki" | "OyuncakKem") =>
+  lazy(() => import("./etkilesim/kuantum").then((m) => ({ default: () => createElement(m[ad]) })));
 
 export const DENEYLER: Deney[] = [
   { id: "uc-kutu", ad: "Kodlama, hash ve şifreleme", unite: 1, bilesen: bilesen("UcKutu"), ozet: "Aynı metni Base64 ile kodla, SHA-256 ile hash'ini al ve AES-GCM ile şifrele. Hangisi anahtarsız geri döner, hangisi hiç dönmez?" },
@@ -68,4 +72,11 @@ export const DENEYLER: Deney[] = [
   { id: "gorsel-paylar", ad: "Görsel kriptografi payları", unite: 16, bilesen: gizleme("GorselPaylar"), ozet: "Mesajını iki gürültü payına böl, payları üst üste koyup gözünle çöz." },
   { id: "lsb", ad: "LSB gizleyici", unite: 16, bilesen: gizleme("LsbGizleyici"), ozet: "Mesajını bir görselin en düşük bitlerine sakla; göz görmez, bit düzlemi ele verir." },
   { id: "goruntu-sifreleme", ad: "Piksel karıştırma ile AES-CTR", unite: 16, bilesen: gizleme("GoruntuSifreleme"), ozet: "Görseli karıştırarak ve AES-CTR ile şifrele, histogramları karşılaştır; seçilmiş görselle karıştırmayı kır." },
+  { id: "nonce-surukle", ad: "Nonce tekrarında kelime sürükleme", unite: 17, bilesen: saldiri("NonceSurukle"), ozet: "Aynı nonce'la şifrelenmiş iki mesajı anahtarı bilmeden çöz: tahmin ettiğin kelimeyi kaydır, öteki mesaj belirsin." },
+  { id: "padding-oracle", ad: "Padding oracle", unite: 17, bilesen: saldiri("PaddingOracle"), ozet: "Sunucu yalnız \"dolgu doğru mu\" diyor. Şifreli bakiyeyi bayt bayt çöz ve kaç soru gerektiğini say." },
+  { id: "zamanlama", ad: "Zamanlama saldırısı", unite: 17, bilesen: saldiri("ZamanlamaSaldirisi"), ozet: "Yanıt sürelerinden PIN'i hane hane bul; sabit zamanlı karşılaştırmayı açınca saldırının nasıl çöktüğünü gör." },
+  { id: "guc-analizi", ad: "Güç analizi laboratuvarı", unite: 17, bilesen: saldiri("GucAnalizi"), ozet: "Benzetilmiş güç izlerinden AES anahtar baytını korelasyonla bul; gürültüyü artır, maskelemeyi aç." },
+  { id: "lwe", ad: "Gürültülü denklemler", unite: 18, bilesen: kuantum("LweOyunu"), ozet: "Gürültüsüz denklemleri Gauss elemeyle çöz, sonra gürültü ekle ve aynı yöntemin nasıl çöktüğünü gör." },
+  { id: "kuantum-etki", ad: "Kuantum etki tablosu", unite: 18, bilesen: kuantum("KuantumEtki"), ozet: "Shor ve Grover hangi algoritmayı ne kadar zayıflatır? Mosca eşitsizliğiyle geçişe kalan süreni hesapla." },
+  { id: "oyuncak-kem", ad: "Oyuncak ML-KEM", unite: 18, bilesen: kuantum("OyuncakKem"), ozet: "Küçük bir modül-LWE ile sırrı kapsülle ve aç; gürültüyü büyüt, hataları gör, gerçek boyları karşılaştır." },
 ];

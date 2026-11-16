@@ -17,12 +17,14 @@ import { UNITE_13 } from "./dersler/unite-13";
 import { UNITE_14 } from "./dersler/unite-14";
 import { UNITE_15 } from "./dersler/unite-15";
 import { UNITE_16 } from "./dersler/unite-16";
+import { UNITE_17 } from "./dersler/unite-17";
+import { UNITE_18 } from "./dersler/unite-18";
 import { GORSELLER } from "./gorseller";
 import { ETKILESIMLER } from "./etkilesim";
 import { DENEYLER } from "./lab";
 
 const icerik: PratikIstemciIcerigi = {
-  dersler: [UNITE_1, UNITE_2, UNITE_3, UNITE_4, UNITE_5, UNITE_6, UNITE_7, UNITE_8, UNITE_9, UNITE_10, UNITE_11, UNITE_12, UNITE_13, UNITE_14, UNITE_15, UNITE_16],
+  dersler: [UNITE_1, UNITE_2, UNITE_3, UNITE_4, UNITE_5, UNITE_6, UNITE_7, UNITE_8, UNITE_9, UNITE_10, UNITE_11, UNITE_12, UNITE_13, UNITE_14, UNITE_15, UNITE_16, UNITE_17, UNITE_18],
   // Soru kartındaki "Derste oku" bağlantısı: kavram -> bölüm (0'dan)
   mesajlasma: true,
   kavramBolumu: {
@@ -42,6 +44,8 @@ const icerik: PratikIstemciIcerigi = {
     14: { "u14-sender-keys": 0, "u14-mls": 1, "u14-cihaz": 2, "u14-yedek": 3, "u14-metadata": 4, "u14-sealed": 5, "u14-kesif": 5 },
     15: { "u15-istemci": 0, "u15-zincir": 1, "u15-giris": 2, "u15-zarf": 3, "u15-paylasim": 4, "u15-kurtarma": 5, "u15-terim": 6 },
     16: { "u16-gorsel": 0, "u16-esik": 1, "u16-stegano": 2, "u16-lsb": 3, "u16-steganaliz": 4, "u16-goruntu": 5 },
+    17: { "u17-nonce": 0, "u17-padding": 1, "u17-rastgele": 2, "u17-zamanlama": 3, "u17-guc": 4, "u17-em-hata": 5, "u17-onlem": 6 },
+    18: { "u18-shor-grover": 0, "u18-hndl": 1, "u18-kafes": 2, "u18-mlkem": 3, "u18-imza": 4, "u18-hibrit": 5, "u18-gecis": 6 },
   },
   gorseller: GORSELLER,
   etkilesimler: ETKILESIMLER,
