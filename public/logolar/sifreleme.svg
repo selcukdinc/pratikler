@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1F5E5B"/>
+      <stop offset="1" stop-color="#0E2F2E"/>
+    </linearGradient>
+  </defs>
+  <rect x="100" y="100" width="824" height="824" rx="185" fill="url(#bg)"/>
+  <!-- asma kilit: kemer, gövde ve anahtar deliği; gövdede bit deseni -->
+  <path d="M372 470 V380 a140 140 0 0 1 280 0 V470" stroke="#FFFFFF" stroke-width="60" stroke-linecap="round" fill="none"/>
+  <rect x="290" y="460" width="444" height="330" rx="56" fill="#FFFFFF"/>
+  <circle cx="512" cy="590" r="46" fill="#F2B544"/>
+  <path d="M512 610 V690" stroke="#F2B544" stroke-width="40" stroke-linecap="round"/>
+  <g fill="#1F5E5B">
+    <rect x="340" y="730" width="34" height="22" rx="6"/><rect x="392" y="730" width="70" height="22" rx="6"/>
+    <rect x="562" y="730" width="34" height="22" rx="6"/><rect x="614" y="730" width="70" height="22" rx="6"/>
+  </g>
+</svg>

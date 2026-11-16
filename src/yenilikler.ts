@@ -24,6 +24,18 @@ export interface Yenilik {
 
 export const YENILIKLER: Yenilik[] = [
   {
+    pr: 54,
+    tarih: "2026-11-16",
+    baslik: "Şifreleme pratiği hazırlanıyor: iskelet ve ilk 116 soru",
+    kitle: "yonetici",
+    maddeler: [
+      "Yeni pratik **Şifreleme** (`/sifreleme`, soru öneki `sf-`, katalog alanı Yazılım) açıldı ama henüz yayında değil: 19 ünite altı grupta (Temeller, Simetrik dünya, Açık anahtar, Mesajlaşma ve depolama, Saldırılar ve gelecek, Tasarım).",
+      "Temeller grubunun dört ünitesinde (kriptografi neyi çözer, rastgelelik ve entropi, matematik araç kutusu, klasik şifreler) 116 soru: 66 kavram, 36 hesap, 9 meydan okuma (şifreli metni kır), 5 hata bul. Meydan okumaların şifreli metinleri ve hesapların cevapları testte oyuncak uygulamalarla sınanıyor.",
+      "Klasik şifrelerin, modüler aritmetiğin ve bayt dönüşümlerinin oyuncak uygulamaları `src/kripto` altında; sonraki PR'lardaki deneyler bunları kullanacak.",
+      "Yayından önce uzak D1'e `0042_sifreleme_ayarlari.sql` ve `0043_sifreleme_sorular.sql` uygulanmalı. Plan: `docs/plan-sifreleme-pratigi.md`.",
+    ],
+  },
+  {
     pr: 53,
     tarih: "2026-11-13",
     baslik: "Seviye testinde soru numaraları sorunun yanında",
