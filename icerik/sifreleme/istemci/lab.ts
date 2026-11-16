@@ -13,6 +13,8 @@ const simetrik = (ad: "XorTuvali" | "AesTurGezgini" | "EcbMaskot" | "ModOynatici
   lazy(() => import("./etkilesim/simetrik").then((m) => ({ default: () => createElement(m[ad]) })));
 const hash = (ad: "CigEtkisi" | "Sha256Gezgini" | "CakismaAvi" | "LengthExtension" | "HmacAdimlari" | "KabaKuvvetSure" | "SizanVeritabani" | "Pbkdf2Olcer") =>
   lazy(() => import("./etkilesim/hash").then((m) => ({ default: () => createElement(m[ad]) })));
+const acik = (ad: "DhRenk" | "DhSayilar" | "RsaTezgahi" | "EgriReel" | "EgriFp" | "ImzaTezgahi" | "TlsEl" | "SertifikaZinciri" | "MitmSahnesi") =>
+  lazy(() => import("./etkilesim/acik").then((m) => ({ default: () => createElement(m[ad]) })));
 
 export const DENEYLER: Deney[] = [
   { id: "uc-kutu", ad: "Kodlama, hash ve şifreleme", unite: 1, bilesen: bilesen("UcKutu"), ozet: "Aynı metni Base64 ile kodla, SHA-256 ile hash'ini al ve AES-GCM ile şifrele. Hangisi anahtarsız geri döner, hangisi hiç dönmez?" },
@@ -40,4 +42,13 @@ export const DENEYLER: Deney[] = [
   { id: "kaba-kuvvet", ad: "Kaba kuvvet süresi", unite: 9, bilesen: hash("KabaKuvvetSure"), ozet: "Parola uzunluğu, alfabe, saklama algoritması ve saldırgan donanımına göre kırılma süresini hesapla." },
   { id: "sizan-veritabani", ad: "Sızan veritabanı", unite: 9, bilesen: hash("SizanVeritabani"), ozet: "Aynı kullanıcı tablosunu dört farklı biçimde sakla ve sözlük saldırısının maliyetini karşılaştır." },
   { id: "pbkdf2", ad: "PBKDF2 ölçer", unite: 9, bilesen: hash("Pbkdf2Olcer"), ozet: "Yavaş hash'in tarayıcındaki süresini ölç." },
+  { id: "dh-renk", ad: "Boya karıştırarak Diffie-Hellman", unite: 10, bilesen: acik("DhRenk"), ozet: "Gizli renklerle ortak bir sır kur; sonra hatta ortadaki adamı aç ve iki tarafın renklerinin nasıl ayrıştığını gör." },
+  { id: "dh-sayilar", ad: "Sayılarla Diffie-Hellman", unite: 10, bilesen: acik("DhSayilar"), ozet: "A = g^a mod p ile ortak sırrı hesapla; dinleyici olup a'yı deneyerek bul, p büyüdükçe işin nasıl uzadığını gör." },
+  { id: "rsa", ad: "Oyuncak RSA tezgahı", unite: 10, bilesen: acik("RsaTezgahi"), ozet: "Anahtar üret, şifrele ve çöz; sonra saldırgan olup n'i çarpanlarına ayır ve 2048 bit için süreyi tahmin et." },
+  { id: "egri-reel", ad: "Eliptik eğride nokta toplama", unite: 11, bilesen: acik("EgriReel"), ozet: "İki noktadan doğru geçir, üçüncü kesişimi yansıt; teğetle ikiye katla." },
+  { id: "egri-fp", ad: "Mod 97'de eliptik eğri", unite: 11, bilesen: acik("EgriFp"), ozet: "Nokta bulutunda kP'nin yolunu izle, çiftle ve topla adımlarını gör, ECDH kur." },
+  { id: "imza", ad: "İmza tezgahı", unite: 11, bilesen: acik("ImzaTezgahi"), ozet: "Gerçek bir Ed25519 imzası at ve doğrula; mesajı değiştirince ne olduğunu gör. Aynı nonce'lu iki imzadan özel anahtarı çıkar." },
+  { id: "tls", ad: "TLS 1.3 el sıkışması", unite: 12, bilesen: acik("TlsEl"), ozet: "El sıkışmayı mesaj mesaj izle; dinleyicinin ne gördüğünü ve anahtar takviminin nasıl ilerlediğini gör." },
+  { id: "sertifika", ad: "Sertifika zinciri", unite: 12, bilesen: acik("SertifikaZinciri"), ozet: "Gerçek imzalı üç halkalı bir zinciri kır: adı değiştir, süreyi geçir, sahte kök kullan." },
+  { id: "mitm", ad: "Kafedeki ortadaki adam", unite: 12, bilesen: acik("MitmSahnesi"), ozet: "HTTP, HTTPS, sahte sertifika, HTTP'ye düşürme ve HSTS: saldırgan her senaryoda neyi görür?" },
 ];

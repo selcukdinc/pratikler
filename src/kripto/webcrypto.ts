@@ -63,3 +63,50 @@ export async function hkdf(sir: Uint8Array, tuz: Uint8Array, info: string, bayt 
   const k = await subtle().importKey("raw", tampon(sir), "HKDF", false, ["deriveBits"]);
   return new Uint8Array(await subtle().deriveBits({ name: "HKDF", hash: "SHA-256", salt: tampon(tuz), info: tampon(metindenBayt(info)) }, k, bayt * 8));
 }
+
+// ---------------- İmza ve anahtar değişimi (11-12. ünite) ----------------
+
+// Ed25519 tarayıcıların çoğunda var; yoksa ECDSA P-256 kullanılır. Hangisinin seçildiği döner.
+export type ImzaTuru = "Ed25519" | "ECDSA P-256";
+const imzaAlg = (t: ImzaTuru) => (t === "Ed25519" ? { name: "Ed25519" } : { name: "ECDSA", hash: "SHA-256" });
+
+export async function imzaAnahtari(tercih: ImzaTuru = "Ed25519"): Promise<{ tur: ImzaTuru; cift: CryptoKeyPair }> {
+  if (tercih === "Ed25519") {
+    try {
+      const cift = (await subtle().generateKey({ name: "Ed25519" }, true, ["sign", "verify"])) as CryptoKeyPair;
+      return { tur: "Ed25519", cift };
+    } catch {
+      // desteklenmiyor: P-256'ya düş
+    }
+  }
+  const cift = await subtle().generateKey({ name: "ECDSA", namedCurve: "P-256" }, true, ["sign", "verify"]);
+  return { tur: "ECDSA P-256", cift };
+}
+
+export async function imzala(tur: ImzaTuru, ozel: CryptoKey, veri: Uint8Array): Promise<Uint8Array> {
+  return new Uint8Array(await subtle().sign(imzaAlg(tur), ozel, tampon(veri)));
+}
+
+export async function dogrula(tur: ImzaTuru, acik: CryptoKey, imza: Uint8Array, veri: Uint8Array): Promise<boolean> {
+  return subtle().verify(imzaAlg(tur), acik, tampon(imza), tampon(veri));
+}
+
+// Açık anahtarın ham baytları (Ed25519: 32 bayt, P-256: 65 bayt, 04 || x || y)
+export const acikAnahtarBayt = async (k: CryptoKey) => new Uint8Array(await subtle().exportKey("raw", k));
+
+// X25519 ya da (desteklenmiyorsa) ECDH P-256 ile geçici anahtar çifti ve ortak sır
+export type DegisimTuru = "X25519" | "ECDH P-256";
+export async function degisimAnahtari(): Promise<{ tur: DegisimTuru; cift: CryptoKeyPair }> {
+  try {
+    const cift = (await subtle().generateKey({ name: "X25519" }, true, ["deriveBits"])) as CryptoKeyPair;
+    return { tur: "X25519", cift };
+  } catch {
+    const cift = await subtle().generateKey({ name: "ECDH", namedCurve: "P-256" }, true, ["deriveBits"]);
+    return { tur: "ECDH P-256", cift };
+  }
+}
+
+export async function ortakSir(tur: DegisimTuru, ozel: CryptoKey, karsiAcik: CryptoKey): Promise<Uint8Array> {
+  const ad = tur === "X25519" ? "X25519" : "ECDH";
+  return new Uint8Array(await subtle().deriveBits({ name: ad, public: karsiAcik }, ozel, 256));
+}

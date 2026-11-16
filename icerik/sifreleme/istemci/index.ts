@@ -10,12 +10,15 @@ import { UNITE_6 } from "./dersler/unite-6";
 import { UNITE_7 } from "./dersler/unite-7";
 import { UNITE_8 } from "./dersler/unite-8";
 import { UNITE_9 } from "./dersler/unite-9";
+import { UNITE_10 } from "./dersler/unite-10";
+import { UNITE_11 } from "./dersler/unite-11";
+import { UNITE_12 } from "./dersler/unite-12";
 import { GORSELLER } from "./gorseller";
 import { ETKILESIMLER } from "./etkilesim";
 import { DENEYLER } from "./lab";
 
 const icerik: PratikIstemciIcerigi = {
-  dersler: [UNITE_1, UNITE_2, UNITE_3, UNITE_4, UNITE_5, UNITE_6, UNITE_7, UNITE_8, UNITE_9],
+  dersler: [UNITE_1, UNITE_2, UNITE_3, UNITE_4, UNITE_5, UNITE_6, UNITE_7, UNITE_8, UNITE_9, UNITE_10, UNITE_11, UNITE_12],
   // Soru kartındaki "Derste oku" bağlantısı: kavram -> bölüm (0'dan)
   kavramBolumu: {
     1: { "u1-hedefler": 0, "u1-kerckhoffs": 1, "u1-anahtar": 2, "u1-kodlama": 3, "u1-uc-islem": 3, "u1-bayt": 4, "u1-simetrik-asimetrik": 5, "u1-tehdit": 6 },
@@ -27,6 +30,9 @@ const icerik: PratikIstemciIcerigi = {
     7: { "u7-ozellikler": 0, "u7-direnc": 1, "u7-cig": 2, "u7-dogum-gunu": 3, "u7-sha256": 4, "u7-sha3": 5, "u7-kullanim": 6 },
     8: { "u8-mac": 0, "u8-length-ext": 1, "u8-hmac": 2, "u8-zaman": 3, "u8-kullanim": 4 },
     9: { "u9-duz": 0, "u9-salt": 1, "u9-yavas": 2, "u9-bellek": 3, "u9-hkdf": 4, "u9-yonetici": 5 },
+    10: { "u10-dagitim": 0, "u10-dh": 1, "u10-ayrik-log": 2, "u10-mitm": 3, "u10-rsa": 4, "u10-rsa-dolgu": 5, "u10-carpan": 6 },
+    11: { "u11-nokta": 0, "u11-fp": 1, "u11-ecdh": 2, "u11-imza": 3, "u11-ecdsa": 4, "u11-nonce": 5 },
+    12: { "u12-sahiplik": 0, "u12-sertifika": 1, "u12-iptal": 2, "u12-tls": 3, "u12-anahtar-takvimi": 4, "u12-mitm": 5 },
   },
   gorseller: GORSELLER,
   etkilesimler: ETKILESIMLER,

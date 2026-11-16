@@ -41,3 +41,26 @@ describe("HMAC, PBKDF2, HKDF", () => {
     expect(hex(okm).slice(0, 32)).toBe("b2a3d45126d31fb6828ef00d76c6d54e"); // Node crypto.hkdfSync ile aynı
   });
 });
+
+describe("imza ve anahtar değişimi", () => {
+  it("Ed25519 ve P-256 imzası; değişen mesaj reddedilir", async () => {
+    const { imzaAnahtari, imzala, dogrula, acikAnahtarBayt } = await import("./webcrypto");
+    for (const tercih of ["Ed25519", "ECDSA P-256"] as const) {
+      const { tur, cift } = await imzaAnahtari(tercih);
+      expect(tur).toBe(tercih);
+      const m = metindenBayt("100 TL öde");
+      const s = await imzala(tur, cift.privateKey, m);
+      expect(s.length).toBe(64);
+      expect((await acikAnahtarBayt(cift.publicKey)).length).toBe(tur === "Ed25519" ? 32 : 65);
+      expect(await dogrula(tur, cift.publicKey, s, m)).toBe(true);
+      expect(await dogrula(tur, cift.publicKey, s, metindenBayt("900 TL öde"))).toBe(false);
+    }
+  });
+  it("iki taraf aynı ortak sırra ulaşır", async () => {
+    const { degisimAnahtari, ortakSir } = await import("./webcrypto");
+    const { hex } = await import("./bayt");
+    const a = await degisimAnahtari();
+    const b = await degisimAnahtari();
+    expect(hex(await ortakSir(a.tur, a.cift.privateKey, b.cift.publicKey))).toBe(hex(await ortakSir(b.tur, b.cift.privateKey, a.cift.publicKey)));
+  });
+});

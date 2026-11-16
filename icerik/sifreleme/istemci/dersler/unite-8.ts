@@ -8,7 +8,7 @@ export const UNITE_8: Ders = {
     {
       baslik: "Hash yetmez: MAC",
       metin: md(`
-6. ünitede şifrelemenin bütünlük sağlamadığını gördük: CTR'de saldırgan tutarı değiştirebiliyordu. Mesajın yanına özetini eklemek de yetmez. Hash anahtarsızdır; mesajı değiştiren saldırgan yeni özeti de kendisi hesaplar. Özet yalnız kazara bozulmayı yakalar.
+Şifrelemenin bütünlük sağlamadığını 6. ünitede gördük: CTR'de saldırgan tutarı değiştirebiliyordu. Mesajın yanına özetini eklemek de yetmez. Hash anahtarsızdır; mesajı değiştiren saldırgan yeni özeti de kendisi hesaplar. Özet yalnız kazara bozulmayı yakalar.
 
 Saldırgana karşı bütünlük için hesaplanması bir **gizli anahtar** gerektiren bir etiket gerekir: **MAC** (Message Authentication Code, mesaj doğrulama kodu). Gönderen $t = \\text{MAC}_K(m)$ hesaplayıp mesajın yanına ekler. Alıcı aynı anahtarla yeniden hesaplar ve karşılaştırır. Tutarsa iki şeyden emin olur:
 

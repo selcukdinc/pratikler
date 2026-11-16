@@ -8,7 +8,7 @@ export const UNITE_5: Ders = {
     {
       baslik: "One-time pad: kusursuz ama pratik değil",
       metin: md(`
-3. ünitede XOR'un kendi kendisinin tersi olduğunu gördün: $M \\oplus K \\oplus K = M$. Bu, akla gelebilecek en basit şifreyi verir. Mesajın her baytını bir anahtar baytıyla XOR'la; alıcı aynı anahtarla yeniden XOR'layıp mesajı geri alır.
+XOR'un kendi kendisinin tersi olduğunu 3. ünitede gördün: $M \\oplus K \\oplus K = M$. Bu, akla gelebilecek en basit şifreyi verir. Mesajın her baytını bir anahtar baytıyla XOR'la; alıcı aynı anahtarla yeniden XOR'layıp mesajı geri alır.
 
 Anahtar **mesaj kadar uzunsa**, **gerçekten rastgeleyse** ve **yalnız bir kez** kullanılıyorsa bu şifrenin adı **one-time pad**'dir (tek kullanımlık şerit). Claude Shannon 1949'da onun **kusursuz gizlilik** sağladığını kanıtladı: şifreli metni gören, sınırsız hesap gücüne sahip bir saldırgan bile açık metin hakkında hiçbir şey öğrenemez.
 
