@@ -1,0 +1,58 @@
+/* Şifreleme derslerinin etkileşimli şekilleri */
+.sf { max-width: 760px; margin: 0 auto; font-size: 14px; display: flex; flex-direction: column; gap: 10px; }
+.sf button.cip { cursor: pointer; font: inherit; font-size: 12.5px; }
+.sf button.cip[aria-pressed="true"] { background: var(--active); border-color: var(--btn-primary-border); font-weight: 600; }
+.sf button.cip:disabled { opacity: .45; cursor: default; }
+.sf-ust { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center; justify-content: space-between; }
+.sf-satir { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center; }
+.sf-secim { display: flex; flex-wrap: wrap; gap: 6px; }
+.sf label { display: inline-flex; gap: 6px; align-items: center; }
+.sf input[type="text"], .sf input[type="number"], .sf textarea, .sf select { font: inherit; font-size: 13.5px; padding: 4px 6px; border: 1px solid var(--border); border-radius: 4px; background: var(--input); color: var(--text); }
+.sf input[type="number"] { width: 6.5em; }
+.sf textarea { width: 100%; box-sizing: border-box; min-height: 64px; resize: vertical; }
+.sf-mono, .sf code, .sf-kod { font-family: var(--mono); }
+.sf-kod { margin: 0; padding: 6px 8px; background: var(--pre-bg); border: 1px solid var(--pre-border); border-radius: 4px; font-size: 12.5px; line-height: 1.5; overflow-wrap: anywhere; white-space: pre-wrap; }
+.sf-not { margin: 0; color: var(--muted); font-size: 13px; }
+.sf-sonuc { margin: 0; padding: 8px 10px; border-radius: 4px; background: var(--section-header); color: var(--section-text); line-height: 1.5; }
+.sf-iyi { background: var(--tag-ders-bg); color: var(--tag-ders-text); }
+.sf-kotu { background: var(--tag-cikmis-bg); color: var(--tag-cikmis-text); }
+.sf-izgara { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 8px; }
+.sf-kutu { border: 1px solid var(--border); border-radius: 6px; padding: 8px 10px; background: var(--panel); display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.sf-kutu h4 { margin: 0; font-size: 13.5px; }
+.sf-tablo-sar { overflow-x: auto; }
+.sf-tablo { border-collapse: collapse; font-size: 12.5px; width: 100%; }
+.sf-tablo th, .sf-tablo td { border-bottom: 1px solid var(--border-soft); padding: 3px 6px; text-align: left; white-space: nowrap; }
+.sf-tablo th { color: var(--muted); font-weight: 600; }
+.sf-tablo tr.sf-vurgu td { background: var(--active); }
+.sf-sayi { font-variant-numeric: tabular-nums; }
+.sf-cubuk { height: 8px; border-radius: 4px; background: var(--bar-bg); overflow: hidden; }
+.sf-cubuk > span { display: block; height: 100%; background: var(--link); }
+
+/* Frekans tezgahı */
+.sf-histogram { display: flex; align-items: flex-end; gap: 2px; height: 120px; padding-top: 4px; overflow-x: auto; }
+.sf-sutun { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; min-width: 20px; flex: 1; height: 100%; position: relative; }
+.sf-sutun-cubuk { width: 70%; background: var(--link); border-radius: 2px 2px 0 0; }
+.sf-sutun-dil { position: absolute; left: 10%; width: 80%; border-top: 2px dashed var(--warning); }
+.sf-sutun span { font-size: 11px; font-family: var(--mono); }
+.sf-esleme { display: grid; grid-template-columns: repeat(auto-fill, minmax(64px, 1fr)); gap: 4px; }
+.sf-esleme label { font-family: var(--mono); font-size: 12.5px; gap: 3px; }
+.sf-esleme select { padding: 1px 2px; font-size: 12.5px; }
+.sf-cozulen { font-family: var(--mono); font-size: 13px; line-height: 1.6; padding: 8px; border: 1px solid var(--pre-border); background: var(--pre-bg); border-radius: 4px; overflow-wrap: anywhere; }
+.sf-cozulmemis { color: var(--muted); text-decoration: underline dotted; }
+
+/* Enigma */
+.sf-pencereler { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+.sf-rotor { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.sf-rotor-harf { font-family: var(--mono); font-size: 22px; font-weight: 700; width: 40px; text-align: center; border: 2px solid var(--border); border-radius: 6px; background: var(--panel); }
+.sf-klavye { display: flex; flex-direction: column; gap: 4px; align-items: center; }
+.sf-klavye > div { display: flex; gap: 4px; }
+.sf-tus { width: 30px; height: 30px; border-radius: 50%; border: 1px solid var(--border); font-family: var(--mono); font-size: 13px; display: inline-flex; align-items: center; justify-content: center; background: var(--panel); color: var(--text); }
+button.sf-tus { cursor: pointer; }
+.sf-lamba-yanik { background: var(--warning); color: #1f1f1f; border-color: var(--warning); font-weight: 700; }
+.sf-yol { font-family: var(--mono); font-size: 12.5px; display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
+.sf-yol span { padding: 1px 5px; border-radius: 3px; background: var(--tag-bg); }
+
+@media (max-width: 520px) {
+  .sf-tus { width: 26px; height: 26px; font-size: 12px; }
+  .sf-klavye > div { gap: 2px; }
+}

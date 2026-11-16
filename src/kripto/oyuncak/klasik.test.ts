@@ -28,3 +28,22 @@ describe("klasik şifreler (oyuncak)", () => {
     expect(cakismaIndeksi("AAAA")).toBe(1);
   });
 });
+
+import { anahtarTahmini, ortalamaIndeks } from "./klasik";
+import { TURKCE } from "../frekanslar";
+import { ORNEK_VIGENERE } from "../../../icerik/sifreleme/istemci/etkilesim/klasik";
+import { ORNEK_YERINE_KOYMA } from "../../../icerik/sifreleme/istemci/etkilesim/klasik";
+import { YERINE_KOYMA_METNI } from "../../../icerik/sifreleme/sorular/unite-4";
+
+describe("Vigenère kırıcı", () => {
+  it("örnek metnin anahtar uzunluğunu ve anahtarını bulur", () => {
+    const ind = Array.from({ length: 12 }, (_, i) => ortalamaIndeks(ORNEK_VIGENERE, i + 1));
+    const tepe = Math.max(...ind);
+    expect(ind.findIndex((x) => x >= 0.9 * tepe) + 1).toBe(5);
+    expect(anahtarTahmini(ORNEK_VIGENERE, 5, TURKCE)).toBe("KALEM");
+    expect(vigenereCoz(ORNEK_VIGENERE.replace(/\s/g, ""), "KALEM").startsWith("BİLGİSAYARLAR")).toBe(true);
+  });
+  it("ders deneyindeki yerine koyma metni soru havuzundakiyle aynı", () => {
+    expect(ORNEK_YERINE_KOYMA).toBe(YERINE_KOYMA_METNI);
+  });
+});

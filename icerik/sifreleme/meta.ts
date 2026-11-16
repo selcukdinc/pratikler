@@ -48,6 +48,8 @@ export const sifreleme: PratikMeta = {
   uniteKisa: "Ü",
   yayinda: false,
   latex: true,
+  // Açılış sayfası derslerin listesi (gruplarıyla)
+  anaSayfa: "ders",
   uniteGruplari: GRUPLAR,
   logo: "/logolar/sifreleme.svg",
   etiketler: [

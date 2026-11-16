@@ -73,7 +73,13 @@ const NOT_TURLERI: [RegExp, string][] = [
   [/^\*\*Dikkat/i, "dikkat"],
   [/^\*\*İpucu/i, "ipucu"],
   [/^\*\*(Çözümlü )?örnek/i, "ornek"],
+  [/^\*\*Gerçek dünyada/i, "gercek"],
 ];
+
+// "> **Matematiğe in:** ..." kapalı başlayan, açılır bir kutu olur: sezgiyle yetinen
+// atlayabilir, hesabı isteyen açar (Şifreleme dersleri). İlk satırdaki kalın başlık
+// kutunun düğmesi, kalanı içeriğidir.
+const ACILIR = /^\*\*(Matematiğe in)(?::)?\*\*:?\s*/i;
 
 const hucreler = (satir: string) => satir.trim().replace(/^\|/, "").replace(/\|$/, "").split("|").map((h) => h.trim());
 
@@ -83,6 +89,15 @@ function blok(p: string, key: string, terim: boolean): ReactNode {
   const satirlar = p.split("\n");
   if (satirlar.every((l) => l.startsWith(">"))) {
     const ic = satirlar.map((l) => l.replace(/^> ?/, "")).join("\n");
+    const acilir = ACILIR.exec(ic);
+    if (acilir) {
+      return (
+        <details key={key} className="not not-acilir">
+          <summary>{acilir[1]}</summary>
+          {bloklar(ic.slice(acilir[0].length), key, terim)}
+        </details>
+      );
+    }
     const tur = NOT_TURLERI.find(([d]) => d.test(ic))?.[1] ?? "bilgi";
     return (
       <aside key={key} className={`not not-${tur}`}>
