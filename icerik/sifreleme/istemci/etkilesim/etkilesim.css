@@ -177,3 +177,17 @@ button.sf-bayt { cursor: pointer; }
   .sf-klavye > div { gap: 2px; }
   .sf-tls { grid-template-columns: 1fr; }
 }
+
+/* 15. ünite: anahtar zinciri, not defteri */
+.sf-ikili { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 8px; }
+.sf-halka code { overflow-wrap: anywhere; font-size: 12.5px; }
+.sf-halka-cihaz { border-left: 3px solid var(--tag-ders-text); }
+.sf-etiket { font-size: 11px; padding: 1px 7px; border-radius: 10px; }
+.sf-etiket-sunucu { background: var(--section-header); color: var(--section-text); }
+.sf-sunucu-json { max-height: 260px; overflow: auto; font-size: 11.5px; }
+.sf textarea { width: 100%; font: inherit; box-sizing: border-box; }
+
+/* 16. ünite: görsel paylar, LSB, görüntü şifreleme */
+.sf-tuval-pay canvas { max-width: 340px; }
+.sf-hist-cizgi { width: 100%; max-width: 220px; height: 70px; border: 1px solid var(--border); border-radius: 4px; background: var(--panel); }
+.sf-hist-cizgi polyline { fill: none; stroke: var(--link); stroke-width: 1.2; }

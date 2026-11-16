@@ -201,4 +201,15 @@ describe("şifreleme: hesapların cevap anahtarı", () => {
     expect(sayiDogru("u14-log", String(Math.log2(1024)))).toBe(true);
     expect(sayiDogru("u14-kac-sifreleme", String(2 + (3 - 1)))).toBe(true);
   });
+
+  it("depolama ve gizleme hesapları", () => {
+    expect(sayiDogru("u15-deneme", String(Math.round(10000 ** 4 / 10000 / 3.15e7)))).toBe(true);
+    expect(sayiDogru("u15-disk", String(256 / 8))).toBe(true);
+    expect(sayiDogru("u15-kod-entropi", String(40 * 4))).toBe(true);
+    expect(sayiDogru("u16-alt-hucre", String(40 * 2 * 30 * 2))).toBe(true);
+    const f = (x: number) => 7 + 3 * x + 2 * x * x;
+    expect(sayiDogru("u16-shamir", String(f(2)))).toBe(true);
+    expect(sayiDogru("u16-kapasite", String((200 * 100 * 3) / 8))).toBe(true);
+    expect(sayiDogru("u16-bit-yaz", String(0b10110110 | 1))).toBe(true);
+  });
 });

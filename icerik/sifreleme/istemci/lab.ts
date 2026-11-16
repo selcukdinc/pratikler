@@ -17,6 +17,10 @@ const acik = (ad: "DhRenk" | "DhSayilar" | "RsaTezgahi" | "EgriReel" | "EgriFp" 
   lazy(() => import("./etkilesim/acik").then((m) => ({ default: () => createElement(m[ad]) })));
 const mesajlasma = (ad: "Circir" | "X3dhUcgeni" | "GuvenlikNumarasi" | "GrupAnahtari" | "MetadataDedektifi") =>
   lazy(() => import("./etkilesim/mesajlasma").then((m) => ({ default: () => createElement(m[ad]) })));
+const depolama = (ad: "AnahtarZinciri" | "KurtarmaSenaryosu" | "NotDefteri") =>
+  lazy(() => import("./etkilesim/depolama").then((m) => ({ default: () => createElement(m[ad]) })));
+const gizleme = (ad: "GorselPaylar" | "LsbGizleyici" | "GoruntuSifreleme") =>
+  lazy(() => import("./etkilesim/gizleme").then((m) => ({ default: () => createElement(m[ad]) })));
 
 export const DENEYLER: Deney[] = [
   { id: "uc-kutu", ad: "Kodlama, hash ve şifreleme", unite: 1, bilesen: bilesen("UcKutu"), ozet: "Aynı metni Base64 ile kodla, SHA-256 ile hash'ini al ve AES-GCM ile şifrele. Hangisi anahtarsız geri döner, hangisi hiç dönmez?" },
@@ -58,4 +62,10 @@ export const DENEYLER: Deney[] = [
   { id: "guvenlik-no", ad: "Güvenlik numarası oyunu", unite: 13, bilesen: mesajlasma("GuvenlikNumarasi"), ozet: "Sunucu bazen araya kendi anahtarını koyuyor. İki ekrandaki numaraları karşılaştırıp yakalayabilir misin?" },
   { id: "grup", ad: "Sender Keys ve MLS", unite: 14, bilesen: mesajlasma("GrupAnahtari"), ozet: "Gruptan bir üye çıkar; Sender Keys'te kaç anahtar mesajı, MLS ağacında kaç düğüm güncellemesi gerektiğini karşılaştır." },
   { id: "metadata", ad: "Metadata dedektifi", unite: 14, bilesen: mesajlasma("MetadataDedektifi"), ozet: "İçerik şifreli; elinde yalnız sunucu kayıtları var. Kim kiminle ne hakkında konuşuyor?" },
+  { id: "anahtar-zinciri", ad: "Anahtar zinciri tezgahı", unite: 15, bilesen: depolama("AnahtarZinciri"), ozet: "Ana paroladan kasa anahtarına uzanan zinciri gerçek anahtarlarla kur; sunucunun neyi sakladığına ve parola değişince neyin değiştiğine bak." },
+  { id: "kurtarma", ad: "Parolamı unuttum", unite: 15, bilesen: depolama("KurtarmaSenaryosu"), ozet: "Dört mimari, dört olay: kim veriyi kurtarabilir, kim okuyabilir? Gerçek bir kurtarma kodu üret ve dene." },
+  { id: "not-defteri", ad: "Şifreli not defteri", unite: 15, bilesen: depolama("NotDefteri"), ozet: "Notlarını tarayıcında şifrele, sunucuya giden JSON'a bak, doğru ve yanlış parolayla aç." },
+  { id: "gorsel-paylar", ad: "Görsel kriptografi payları", unite: 16, bilesen: gizleme("GorselPaylar"), ozet: "Mesajını iki gürültü payına böl, payları üst üste koyup gözünle çöz." },
+  { id: "lsb", ad: "LSB gizleyici", unite: 16, bilesen: gizleme("LsbGizleyici"), ozet: "Mesajını bir görselin en düşük bitlerine sakla; göz görmez, bit düzlemi ele verir." },
+  { id: "goruntu-sifreleme", ad: "Piksel karıştırma ile AES-CTR", unite: 16, bilesen: gizleme("GoruntuSifreleme"), ozet: "Görseli karıştırarak ve AES-CTR ile şifrele, histogramları karşılaştır; seçilmiş görselle karıştırmayı kır." },
 ];

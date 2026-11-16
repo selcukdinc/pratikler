@@ -245,11 +245,11 @@ function AesGirdiler(p: { acikYazi: string; setAcikYazi: (s: string) => void; an
 
 // ---------------- G-S6-01: ECB maskot deneyi ----------------
 
-const MG = 160; // maskot genişliği
+export const MG = 160; // maskot genişliği
 
 // Kendi çizdiğimiz maskot: geniş, düz renkli alanları olan bir baykuş. Düz renk ECB'nin
 // deseni nasıl sızdırdığını en açık gösteren durumdur.
-function maskotCiz(x: CanvasRenderingContext2D) {
+export function maskotCiz(x: CanvasRenderingContext2D) {
   const W = MG;
   x.fillStyle = "#cfe8f7";
   x.fillRect(0, 0, W, W);
@@ -317,7 +317,7 @@ function bayttanResim(b: Uint8Array, derinlik: Derinlik, w: number, h: number): 
   return img;
 }
 
-function ResimTuval({ img, baslik }: { img: ImageData; baslik: string }) {
+export function ResimTuval({ img, baslik }: { img: ImageData; baslik: string }) {
   const ref = useRef<HTMLCanvasElement>(null);
   useEffect(() => {
     ref.current?.getContext("2d")?.putImageData(img, 0, 0);
