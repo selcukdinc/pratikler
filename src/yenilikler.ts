@@ -24,6 +24,18 @@ export interface Yenilik {
 
 export const YENILIKLER: Yenilik[] = [
   {
+    pr: 55,
+    tarih: "2026-11-16",
+    baslik: "Şifreleme pratiği: ilk dört ünitenin dersleri ve 11 deney",
+    kitle: "yonetici",
+    maddeler: [
+      "Temeller grubunun dört ünitesine ders anlatımı eklendi (29 bölüm): her kavram önce sezgiyle ve etkileşimli şekille, sonra açılır **Matematiğe in** notuyla, sonunda **Gerçek dünyada** notuyla anlatılıyor. Pratik ders listesiyle açılıyor.",
+      "Sanal Lab'de 11 deney: üç kutu (kodlama, hash, şifreleme), bayt dönüştürücü, entropi ölçer, \"Rastgele mi?\" oyunu, modüler saat, genişletilmiş Öklid tablosu, kare-çarp, Sezar çarkı, frekans tezgâhı, Vigenère kırıcı ve Enigma.",
+      "Oyuncak uygulamalar \"Oyuncak · gerçek kullanım için değil\" rozetiyle işaretli; gerçek SHA-256 ve AES-GCM tarayıcının Web Crypto'suyla çalışıyor. Hiçbir deney sunucuya istek atmıyor.",
+      "Ders notlarında iki yeni kutu türü bütün pratiklerde kullanılabilir: `> **Gerçek dünyada:**` ve açılır `> **Matematiğe in:**`.",
+    ],
+  },
+  {
     pr: 54,
     tarih: "2026-11-16",
     baslik: "Şifreleme pratiği hazırlanıyor: iskelet ve ilk 116 soru",
