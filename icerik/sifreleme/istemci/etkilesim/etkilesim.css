@@ -52,7 +52,40 @@ button.sf-tus { cursor: pointer; }
 .sf-yol { font-family: var(--mono); font-size: 12.5px; display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
 .sf-yol span { padding: 1px 5px; border-radius: 3px; background: var(--tag-bg); }
 
+/* Görüntü tuvalleri (XOR tuvali, ECB maskotu) */
+.sf-tuvaller { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
+.sf-tuval { margin: 0; display: flex; flex-direction: column; gap: 3px; align-items: center; }
+.sf-tuval canvas { width: 100%; image-rendering: pixelated; border: 1px solid var(--border); border-radius: 4px; background: #fff; }
+.sf-tuval-resim canvas { max-width: 220px; }
+.sf-tuval figcaption { font-size: 12px; color: var(--muted); text-align: center; }
+.sf-tuval-vurgu canvas { outline: 3px solid var(--warning); }
+.sf-dosya { position: relative; overflow: hidden; display: inline-flex; padding: 3px 10px; border: 1px solid var(--border); border-radius: 999px; background: var(--panel); }
+.sf-dosya input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+
+/* AES tur gezgini */
+.sf-aes { display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-start; }
+.sf-aes > .sf-kutu { flex: 0 0 auto; }
+.sf-aes-aciklama { flex: 1 1 260px; display: flex; flex-direction: column; gap: 8px; }
+.sf-aes-aciklama p { margin: 0; line-height: 1.5; }
+.sf-durum { display: grid; grid-template-columns: repeat(4, 44px); gap: 4px; }
+.sf-hucre { font-family: var(--mono); font-size: 14px; height: 36px; display: inline-flex; align-items: center; justify-content: center; border: 1px solid var(--border); border-radius: 4px; background: var(--panel); color: var(--text); padding: 0; }
+button.sf-hucre { cursor: pointer; }
+.sf-hucre-farkli { background: var(--warning); color: #1f1f1f; border-color: var(--warning); font-weight: 700; }
+.sf-hucre-secili { outline: 2px solid var(--link); outline-offset: 1px; }
+.sf input[type="range"] { width: min(260px, 50vw); }
+
+/* Mod oynatıcısı */
+.sf-bloklar { display: flex; flex-direction: column; gap: 4px; overflow-x: auto; }
+.sf-blok-satir { display: flex; gap: 6px; align-items: center; }
+.sf-blok-ad { font-family: var(--mono); font-size: 12px; color: var(--muted); width: 2.2em; flex: none; }
+.sf-baytlar { display: grid; grid-template-columns: repeat(16, minmax(22px, 1fr)); gap: 2px; flex: 1; min-width: 380px; }
+.sf-bayt, .sf-harf { font-family: var(--mono); font-size: 11.5px; text-align: center; padding: 2px 0; border: 1px solid var(--border-soft); border-radius: 3px; background: var(--panel); color: var(--text); }
+button.sf-bayt { cursor: pointer; }
+.sf-harf { font-size: 13px; white-space: pre; }
+.sf-harf.sf-hucre-farkli { background: var(--warning); color: #1f1f1f; border-color: var(--warning); font-weight: 700; }
+
 @media (max-width: 520px) {
+  .sf-durum { grid-template-columns: repeat(4, 38px); }
   .sf-tus { width: 26px; height: 26px; font-size: 12px; }
   .sf-klavye > div { gap: 2px; }
 }

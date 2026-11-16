@@ -29,3 +29,20 @@ export async function aesGcmCoz(anahtar: CryptoKey, nonce: Uint8Array, sifreli: 
 export async function anahtarHex(anahtar: CryptoKey): Promise<string> {
   return hex(new Uint8Array(await subtle().exportKey("raw", anahtar)));
 }
+
+// Ham anahtar baytlarından Web Crypto anahtarı (tarayıcıdan çıkmaz)
+export const aesAnahtariAl = (ham: Uint8Array, ad: "AES-CTR" | "AES-GCM" | "AES-CBC") =>
+  subtle().importKey("raw", tampon(ham), ad, false, ["encrypt", "decrypt"]);
+
+// AES-CTR: sayaç 16 bayt, son 32 bit artar. Şifreleme ile çözme aynı işlemdir.
+export async function aesCtr(anahtar: CryptoKey, sayac: Uint8Array, veri: Uint8Array): Promise<Uint8Array> {
+  return new Uint8Array(await subtle().encrypt({ name: "AES-CTR", counter: tampon(sayac), length: 32 }, anahtar, tampon(veri)));
+}
+
+// Tek bir AES bloğu: sıfır IV'li CBC'nin ilk bloğu düz AES şifrelemesidir (Web Crypto ECB sunmaz).
+// Oyuncak AES'in çıktısını gerçek uygulamayla karşılaştırmak için.
+export async function aesTekBlok(ham: Uint8Array, blok: Uint8Array): Promise<Uint8Array> {
+  const k = await aesAnahtariAl(ham, "AES-CBC");
+  const c = new Uint8Array(await subtle().encrypt({ name: "AES-CBC", iv: new Uint8Array(16) }, k, tampon(blok)));
+  return c.slice(0, 16);
+}
