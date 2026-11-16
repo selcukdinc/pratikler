@@ -24,6 +24,16 @@ export interface Yenilik {
 
 export const YENILIKLER: Yenilik[] = [
   {
+    pr: 61,
+    tarih: "2026-11-16",
+    baslik: "Şifreleme: sıfır bilgili depolama ve görsel kriptografi",
+    maddeler: [
+      "**15. ünite: Sıfır bilgili depolama.** Parola yöneticileri senin parolalarını nasıl saklar da kendileri göremez? Ana paroladan kasa anahtarına uzanan zinciri gerçek anahtarlarla kur, sunucunun veritabanında neyin durduğuna bak, \"parolamı unuttum\" senaryolarını dört mimaride karşılaştır ve kendi şifreli not defterini dene.",
+      "**16. ünite: Görsel kriptografi ve steganografi.** Mesajını iki gürültü payına böl ve payları üst üste koyup gözünle çöz; bir mesajı görselin en düşük bitlerine sakla ve bit düzleminin onu nasıl ele verdiğini gör; pikselleri karıştırmanın neden şifreleme sayılmadığını tek bir görselle kanıtla.",
+      { kitle: "yonetici", metin: "13 kavram, 45 soru, iki ders, altı şekil (hepsi Sanal Lab'de). Kasa zinciri `src/kripto/kasa.ts` (Web Crypto), görsel paylar, LSB ve piksel karıştırma `src/kripto/oyuncak/gorsel.ts`; ikisi de testli. Soru göçü `0048_sifreleme_depolama.sql`." },
+    ],
+  },
+  {
     pr: 60,
     tarih: "2026-11-16",
     baslik: "Yeni pratik: Şifreleme",

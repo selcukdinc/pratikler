@@ -10,6 +10,8 @@ import { AesTurGezgini, BitCevirme, ChachaCeyrek, EcbMaskot, ModOynatici, XorTuv
 import { CakismaAvi, CigEtkisi, DogumGunu, HkdfTuretici, HmacAdimlari, KabaKuvvetSure, LengthExtension, Pbkdf2Olcer, Sha256Gezgini, SizanVeritabani } from "./hash";
 import { DhRenk, DhSayilar, EgriFp, EgriReel, ImzaTezgahi, MitmSahnesi, RsaTezgahi, SertifikaZinciri, TlsEl } from "./acik";
 import { Circir, GrupAnahtari, GuvenlikNumarasi, MetadataDedektifi, X3dhUcgeni } from "./mesajlasma";
+import { AnahtarZinciri, KurtarmaSenaryosu, NotDefteri } from "./depolama";
+import { GorselPaylar, GoruntuSifreleme, LsbGizleyici } from "./gizleme";
 import "./etkilesim.css";
 
 export const ETKILESIMLER: Record<string, ComponentType<{ g: Gorsel }>> = {
@@ -56,4 +58,10 @@ export const ETKILESIMLER: Record<string, ComponentType<{ g: Gorsel }>> = {
   guvenlikNumarasi: GuvenlikNumarasi,
   grupAnahtari: GrupAnahtari,
   metadataDedektifi: MetadataDedektifi,
+  anahtarZinciri: AnahtarZinciri,
+  kurtarmaSenaryosu: KurtarmaSenaryosu,
+  notDefteri: NotDefteri,
+  gorselPaylar: GorselPaylar,
+  lsbGizleyici: LsbGizleyici,
+  goruntuSifreleme: GoruntuSifreleme,
 };
