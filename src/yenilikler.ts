@@ -24,6 +24,112 @@ export interface Yenilik {
 
 export const YENILIKLER: Yenilik[] = [
   {
+    pr: 63,
+    tarih: "2026-11-16",
+    baslik: "Şifreleme: vaka çalışmaları, tasarım alıştırmaları ve kod atölyesi",
+    maddeler: [
+      "**19. ünite: Vaka çalışmaları ve tasarım.** WhatsApp, Signal, Telegram'ın iki sohbet türü, iMessage ve PGP'li e-posta altı güvenlik özelliğinde yan yana. Şifreli e-postanın neden yaygınlaşmadığını ve bir tehdit modelinin mimariyi nasıl belirlediğini öğren.",
+      "**Mesajlaşma simülatöründe hazır ayarlar.** Bu ürünlerin altı sadeleştirilmiş modelini tek dokunuşla aç, yedi saldırganın gözünden neyin değiştiğine bak. Her ayar kısa notlar ve kaynak bağlantısıyla gelir.",
+      "**İki tasarım alıştırması.** Anonim bir geri bildirim platformu ve dokuz aylık bir kişisel paylaşım uygulaması için tehdit kartlarını seç, dört mimariyi karşılaştır, ürün sahibine sorulacak kararların etkisini gör.",
+      "**Web Crypto kod atölyesi.** Hash, HMAC, AES-GCM, PBKDF2, HKDF, ECDH ve imza çağrılarını kendin yaz; son görevde nonce tekrarlayan bir sistemi kır. Kod yalnız tarayıcında çalışır.",
+      "Nasıl kullanılır sayfası Şifreleme'ye özel adımlarla yenilendi; Hakkında'da içeriğin hazırlandığı tarih görünüyor.",
+      { kitle: "yonetici", metin: "7 kavram, 27 soru (yeni `tasarim` etiketi), bir ders, dört şekil (hepsi Sanal Lab'de). Vakalar `src/kripto/mesajlasma/vakalar.ts`, alıştırmalar `src/kripto/tasarim.ts`, atölye `src/kripto/atolye.ts` ve Web Worker'ı; atölyenin her görevinin örnek çözümü testte çalıştırılır. Güncelleme adımları `docs/surum-guncelleme.md`. Soru göçü `0050_sifreleme_tasarim.sql`." },
+    ],
+  },
+  {
+    pr: 62,
+    tarih: "2026-11-16",
+    baslik: "Şifreleme: saldırılar ve post-kuantum kriptografi",
+    maddeler: [
+      "**17. ünite: Saldırılar ve uygulama hataları.** Aynı nonce'la şifrelenmiş iki mesajı anahtarsız çöz, yalnız \"dolgu hatalı\" diyen bir sunucudan şifreli bakiyeyi bayt bayt çıkar, yanıt sürelerinden PIN'i bul ve benzetilmiş güç izlerinden AES anahtarını korelasyonla yakala. Maskeleme ve sabit zamanlı kodun bunları nasıl durdurduğunu gör.",
+      "**18. ünite: Post-kuantum kriptografi.** Shor ve Grover neyi kırar, \"şimdi topla, sonra çöz\" neden bugünün sorunu? Gürültülü denklemler oyunu, oyuncak ML-KEM ve tarayıcının her gün yaptığı hibrit X25519MLKEM768 el sıkışması.",
+      { kitle: "yonetici", metin: "14 kavram, 48 soru, iki ders, yedi şekil (hepsi Sanal Lab'de). Oyuncaklar `src/kripto/oyuncak/saldiri.ts` (padding oracle, zamanlama, CPA) ve `kafes.ts` (LWE, modül-LWE KEM); testleri `saldiri.test.ts`. Gerçek ML-KEM için `@noble/post-quantum` eklemek bu oturumda engellendi; şekil oyuncak sürümle çalışıyor, gerçek boylar tabloda. Soru göçü `0049_sifreleme_saldiri.sql`." },
+    ],
+  },
+  {
+    pr: 61,
+    tarih: "2026-11-16",
+    baslik: "Şifreleme: sıfır bilgili depolama ve görsel kriptografi",
+    maddeler: [
+      "**15. ünite: Sıfır bilgili depolama.** Parola yöneticileri senin parolalarını nasıl saklar da kendileri göremez? Ana paroladan kasa anahtarına uzanan zinciri gerçek anahtarlarla kur, sunucunun veritabanında neyin durduğuna bak, \"parolamı unuttum\" senaryolarını dört mimaride karşılaştır ve kendi şifreli not defterini dene.",
+      "**16. ünite: Görsel kriptografi ve steganografi.** Mesajını iki gürültü payına böl ve payları üst üste koyup gözünle çöz; bir mesajı görselin en düşük bitlerine sakla ve bit düzleminin onu nasıl ele verdiğini gör; pikselleri karıştırmanın neden şifreleme sayılmadığını tek bir görselle kanıtla.",
+      { kitle: "yonetici", metin: "13 kavram, 45 soru, iki ders, altı şekil (hepsi Sanal Lab'de). Kasa zinciri `src/kripto/kasa.ts` (Web Crypto), görsel paylar, LSB ve piksel karıştırma `src/kripto/oyuncak/gorsel.ts`; ikisi de testli. Soru göçü `0048_sifreleme_depolama.sql`." },
+    ],
+  },
+  {
+    pr: 60,
+    tarih: "2026-11-16",
+    baslik: "Yeni pratik: Şifreleme",
+    maddeler: [
+      "**Şifreleme** pratiği açıldı (`/sifreleme`). Sezar'dan AES'e, hash ve parola saklamadan RSA, eliptik eğriler ve TLS'e, uçtan uca şifreli mesajlaşmaya kadar 14 ünite ve 350'yi aşkın soru. Kalan üniteler (sıfır bilgili depolama, görsel kriptografi, uygulama hataları, post-kuantum ve tasarım) yakında.",
+      "Her ders bir deneyle başlar: Enigma'yı çevir, ECB'nin maskotu nasıl ele verdiğini gör, SHA-256'yı adım adım hesapla, TLS el sıkışmasını mesaj mesaj izle. Gerçek şifreleme işlemleri tarayıcının Web Crypto'suyla yapılır; eğitim için yazılan küçük uygulamalar \"oyuncak\" diye etiketlidir.",
+      "**Mesajlaşma simülatörü:** Kendi mesajlaşma uygulamanı tasarla. Şifrelemeyi, anahtarların yerini, yedeği ve kaybolan mesajları seç; ağı dinleyenden çalınan telefona yedi saldırganın her mesajdan ne gördüğüne bak. 14 görevle ileri gizliliği, sahte anahtar saldırısını ve en zayıf halkayı kendin bul.",
+      { kitle: "yonetici", metin: "13. ünite (Uçtan uca şifreleme ve Double Ratchet) ve 14. ünite (Gruplar, cihazlar ve metadata): 15 kavram, 37 soru, iki ders. Yeni şekiller: gerçek anahtarlarla cırcır dişlileri, X3DH'nin dört DH hesabı, güvenlik numarası oyunu, Sender Keys ile MLS ağacı karşılaştırması ve metadata dedektifi; beşi de Sanal Lab'de." },
+      { kitle: "yonetici", metin: "Mesajlaşma simülatörüne **Görevler** paneli: 14 hedef tasarımın durumuna bakar, örnek çözümleri testte kendi hedefini sağlar ve varsayılan tasarım hiçbirini sağlamaz (`src/kripto/mesajlasma/gorevler.ts`). İlerleme yalnız tarayıcıda tutulur." },
+      { kitle: "yonetici", metin: "Pratik yayında (`yayinda: true`). Soru göçü `0047_sifreleme_mesajlasma.sql`." },
+    ],
+  },
+  {
+    pr: 59,
+    tarih: "2026-11-16",
+    baslik: "Şifreleme pratiği: mesajlaşma simülatörü",
+    kitle: "yonetici",
+    maddeler: [
+      "Menüde yeni sayfa: **Mesajlaşma simülatörü** (`/sifreleme/mesajlasma`). Koruma katmanını (şifresiz, yalnız TLS, sabit anahtarlı ya da Double Ratchet'li uçtan uca), anahtarların yerini, bulut yedeğini, gizli göndereni, güvenlik numarası doğrulamasını, kaybolan mesajları ve ekran kilidini seç; yedi saldırganın Ayşe ile Mert'in her mesajından ne gördüğünü renklerle ve gerekçesiyle gör.",
+      "Anahtar ele geçirme zaman çizelgesi: bir anahtarın hangi mesajda çalındığını seç, saldırganın okuyabildiği mesajlar kırmızıya boyansın. Double Ratchet'te ileri gizlilik ve ele geçirme sonrası güvenlik tek bakışta görünür.",
+      "Ekrandaki şifreli baytlar, mesaj, zincir ve kök anahtarları Web Crypto ile gerçekten üretiliyor (X25519, HKDF, HMAC, AES-GCM). Tasarım adres çubuğundaki bağlantıyla paylaşılabiliyor; sayfa sunucuya hiç istek atmıyor.",
+      "Görünürlük kuralları `src/kripto/mesajlasma/model.ts`'te ve her rol × her koruma katmanı tablosuyla sınanıyor. Görevler ve hazır ayarlar sonraki PR'larda.",
+    ],
+  },
+  {
+    pr: 58,
+    tarih: "2026-11-16",
+    baslik: "Şifreleme pratiği: açık anahtar, imzalar ve TLS",
+    kitle: "yonetici",
+    maddeler: [
+      "10-12. üniteler eklendi: anahtar dağıtım sorunu, Diffie-Hellman ve ayrık logaritma, ortadaki adam, RSA ve ders kitabı RSA'nın açıkları (OAEP), anahtar boyları; eliptik eğrilerde nokta toplama, ECDH ve X25519, ECDSA ve Ed25519, nonce tekrarıyla anahtar sızması; sertifika zinciri, iptal ve Certificate Transparency, TLS 1.3 el sıkışması, anahtar takvimi ve HTTPS'in korumadıkları. 19 bölüm, 71 yeni soru.",
+      "Dokuz yeni etkileşimli şekil, hepsi Sanal Lab'de de açılıyor: boya karıştırarak Diffie-Hellman (ortadaki adamla), sayılarla DH ve dinleyici, oyuncak RSA tezgahı (çarpanlara ayırıp 2048 bit için süre tahmini), gerçek sayılarda ve mod 97'de eliptik eğri, imza tezgahı (gerçek Ed25519; aynı nonce'lu iki imzadan özel anahtar), TLS 1.3 el sıkışması (gerçek X25519, imza, HKDF ve AES-GCM), sertifika zinciri ve kafedeki ortadaki adam.",
+      "Oyuncak RSA, DH ve eliptik eğri `src/kripto/oyuncak/acik.ts`'te; imza ve anahtar değişimi için Web Crypto sarmalayıcıları (Ed25519/P-256, X25519/P-256) eklendi ve sınanıyor. Hesap sorularının cevapları oyuncak uygulamalarla denetleniyor.",
+      "Yayından önce uzak D1'e `0046_sifreleme_acik.sql` uygulanmalı.",
+    ],
+  },
+  {
+    pr: 57,
+    tarih: "2026-11-16",
+    baslik: "Şifreleme pratiği: hash, HMAC ve parola saklama",
+    kitle: "yonetici",
+    maddeler: [
+      "7-9. üniteler eklendi: hash fonksiyonları (direnç türleri, doğum günü paradoksu, SHA-256'nın içi, MD5 ve SHA-1'in düşüşü, SHA-3, Merkle ağaçları), MAC ve HMAC (length extension, sabit zamanlı karşılaştırma) ve parola saklama (tuz, biber, PBKDF2, bcrypt, Argon2id, HKDF, passkeys). 18 bölüm, 62 yeni soru.",
+      "On yeni etkileşimli şekil, sekizi Sanal Lab'de de açılıyor: çığ etkisi, SHA-256 adım gezgini, çakışma avı, doğum günü hesaplayıcı, length extension atölyesi (gizliyi bilmeden &rol=admin ekle), HMAC adımları, kaba kuvvet süre hesaplayıcı, sızan veritabanı, PBKDF2 ölçer ve HKDF.",
+      "Oyuncak SHA-256 `src/kripto/oyuncak/sha256.ts`'te; Web Crypto ile ve length extension sonucu gerçek SHA-256 ile karşılaştırılarak sınanıyor. HMAC, PBKDF2 ve HKDF Web Crypto sarmalayıcıları RFC vektörleriyle sınanıyor.",
+      "Yayından önce uzak D1'e `0045_sifreleme_hash.sql` uygulanmalı.",
+    ],
+  },
+  {
+    pr: 56,
+    tarih: "2026-11-16",
+    baslik: "Şifreleme pratiği: one-time pad, AES ve blok modları",
+    kitle: "yonetici",
+    maddeler: [
+      "5. ve 6. ünite eklendi (Simetrik dünya grubunun ilk ikisi): one-time pad ve anahtar tekrarı, blok şifre fikri, DES'ten AES'e, AES'in tur adımları ve anahtar genişletme; ECB, CBC, dolgu, CTR, AES-GCM, ChaCha20-Poly1305 ve mod seçimi. 14 bölüm, 68 yeni soru.",
+      "Altı yeni deney: XOR tuvali (anahtarı iki kez kullanınca görüntüler belirir), AES tur gezgini (bir biti çevir, yayılmayı turdan tura izle; sonuç Web Crypto ile karşılaştırılır), ECB maskot deneyi (kendi baykuşumuz ya da yüklenen görsel; tahmin et, sonra gör), hata yayılımı, bit çevirme saldırısı (gerçek AES-CTR ile AES-GCM) ve ChaCha20 çeyrek turu.",
+      "Oyuncak AES, blok modları ve ChaCha20 `src/kripto/oyuncak` altında; FIPS-197 ve RFC 8439 test vektörleriyle ve Web Crypto ile karşılaştırılarak sınanıyor.",
+      "Yayından önce uzak D1'e `0044_sifreleme_simetrik.sql` uygulanmalı.",
+    ],
+  },
+  {
+    pr: 55,
+    tarih: "2026-11-16",
+    baslik: "Şifreleme pratiği: ilk dört ünitenin dersleri ve 11 deney",
+    kitle: "yonetici",
+    maddeler: [
+      "Temeller grubunun dört ünitesine ders anlatımı eklendi (29 bölüm): her kavram önce sezgiyle ve etkileşimli şekille, sonra açılır **Matematiğe in** notuyla, sonunda **Gerçek dünyada** notuyla anlatılıyor. Pratik ders listesiyle açılıyor.",
+      "Sanal Lab'de 11 deney: üç kutu (kodlama, hash, şifreleme), bayt dönüştürücü, entropi ölçer, \"Rastgele mi?\" oyunu, modüler saat, genişletilmiş Öklid tablosu, kare-çarp, Sezar çarkı, frekans tezgâhı, Vigenère kırıcı ve Enigma.",
+      "Oyuncak uygulamalar \"Oyuncak · gerçek kullanım için değil\" rozetiyle işaretli; gerçek SHA-256 ve AES-GCM tarayıcının Web Crypto'suyla çalışıyor. Hiçbir deney sunucuya istek atmıyor.",
+      "Ders notlarında iki yeni kutu türü bütün pratiklerde kullanılabilir: `> **Gerçek dünyada:**` ve açılır `> **Matematiğe in:**`.",
+    ],
+  },
+  {
     pr: 54,
     tarih: "2026-11-16",
     baslik: "Şifreleme pratiği hazırlanıyor: iskelet ve ilk 116 soru",

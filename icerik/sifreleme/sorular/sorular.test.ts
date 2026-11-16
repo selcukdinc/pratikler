@@ -4,9 +4,15 @@
 import { describe, expect, it } from "vitest";
 import { sorular } from "./index.ts";
 import { YERINE_KOYMA_METNI } from "./unite-4.ts";
+import { IKI_ZAMAN_C1, IKI_ZAMAN_C2 } from "./unite-5.ts";
+import { SIZAN_OZET } from "./unite-9.ts";
+import { dolgu, sha256Oyuncak } from "../../../src/kripto/oyuncak/sha256.ts";
+import { aesBlok, anahtarGenislet, S_KUTUSU } from "../../../src/kripto/oyuncak/aes.ts";
+import { dolgula } from "../../../src/kripto/oyuncak/modlar.ts";
+import { ayrikLog, carpanlaraAyir, dh, egrideMi, rsaAnahtari, rsaCoz, rsaSifrele, skalerCarp, tersi, topla } from "../../../src/kripto/oyuncak/acik.ts";
 import { ALFABE, atbas, citCoz, frekans, sezarCoz, vigenereCoz, yerineKoy } from "../../../src/kripto/oyuncak/klasik.ts";
-import { ebob, gfCarp, lcg, modTers, modUs, phi } from "../../../src/kripto/oyuncak/sayi.ts";
-import { base64tenBayt, bayttanMetin, hex, metindenBayt } from "../../../src/kripto/bayt.ts";
+import { ebob, gfCarp, lcg, mod, modTers, modUs, phi } from "../../../src/kripto/oyuncak/sayi.ts";
+import { base64tenBayt, bayttanMetin, hex, hextenBayt, metindenBayt, xorBayt } from "../../../src/kripto/bayt.ts";
 import { sayiEslesir, metinEslesir } from "../../../shared/grade.ts";
 
 const bul = (ad: string) => {
@@ -106,5 +112,121 @@ describe("şifreleme: hesapların cevap anahtarı", () => {
     let l = 0;
     for (let i = 2; i <= 29; i++) l += Math.log2(i);
     expect(Math.round(l)).toBe(103);
+  });
+  it("XOR, iki zamanlı pad ve CTR bit çevirme", () => {
+    const hx = (n: number) => n.toString(16).toUpperCase().padStart(2, "0");
+    expect(yazmaCevabi("u5-xor-bayt")).toContain(hx(0x41 ^ 0x2a));
+    const m2 = xorBayt(xorBayt(hextenBayt(IKI_ZAMAN_C1), hextenBayt(IKI_ZAMAN_C2)), metindenBayt(kod("u5-iki-zaman-coz", 2)));
+    expect(yazmaCevabi("u5-iki-zaman-coz")).toContain(bayttanMetin(m2));
+    expect(yazmaCevabi("u6-bit-cevir")).toContain(hx(0x5a ^ 0x31 ^ 0x39));
+  });
+  it("AES hesapları", () => {
+    const hx = (n: number) => n.toString(16).toUpperCase().padStart(2, "0");
+    expect(yazmaCevabi("u5-sbox-63")).toContain(hx(S_KUTUSU[0]!));
+    expect(yazmaCevabi("u5-xtime")).toContain(hx(gfCarp(0x87, 2)));
+    expect(yazmaCevabi("u5-carp-03")).toContain(hx(gfCarp(0x87, 3)));
+    expect(sayiDogru("u5-tur-anahtari", String(anahtarGenislet(new Uint8Array(16)).length))).toBe(true);
+    expect(sayiDogru("u5-kelime-256", String(anahtarGenislet(new Uint8Array(32)).length * 4))).toBe(true);
+    const iz = (n: number) => aesBlok(new Uint8Array(16), new Uint8Array(n)).iz;
+    expect(sayiDogru("u5-tur-128", String(iz(16).at(-1)!.tur))).toBe(true);
+    expect(sayiDogru("u5-tur-256", String(iz(32).at(-1)!.tur))).toBe(true);
+  });
+  it("dolgu hesapları", () => {
+    expect(sayiDogru("u6-dolgu-21", String(dolgula(new Uint8Array(21)).length - 21))).toBe(true);
+    expect(sayiDogru("u6-dolgu-tam", String(dolgula(new Uint8Array(32)).length))).toBe(true);
+    expect(sayiDogru("u6-blok-sayisi", String(dolgula(new Uint8Array(1000)).length / 16))).toBe(true);
+    const son = [...dolgula(new Uint8Array(11)).slice(11)].map((x) => hex(Uint8Array.of(x))).join(" ");
+    expect(yazmaCevabi("u6-dolgu-deger")).toContain(son);
+  });
+  it("hash ve parola hesapları", () => {
+    const blok = (n: number) => String((n + dolgu(n).length) / 64);
+    expect(sayiDogru("u7-dolgu-56", blok(56))).toBe(true);
+    expect(sayiDogru("u7-dolgu-120", blok(120))).toBe(true);
+    expect(sayiDogru("u7-uzunluk", String(hex(sha256Oyuncak(metindenBayt("x"))).length))).toBe(true);
+    let p = 1;
+    let n = 0;
+    while (1 - p <= 0.5) p *= (365 - n++) / 365;
+    expect(sayiDogru("u7-23", String(n))).toBe(true);
+    expect(sayiDogru("u7-merkle-kanit", String(Math.log2(1024)))).toBe(true);
+    expect(sayiDogru("u8-deneme", String(32 * 256))).toBe(true);
+    expect(hex(sha256Oyuncak(metindenBayt(mcqDogru("u9-sizan-ozet"))))).toBe(SIZAN_OZET);
+    for (const s of bul("u9-sizan-ozet").tip === "mcq" ? (bul("u9-sizan-ozet") as { secenekler: string[] }).secenekler.slice(1) : [])
+      expect(hex(sha256Oyuncak(metindenBayt(s)))).not.toBe(SIZAN_OZET);
+  });
+  it("açık anahtar hesapları", () => {
+    expect(sayiDogru("u10-cift-sayisi", String((100 * 99) / 2))).toBe(true);
+    const d = dh(5n, 23n, 6n, 15n);
+    expect(sayiDogru("u10-dh-A", String(d.A))).toBe(true);
+    expect(d.B).toBe(19n);
+    expect(sayiDogru("u10-dh-sir", String(d.sirAyse))).toBe(true);
+    const a = ayrikLog(5n, 8n, 23n)!.x;
+    expect(sayiDogru("u10-dh-dinleyici", String(modUs(19n, a, 23n)))).toBe(true);
+    let x = 1n;
+    while (modUs(2n, x, 11n) !== 9n) x++;
+    expect(sayiDogru("u10-kucuk", String(x))).toBe(true);
+    const k = rsaAnahtari(11n, 17n, 7n);
+    expect(sayiDogru("u10-n", String(k.n))).toBe(true);
+    expect(sayiDogru("u10-phi", String(k.phi))).toBe(true);
+    expect(sayiDogru("u10-d", String(k.d))).toBe(true);
+    expect(sayiDogru("u10-sifrele", String(rsaSifrele(88n, k)))).toBe(true);
+    const c = carpanlaraAyir(187n)!;
+    const kirik = rsaAnahtari(c.p, c.q, 7n);
+    expect(sayiDogru("u10-kir", String(rsaCoz(11n, kirik)))).toBe(true);
+  });
+  it("eliptik eğri ve imza hesapları", () => {
+    const E = { a: 2n, b: 3n, p: 97n };
+    const P = { x: 3n, y: 6n };
+    expect(egrideMi(P, E)).toBe(true);
+    expect(sayiDogru("u11-ters", String(tersi(P, E)!.y))).toBe(true);
+    expect(sayiDogru("u11-ikiye-katla", String(topla(P, P, E)!.x))).toBe(true);
+    const katla = skalerCarp(13n, P, E).adimlar.filter((a) => a.islem === "ikiye katla").length;
+    expect(sayiDogru("u11-ciftle-topla", String(katla))).toBe(true);
+    expect(skalerCarp(5n, P, E).sonuc).toBeNull();
+    expect(skalerCarp(7n, P, E).sonuc).toEqual(topla(P, P, E));
+    // Aynı k ile iki oyuncak ECDSA imzası: n = 101, d = 17, k = 29, r = 45
+    const n = 101n, d = 17n, k = 29n, r = 45n;
+    const s = (z: bigint) => mod(modTers(k, n) * (z + r * d), n);
+    expect([s(30n), s(55n)]).toEqual([10n, 84n]);
+    const bulunan = mod((30n - 55n) * modTers(mod(10n - 84n, n), n), n);
+    expect(sayiDogru("u11-k-bul", String(bulunan))).toBe(true);
+    expect(mod((10n * bulunan - 30n) * modTers(r, n), n)).toBe(d);
+  });
+  it("mesajlaşma hesapları", () => {
+    // X3DH: IK_A-SPK_M, EK_A-IK_M, EK_A-SPK_M, EK_A-OPK_M
+    expect(sayiDogru("u13-dh-sayisi", String(["IK_A·SPK_M", "EK_A·IK_M", "EK_A·SPK_M", "EK_A·OPK_M"].length))).toBe(true);
+    expect(sayiDogru("u13-kac-adim", String(4 - 1))).toBe(true);
+    expect(sayiDogru("u13-basamak", String(12 * 5))).toBe(true);
+    expect(sayiDogru("u14-ikili", String(100 - 1))).toBe(true);
+    expect(sayiDogru("u14-cikinca", String((5 - 1) * (5 - 2)))).toBe(true);
+    expect(sayiDogru("u14-log", String(Math.log2(1024)))).toBe(true);
+    expect(sayiDogru("u14-kac-sifreleme", String(2 + (3 - 1)))).toBe(true);
+  });
+
+  it("depolama ve gizleme hesapları", () => {
+    expect(sayiDogru("u15-deneme", String(Math.round(10000 ** 4 / 10000 / 3.15e7)))).toBe(true);
+    expect(sayiDogru("u15-disk", String(256 / 8))).toBe(true);
+    expect(sayiDogru("u15-kod-entropi", String(40 * 4))).toBe(true);
+    expect(sayiDogru("u16-alt-hucre", String(40 * 2 * 30 * 2))).toBe(true);
+    const f = (x: number) => 7 + 3 * x + 2 * x * x;
+    expect(sayiDogru("u16-shamir", String(f(2)))).toBe(true);
+    expect(sayiDogru("u16-kapasite", String((200 * 100 * 3) / 8))).toBe(true);
+    expect(sayiDogru("u16-bit-yaz", String(0b10110110 | 1))).toBe(true);
+  });
+
+  it("saldırı ve post-kuantum hesapları", () => {
+    expect(sayiDogru("u17-sorgu", String(16 * 256))).toBe(true);
+    expect(sayiDogru("u17-pin", String(4 * 10))).toBe(true);
+    expect(sayiDogru("u17-hamming", String(0x2b.toString(2).split("").filter((b) => b === "1").length))).toBe(true);
+    expect(sayiDogru("u17-tahmin", String(16 * 256))).toBe(true);
+    expect(sayiDogru("u18-grover", String(256 / 2))).toBe(true);
+    expect(sayiDogru("u18-mosca", String(10 + 5 - 12))).toBe(true);
+    expect(sayiDogru("u18-kaba", String(97 ** 3))).toBe(true);
+    expect(sayiDogru("u18-boy", String(1184 + 32))).toBe(true);
+  });
+
+  it("tasarım ve Web Crypto hesapları", () => {
+    expect(sayiDogru("u19-yenileme", "100")).toBe(true);
+    expect(sayiDogru("u19-gcm-boy", String(12 + "Merhaba Mert".length + 16))).toBe(true);
+    expect(sayiDogru("u19-imza-boy", String(2 * 32))).toBe(true);
   });
 });

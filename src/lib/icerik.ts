@@ -32,13 +32,16 @@ export interface PratikIstemciIcerigi {
   vhdl?: boolean;
   // Git sandbox'ı (Git ve GitHub): menüde sayfası; görevler sayfa açılınca yüklenir
   gitSandbox?: () => Promise<Gorev[]>;
+  // Mesajlaşma simülatörü (Şifreleme): menüde Simülatör sayfası (src/pages/Mesajlasma.tsx)
+  mesajlasma?: boolean;
   // "Nereden başlamalıyım?" seviye testi (ders listesinin başında; uniteGruplari gerekir)
   seviyeTesti?: SeviyeTestiTanimi;
 }
 
 // Açık pratiğin özellikleri; menü ve sayfalar buna bakar
-export const OZELLIKLER: { matstudio: boolean; vhdl: boolean; gitSandbox: (() => Promise<Gorev[]>) | null; seviyeTesti: SeviyeTestiTanimi | null } = {
+export const OZELLIKLER: { matstudio: boolean; vhdl: boolean; gitSandbox: (() => Promise<Gorev[]>) | null; mesajlasma: boolean; seviyeTesti: SeviyeTestiTanimi | null } = {
   matstudio: false,
+  mesajlasma: false,
   vhdl: false,
   gitSandbox: null,
   seviyeTesti: null,
@@ -59,6 +62,7 @@ export function icerigiKur(i: PratikIstemciIcerigi) {
   OZELLIKLER.matstudio = i.matstudio ?? false;
   OZELLIKLER.vhdl = i.vhdl ?? false;
   OZELLIKLER.gitSandbox = i.gitSandbox ?? null;
+  OZELLIKLER.mesajlasma = i.mesajlasma ?? false;
   OZELLIKLER.seviyeTesti = i.seviyeTesti ?? null;
 }
 

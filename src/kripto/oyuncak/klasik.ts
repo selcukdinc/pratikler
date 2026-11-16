@@ -97,3 +97,40 @@ export function cakismaIndeksi(metin: string): number {
   if (n < 2) return 0;
   return f.reduce((t, [, x]) => t + x * (x - 1), 0) / (n * (n - 1));
 }
+
+// Vigenère kırma (Ü4 deneyi): metni L gruba ayırıp grupların ortalama çakışma indeksi
+const yalnizHarf = (s: string) => [...buyut(s)].filter((c) => ALFABE.includes(c)).join("");
+const grup = (harfler: string, L: number, j: number) => [...harfler].filter((_, k) => k % L === j).join("");
+
+export function ortalamaIndeks(metin: string, L: number): number {
+  const h = yalnizHarf(metin);
+  let t = 0;
+  for (let j = 0; j < L; j++) t += cakismaIndeksi(grup(h, L, j));
+  return t / L;
+}
+
+// Her grubun, geri kaydırılınca verilen dağılıma (yüzde) en çok benzeyen kayması (ki-kare)
+export function anahtarTahmini(metin: string, L: number, dagilim: Record<string, number>): string {
+  const h = yalnizHarf(metin);
+  let anahtar = "";
+  for (let j = 0; j < L; j++) {
+    const g = grup(h, L, j);
+    let iyi = 0;
+    let enAz = Infinity;
+    for (let k = 0; k < N; k++) {
+      const say = new Map<string, number>();
+      for (const c of g) {
+        const x = ALFABE[mod(ALFABE.indexOf(c) - k, N)]!;
+        say.set(x, (say.get(x) ?? 0) + 1);
+      }
+      let ki = 0;
+      for (const x of ALFABE) {
+        const beklenen = (Math.max(dagilim[x] ?? 0, 0.01) / 100) * g.length;
+        ki += ((say.get(x) ?? 0) - beklenen) ** 2 / beklenen;
+      }
+      if (ki < enAz) [enAz, iyi] = [ki, k];
+    }
+    anahtar += ALFABE[iyi];
+  }
+  return anahtar;
+}

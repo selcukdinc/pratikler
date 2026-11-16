@@ -22,7 +22,7 @@ export type { Soru };
 const { turet } = yardimcilar(sifreleme.kavramlar);
 const kavramAdi = (k: string) => sifreleme.kavramlar[k]!.ad;
 
-type Etiket = "kavram" | "hesap" | "ctf" | "hata-bul";
+type Etiket = "kavram" | "hesap" | "ctf" | "hata-bul" | "tasarim";
 
 interface Ortak {
   // Kimliğin sf-u<ünite>- önekinden sonraki kısmı
