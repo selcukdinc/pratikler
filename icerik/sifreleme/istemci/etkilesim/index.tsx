@@ -12,6 +12,8 @@ import { DhRenk, DhSayilar, EgriFp, EgriReel, ImzaTezgahi, MitmSahnesi, RsaTezga
 import { Circir, GrupAnahtari, GuvenlikNumarasi, MetadataDedektifi, X3dhUcgeni } from "./mesajlasma";
 import { AnahtarZinciri, KurtarmaSenaryosu, NotDefteri } from "./depolama";
 import { GorselPaylar, GoruntuSifreleme, LsbGizleyici } from "./gizleme";
+import { GucAnalizi, NonceSurukle, PaddingOracle, ZamanlamaSaldirisi } from "./saldiri";
+import { KuantumEtki, LweOyunu, OyuncakKem } from "./kuantum";
 import "./etkilesim.css";
 
 export const ETKILESIMLER: Record<string, ComponentType<{ g: Gorsel }>> = {
@@ -64,4 +66,11 @@ export const ETKILESIMLER: Record<string, ComponentType<{ g: Gorsel }>> = {
   gorselPaylar: GorselPaylar,
   lsbGizleyici: LsbGizleyici,
   goruntuSifreleme: GoruntuSifreleme,
+  nonceSurukle: NonceSurukle,
+  paddingOracle: PaddingOracle,
+  zamanlamaSaldirisi: ZamanlamaSaldirisi,
+  gucAnalizi: GucAnalizi,
+  lweOyunu: LweOyunu,
+  kuantumEtki: KuantumEtki,
+  oyuncakKem: OyuncakKem,
 };

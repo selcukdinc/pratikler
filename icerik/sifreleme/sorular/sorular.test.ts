@@ -212,4 +212,15 @@ describe("şifreleme: hesapların cevap anahtarı", () => {
     expect(sayiDogru("u16-kapasite", String((200 * 100 * 3) / 8))).toBe(true);
     expect(sayiDogru("u16-bit-yaz", String(0b10110110 | 1))).toBe(true);
   });
+
+  it("saldırı ve post-kuantum hesapları", () => {
+    expect(sayiDogru("u17-sorgu", String(16 * 256))).toBe(true);
+    expect(sayiDogru("u17-pin", String(4 * 10))).toBe(true);
+    expect(sayiDogru("u17-hamming", String(0x2b.toString(2).split("").filter((b) => b === "1").length))).toBe(true);
+    expect(sayiDogru("u17-tahmin", String(16 * 256))).toBe(true);
+    expect(sayiDogru("u18-grover", String(256 / 2))).toBe(true);
+    expect(sayiDogru("u18-mosca", String(10 + 5 - 12))).toBe(true);
+    expect(sayiDogru("u18-kaba", String(97 ** 3))).toBe(true);
+    expect(sayiDogru("u18-boy", String(1184 + 32))).toBe(true);
+  });
 });

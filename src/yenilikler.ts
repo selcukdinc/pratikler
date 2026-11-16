@@ -24,6 +24,16 @@ export interface Yenilik {
 
 export const YENILIKLER: Yenilik[] = [
   {
+    pr: 62,
+    tarih: "2026-11-16",
+    baslik: "Şifreleme: saldırılar ve post-kuantum kriptografi",
+    maddeler: [
+      "**17. ünite: Saldırılar ve uygulama hataları.** Aynı nonce'la şifrelenmiş iki mesajı anahtarsız çöz, yalnız \"dolgu hatalı\" diyen bir sunucudan şifreli bakiyeyi bayt bayt çıkar, yanıt sürelerinden PIN'i bul ve benzetilmiş güç izlerinden AES anahtarını korelasyonla yakala. Maskeleme ve sabit zamanlı kodun bunları nasıl durdurduğunu gör.",
+      "**18. ünite: Post-kuantum kriptografi.** Shor ve Grover neyi kırar, \"şimdi topla, sonra çöz\" neden bugünün sorunu? Gürültülü denklemler oyunu, oyuncak ML-KEM ve tarayıcının her gün yaptığı hibrit X25519MLKEM768 el sıkışması.",
+      { kitle: "yonetici", metin: "14 kavram, 48 soru, iki ders, yedi şekil (hepsi Sanal Lab'de). Oyuncaklar `src/kripto/oyuncak/saldiri.ts` (padding oracle, zamanlama, CPA) ve `kafes.ts` (LWE, modül-LWE KEM); testleri `saldiri.test.ts`. Gerçek ML-KEM için `@noble/post-quantum` eklemek bu oturumda engellendi; şekil oyuncak sürümle çalışıyor, gerçek boylar tabloda. Soru göçü `0049_sifreleme_saldiri.sql`." },
+    ],
+  },
+  {
     pr: 61,
     tarih: "2026-11-16",
     baslik: "Şifreleme: sıfır bilgili depolama ve görsel kriptografi",
