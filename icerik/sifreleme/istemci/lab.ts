@@ -11,6 +11,8 @@ const matematik = (ad: "ModulerSaat" | "OklidTablosu" | "KareCarp") =>
   lazy(() => import("./etkilesim/matematik").then((m) => ({ default: () => createElement(m[ad]) })));
 const simetrik = (ad: "XorTuvali" | "AesTurGezgini" | "EcbMaskot" | "ModOynatici" | "BitCevirme" | "ChachaCeyrek") =>
   lazy(() => import("./etkilesim/simetrik").then((m) => ({ default: () => createElement(m[ad]) })));
+const hash = (ad: "CigEtkisi" | "Sha256Gezgini" | "CakismaAvi" | "LengthExtension" | "HmacAdimlari" | "KabaKuvvetSure" | "SizanVeritabani" | "Pbkdf2Olcer") =>
+  lazy(() => import("./etkilesim/hash").then((m) => ({ default: () => createElement(m[ad]) })));
 
 export const DENEYLER: Deney[] = [
   { id: "uc-kutu", ad: "Kodlama, hash ve şifreleme", unite: 1, bilesen: bilesen("UcKutu"), ozet: "Aynı metni Base64 ile kodla, SHA-256 ile hash'ini al ve AES-GCM ile şifrele. Hangisi anahtarsız geri döner, hangisi hiç dönmez?" },
@@ -30,4 +32,12 @@ export const DENEYLER: Deney[] = [
   { id: "modlar", ad: "Hata yayılımı", unite: 6, bilesen: simetrik("ModOynatici"), ozet: "Şifreli metinde bir bit çevir; ECB, CBC ve CTR'de çözülen metnin nerelerinin bozulduğunu karşılaştır." },
   { id: "bit-cevirme", ad: "Bit çevirme saldırısı", unite: 6, bilesen: simetrik("BitCevirme"), ozet: "Anahtarı bilmeden şifreli ödeme mesajındaki tutarı değiştir; AES-CTR fark etmez, AES-GCM reddeder." },
   { id: "chacha", ad: "ChaCha20 çeyrek turu", unite: 6, bilesen: simetrik("ChachaCeyrek"), ozet: "Toplama, XOR ve döndürmeden oluşan çeyrek turu adım adım izle." },
+  { id: "cig", ad: "Çığ etkisi", unite: 7, bilesen: hash("CigEtkisi"), ozet: "Girdinin tek bir bitini çevir, SHA-256 özetinin yaklaşık yarısının değiştiğini gör." },
+  { id: "sha256", ad: "SHA-256 adım gezgini", unite: 7, bilesen: hash("Sha256Gezgini"), ozet: "Dolgu, mesaj takvimi ve 64 tur: kısa bir mesajın özetinin nasıl hesaplandığını adım adım izle." },
+  { id: "cakisma", ad: "Çakışma avı", unite: 7, bilesen: hash("CakismaAvi"), ozet: "Kısaltılmış bir hash'te çakışma bul; doğum günü sınırını canlı gör." },
+  { id: "length-extension", ad: "Length extension atölyesi", unite: 8, bilesen: hash("LengthExtension"), ozet: "Gizli anahtarı bilmeden imzalı bir isteğe &rol=admin ekle; aynı saldırının HMAC'te neden işe yaramadığını gör." },
+  { id: "hmac", ad: "HMAC adımları", unite: 8, bilesen: hash("HmacAdimlari"), ozet: "İç ve dış anahtarı, iki özeti adım adım hesapla." },
+  { id: "kaba-kuvvet", ad: "Kaba kuvvet süresi", unite: 9, bilesen: hash("KabaKuvvetSure"), ozet: "Parola uzunluğu, alfabe, saklama algoritması ve saldırgan donanımına göre kırılma süresini hesapla." },
+  { id: "sizan-veritabani", ad: "Sızan veritabanı", unite: 9, bilesen: hash("SizanVeritabani"), ozet: "Aynı kullanıcı tablosunu dört farklı biçimde sakla ve sözlük saldırısının maliyetini karşılaştır." },
+  { id: "pbkdf2", ad: "PBKDF2 ölçer", unite: 9, bilesen: hash("Pbkdf2Olcer"), ozet: "Yavaş hash'in tarayıcındaki süresini ölç." },
 ];

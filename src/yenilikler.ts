@@ -24,6 +24,18 @@ export interface Yenilik {
 
 export const YENILIKLER: Yenilik[] = [
   {
+    pr: 57,
+    tarih: "2026-11-16",
+    baslik: "Şifreleme pratiği: hash, HMAC ve parola saklama",
+    kitle: "yonetici",
+    maddeler: [
+      "7-9. üniteler eklendi: hash fonksiyonları (direnç türleri, doğum günü paradoksu, SHA-256'nın içi, MD5 ve SHA-1'in düşüşü, SHA-3, Merkle ağaçları), MAC ve HMAC (length extension, sabit zamanlı karşılaştırma) ve parola saklama (tuz, biber, PBKDF2, bcrypt, Argon2id, HKDF, passkeys). 18 bölüm, 62 yeni soru.",
+      "On yeni etkileşimli şekil, sekizi Sanal Lab'de de açılıyor: çığ etkisi, SHA-256 adım gezgini, çakışma avı, doğum günü hesaplayıcı, length extension atölyesi (gizliyi bilmeden &rol=admin ekle), HMAC adımları, kaba kuvvet süre hesaplayıcı, sızan veritabanı, PBKDF2 ölçer ve HKDF.",
+      "Oyuncak SHA-256 `src/kripto/oyuncak/sha256.ts`'te; Web Crypto ile ve length extension sonucu gerçek SHA-256 ile karşılaştırılarak sınanıyor. HMAC, PBKDF2 ve HKDF Web Crypto sarmalayıcıları RFC vektörleriyle sınanıyor.",
+      "Yayından önce uzak D1'e `0045_sifreleme_hash.sql` uygulanmalı.",
+    ],
+  },
+  {
     pr: 56,
     tarih: "2026-11-16",
     baslik: "Şifreleme pratiği: one-time pad, AES ve blok modları",

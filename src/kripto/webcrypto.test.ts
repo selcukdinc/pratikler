@@ -27,3 +27,17 @@ describe("AES-CTR ve tek blok", () => {
     expect(bayttanMetin(await aesCtr(a, s, await aesCtr(a, s, m)))).toBe("ödeme: 100 TL");
   });
 });
+
+describe("HMAC, PBKDF2, HKDF", () => {
+  it("RFC test vektörleri", async () => {
+    const { hmacSha256, pbkdf2, hkdf } = await import("./webcrypto");
+    const { hex, hextenBayt } = await import("./bayt");
+    // RFC 4231 test 2
+    expect(hex(await hmacSha256(metindenBayt("Jefe"), metindenBayt("what do ya want for nothing?")))).toBe("5bdcc146bf60754e6a042426089575c75a003f089d2739839dec58b964ec3843");
+    // RFC 7914 / PBKDF2-HMAC-SHA256, P="password", S="salt", c=1
+    expect(hex(await pbkdf2("password", metindenBayt("salt"), 1))).toBe("120fb6cffcf8b32c43e7225256c4f837a86548c92ccc35480805987cb70be17b");
+    // RFC 5869 test 1 girdileri, info boş
+    const okm = await hkdf(hextenBayt("0b".repeat(22)), hextenBayt("000102030405060708090a0b0c"), "", 42);
+    expect(hex(okm).slice(0, 32)).toBe("b2a3d45126d31fb6828ef00d76c6d54e"); // Node crypto.hkdfSync ile aynı
+  });
+});

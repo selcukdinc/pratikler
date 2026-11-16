@@ -46,3 +46,20 @@ export async function aesTekBlok(ham: Uint8Array, blok: Uint8Array): Promise<Uin
   const c = new Uint8Array(await subtle().encrypt({ name: "AES-CBC", iv: new Uint8Array(16) }, k, tampon(blok)));
   return c.slice(0, 16);
 }
+
+export async function hmacSha256(anahtar: Uint8Array, veri: Uint8Array): Promise<Uint8Array> {
+  const k = await subtle().importKey("raw", tampon(anahtar), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
+  return new Uint8Array(await subtle().sign("HMAC", k, tampon(veri)));
+}
+
+// PBKDF2-HMAC-SHA256: paroladan 32 baytlık anahtar (yavaş hash; 9. ünite)
+export async function pbkdf2(parola: string, tuz: Uint8Array, yineleme: number): Promise<Uint8Array> {
+  const k = await subtle().importKey("raw", tampon(metindenBayt(parola)), "PBKDF2", false, ["deriveBits"]);
+  return new Uint8Array(await subtle().deriveBits({ name: "PBKDF2", hash: "SHA-256", salt: tampon(tuz), iterations: yineleme }, k, 256));
+}
+
+// HKDF-SHA256 (RFC 5869): güçlü bir sırdan info etiketine göre anahtar
+export async function hkdf(sir: Uint8Array, tuz: Uint8Array, info: string, bayt = 32): Promise<Uint8Array> {
+  const k = await subtle().importKey("raw", tampon(sir), "HKDF", false, ["deriveBits"]);
+  return new Uint8Array(await subtle().deriveBits({ name: "HKDF", hash: "SHA-256", salt: tampon(tuz), info: tampon(metindenBayt(info)) }, k, bayt * 8));
+}

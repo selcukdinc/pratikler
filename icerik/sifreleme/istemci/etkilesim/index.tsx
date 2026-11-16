@@ -7,6 +7,7 @@ import { BaytDonusturucu, EntropiOlcer, HedefEslestir, LcgOyunu, RastgeleMi, UcK
 import { KareCarp, ModulerSaat, OklidTablosu } from "./matematik";
 import { EnigmaMakinesi, FrekansTezgahi, SezarCarki, VigenereKirici } from "./klasik";
 import { AesTurGezgini, BitCevirme, ChachaCeyrek, EcbMaskot, ModOynatici, XorTuvali } from "./simetrik";
+import { CakismaAvi, CigEtkisi, DogumGunu, HkdfTuretici, HmacAdimlari, KabaKuvvetSure, LengthExtension, Pbkdf2Olcer, Sha256Gezgini, SizanVeritabani } from "./hash";
 import "./etkilesim.css";
 
 export const ETKILESIMLER: Record<string, ComponentType<{ g: Gorsel }>> = {
@@ -29,4 +30,14 @@ export const ETKILESIMLER: Record<string, ComponentType<{ g: Gorsel }>> = {
   modOynatici: ModOynatici,
   bitCevirme: BitCevirme,
   chachaCeyrek: ChachaCeyrek,
+  cigEtkisi: CigEtkisi,
+  sha256Gezgini: Sha256Gezgini,
+  cakismaAvi: CakismaAvi,
+  dogumGunu: DogumGunu,
+  lengthExtension: LengthExtension,
+  hmacAdimlari: HmacAdimlari,
+  kabaKuvvetSure: KabaKuvvetSure,
+  sizanVeritabani: SizanVeritabani,
+  pbkdf2Olcer: Pbkdf2Olcer,
+  hkdfTuretici: HkdfTuretici,
 };
