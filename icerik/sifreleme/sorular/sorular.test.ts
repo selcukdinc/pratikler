@@ -5,6 +5,8 @@ import { describe, expect, it } from "vitest";
 import { sorular } from "./index.ts";
 import { YERINE_KOYMA_METNI } from "./unite-4.ts";
 import { IKI_ZAMAN_C1, IKI_ZAMAN_C2 } from "./unite-5.ts";
+import { SIZAN_OZET } from "./unite-9.ts";
+import { dolgu, sha256Oyuncak } from "../../../src/kripto/oyuncak/sha256.ts";
 import { aesBlok, anahtarGenislet, S_KUTUSU } from "../../../src/kripto/oyuncak/aes.ts";
 import { dolgula } from "../../../src/kripto/oyuncak/modlar.ts";
 import { ALFABE, atbas, citCoz, frekans, sezarCoz, vigenereCoz, yerineKoy } from "../../../src/kripto/oyuncak/klasik.ts";
@@ -134,5 +136,20 @@ describe("şifreleme: hesapların cevap anahtarı", () => {
     expect(sayiDogru("u6-blok-sayisi", String(dolgula(new Uint8Array(1000)).length / 16))).toBe(true);
     const son = [...dolgula(new Uint8Array(11)).slice(11)].map((x) => hex(Uint8Array.of(x))).join(" ");
     expect(yazmaCevabi("u6-dolgu-deger")).toContain(son);
+  });
+  it("hash ve parola hesapları", () => {
+    const blok = (n: number) => String((n + dolgu(n).length) / 64);
+    expect(sayiDogru("u7-dolgu-56", blok(56))).toBe(true);
+    expect(sayiDogru("u7-dolgu-120", blok(120))).toBe(true);
+    expect(sayiDogru("u7-uzunluk", String(hex(sha256Oyuncak(metindenBayt("x"))).length))).toBe(true);
+    let p = 1;
+    let n = 0;
+    while (1 - p <= 0.5) p *= (365 - n++) / 365;
+    expect(sayiDogru("u7-23", String(n))).toBe(true);
+    expect(sayiDogru("u7-merkle-kanit", String(Math.log2(1024)))).toBe(true);
+    expect(sayiDogru("u8-deneme", String(32 * 256))).toBe(true);
+    expect(hex(sha256Oyuncak(metindenBayt(mcqDogru("u9-sizan-ozet"))))).toBe(SIZAN_OZET);
+    for (const s of bul("u9-sizan-ozet").tip === "mcq" ? (bul("u9-sizan-ozet") as { secenekler: string[] }).secenekler.slice(1) : [])
+      expect(hex(sha256Oyuncak(metindenBayt(s)))).not.toBe(SIZAN_OZET);
   });
 });

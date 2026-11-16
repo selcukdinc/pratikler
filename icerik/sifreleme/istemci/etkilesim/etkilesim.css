@@ -84,6 +84,37 @@ button.sf-bayt { cursor: pointer; }
 .sf-harf { font-size: 13px; white-space: pre; }
 .sf-harf.sf-hucre-farkli { background: var(--warning); color: #1f1f1f; border-color: var(--warning); font-weight: 700; }
 
+/* Hash şekilleri */
+.sf-histogram-dar { gap: 1px; overflow: hidden; }
+.sf-histogram-dar .sf-sutun { min-width: 3px; }
+.sf-histogram-dar .sf-sutun span { display: none; }
+.sf-eksen { display: flex; justify-content: space-between; margin-top: -6px; }
+.sf-bitizgara { display: grid; grid-template-columns: repeat(16, 1fr); gap: 2px; max-width: 260px; }
+.sf-bit { aspect-ratio: 1; border-radius: 2px; background: var(--bar-bg); }
+.sf-bit-1 { background: var(--muted); opacity: .55; }
+.sf-bit-degisti { background: var(--warning); }
+.sf-blok64 { display: grid; grid-template-columns: repeat(16, minmax(20px, 1fr)); gap: 2px; font-family: var(--mono); font-size: 11.5px; overflow-x: auto; }
+.sf-blok64 span { text-align: center; border-radius: 2px; padding: 1px 0; }
+.sf-b-mesaj { background: var(--tag-ders-bg); color: var(--tag-ders-text); }
+.sf-b-80 { background: var(--warning); color: #1f1f1f; }
+.sf-b-sifir { background: var(--bar-bg); color: var(--muted); }
+.sf-b-uzunluk { background: var(--active); }
+.sf-not .sf-b-mesaj, .sf-not .sf-b-80, .sf-not .sf-b-sifir, .sf-not .sf-b-uzunluk { padding: 0 5px; border-radius: 3px; }
+.sf-wtablo { display: grid; grid-template-columns: repeat(auto-fill, minmax(76px, 1fr)); gap: 2px; font-size: 11.5px; }
+.sf-wtablo span { text-align: center; padding: 1px 0; border-radius: 2px; }
+.sf-w-blok { background: var(--tag-ders-bg); color: var(--tag-ders-text); }
+.sf-wtablo .sf-hucre-farkli, .sf-abc .sf-hucre-farkli { background: var(--warning); color: #1f1f1f; }
+.sf-abc { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 4px; font-size: 12.5px; }
+.sf-abc span { padding: 2px 6px; border: 1px solid var(--border-soft); border-radius: 3px; }
+.sf mark { background: var(--warning); color: #1f1f1f; border-radius: 2px; }
+.sf-hmac td { white-space: normal; overflow-wrap: anywhere; }
+.sf-tablo tr.sf-kirildi td { background: var(--tag-cikmis-bg); color: var(--tag-cikmis-text); }
+.sf-tekrar { font-weight: 700; }
+.sf-tablo td.sf-tekrar-0 { background: var(--tag-cikmis-bg); color: var(--tag-cikmis-text); }
+.sf-tablo td.sf-tekrar-1 { background: var(--tag-ders-bg); color: var(--tag-ders-text); }
+.sf-tablo td.sf-tekrar-2 { background: var(--active); }
+.sf-tablo td.sf-tekrar-3 { background: var(--section-header); color: var(--section-text); }
+
 @media (max-width: 520px) {
   .sf-durum { grid-template-columns: repeat(4, 38px); }
   .sf-tus { width: 26px; height: 26px; font-size: 12px; }
