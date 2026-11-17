@@ -24,6 +24,19 @@ export interface Yenilik {
 
 export const YENILIKLER: Yenilik[] = [
   {
+    pr: 70,
+    tarih: "2026-11-17",
+    baslik: "Yeni pratik: Agile ve Scrum",
+    maddeler: [
+      "Yeni pratik yayında: **Agile ve Scrum** (`/agile`). Agile'ın köklerinden Scrum Rehberi 2020'ye, Kanban ve XP'den sahadaki zor durumlara 13 ünite ve 347 soru.",
+      "Her konu önce Rehber'in ne dediğiyle, sonra gerçek takımlarda nasıl göründüğüyle anlatılıyor; Rehber'de olmayan uygulamalar (story point, Definition of Ready, burndown) açıkça öyle anılıyor.",
+      "**Sprint simülatörü:** 12 kişilik sanal bir squad'ın Sprint'lerini yönet. Sprint Goal seç, iş al, her gün gelen olaylara karşılık ver, Review ve Retro'yu yap. 12 görev acil istekten teknik borca kadar sahadaki durumları açıyor.",
+      "Sanal Lab'de 28 deney: değer eğrisi, Little yasası, burndown okuma, CFD, Monte Carlo, Kanban tahtası, teknik borç faizi, bağımlılık panosu ve \"Scrum Master şimdi ne yapar?\" dallanan senaryoları.",
+      "Nereden başlayacağını bilmiyorsan konu anlatımlarının başındaki 9 soruluk seviye testini çöz.",
+      { metin: "12-13. üniteler (49 soru), simülatöre 8 görev, seviye testi, tanıtım adımları, `yayinda: true`. Migration: `0055_agile_yayin.sql`. Örnek oyuncu Sprint 2'den sonra hedefi değiştirip duruyordu; düzeltildi.", kitle: "yonetici" },
+    ],
+  },
+  {
     pr: 69,
     tarih: "2026-11-17",
     baslik: "Agile ve Scrum: ölçüm, Kanban ve XP",

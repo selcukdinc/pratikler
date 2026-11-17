@@ -11,6 +11,7 @@ import {
   IlkeEslestir,
   IsrafAvi,
   KimKararVerir,
+  OlceklemeTerimleri,
   RehberdeVarMi,
   RetroTahtasi,
   ScrumMiKanban,
@@ -21,6 +22,7 @@ import {
 import { DodKurucu, TimeboxHesap } from "./scrum";
 import { DarbogazSeridi, DegerEgrisi, LittleHesap, PartiOyunu } from "./akis";
 import { CfdGezgini, KanbanTahtasi, MonteCarlo, TeknikBorc } from "./olcum";
+import { AntiPatternAvi, BagimlilikPanosu, DallananSenaryolar } from "./senaryo";
 import "./etkilesim.css";
 
 export const ETKILESIMLER: Record<string, ComponentType<{ g: Gorsel }>> = {
@@ -49,4 +51,8 @@ export const ETKILESIMLER: Record<string, ComponentType<{ g: Gorsel }>> = {
   scrumKanban: ScrumMiKanban,
   teknikBorc: TeknikBorc,
   xpPratikleri: XpPratikleri,
+  smNeYapar: DallananSenaryolar,
+  antiPattern: AntiPatternAvi,
+  bagimlilik: BagimlilikPanosu,
+  olcekleme: OlceklemeTerimleri,
 };

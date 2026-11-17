@@ -65,3 +65,12 @@
 .ag-mini { width: 160px !important; max-width: 100%; margin: 0 !important; }
 .ag-mini .ag-ideal { stroke: var(--border); stroke-dasharray: 4 3; stroke-width: 1.5; fill: none; }
 .ag-mini .ag-gercek { stroke: var(--link); stroke-width: 2.5; fill: none; }
+
+/* Zor durumlar: dallanan senaryo, anti-pattern avı, bağımlılık panosu */
+.ag button.cip.ag-senaryo-sec { text-align: left; white-space: normal; padding: 6px 10px; border-radius: 6px; line-height: 1.4; }
+.ag label.ag-gunluk { align-items: flex-start; gap: 8px; cursor: pointer; }
+.ag label.ag-gunluk input { margin-top: 3px; flex-shrink: 0; }
+.ag-pano-satir { flex-direction: row; flex-wrap: wrap; align-items: center; gap: 6px 12px; }
+.ag-pano-satir > span:first-child { min-width: 9em; font-weight: 600; }
+.ag-katmanlar { display: flex; flex-wrap: wrap; gap: 4px; flex: 1; }
+.ag-uyari-yazi { color: var(--error); }

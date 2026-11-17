@@ -339,3 +339,20 @@ export const XP_KARTLARI: Kart[] = [
 export const XpPratikleri = () => (
   <Siniflandir kategoriler={XP} kartlar={XP_KARTLARI} soru="Squad her sahnede hangi XP pratiğini uyguluyor?" />
 );
+
+// ---------------- G-S13-02: ölçekleme terimleri ----------------
+
+const OLCEKLEME = ["Nexus", "LeSS", "SAFe", "Spotify modeli"];
+export const OLCEKLEME_KARTLARI: Kart[] = [
+  { metin: "Entegrasyon Takımı: her Sprint entegre Increment'in çıkmasından hesap verebilir.", dogru: "Nexus", neden: "Nexus Integration Team; PO, bir Scrum Master ve takımlardan üyelerden oluşur." },
+  { metin: "Area Product Owner: çok büyük bir üründe bir müşteri alanının sıralamasına yardım eder.", dogru: "LeSS", neden: "LeSS Huge'da her gereksinim alanının bir Area Product Owner'ı vardır; genel sıralama tek PO'dadır." },
+  { metin: "Agile Release Train: 50-125 kişilik, ortak takvimle planlayan takımlar topluluğu.", dogru: "SAFe", neden: "ART, SAFe'in temel yapı taşıdır; dönem başında PI Planning yapılır." },
+  { metin: "Guild: tribe'lar arası, gönüllü katılımlı ilgi topluluğu.", dogru: "Spotify modeli", neden: "Squad, tribe, chapter ve guild Spotify'ın 2012'de anlatılan düzeninden gelir." },
+  { metin: "Bütün takımların Sprint Review'u tek bir ortak Review ile değiştirilir.", dogru: "Nexus", neden: "Nexus Sprint Review, paydaşlara parçaları değil entegre Increment'i gösterir." },
+  { metin: "Bir PO, bir Product Backlog, özellik takımları; ek rol ve katman en aza indirilir.", dogru: "LeSS", neden: "LeSS'in yaklaşımı \"daha azla daha çok\": büyük ürünü tek bir Scrum gibi çalıştırmak." },
+  { metin: "Epic → Capability → Feature → Story iş hiyerarşisi ve portföy katmanı.", dogru: "SAFe", neden: "Epic ve Feature katmanları SAFe ile ve onu izleyen iş takip araçlarıyla yaygınlaştı." },
+  { metin: "Chapter: tribe içinde aynı uzmanlıktaki kişilerin (örneğin QA'ların) topluluğu.", dogru: "Spotify modeli", neden: "Squad'daki QA, DevOps ve Engineering chapter'ları bu modelden gelir." },
+];
+export const OlceklemeTerimleri = () => (
+  <Siniflandir kategoriler={OLCEKLEME} kartlar={OLCEKLEME_KARTLARI} soru="Bu terim ya da kural hangi ölçekleme yaklaşımından geliyor?" />
+);

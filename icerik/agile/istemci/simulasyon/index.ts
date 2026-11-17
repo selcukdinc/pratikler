@@ -1,7 +1,7 @@
 // Sprint simülatörünün Kampüs Yemekhanesi senaryosu: Product Backlog, Sprint Goal
 // seçenekleri, günlük olaylar, Retro iyileştirmeleri ve görevler. Motor src/scrum'dadır.
 // Kişiler meta.ts'in başındaki kurgusal squad'dır (12 kişi).
-import type { Oge, Olay, Senaryo } from "../../../../src/scrum/motor";
+import { karne, type Oge, type Olay, type Senaryo } from "../../../../src/scrum/motor";
 import type { SprintGorevi, SprintIcerigi } from "../../../../src/scrum/gorev";
 
 const o = (id: string, ad: string, puan: number, deger: number, etiket: string, tur: Oge["tur"] = "ozellik"): Oge => ({ id, ad, puan, deger, etiket, tur });
@@ -244,6 +244,86 @@ export const GOREVLER: SprintGorevi[] = [
       return !!s && s.hedefTuttu && s.donen.length === 0 && s.puan >= 22 && d.kayit.every((k) => k.uyum !== "aykiri");
     },
     ornek: { hedef: "odeme", sec: ["kart-odeme", "bakiye", "bakiye-yukle", "menu-foto", "kalori", "menu"], iyilestirme: "wip" },
+  },
+  {
+    id: "po-baski",
+    ad: "Product Owner olarak baskı altında",
+    ozet: "Bu kez Product Owner sensin. Bilgi işlem müdürü ve öğrenci temsilcisi Product Backlog'u atlayıp doğrudan geliştiricilere iş veriyor. İkisini de Rehber'e uygun yönet ve Sprint Goal'ü tut.",
+    ipucu: "Product Backlog tek iş kaynağıdır ve sıralaması PO'nundur. Paydaşı reddetme, doğru yere yönlendir.",
+    unite: 12,
+    ayar: { tohum: 21, rol: "po", sprintSayisi: 1, rastgeleOlay: false, sabitOlaylar: { "1-3": "sinan-bey", "1-6": "kucuk-istek" } },
+    hedef: (d) => d.gecmis[0]?.hedefTuttu === true && ["sinan-bey", "kucuk-istek"].every((id) => d.kayit.some((k) => k.olay === id && k.uyum === "uygun")),
+    ornek: { hedef: "menu", sec: ["menu", "menu-foto", "kalori", "alerjen-etiket", "izleme"], iyilestirme: "wip" },
+  },
+  {
+    id: "canli-hata",
+    ad: "Kötü bir hafta",
+    ozet: "Önce test ortamı çöküyor, iki gün sonra canlıda bir hata çıkıyor. Kullanıcıyı koru, işi görünür tut ve Sprint Goal'ü yine de tut.",
+    ipucu: "Engelin kaldırılmasını sağlamak SM'nin işidir. Canlıdaki hata beklemez, ama görünmeyen iş şeffaflığı bozar.",
+    unite: 11,
+    ayar: { tohum: 22, rol: "sm", sprintSayisi: 1, rastgeleOlay: false, sabitOlaylar: { "1-3": "test-ortami", "1-5": "uretim-hatasi" } },
+    hedef: (d) => d.gecmis[0]?.hedefTuttu === true && ["test-ortami", "uretim-hatasi"].every((id) => d.kayit.some((k) => k.olay === id && k.uyum === "uygun")),
+    ornek: { hedef: "alerjen", sec: ["alerjen-etiket", "alerjen-filtre", "alerjen-uyari", "kalori"], iyilestirme: "wip" },
+  },
+  {
+    id: "takim-karari",
+    ad: "Kararı kim verir?",
+    ozet: "İki geliştirici mimaride anlaşamıyor, bir dış onay da gecikiyor. Kararı doğru yerde bırak, bağımlılığı görünür kıl ve Sprint Goal'ü tut.",
+    ipucu: "Nasıl yapılacağına Developers karar verir. Scrum Master karar vermez; kararın verilebileceği ortamı kurar.",
+    unite: 5,
+    ayar: { tohum: 23, rol: "sm", sprintSayisi: 1, rastgeleOlay: false, sabitOlaylar: { "1-2": "tartisma", "1-6": "dis-bagimlilik" } },
+    hedef: (d) => d.gecmis[0]?.hedefTuttu === true && ["tartisma", "dis-bagimlilik"].every((id) => d.kayit.some((k) => k.olay === id && k.uyum === "uygun")),
+    ornek: { hedef: "siparis", sec: ["siparis", "mutfak-ekran", "siparis-iptal", "menu-foto"], iyilestirme: "wip" },
+  },
+  {
+    id: "surdurulebilir",
+    ad: "Sürdürülebilir hız",
+    ozet: "Bir öğe beklenenden büyük çıkıyor, ardından takımın yorgunluğu kendini gösteriyor. Fazla mesaiye başvurmadan Sprint Goal'ü tut ve Sprint'i takımın morali başladığından düşük olmadan bitir.",
+    ipucu: "Sekizinci ilke: takım sabit bir hızı süresiz koruyabilmeli. Kapsam PO ile yeniden görüşülür, Sprint Goal korunur.",
+    unite: 2,
+    ayar: { tohum: 24, rol: "sm", sprintSayisi: 1, rastgeleOlay: false, sabitOlaylar: { "1-3": "buyuk-cikti", "1-6": "yorgunluk" } },
+    hedef: (d, s) => d.asama === "bitti" && d.gecmis[0]?.hedefTuttu === true && d.g.moral >= s.baslangic.moral && d.kayit.every((k) => k.uyum !== "aykiri"),
+    ornek: { hedef: "odeme", sec: ["kart-odeme", "bakiye", "bakiye-yukle", "menu-foto", "kalori", "izleme"], iyilestirme: "wip" },
+  },
+  {
+    id: "durust-tahmin",
+    ad: "Velocity'yi şişirmeden",
+    ozet: "Üç Sprint boyunca hiçbir Sprint'te takımın geçmiş hızından fazla iş alma, Product Backlog'a bitmemiş iş dönmesin ve her Sprint Goal'ü tut.",
+    ipucu: "Tahmin bir söz değildir. Takımın son Sprint'lerdeki hızı Planning ekranında yazar; biraz boşluk bırakmak hedefi korur.",
+    unite: 9,
+    ayar: { tohum: 25, rol: "sm", sprintSayisi: 3 },
+    hedef: (d) => d.gecmis.length === 3 && d.gecmis.every((x) => x.hedefTuttu && x.donen.length === 0 && x.secilenPuan <= 36),
+    ornek: { hedef: "menu", sec: ["menu", "menu-foto", "kalori", "alerjen-etiket", "izleme"], iyilestirme: "wip" },
+  },
+  {
+    id: "wip-akis",
+    ad: "Başlamayı bırak, bitirmeye başla",
+    ozet: "İlk Sprint'in Retro'sunda WIP sınırı koy; iki Sprint'te toplam en az 50 puanlık iş bitir ve iki Sprint Goal'ü de tut.",
+    ipucu: "Herkes her işe başlayınca bağlam değiştirme verimi düşürür. WIP sınırıyla öğeler sırayla ve tek tek biter.",
+    unite: 10,
+    ayar: { tohum: 26, rol: "sm", sprintSayisi: 2, rastgeleOlay: false },
+    hedef: (d) => d.gecmis.length === 2 && d.iyilestirmeler[0] === "wip" && d.gecmis.every((x) => x.hedefTuttu) && d.gecmis.reduce((t, x) => t + x.puan, 0) >= 50,
+    ornek: { hedef: "siparis", sec: ["siparis", "mutfak-ekran", "hazir-bildirim", "siparis-iptal", "menu", "bakiye"], iyilestirme: "wip" },
+  },
+  {
+    id: "borc-ode",
+    ad: "Teknik borcu öde",
+    ozet: "Takımın teknik borcu 30. Dört Sprint sonunda borcu 20'nin altına indir ve en az üç Sprint Goal tut.",
+    ipucu: "Zayıf DoD her biten öğeye borç ekler. Önce borcun artmasını durdur, sonra her Sprint ona düzenli bir pay ayır.",
+    unite: 11,
+    ayar: { tohum: 27, rol: "sm", sprintSayisi: 4, rastgeleOlay: false },
+    hedef: (d) => d.asama === "bitti" && d.g.borc < 20 && d.gecmis.filter((x) => x.hedefTuttu).length >= 3,
+    ornek: { hedef: "teknik", sec: ["yayin-hatti", "test-betik", "izleme", "menu"], iyilestirme: ["dod-test", "borc-payi"] },
+  },
+  {
+    id: "dort-sprint",
+    ad: "Dört Sprint, bir ürün",
+    ozet: "Rastgele olaylarla dört Sprint oyna. Karnede en az 70 puan al, en az üç Sprint Goal tut ve hiçbir olayda Rehber'e aykırı bir hamle yapma.",
+    ipucu: "Bütün ünitelerin özeti: gerçekçi plan, korunan Sprint Goal, görünür iş, uygulanabilir Retro iyileştirmeleri.",
+    unite: 12,
+    ayar: { tohum: 28, rol: "sm", sprintSayisi: 4 },
+    hedef: (d) => d.asama === "bitti" && karne(d).puan >= 70 && d.gecmis.filter((x) => x.hedefTuttu).length >= 3 && d.kayit.every((k) => k.uyum !== "aykiri"),
+    ornek: { hedef: "menu", sec: ["menu", "menu-foto", "kalori", "alerjen-etiket", "izleme"], iyilestirme: ["wip", "dod-test", "borc-payi"] },
   },
 ];
 
