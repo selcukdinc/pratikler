@@ -24,6 +24,17 @@ export interface Yenilik {
 
 export const YENILIKLER: Yenilik[] = [
   {
+    pr: 68,
+    tarih: "2026-11-17",
+    baslik: "Agile ve Scrum: Sprint simülatörü",
+    kitle: "yonetici",
+    maddeler: [
+      "Menüde yeni sayfa: **Sprint simülatörü** (`/agile/sprint`). 12 kişilik Kampüs Yemekhanesi squad'ıyla Sprint Planning'de Sprint Goal seçip iş alıyorsun. On iş günü boyunca gelen olaylara (acil istek, hasta geliştirici, uzayan Daily, canlıda hata...) karşılık veriyorsun. Sonra Review'da Increment'i, Retro'da bir iyileştirmeyi seçiyorsun. Burndown, moral, odak, teknik borç ve paydaş güveni her gün değişiyor.",
+      "Her kararın Rehber'e uygun olup olmadığı ve nedeni hemen görünüyor; oyun sonunda bir karne var. Serbest oyun 4 Sprint sürüyor, Scrum Master ya da Product Owner olarak oynanıyor ve olaylar her oyunda değişiyor. İlk dört hedefli görev: İlk Sprint Goal'ün, Sprint ortasında acil istek, Daily'yi geri kazan, Ne kadar iş alınır?",
+      "Motor `src/scrum/motor.ts` (saf TypeScript, tohumlu rastgelelik, durum düz JSON); senaryo ve görevler `icerik/agile/istemci/simulasyon`. Her görevin örnek çözümü testte oynatılıyor. Oyun ve tamamlanan görevler yalnızca tarayıcıda saklanıyor; sunucuya istek atılmıyor.",
+    ],
+  },
+  {
     pr: 67,
     tarih: "2026-11-17",
     baslik: "Agile ve Scrum: Scrum Takımı, etkinlikler ve artefaktlar (5-8. üniteler)",

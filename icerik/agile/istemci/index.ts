@@ -29,6 +29,8 @@ const icerik: PratikIstemciIcerigi = {
   gorseller: GORSELLER,
   etkilesimler: ETKILESIMLER,
   deneyler: DENEYLER,
+  // Sprint simülatörü: senaryo ve görevler sayfa açılınca ayrı parça olarak yüklenir
+  sprintSimulatoru: () => import("./simulasyon").then((m) => m.default),
 };
 
 export default icerik;

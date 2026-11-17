@@ -27,6 +27,7 @@ const MatStudio = lazy(() => import("./pages/MatStudio").then((m) => ({ default:
 const Simulasyon = lazy(() => import("./pages/Simulasyon").then((m) => ({ default: m.Sandbox })));
 // Git sandbox'ı (Git ve GitHub): sanal Git ve görevler yalnızca açılınca indirilir
 const Mesajlasma = lazy(() => import("./pages/Mesajlasma").then((m) => ({ default: m.Mesajlasma })));
+const SprintSimulatoru = lazy(() => import("./pages/SprintSimulatoru").then((m) => ({ default: m.SprintSimulatoru })));
 const GitSandbox = lazy(() => import("./pages/GitSandbox").then((m) => ({ default: m.GitSandbox })));
 // Sınav hazırlama yalnızca akademisyen ve yöneticiye açılır; ayrı parça olarak yüklenir
 const Sinavlar = lazy(() => import("./pages/Sinavlar").then((m) => ({ default: m.Sinavlar })));
@@ -53,6 +54,7 @@ function baslik(route: Route, topicTitle?: string): string {
     case "simulasyon": return "SİMÜLASYON ALANI - VHDL yaz, benzetimini çalıştır";
     case "sandbox": return "GIT SANDBOX - Gerçek komutlar, sanal depo";
     case "mesajlasma": return "MESAJLAŞMA SİMÜLATÖRÜ - Kendi uygulamanı tasarla";
+    case "sprint": return "SPRINT SİMÜLATÖRÜ - Bir Scrum takımını yönet";
     case "lab": return route.deney ? `SANAL LAB - ${deneyBul(route.deney)?.ad ?? "Deney"}` : "SANAL LAB";
     case "cikmis": return route.sinav ? `ÇIKMIŞ SORULAR - ${sinavBul(route.sinav)?.ad ?? "Sınav"}` : "ÇIKMIŞ SORULAR";
     case "sorular": return `SORU HAVUZU - ${topicTitle ?? (route.hafta ? uniteYazi(route.hafta) : "Tüm sorular")}`;
@@ -197,7 +199,12 @@ function PratikApp() {
             <Mesajlasma />
           </Suspense>
         ) : <p className="empty">Bu pratikte mesajlaşma simülatörü yok.</p>)}
-        <OlcekliSayfa gizli={route.page === "matstudio" || route.page === "simulasyon" || route.page === "sandbox" || route.page === "mesajlasma"}>
+        {route.page === "sprint" && (OZELLIKLER.sprint ? (
+          <Suspense fallback={<p className="empty">Simülatör yükleniyor…</p>}>
+            <SprintSimulatoru yukle={OZELLIKLER.sprint} />
+          </Suspense>
+        ) : <p className="empty">Bu pratikte Sprint simülatörü yok.</p>)}
+        <OlcekliSayfa gizli={route.page === "matstudio" || route.page === "simulasyon" || route.page === "sandbox" || route.page === "mesajlasma" || route.page === "sprint"}>
           {route.page === "pratik" && <Karma topics={topics} />}
           {sorularProps && (
             <div className="sayfa-tut" hidden={route.page !== "sorular"}>

@@ -17,6 +17,8 @@ Kısa Sprint'ler iki şey kazandırır: **öğrenme döngüsü** sıklaşır ve 
 > **Rehber ne der:** Rehber Sprint'ler arasında boşluk tanımaz. "Sprint 0", "sertleştirme Sprint'i" ya da "test Sprint'i" Rehber'de yoktur; bunlar çoğu zaman Increment'lerin her Sprint Done olamadığını gösterir.
 
 > **Sahada:** Squad iki haftalık Sprint'lerle çalışır: Pazartesi sabahı Planning, her gün 09.30'da Daily, ikinci Cuma öğleden sonra Review ve Retro. İki hafta yaygındır ama Rehber'in kuralı değildir.
+
+Menüdeki **Sprint simülatörü**nde squad'ın bir Sprint'ini baştan sona sen yönetirsin: Sprint Goal'ü seçer, iş alır, her gün gelen olaylara karşılık verir, Review ve Retro'yu yaparsın. İlk dört görev bu ünitenin konularıdır.
 `),
       dene: [p("ard-arda")],
     },
