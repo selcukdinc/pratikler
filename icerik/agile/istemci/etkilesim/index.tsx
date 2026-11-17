@@ -4,6 +4,7 @@ import type { Gorsel } from "../../../../src/gorseller/tip";
 import {
   AgileMi,
   ArtefaktTaahhut,
+  BurndownOkuma,
   CynefinSiniflandirici,
   DailyMi,
   DegerTerazisi,
@@ -12,11 +13,14 @@ import {
   KimKararVerir,
   RehberdeVarMi,
   RetroTahtasi,
+  ScrumMiKanban,
   SutunDedektifi,
   TerimHaritasi,
+  XpPratikleri,
 } from "./siniflandir";
 import { DodKurucu, TimeboxHesap } from "./scrum";
 import { DarbogazSeridi, DegerEgrisi, LittleHesap, PartiOyunu } from "./akis";
+import { CfdGezgini, KanbanTahtasi, MonteCarlo, TeknikBorc } from "./olcum";
 import "./etkilesim.css";
 
 export const ETKILESIMLER: Record<string, ComponentType<{ g: Gorsel }>> = {
@@ -38,4 +42,11 @@ export const ETKILESIMLER: Record<string, ComponentType<{ g: Gorsel }>> = {
   retroTahtasi: RetroTahtasi,
   dodKurucu: DodKurucu,
   artefaktTaahhut: ArtefaktTaahhut,
+  burndownOkuma: BurndownOkuma,
+  cfd: CfdGezgini,
+  monteCarlo: MonteCarlo,
+  kanbanTahtasi: KanbanTahtasi,
+  scrumKanban: ScrumMiKanban,
+  teknikBorc: TeknikBorc,
+  xpPratikleri: XpPratikleri,
 };

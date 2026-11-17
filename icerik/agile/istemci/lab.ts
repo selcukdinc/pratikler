@@ -7,6 +7,8 @@ const akis = (ad: "DegerEgrisi" | "PartiOyunu" | "LittleHesap" | "DarbogazSeridi
   lazy(() => import("./etkilesim/akis").then((m) => ({ default: () => createElement(m[ad]) })));
 const scrum = (ad: "TimeboxHesap" | "DodKurucu") =>
   lazy(() => import("./etkilesim/scrum").then((m) => ({ default: () => createElement(m[ad]) })));
+const olcum = (ad: "CfdGezgini" | "KanbanTahtasi" | "MonteCarlo" | "TeknikBorc") =>
+  lazy(() => import("./etkilesim/olcum").then((m) => ({ default: () => createElement(m[ad]) })));
 const kart = (
   ad:
     | "CynefinSiniflandirici"
@@ -19,7 +21,10 @@ const kart = (
     | "KimKararVerir"
     | "DailyMi"
     | "RetroTahtasi"
-    | "ArtefaktTaahhut",
+    | "ArtefaktTaahhut"
+    | "BurndownOkuma"
+    | "ScrumMiKanban"
+    | "XpPratikleri",
 ) =>
   lazy(() => import("./etkilesim/siniflandir").then((m) => ({ default: () => createElement(m[ad]) })));
 
@@ -41,4 +46,11 @@ export const DENEYLER: Deney[] = [
   { id: "retro", ad: "Retro tahtası", unite: 7, bilesen: kart("RetroTahtasi"), ozet: "Retro maddelerinden hangisi bir sonraki Sprint'te gerçekten bir şey değiştirir?" },
   { id: "dod", ad: "DoD kurucu", unite: 8, bilesen: scrum("DodKurucu"), ozet: "Squad'ın Definition of Done'ını kur ve bir öğenin Done olup olmadığına karar ver." },
   { id: "artefaktlar", ad: "Artefakt ve taahhüt", unite: 8, bilesen: kart("ArtefaktTaahhut"), ozet: "Cümleleri Product Goal, Sprint Goal, DoD ya da kabul ölçütüyle eşleştir." },
+  { id: "burndown", ad: "Burndown okuma", unite: 9, bilesen: kart("BurndownOkuma"), ozet: "Altı burndown'ın her biri neyi anlatıyor: sona yığılma, eklenen kapsam, takılan iş?" },
+  { id: "cfd", ad: "CFD gezgini", unite: 9, bilesen: olcum("CfdGezgini"), ozet: "Gelen işi ve WIP sınırını değiştir; kümülatif akış diyagramındaki bantların, cycle time'ın ve WIP'in nasıl değiştiğini gör." },
+  { id: "monte-carlo", ad: "Monte Carlo tahmini", unite: 9, bilesen: olcum("MonteCarlo"), ozet: "Geçmiş throughput'tan 2000 olası gelecek üret; %50, %85 ve %95 olasılıklı teslim sürelerini ortalamayla karşılaştır." },
+  { id: "kanban", ad: "Kanban tahtası", unite: 10, bilesen: olcum("KanbanTahtasi"), ozet: "Günleri ilerlet, WIP sınırını aç kapat; kartların yaşını ve sütunların dolmasını izle." },
+  { id: "scrum-kanban", ad: "Scrum mı, Kanban mı?", unite: 10, bilesen: kart("ScrumMiKanban"), ozet: "Sekiz öğeyi Scrum'a, Kanban'a ya da ikisine birden ait diye ayır." },
+  { id: "teknik-borc", ad: "Teknik borç faizi", unite: 11, bilesen: olcum("TeknikBorc"), ozet: "On Sprint boyunca kısayol, normal ya da temizlik seç; hızın ve toplam teslimin nasıl değiştiğini gör." },
+  { id: "xp", ad: "XP pratikleri", unite: 11, bilesen: kart("XpPratikleri"), ozet: "Squad'ın sahnelerini TDD, eşli programlama, sürekli entegrasyon ve yeniden düzenlemeyle eşleştir." },
 ];
