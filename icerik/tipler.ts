@@ -9,7 +9,7 @@ import type { KodBilgisi } from "../shared/kod.ts";
 // kaçış gerektirdiği için). Üretici ~ karakterlerini ` ile değiştirir.
 
 // Nasıl kullanılır adımlarının bağlanabildiği sayfalar
-export type TanitimSayfasi = "ders" | "sandbox" | "lab" | "mesajlasma" | "pratik" | "sorular" | "tekrar" | "ilerleme" | "terimler";
+export type TanitimSayfasi = "ders" | "sandbox" | "sprint" | "lab" | "mesajlasma" | "pratik" | "sorular" | "tekrar" | "ilerleme" | "terimler";
 
 export interface Unite {
   no: number;

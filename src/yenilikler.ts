@@ -24,6 +24,63 @@ export interface Yenilik {
 
 export const YENILIKLER: Yenilik[] = [
   {
+    pr: 70,
+    tarih: "2026-11-17",
+    baslik: "Yeni pratik: Agile ve Scrum",
+    maddeler: [
+      "Yeni pratik yayında: **Agile ve Scrum** (`/agile`). Agile'ın köklerinden Scrum Rehberi 2020'ye, Kanban ve XP'den sahadaki zor durumlara 13 ünite ve 347 soru.",
+      "Her konu önce Rehber'in ne dediğiyle, sonra gerçek takımlarda nasıl göründüğüyle anlatılıyor; Rehber'de olmayan uygulamalar (story point, Definition of Ready, burndown) açıkça öyle anılıyor.",
+      "**Sprint simülatörü:** 12 kişilik sanal bir squad'ın Sprint'lerini yönet. Sprint Goal seç, iş al, her gün gelen olaylara karşılık ver, Review ve Retro'yu yap. 12 görev acil istekten teknik borca kadar sahadaki durumları açıyor.",
+      "Sanal Lab'de 28 deney: değer eğrisi, Little yasası, burndown okuma, CFD, Monte Carlo, Kanban tahtası, teknik borç faizi, bağımlılık panosu ve \"Scrum Master şimdi ne yapar?\" dallanan senaryoları.",
+      "Nereden başlayacağını bilmiyorsan konu anlatımlarının başındaki 9 soruluk seviye testini çöz.",
+      { metin: "12-13. üniteler (49 soru), simülatöre 8 görev, seviye testi, tanıtım adımları, `yayinda: true`. Migration: `0055_agile_yayin.sql`. Örnek oyuncu Sprint 2'den sonra hedefi değiştirip duruyordu; düzeltildi.", kitle: "yonetici" },
+    ],
+  },
+  {
+    pr: 69,
+    tarih: "2026-11-17",
+    baslik: "Agile ve Scrum: ölçüm, Kanban ve XP",
+    kitle: "yonetici",
+    maddeler: [
+      "Üç yeni ünite: Görünürlük ve Ölçüm, Kanban ve Scrum, XP ve Teknik Mükemmellik; 76 yeni soruyla toplam 301 soru.",
+      "Yeni etkileşimler: burndown okuma, kümülatif akış diyagramı, Monte Carlo tahmini, Kanban tahtası, Scrum mı Kanban mı?, teknik borç faizi ve XP pratikleri.",
+      "Pratik henüz yayında değil; son adımda açılacak.",
+    ],
+  },
+  {
+    pr: 68,
+    tarih: "2026-11-17",
+    baslik: "Agile ve Scrum: Sprint simülatörü",
+    kitle: "yonetici",
+    maddeler: [
+      "Menüde yeni sayfa: **Sprint simülatörü** (`/agile/sprint`). 12 kişilik Kampüs Yemekhanesi squad'ıyla Sprint Planning'de Sprint Goal seçip iş alıyorsun. On iş günü boyunca gelen olaylara (acil istek, hasta geliştirici, uzayan Daily, canlıda hata...) karşılık veriyorsun. Sonra Review'da Increment'i, Retro'da bir iyileştirmeyi seçiyorsun. Burndown, moral, odak, teknik borç ve paydaş güveni her gün değişiyor.",
+      "Her kararın Rehber'e uygun olup olmadığı ve nedeni hemen görünüyor; oyun sonunda bir karne var. Serbest oyun 4 Sprint sürüyor, Scrum Master ya da Product Owner olarak oynanıyor ve olaylar her oyunda değişiyor. İlk dört hedefli görev: İlk Sprint Goal'ün, Sprint ortasında acil istek, Daily'yi geri kazan, Ne kadar iş alınır?",
+      "Motor `src/scrum/motor.ts` (saf TypeScript, tohumlu rastgelelik, durum düz JSON); senaryo ve görevler `icerik/agile/istemci/simulasyon`. Her görevin örnek çözümü testte oynatılıyor. Oyun ve tamamlanan görevler yalnızca tarayıcıda saklanıyor; sunucuya istek atılmıyor.",
+    ],
+  },
+  {
+    pr: 67,
+    tarih: "2026-11-17",
+    baslik: "Agile ve Scrum: Scrum Takımı, etkinlikler ve artefaktlar (5-8. üniteler)",
+    kitle: "yonetici",
+    maddeler: [
+      "113 yeni soru: Scrum Takımı'nın hesap verebilirlikleri, Sprint ve Sprint Planning, Daily Scrum, Review ve Retrospective, artefaktlar ve taahhütleri. Senaryolar 12 kişilik büyük squad üzerine kurulu (uzayan Daily, iki takıma bölünme, ortak DoD). Pratikte artık 225 soru var.",
+      "Dört ünitenin ders anlatımı (26 bölüm) ve Sanal Lab'de 6 yeni deney: Kim karar verir?, time-box hesaplayıcı, Daily mi durum raporu mu?, Retro tahtası, DoD kurucu ve artefakt-taahhüt eşleştirme.",
+      "Time-box ve DoD hesaplarını `icerik/agile/istemci/etkilesim/scrum.test.ts` sınıyor. Migration: `0053_agile_scrum.sql` (soru listesi).",
+    ],
+  },
+  {
+    pr: 66,
+    tarih: "2026-11-17",
+    baslik: "Agile ve Scrum: ilk dört ünitenin dersleri ve 11 Lab deneyi",
+    kitle: "yonetici",
+    maddeler: [
+      "Agile'ın kökleri ve Scrum'a giriş ünitelerine ders anlatımı eklendi (30 bölüm). Bölümlerde iki yeni not kutusu var: Rehber'in kendi cümlesi için `> **Rehber ne der:**`, gerçek takımlardaki uygulama için `> **Sahada:**`; ikisi de bütün pratiklerde kullanılabilir.",
+      "Sanal Lab'de 11 deney: değer eğrisi (waterfall ile Sprint'ler), Cynefin sınıflandırıcı, Manifesto değerleri, 12 ilke, parti büyüklüğü oyunu, Little yasası, darboğaz şeridi, israf avı, sütun dedektifi, \"Rehber'de var mı?\" ve organizasyon şemalarındaki terimlerin kaynağını bulduran terim haritası. Hiçbiri sunucuya istek atmıyor.",
+      "Pratik ders listesiyle açılıyor. Hesapları `icerik/agile/istemci/etkilesim/akis.test.ts` sınıyor (parti oyunu soru cevaplarıyla aynı: 80 ve 23 dakika). Migration yok.",
+    ],
+  },
+  {
     pr: 65,
     tarih: "2026-11-17",
     baslik: "Agile ve Scrum pratiği hazırlanıyor: iskelet ve ilk 112 soru",

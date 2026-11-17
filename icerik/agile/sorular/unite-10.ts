@@ -1,0 +1,266 @@
+// 10. ünite (Kanban ve Scrum): Kanban Rehberi, iş akışının tanımı ve SLE, WIP sınırı,
+// dört akış ölçütü, Scrum takımlarında Kanban, hangi işe hangisi, servis sınıfları.
+import { sorular, type Soru } from "./yardimci.ts";
+
+const U = 10;
+
+export const unite10: Soru[] = [
+  ...sorular(U, "u10-kanban-tanim", [
+    {
+      ad: "kanban-tanim",
+      soru: "Kanban Rehberi Kanban'ı nasıl tanımlar?",
+      secenekler: [
+        "Görsel ve çekmeye dayalı bir sistemle değer akışını en iyileme stratejisi",
+        "Rolleri, etkinlikleri ve artefaktları olan sabit süreli bir çerçeve",
+        "Yalnızca yapılacaklar, yapılıyor ve bitti sütunlarından oluşan bir pano",
+        "Waterfall projelerinde ilerleme raporlama yöntemi",
+      ],
+      aciklama: "Kanban Rehberi (2020): Kanban, **görsel, çekmeye dayalı** bir sistem kullanarak bir süreçteki **değer akışını en iyileme stratejisidir**. Pano bir araçtır, Kanban'ın kendisi değildir.",
+      etiket: "rehber",
+    },
+    {
+      ad: "uc-pratik",
+      zorluk: 2,
+      soru: "Aşağıdakilerden hangisi Kanban Rehberi'ndeki üç pratikten biri **değildir**?",
+      secenekler: [
+        "İki haftalık iterasyonlarla planlama yapmak",
+        "İş akışını tanımlamak ve görselleştirmek",
+        "İş akışındaki öğeleri aktif olarak yönetmek",
+        "İş akışını iyileştirmek",
+      ],
+      aciklama: "Kanban'ın üç pratiği: **iş akışını tanımlamak ve görselleştirmek**, **akıştaki öğeleri aktif olarak yönetmek** ve **iş akışını iyileştirmek**. Kanban sabit süreli iterasyon dayatmaz.",
+      etiket: "rehber",
+    },
+    {
+      ad: "rol-yok",
+      dy: true,
+      soru: "Kanban Rehberi Scrum'daki gibi Product Owner ya da Scrum Master hesap verebilirlikleri tanımlamaz.",
+      aciklama: "Doğru. Kanban mevcut rollerle ve süreçle başlar; yeni rol ya da etkinlik zorunlu kılmaz. Değişimi akışı görünür kılarak ve adım adım iyileştirerek yapar.",
+      etiket: "rehber",
+    },
+    {
+      ad: "kanban-koken",
+      soru: "Yazılımdaki Kanban yönteminin adı ve fikri nereden gelir?",
+      secenekler: [
+        "Toyota Üretim Sistemi'nde çekmeyi sağlayan görsel kartlardan",
+        "Scrum Rehberi'nin 2020 sürümünde eklenen bir bölümden",
+        "Extreme Programming'in planlama oyunundaki kartlardan",
+        "Proje yönetimindeki Gantt şemalarının sadeleşmiş biçiminden",
+      ],
+      aciklama: "\"Kanban\" Japoncada görsel kart ya da işaret demektir. Toyota'da bir parça kullanılınca kartı önceki istasyona döner ve yalnızca o kadar üretilir (3. ünite). Yazılımdaki yöntem bu çekme fikrini iş akışına taşır.",
+    },
+  ]),
+  ...sorular(U, "u10-dow", [
+    {
+      ad: "dow-icerik",
+      zorluk: 2,
+      soru: "Kanban Rehberi'ne göre iş akışının tanımı (Definition of Workflow) neleri içerir?",
+      secenekler: [
+        "İş öğesi, başlama ve bitme anı, aşamalar, WIP kontrolü, açık kurallar ve SLE",
+        "Takımdaki kişilerin unvanları, sorumlulukları ve maaş dereceleri",
+        "Yalnızca panodaki sütunların adları ve renkleri",
+        "Sprint uzunluğu ve etkinliklerin time-box'ları",
+      ],
+      aciklama: "Rehber'e göre iş akışının tanımı: **değer birimi (iş öğesi)**, işin **ne zaman başladığı ve bittiği**, bir ya da daha çok **aşama**, **WIP'in nasıl kontrol edileceği**, **açık kurallar** ve bir **hizmet düzeyi beklentisi** (SLE).",
+      etiket: "rehber",
+    },
+    {
+      ad: "sle",
+      zorluk: 2,
+      soru: "\"Öğelerin %85'i başladıktan sonra 8 gün içinde biter\" cümlesi Kanban'da neyin örneğidir?",
+      cevap: ["SLE", "hizmet düzeyi beklentisi", "service level expectation", "hizmet seviyesi beklentisi"],
+      aciklama: "**Hizmet düzeyi beklentisi** (SLE), tek bir öğenin akıştan ne kadar sürede geçeceğinin tahminidir ve iki parçadır: bir **süre** ve bir **olasılık**. Genellikle geçmiş cycle time'lardan çıkarılır.",
+      etiket: "rehber",
+    },
+    {
+      ad: "acik-kural",
+      zorluk: 2,
+      soru: "Squad panosundaki \"Test\" sütununun üstüne şu yazıldı: \"Buraya yalnızca kod incelemesinden geçmiş ve test ortamına kurulmuş işler girer.\" Bu, Kanban'da neyin örneğidir?",
+      secenekler: [
+        "Açık kural",
+        "Servis sınıfı",
+        "Hizmet düzeyi beklentisi",
+        "Definition of Ready",
+      ],
+      aciklama: "**Açık kurallar**, işin akışta nasıl ilerleyeceğini herkesin görebileceği biçimde yazar. Sütun geçiş koşulları, WIP sınırları ve hızlandırılmış işin nasıl ele alınacağı tipik örneklerdir.",
+      etiket: "senaryo",
+    },
+  ]),
+  ...sorular(U, "u10-wip-siniri", [
+    {
+      ad: "wip-amac",
+      soru: "WIP sınırının temel amacı nedir?",
+      secenekler: [
+        "Başlanan iş sayısını sınırlayıp işi hızlandırmak ve darboğazı göstermek",
+        "Takımın daha az çalışmasını ve daha çok dinlenmesini sağlamak",
+        "Product Backlog'daki öğe sayısını belli bir sayıyla sınırlamak",
+        "Her geliştiriciye her gün eşit sayıda iş dağıtmak",
+      ],
+      aciklama: "WIP sınırı **çekmeyi** zorunlu kılar: bir aşama doluysa yeni iş başlamaz. Böylece bağlam değiştirme azalır, cycle time kısalır (Little yasası) ve iş biriken yer görünür olur.",
+    },
+    {
+      ad: "wip-dolu",
+      zorluk: 2,
+      soru: "Squad panosunda \"Test\" sütununun WIP sınırı 3 ve sütun dolu. Ayşe geliştirmedeki işini bitirdi. Kanban'a uygun hamle hangisidir?",
+      secenekler: [
+        "Yeni işe başlamak yerine testteki işlerden birine yardım etmek",
+        "Hemen Product Backlog'dan yeni bir işe başlamak",
+        "Bitirdiği işi sınırı aşarak Test sütununa koymak",
+        "WIP sınırını o gün için 5'e çıkarmak",
+      ],
+      aciklama: "\"Başlamayı bırak, bitirmeye başla\": aşağı akıştaki dolu aşamaya yardım etmek akışı açar. Yeni işe başlamak WIP'i artırır, sınırı aşmak kuralı anlamsızlaştırır. Sınır kalıcı olarak yanlışsa Retro'da konuşulup değiştirilir, anlık değil.",
+      etiket: "senaryo",
+    },
+    {
+      ad: "wip-cok-dusuk",
+      dy: true,
+      zorluk: 2,
+      soru: "WIP sınırı çok düşük tutulursa kişiler sık sık boşta kalır; çok yüksek tutulursa sınırın hiçbir etkisi olmaz.",
+      aciklama: "Doğru. İyi bir WIP sınırı, akışı **biraz zorlayacak** kadar düşüktür. Takımlar genellikle mevcut WIP'in biraz altından başlar ve gözlemleyerek ayarlar.",
+      etiket: "sahada",
+    },
+    {
+      ad: "talep-fazla",
+      zorluk: 3,
+      soru: "Squad'a gelen istek, squad'ın bitirebileceğinden sürekli fazla. WIP sınırı koyunca ne olur?",
+      secenekler: [
+        "Başlanan iş hızlı biter, fazla istek kuyrukta birikir ve sıralama kararı görünür",
+        "Takım kendiliğinden daha çok iş bitirir ve kuyruk tamamen yok olur",
+        "Hiçbir şey değişmez; WIP sınırı yalnızca panonun görünüşünü değiştirir",
+        "Bütün istekler aynı anda başlar ve hepsi birlikte gecikmeye başlar",
+      ],
+      aciklama: "WIP sınırı kapasiteyi artırmaz; **bekleyen işi başlanmış işten ayırır**. Başlanan iş hızlı biter, fazla talep kuyrukta görünür olur ve \"hangisi önce?\" kararı Product Owner'ın masasına gelir. Sınırsız sistemde aynı fazla talep her şeyi yavaşlatır.",
+    },
+  ]),
+  ...sorular(U, "u10-olcutler", [
+    {
+      ad: "dort-olcut",
+      zorluk: 2,
+      soru: "Kanban Rehberi'nin zorunlu saydığı dört akış ölçütü hangileridir?",
+      secenekler: [
+        "WIP, throughput, iş öğesi yaşı, cycle time",
+        "Velocity, story point, burndown, burnup",
+        "Lead time, maliyet, kapsam, kalite",
+        "Moral, odak, güven, teknik borç",
+      ],
+      aciklama: "Kanban Rehberi dört ölçütü zorunlu sayar: **WIP** (başlanmış ama bitmemiş öğe sayısı), **throughput** (birim zamanda biten öğe), **iş öğesi yaşı** (başlayıp henüz bitmemiş öğenin süresi) ve **cycle time** (başlangıçtan bitişe süre).",
+      etiket: "rehber",
+    },
+    {
+      ad: "little-kanban",
+      zorluk: 2,
+      soru: "Kanban takımı haftada ortalama 10 öğe bitiriyor ve ortalama cycle time 1,5 hafta. Little yasasına göre ortalama WIP kaçtır?",
+      sayi: [15],
+      aciklama: "WIP = throughput × cycle time = 10 × 1,5 = **15** öğe.",
+    },
+    {
+      ad: "puan-yok",
+      dy: true,
+      soru: "Kanban'ın akış ölçütleri hesaplanırken story point gerekmez; öğeler sayılır.",
+      aciklama: "Doğru. Throughput ve cycle time öğe sayısı ve takvim süresiyle ölçülür. Öğeleri benzer büyüklükte tutmak (\"doğru boyutlandırmak\") bu ölçüleri anlamlı kılar.",
+    },
+  ]),
+  ...sorular(U, "u10-scrum-kanban", [
+    {
+      ad: "birlikte",
+      zorluk: 2,
+      soru: "Scrum.org'un Scrum takımları için Kanban rehberine göre bir Scrum takımı Kanban'ı nasıl kullanır?",
+      secenekler: [
+        "Scrum'u bırakmadan iş akışını tanımlar, WIP'i sınırlar, akış ölçütlerini kullanır",
+        "Sprint'leri kaldırıp yalnızca Kanban panosuyla çalışmaya başlar",
+        "Scrum Master'ın yerine bir Kanban yöneticisi atar ve rolleri değiştirir",
+        "Kanban'ı yalnızca hata düzeltmeleri için ayrı bir takımda kullanır",
+      ],
+      aciklama: "Kanban Scrum'un **yerine geçmez**, onu tamamlar. Scrum takımı kendi iş akışının tanımını yapar, WIP'i sınırlar; Sprint Planning'de throughput'a, Daily'de iş öğesi yaşına, Retro'da cycle time'a bakar. Rehber'deki roller, etkinlikler ve artefaktlar aynen kalır.",
+      etiket: "rehber",
+    },
+    {
+      ad: "daily-yas",
+      zorluk: 2,
+      soru: "Kanban kullanan bir Scrum takımı Daily Scrum'da hangi bilgiyi özellikle kullanır?",
+      secenekler: [
+        "Devam eden işlerin yaşını; SLE'yi aşmak üzere olanı önce konuşmak",
+        "Her geliştiricinin dün kaç saat çalıştığını tek tek",
+        "Product Backlog'un tamamının sırasını ve yeni öğeleri",
+        "Bir önceki Sprint'in velocity'sini ve ortalamasını",
+      ],
+      aciklama: "İş öğesi yaşı, takılan işi bitmeden yakalatır. Daily'de panoyu sağdan sola yürüyüp **en yaşlı ve SLE'ye yaklaşan** işleri konuşmak Sprint Goal'e ilerlemeyi korur.",
+    },
+    {
+      ad: "scrumban",
+      soru: "Scrum ile Kanban öğelerini birleştiren ve sahada sık kullanılan karma yaklaşımın yaygın adı nedir?",
+      cevap: ["Scrumban"],
+      aciklama: "**Scrumban** ilk olarak Corey Ladas'ın kitabıyla yaygınlaştı: Scrum'dan geçiş için ya da iki yaklaşımın parçalarını birleştirmek için kullanılır. Resmî bir rehberi yoktur; içeriği takımdan takıma değişir.",
+      etiket: "sahada",
+    },
+  ]),
+  ...sorular(U, "u10-hangisi", [
+    {
+      ad: "destek",
+      zorluk: 2,
+      soru: "Kampüsün bilgi işlem destek ekibine gün boyu önceden bilinmeyen, küçük ve acil istekler geliyor. En uygun başlangıç hangisidir?",
+      secenekler: [
+        "Kanban: akışı görselleştirmek, WIP'i sınırlamak ve cycle time'ı izlemek",
+        "İki haftalık Sprint'ler; acil istekler Sprint bitene kadar bekler",
+        "Yıllık bir plan yapıp istekleri ona göre sıralamak",
+        "Hiçbir yöntem kullanmamak",
+      ],
+      aciklama: "Öngörülemeyen ve sürekli gelen iş için **Kanban** doğal bir başlangıçtır: Sprint sınırı yoktur, iş geldiği gibi çekilir. Scrum, bir ürün hedefine doğru planlanabilir parçalarla ilerleyen işte daha güçlüdür.",
+      etiket: "senaryo",
+    },
+    {
+      ad: "urun",
+      zorluk: 2,
+      soru: "Squad yeni bir ürün geliştiriyor, belirsizlik yüksek ve paydaşlarla düzenli denetim gerekiyor. Hangisi en uygundur?",
+      secenekler: [
+        "Scrum; istenirse WIP sınırı ve cycle time gibi akış pratikleriyle",
+        "Yalnızca Kanban; Review ya da Retro gibi etkinlikler gerekmez",
+        "Waterfall; belirsizlik yüksekse önce her şey ayrıntılı planlanmalı",
+        "Hiçbir yöntem; takım her gün nasıl isterse öyle çalışır",
+      ],
+      aciklama: "Kompleks ürün geliştirmede Scrum'un sabit ritmi, Sprint Goal'ü ve Review'u düzenli denetim ve uyarlama sağlar. Kanban'ın akış pratikleri bunun üstüne eklenebilir.",
+      etiket: "senaryo",
+    },
+    {
+      ad: "rakip-degil",
+      dy: false,
+      soru: "Scrum ile Kanban rakip yöntemlerdir; bir takım ikisinden yalnızca birini seçmek zorundadır.",
+      aciklama: "Yanlış. Scrum.org ve Kanban Rehberi'nin yazarları Scrum takımları için Kanban rehberini birlikte yazdı: iki yaklaşım birlikte kullanılabilir.",
+    },
+  ]),
+  ...sorular(U, "u10-servis", [
+    {
+      ad: "hizlandirilmis",
+      zorluk: 2,
+      soru: "Kanban'da \"hızlandırılmış\" (expedite) servis sınıfı ne için kullanılır?",
+      secenekler: [
+        "Gecikmesi çok pahalı acil işin önce yapılması için; sayısı sıkı sınırlanır",
+        "Product Owner'ın istediği her işin sırayı atlayıp hızlıca bitirilmesi için",
+        "Kolay ve küçük işlerin öteki işlerden önce bitirilmesi için",
+        "Teknik borç işlerinin her zaman en sona bırakılması için",
+      ],
+      aciklama: "Hızlandırılmış iş (ör. canlıdaki kritik hata) sırayı atlar ve gerekirse WIP sınırını aşar. Bu yüzden genellikle **aynı anda en fazla bir** hızlandırılmış işe izin verilir; yoksa her şey \"acil\" olur.",
+      etiket: "sahada",
+    },
+    {
+      ad: "sabit-tarih",
+      zorluk: 2,
+      soru: "Yeni yönetmelikle 1 Mart'tan itibaren menüde alerjen bilgisinin gösterilmesi zorunlu. Bu iş hangi servis sınıfına girer?",
+      secenekler: ["Sabit tarihli", "Hızlandırılmış", "Standart", "Ertelenebilir"],
+      aciklama: "**Sabit tarihli** işin gecikme maliyeti belli bir tarihten sonra birden yükselir. Erken başlatılır ama acil gibi öteki işlerin önüne her gün geçmez.",
+      etiket: "senaryo",
+    },
+    {
+      ad: "gecikme-maliyeti",
+      zorluk: 3,
+      soru: "Servis sınıflarının dayandığı temel fikir hangisidir?",
+      secenekler: [
+        "Her işin gecikme maliyeti zamanla farklı biçimde değişir",
+        "Her iş aynı önceliğe sahiptir ve aynı biçimde ele alınır",
+        "En büyük iş her zaman öteki işlerden önce yapılır",
+        "İşler her durumda geliş sırasına göre yapılmalıdır",
+      ],
+      aciklama: "Servis sınıfları **gecikme maliyetinin biçimine** dayanır: hızlandırılmışta hemen ve yüksek, sabit tarihlide belli bir tarihten sonra birden, standartta zamanla yavaş yavaş artar, ertelenebilirde neredeyse yoktur.",
+    },
+  ]),
+];

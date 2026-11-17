@@ -74,6 +74,9 @@ const NOT_TURLERI: [RegExp, string][] = [
   [/^\*\*İpucu/i, "ipucu"],
   [/^\*\*(Çözümlü )?örnek/i, "ornek"],
   [/^\*\*Gerçek dünyada/i, "gercek"],
+  // Agile ve Scrum dersleri: Rehber'in kendi cümlesi ve sahadaki uygulama
+  [/^\*\*Rehber ne der/i, "rehber"],
+  [/^\*\*Sahada/i, "sahada"],
 ];
 
 // "> **Matematiğe in:** ..." kapalı başlayan, açılır bir kutu olur: sezgiyle yetinen

@@ -381,6 +381,8 @@ code { background: var(--code-bg); padding: 0 3px; border-radius: 3px; }
 .not-ipucu { border-left-color: var(--green); background: var(--tag-bg); }
 .not-ornek { border-left-color: var(--muted); background: var(--tag-bg); }
 .not-gercek { border-left-color: var(--warning); background: var(--tag-bg); }
+.not-rehber { border-left-color: var(--tag-original-text); background: var(--tag-original-bg); }
+.not-sahada { border-left-color: var(--green); background: var(--tag-bg); }
 .not-acilir { border-left-color: var(--tag-ges-text); background: var(--tag-bg); }
 .not-acilir > summary { cursor: pointer; font-weight: 600; color: var(--tag-ges-text); }
 .not-acilir[open] > summary { margin-bottom: 6px; }
