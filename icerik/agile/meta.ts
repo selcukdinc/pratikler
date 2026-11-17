@@ -52,7 +52,8 @@ export const agile: PratikMeta = {
   uniteKisa: "Ü",
   yayinda: false,
   latex: false,
-  // Açılış sayfası dersler eklenince (2. PR) ders listesi olacak: anaSayfa: "ders"
+  // Açılış sayfası derslerin listesi (gruplarıyla)
+  anaSayfa: "ders",
   uniteGruplari: GRUPLAR,
   logo: "/logolar/agile.svg",
   etiketler: [
