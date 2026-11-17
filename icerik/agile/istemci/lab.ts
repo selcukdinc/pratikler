@@ -5,7 +5,22 @@ import type { Deney } from "../../../src/lab/deneyler";
 
 const akis = (ad: "DegerEgrisi" | "PartiOyunu" | "LittleHesap" | "DarbogazSeridi") =>
   lazy(() => import("./etkilesim/akis").then((m) => ({ default: () => createElement(m[ad]) })));
-const kart = (ad: "CynefinSiniflandirici" | "DegerTerazisi" | "IlkeEslestir" | "IsrafAvi" | "SutunDedektifi" | "RehberdeVarMi" | "TerimHaritasi") =>
+const scrum = (ad: "TimeboxHesap" | "DodKurucu") =>
+  lazy(() => import("./etkilesim/scrum").then((m) => ({ default: () => createElement(m[ad]) })));
+const kart = (
+  ad:
+    | "CynefinSiniflandirici"
+    | "DegerTerazisi"
+    | "IlkeEslestir"
+    | "IsrafAvi"
+    | "SutunDedektifi"
+    | "RehberdeVarMi"
+    | "TerimHaritasi"
+    | "KimKararVerir"
+    | "DailyMi"
+    | "RetroTahtasi"
+    | "ArtefaktTaahhut",
+) =>
   lazy(() => import("./etkilesim/siniflandir").then((m) => ({ default: () => createElement(m[ad]) })));
 
 export const DENEYLER: Deney[] = [
@@ -20,4 +35,10 @@ export const DENEYLER: Deney[] = [
   { id: "sutunlar", ad: "Sütun dedektifi", unite: 4, bilesen: kart("SutunDedektifi"), ozet: "Her sahnede şeffaflık, denetim ve uyarlamadan hangisinin çöktüğünü bul." },
   { id: "rehber", ad: "Rehber'de var mı?", unite: 4, bilesen: kart("RehberdeVarMi"), ozet: "Sprint Goal, story point, DoR, Sprint 0: hangisi Scrum Rehberi'nde, hangisi Rehber dışı uygulama?" },
   { id: "terim-haritasi", ad: "Terim haritası", unite: 4, bilesen: kart("TerimHaritasi"), ozet: "Squad, tribe, chapter, epic, Tech Lead: organizasyon şemandaki terimler nereden geliyor?" },
+  { id: "kim-karar", ad: "Kim karar verir?", unite: 5, bilesen: kart("KimKararVerir"), ozet: "Sıralama, teknik tasarım, Sprint Goal, iptal: on iki kararı son sahibiyle eşleştir." },
+  { id: "timebox", ad: "Time-box hesaplayıcı", unite: 6, bilesen: scrum("TimeboxHesap"), ozet: "Sprint uzunluğunu değiştir; etkinliklerin üst sınırlarını ve Sprint'teki paylarını gör." },
+  { id: "daily", ad: "Daily mi, durum raporu mu?", unite: 6, bilesen: kart("DailyMi"), ozet: "Daily'de duyulan cümleleri Sprint Goal'e hizmet eden ve durum raporuna dönüşen diye ayır." },
+  { id: "retro", ad: "Retro tahtası", unite: 7, bilesen: kart("RetroTahtasi"), ozet: "Retro maddelerinden hangisi bir sonraki Sprint'te gerçekten bir şey değiştirir?" },
+  { id: "dod", ad: "DoD kurucu", unite: 8, bilesen: scrum("DodKurucu"), ozet: "Squad'ın Definition of Done'ını kur ve bir öğenin Done olup olmadığına karar ver." },
+  { id: "artefaktlar", ad: "Artefakt ve taahhüt", unite: 8, bilesen: kart("ArtefaktTaahhut"), ozet: "Cümleleri Product Goal, Sprint Goal, DoD ya da kabul ölçütüyle eşleştir." },
 ];

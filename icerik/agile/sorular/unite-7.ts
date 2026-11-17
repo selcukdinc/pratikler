@@ -1,0 +1,243 @@
+// 7. ünite (Sprint Review ve Sprint Retrospective): Review'un amacı ve biçimi,
+// Retro'nun kapsamı ve çıktısı, Retro biçimleri, kök neden teknikleri ve kolaylaştırma.
+import { sorular, type Soru } from "./yardimci.ts";
+
+const U = 7;
+
+export const unite7: Soru[] = [
+  ...sorular(U, "u7-review", [
+    {
+      ad: "review-amac",
+      soru: "Rehber'e göre Sprint Review'un amacı nedir?",
+      secenekler: [
+        "Sprint'in sonucunu denetlemek ve gelecekteki uyarlamaları belirlemek",
+        "Takımın Sprint boyunca nasıl çalıştığını iyileştirmek",
+        "Bir sonraki Sprint'in görevlerini saatlik olarak planlamak",
+        "Developers'ın bireysel performansını değerlendirmek",
+      ],
+      aciklama: "Sprint Review, Sprint'in **sonucunu denetlemek** ve **gelecekteki uyarlamaları belirlemek** içindir. Takımın çalışma biçimini iyileştirmek Retrospective'in işidir.",
+      etiket: "rehber",
+    },
+    {
+      ad: "review-kim",
+      zorluk: 2,
+      soru: "Sprint Review'a kimler katılır?",
+      secenekler: [
+        "Scrum Takımı ve davet edilen önemli paydaşlar",
+        "Yalnızca Product Owner ve üst yönetim temsilcileri",
+        "Yalnızca Developers",
+        "Yalnızca Scrum Master ve Product Owner",
+      ],
+      aciklama: "Scrum Takımı çalışmasının sonuçlarını **önemli paydaşlara** sunar ve Product Goal'e doğru ilerleme tartışılır. Squad'da Nurten Hanım ve öğrenci temsilcisi Arda doğal katılımcılardır.",
+      etiket: "rehber",
+    },
+    {
+      ad: "review-cikti",
+      zorluk: 2,
+      soru: "Sprint Review'un sonucunda Rehber'e göre ne değişebilir?",
+      cevap: ["Product Backlog", "ürün iş listesi", "PB"],
+      aciklama: "Rehber: Sprint Review sırasında Product Backlog da yeni fırsatları karşılamak için **uyarlanabilir**. Paydaşların tepkileri sıralamayı ve içeriği değiştirir.",
+      etiket: "rehber",
+    },
+    {
+      ad: "review-sirasi",
+      dy: true,
+      soru: "Sprint Review, Sprint'in sondan bir önceki etkinliğidir; ardından Sprint Retrospective gelir.",
+      aciklama: "Doğru. Sıra: Sprint Review, ardından Sprint Retrospective; Retro Sprint'i kapatır. Böylece Retro, Review'da öğrenilenleri de değerlendirebilir.",
+      etiket: "rehber",
+    },
+  ]),
+  ...sorular(U, "u7-review-demo", [
+    {
+      ad: "sunum-degil",
+      soru: "Rehber Sprint Review'u nasıl tanımlar?",
+      secenekler: [
+        "Bir çalışma oturumu; takım bunu bir sunuma indirgememelidir",
+        "Hazırlanmış slaytlarla yapılan resmi bir sunum",
+        "Increment'in yayına çıkması için gereken onay toplantısı",
+        "Takımın kendi içinde yaptığı bir kod incelemesi",
+      ],
+      aciklama: "Rehber: Sprint Review bir **çalışma oturumudur** (working session) ve Scrum Takımı onu **bir sunuma indirgememelidir**. Paydaşlar ürünü kullanır, soru sorar, sonrasını birlikte konuşur.",
+      etiket: "rehber",
+    },
+    {
+      ad: "kapi-degil",
+      dy: false,
+      zorluk: 2,
+      soru: "Rehber'e göre bir Increment ancak Sprint Review'da paydaşlar onayladıktan sonra yayına çıkabilir.",
+      aciklama: "Yanlış. Rehber, Sprint Review'un **değerin yayına çıkmasının önünde bir kapı olarak düşünülmemesi** gerektiğini yazar. Increment, DoD'u karşıladığı anda Sprint bitmeden de yayınlanabilir.",
+      etiket: "rehber",
+    },
+    {
+      ad: "iyi-review",
+      zorluk: 2,
+      soru: "Squad'ın Review'u için hangisi Rehber'in ruhuna en uygundur?",
+      secenekler: [
+        "Öğrenciler telefondan sipariş verir, Nurten Hanım mutfak ekranını dener, sonrası konuşulur",
+        "Tech Lead Can 40 slaytlık mimari sunumu yapar, paydaşlar sonunda soru sorar",
+        "PO Elif tamamlanan hikâyelerin listesini okur ve paydaşlardan imza alır",
+        "Developers yalnızca bitmeyen işlerin nedenlerini tek tek açıklar ve özür diler",
+      ],
+      aciklama: "İyi bir Review'da paydaşlar **çalışan Increment'i kendileri kullanır** ve ortaya çıkan bilgi Product Backlog'u besler. Slayt, liste okuma ya da imza almak bir çalışma oturumu değildir.",
+      etiket: "senaryo",
+    },
+  ]),
+  ...sorular(U, "u7-retro", [
+    {
+      ad: "retro-amac",
+      soru: "Rehber'e göre Sprint Retrospective'in amacı nedir?",
+      secenekler: [
+        "Kaliteyi ve etkinliği artırmanın yollarını planlamak",
+        "Paydaşlara Increment'i göstermek",
+        "Bir sonraki Sprint'in Sprint Goal'ünü belirlemek",
+        "Product Backlog'u yeniden sıralamak",
+      ],
+      aciklama: "Sprint Retrospective'in amacı **kaliteyi ve etkinliği artırmanın yollarını planlamaktır**. Manifesto'nun 12. ilkesinin Scrum'daki karşılığıdır.",
+      etiket: "rehber",
+    },
+    {
+      ad: "retro-kapsam",
+      zorluk: 2,
+      soru: "Rehber'e göre Retrospective'te son Sprint'in nasıl geçtiği hangi açılardan denetlenir?",
+      secenekler: [
+        "Bireyler, etkileşimler, süreçler, araçlar ve DoD",
+        "Yalnızca teknik borç ve açık hata sayısı",
+        "Yalnızca takım üyelerinin kişisel performansı",
+        "Yalnızca paydaşların memnuniyet puanı",
+      ],
+      aciklama: "Rehber: Scrum Takımı son Sprint'in **bireyler, etkileşimler, süreçler, araçlar ve Definition of Done** açısından nasıl geçtiğini denetler. Neyin iyi gittiğini, hangi sorunlarla karşılaşıldığını ve bunların nasıl çözüldüğünü ya da çözülmediğini konuşur.",
+      etiket: "rehber",
+    },
+    {
+      ad: "retro-dod",
+      dy: true,
+      zorluk: 2,
+      soru: "Retrospective'te takım, kaliteyi artırmak için Definition of Done'ı güçlendirmeye karar verebilir.",
+      aciklama: "Doğru. DoD Retro'nun denetlediği konulardan biridir. Örneğin squad, yayından sonra çıkan erişilebilirlik hataları yüzünden DoD'a \"ekran okuyucuyla denendi\" maddesini ekleyebilir.",
+      etiket: "rehber",
+    },
+    {
+      ad: "retro-kim",
+      soru: "Sprint Retrospective'e kimler katılır?",
+      secenekler: [
+        "Bütün Scrum Takımı: PO, Scrum Master ve Developers",
+        "Yalnızca Developers",
+        "Yalnızca Scrum Master ve Developers; PO katılmaz",
+        "Scrum Takımı ve bütün paydaşlar",
+      ],
+      aciklama: "Retrospective **bütün Scrum Takımı**nın etkinliğidir; PO da takımın bir üyesi olarak katılır. Paydaşlar Review'a katılır, Retro takımın kendi iç değerlendirmesidir.",
+      etiket: "rehber",
+    },
+  ]),
+  ...sorular(U, "u7-retro-cikti", [
+    {
+      ad: "sonraki-sprint",
+      zorluk: 2,
+      soru: "Rehber'e göre Retro'da belirlenen en etkili iyileştirmeler ne zaman ele alınabilir?",
+      secenekler: [
+        "En kısa sürede; bir sonraki Sprint'in Sprint Backlog'una bile eklenebilir",
+        "Yalnızca çeyrek sonundaki büyük değerlendirme toplantısında",
+        "Yalnızca Product Owner onları Product Goal'e eklerse",
+        "Ancak üç Sprint art arda aynı sorun yeniden ortaya çıkarsa",
+      ],
+      aciklama: "Rehber: Scrum Takımı etkinliği artıracak en yararlı değişiklikleri belirler ve en etkili olanlar **mümkün olan en kısa sürede** ele alınır; **bir sonraki Sprint'in Sprint Backlog'una** bile eklenebilir.",
+      etiket: "rehber",
+    },
+    {
+      ad: "ayni-sorun",
+      zorluk: 2,
+      soru: "Squad'ın son dört Retro'sunda \"test ortamı yavaş\" maddesi çıkıyor ama hiçbir şey değişmiyor. En yararlı adım hangisidir?",
+      secenekler: [
+        "Tek, küçük ve ölçülebilir bir iyileştirme seçip sahibiyle Sprint Backlog'a koymak",
+        "Retro'ları sorun çözülene kadar yapmamak, zamanı geliştirmeye ayırmak",
+        "Aynı maddeyi daha büyük harflerle yazmak",
+        "Sorunu bir sonraki çeyreğin bütçe planlamasına kadar görmezden gelmek",
+      ],
+      aciklama: "Retro'nun çıktısı bir dilek listesi değil, **uygulanacak bir iyileştirmedir**. Küçük, sahibi belli ve Sprint Backlog'da görünür bir madde (ör. \"Kerem test ortamına önbellek ekler, kurulum süresini ölçeriz\") döngüyü kapatır.",
+      etiket: "senaryo",
+    },
+    {
+      ad: "smart",
+      dy: true,
+      soru: "\"Daha iyi iletişim kuralım\" gibi bir Retro maddesi, sahibi ve ölçüsü olmadığı için genellikle hiçbir değişiklik üretmez.",
+      aciklama: "Doğru. İyi bir iyileştirme maddesi somut, küçük ve denetlenebilirdir: \"Kod incelemesi 24 saatten uzun bekleyen çekme isteklerini Daily'de söyleyeceğiz\" gibi. Bir sonraki Retro'da işe yarayıp yaramadığı konuşulur.",
+      etiket: "sahada",
+    },
+  ]),
+  ...sorular(U, "u7-retro-bicim", [
+    {
+      ad: "bes-asama",
+      zorluk: 2,
+      soru: "Esther Derby ve Diana Larsen'in Retro'lar için önerdiği beş aşamanın doğru sırası hangisidir?",
+      secenekler: [
+        "Ortamı hazırla, veri topla, içgörü üret, karar ver, kapat",
+        "Karar ver, veri topla, ortamı hazırla, kapat, içgörü üret",
+        "Veri topla, karar ver, içgörü üret, ortamı hazırla, kapat",
+        "İçgörü üret, ortamı hazırla, karar ver, veri topla, kapat",
+      ],
+      aciklama: "Derby ve Larsen'in \"Agile Retrospectives\" kitabındaki yapı: **ortamı hazırla** (set the stage), **veri topla**, **içgörü üret**, **ne yapacağına karar ver**, **kapat**. Rehber biçim dayatmaz; bu sahada en yaygın kalıptır.",
+      etiket: "sahada",
+    },
+    {
+      ad: "bes-neden",
+      soru: "Bir sorunun kök nedenine inmek için art arda \"neden?\" diye soran teknik hangisidir?",
+      secenekler: ["5 Neden", "Planning Poker", "MoSCoW", "Burndown"],
+      aciklama: "**5 Neden** (5 Whys) Toyota'dan gelir: sorunun belirtisinden başlayıp art arda \"neden?\" sorarak kök nedene inilir. Planning Poker tahmin, MoSCoW önceliklendirme, burndown ilerleme izleme aracıdır.",
+    },
+    {
+      ad: "balik-kilcigi",
+      zorluk: 2,
+      soru: "Bir sorunun olası nedenlerini insanlar, süreç, araç, ortam gibi başlıklar altında gruplayan diyagramın adı nedir?",
+      secenekler: ["Balık kılçığı diyagramı", "Kümülatif akış diyagramı", "Değer akışı haritası", "Hikâye haritası"],
+      aciklama: "**Balık kılçığı** (Ishikawa) diyagramı nedenleri başlıklar altında toplar ve Retro'da \"içgörü üret\" aşamasında kullanılır. CFD akışı, değer akışı haritası beklemeleri, hikâye haritası kapsamı gösterir.",
+    },
+    {
+      ad: "guvenlik",
+      zorluk: 2,
+      soru: "Squad'ın Retro'larında kimse sorun söylemiyor; her şey \"iyi\" görünüyor ama hatalar sürüyor. Önce neye bakmak gerekir?",
+      secenekler: [
+        "Psikolojik güvenliğe: sorun söyleyen suçlanacağını düşünüyor olabilir",
+        "Retro'nun süresini iki katına çıkarmaya",
+        "Retro'ya bölüm yöneticisinin de katılıp herkesi dinlemesini sağlamaya",
+        "Retro'yu kaldırıp yerine her Sprint sonunda isimli bir anket göndermeye",
+      ],
+      aciklama: "Açıklık ve cesaret Scrum değerleridir. Sorun söylenmiyorsa **psikolojik güvenlik** zayıf olabilir. Kolaylaştırıcı, isimsiz veri toplama, \"kimse suçlanmaz\" ilkesi (Kerth'in temel yönergesi) ve küçük gruplarla başlayabilir.",
+      etiket: "senaryo",
+    },
+  ]),
+  ...sorular(U, "u7-kolaylastirma", [
+    {
+      ad: "kolay-kim",
+      dy: false,
+      soru: "Rehber'e göre Scrum etkinliklerini yalnızca Scrum Master kolaylaştırabilir.",
+      aciklama: "Yanlış. Rehber Scrum Master'ın etkinliklerin **yapılmasını, olumlu, verimli ve time-box içinde** olmasını sağladığını söyler; kolaylaştırıcının kim olacağını dayatmaz. Birçok takımda kolaylaştırma sırayla döner.",
+      etiket: "rehber",
+    },
+    {
+      ad: "sessiz",
+      zorluk: 2,
+      soru: "12 kişilik squad'ın Retro'sunda hep aynı üç kişi konuşuyor. Kolaylaştırıcının en etkili hamlesi hangisidir?",
+      secenekler: [
+        "Önce herkesin sessizce yapışkan nota yazdığı, sonra küçük gruplarda konuşulan bir yapı kurmak",
+        "Konuşanlardan daha az konuşmalarını rica edip sırayı yine serbest bırakmak",
+        "Retro'yu kısaltıp yalnızca konuşkan üç kişiyle yapmak",
+        "Sessiz kalanların fikrini yöneticilerine sormak",
+      ],
+      aciklama: "Büyük gruplarda **sessiz yazma** (önce bireysel, sonra paylaşım) ve **1-2-4-hepsi** gibi küçük grup yapıları herkesin sesini duyurur. Kalabalık bir odada serbest konuşma çoğunlukla birkaç kişinin sesine dönüşür.",
+      etiket: "senaryo",
+    },
+    {
+      ad: "noktalama",
+      zorluk: 2,
+      soru: "Retro'da 20 konu çıktı ve hepsini konuşmaya vakit yok. Hangisini konuşacağınızı seçmek için sık kullanılan yöntem hangisidir?",
+      secenekler: [
+        "Nokta oylaması: herkes birkaç noktayı konulara dağıtır",
+        "Konuları alfabetik sıraya koyup ilk üç konuyu almak",
+        "Product Owner'ın tek başına seçmesi",
+        "En son yazılan konudan başlamak",
+      ],
+      aciklama: "**Nokta oylaması** (dot voting) takımın enerjisini görünür kılar ve hızlıdır. Seçim takımındır; PO da bir takım üyesi olarak oy verir.",
+      etiket: "sahada",
+    },
+  ]),
+];

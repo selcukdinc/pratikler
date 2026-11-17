@@ -24,6 +24,17 @@ export interface Yenilik {
 
 export const YENILIKLER: Yenilik[] = [
   {
+    pr: 67,
+    tarih: "2026-11-17",
+    baslik: "Agile ve Scrum: Scrum Takımı, etkinlikler ve artefaktlar (5-8. üniteler)",
+    kitle: "yonetici",
+    maddeler: [
+      "113 yeni soru: Scrum Takımı'nın hesap verebilirlikleri, Sprint ve Sprint Planning, Daily Scrum, Review ve Retrospective, artefaktlar ve taahhütleri. Senaryolar 12 kişilik büyük squad üzerine kurulu (uzayan Daily, iki takıma bölünme, ortak DoD). Pratikte artık 225 soru var.",
+      "Dört ünitenin ders anlatımı (26 bölüm) ve Sanal Lab'de 6 yeni deney: Kim karar verir?, time-box hesaplayıcı, Daily mi durum raporu mu?, Retro tahtası, DoD kurucu ve artefakt-taahhüt eşleştirme.",
+      "Time-box ve DoD hesaplarını `icerik/agile/istemci/etkilesim/scrum.test.ts` sınıyor. Migration: `0053_agile_scrum.sql` (soru listesi).",
+    ],
+  },
+  {
     pr: 66,
     tarih: "2026-11-17",
     baslik: "Agile ve Scrum: ilk dört ünitenin dersleri ve 11 Lab deneyi",
