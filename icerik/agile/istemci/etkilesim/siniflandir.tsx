@@ -200,3 +200,75 @@ export const TERIM_KARTLARI: Kart[] = [
 export const TerimHaritasi = () => (
   <Siniflandir kategoriler={KAYNAKLAR} kartlar={TERIM_KARTLARI} soru="Organizasyon şemalarında gördüğün her terim nereden geliyor?" />
 );
+
+// ---------------- G-S5-01: Kim karar verir? ----------------
+
+const KIMLER = ["Product Owner", "Scrum Master", "Developers", "Bütün takım"];
+export const KIM_KARTLARI: Kart[] = [
+  { metin: "Ödeme ekranı mı önce gelsin, alerjen etiketi mi?", dogru: "Product Owner", neden: "Product Backlog'un sırası PO'nun hesap verebilirliğidir." },
+  { metin: "Sipariş servisi hangi veritabanını kullanacak?", dogru: "Developers", neden: "Seçilen işin nasıl yapılacağı yalnızca Developers'ın takdirindedir." },
+  { metin: "Bu Sprint'e kaç öğe alınacak?", dogru: "Developers", neden: "Developers PO ile konuşarak seçer; kapasiteyi en iyi onlar bilir." },
+  { metin: "Bu Sprint'in Sprint Goal'ü ne olacak?", dogru: "Bütün takım", neden: "PO önerir, Sprint Goal'ü bütün Scrum Takımı Sprint Planning'de birlikte tanımlar." },
+  { metin: "Yemekhane ihalesi başka firmaya geçti; Sprint iptal edilsin mi?", dogru: "Product Owner", neden: "Sprint'i yalnızca PO iptal edebilir; Sprint Goal geçersizleştiyse anlamlıdır." },
+  { metin: "Daily her gün 35 dakika sürüyor; etkinliği yeniden düzenlemek için kim harekete geçmeli?", dogru: "Scrum Master", neden: "SM etkinliklerin yapılmasını, verimli ve time-box içinde olmasını sağlar. Daily'nin içeriği yine Developers'ındır." },
+  { metin: "\"Sipariş geçmişi\" öğesi kaç puan?", dogru: "Developers", neden: "Büyüklüğü işi yapacak Developers tahmin eder." },
+  { metin: "Bilgi işlem müdürü takımların ortamına erişim vermiyor; organizasyondaki bu engeli kim kaldırtmalı?", dogru: "Scrum Master", neden: "SM paydaşlar ile takımlar arasındaki engellerin kaldırılmasına neden olur." },
+  { metin: "Product Goal \"dönem sonunda öğrencilerin yarısı uygulamadan sipariş versin\" olsun mu?", dogru: "Product Owner", neden: "Product Goal'ü geliştirmek ve iletmek PO'nun işidir." },
+  { metin: "\"Alerjen filtresi\" öğesi hangi görevlere bölünecek?", dogru: "Developers", neden: "Sprint Backlog'daki plan Developers tarafından, Developers için yapılır." },
+  { metin: "Retro'da hangi iyileştirme bir sonraki Sprint'e alınacak?", dogru: "Bütün takım", neden: "Retro bütün Scrum Takımı'nın etkinliğidir; iyileştirmeyi takım birlikte seçer." },
+  { metin: "Testi geliştiriciler de paylaşsın mı, iş nasıl bölünsün?", dogru: "Developers", neden: "Kimin neyi nasıl yapacağına kendi kendini yöneten takım içeride karar verir." },
+];
+export const KimKararVerir = () => (
+  <Siniflandir kategoriler={KIMLER} kartlar={KIM_KARTLARI} soru="Her kararın son sahibi kim? (Rehber 2020)" />
+);
+
+// ---------------- G-S6-02: Daily mi, durum raporu mu? ----------------
+
+const DAILY = ["Sprint Goal'e hizmet ediyor", "Durum raporu ya da başka toplantı"];
+export const DAILY_KARTLARI: Kart[] = [
+  { metin: "\"Ödeme kartı iki gündür testte bekliyor; Sprint Goal için şart. Deniz'le öğleden sonra birlikte bakalım mı?\"", dogru: "Sprint Goal'e hizmet ediyor", neden: "Takılan işi görünür kılıp planı uyarlıyor." },
+  { metin: "\"Dün üç toplantıya girdim, e-postaları cevapladım, bugün de toplantım var.\"", dogru: "Durum raporu ya da başka toplantı", neden: "Sprint Goal'le bağı yok; kişisel faaliyet raporu." },
+  { metin: "Yönetici herkese tek tek \"bu iş neden hâlâ bitmedi?\" diye soruyor.", dogru: "Durum raporu ya da başka toplantı", neden: "Daily Developers içindir; hesap verme toplantısına dönüşmüş." },
+  { metin: "Pano sağdan sola yürünüyor; Done'a en yakın işten başlanıyor.", dogru: "Sprint Goal'e hizmet ediyor", neden: "İşin akışına ve bitirmeye odaklı bir yapı." },
+  { metin: "Mert ile Selin veritabanı şemasını 20 dakikadır tartışıyor, kalan on kişi dinliyor.", dogru: "Durum raporu ya da başka toplantı", neden: "Ayrıntılı tartışma Daily'den sonra ilgili kişilerle yapılmalı (park alanı)." },
+  { metin: "\"Alerjen filtresi bugün biterse yarın sipariş ekranına geçebiliriz; Ece bana katılabilir mi?\"", dogru: "Sprint Goal'e hizmet ediyor", neden: "Ertesi güne uygulanabilir bir plan üretiyor." },
+  { metin: "PO Elif Daily'de Developers'a o günün görevlerini dağıtıyor.", dogru: "Durum raporu ya da başka toplantı", neden: "Görev dağıtmak kendi kendini yönetmeye aykırı; Daily'nin sahibi Developers." },
+  { metin: "\"Bu gidişle Sprint Goal'e yetişemeyiz; sipariş geçmişini Elif'le konuşup kapsamdan çıkaralım.\"", dogru: "Sprint Goal'e hizmet ediyor", neden: "İlerlemeyi denetleyip kapsamı PO ile yeniden görüşmeye karar veriyor." },
+];
+export const DailyMi = () => (
+  <Siniflandir kategoriler={DAILY} kartlar={DAILY_KARTLARI} soru="Daily'de duyulan her cümle hangisine benziyor?" />
+);
+
+// ---------------- G-S7-01: Retro tahtası ----------------
+
+const RETRO = ["Uygulanabilir iyileştirme", "Belirsiz dilek"];
+export const RETRO_KARTLARI: Kart[] = [
+  { metin: "Daha iyi iletişim kuralım.", dogru: "Belirsiz dilek", neden: "Sahibi, ölçüsü ve ne zaman yapılacağı yok." },
+  { metin: "Kerem bu Sprint test ortamı kurulumunu betiğe döker; kurulum süresini Retro'da karşılaştırırız.", dogru: "Uygulanabilir iyileştirme", neden: "Küçük, sahibi belli, ölçülebilir." },
+  { metin: "Kod kalitesine daha çok önem verelim.", dogru: "Belirsiz dilek", neden: "Ne yapılacağı belli değil; DoD'a somut bir madde eklemek daha iyi." },
+  { metin: "24 saatten uzun inceleme bekleyen çekme isteklerini Daily'de söyleyeceğiz.", dogru: "Uygulanabilir iyileştirme", neden: "Somut bir davranış; bekleme süresiyle ölçülebilir." },
+  { metin: "Herkes daha çok çalışsın.", dogru: "Belirsiz dilek", neden: "Sürdürülebilir hız ilkesine de ters; sorunun kök nedenine inmiyor." },
+  { metin: "DoD'a \"ekran okuyucuyla denendi\" maddesini ekliyoruz.", dogru: "Uygulanabilir iyileştirme", neden: "Kaliteyi her öğe için görünür bir ölçüte bağlıyor." },
+  { metin: "Paydaşlar bizi daha iyi anlasın.", dogru: "Belirsiz dilek", neden: "Takımın kontrolündeki bir adım yok; ör. \"Review'da paydaş ürünü kendisi kullanır\" olabilirdi." },
+  { metin: "Daily'yi panoyu sağdan sola yürüyerek yapacağız; süreyi iki hafta ölçeceğiz.", dogru: "Uygulanabilir iyileştirme", neden: "Denenebilir, ölçülebilir ve bir sonraki Retro'da değerlendirilebilir." },
+];
+export const RetroTahtasi = () => (
+  <Siniflandir kategoriler={RETRO} kartlar={RETRO_KARTLARI} soru="Retro tahtasındaki her madde bir sonraki Sprint'te bir şey değiştirir mi?" />
+);
+
+// ---------------- G-S8-02: Artefakt ve taahhüt ----------------
+
+const ARTEFAKT = ["Product Goal", "Sprint Goal", "Definition of Done", "Kabul ölçütü"];
+export const ARTEFAKT_KARTLARI: Kart[] = [
+  { metin: "Dönem sonunda öğrencilerin yarısı yemeğini uygulamadan sipariş edip sırasız alsın.", dogru: "Product Goal", neden: "Ürünün birkaç Sprint sürecek gelecekteki durumu." },
+  { metin: "Bu Sprint öğrenciler alerjenli yemekleri menüden filtreleyebilsin.", dogru: "Sprint Goal", neden: "Bu Sprint'in tek amacı." },
+  { metin: "Her değişiklik kod incelemesinden geçer ve otomatik testleri geçer.", dogru: "Definition of Done", neden: "Her öğe için ortak kalite çıtası." },
+  { metin: "Fıstık alerjisi seçilince fıstık içeren yemekler listeden çıkar.", dogru: "Kabul ölçütü", neden: "Tek bir öğenin ne yapması gerektiği." },
+  { metin: "Test ortamına kurulur ve erişilebilirlik denetiminden geçer.", dogru: "Definition of Done", neden: "Bütün öğelere uygulanan kalite koşulu." },
+  { metin: "Sipariş iptal edilince öğrencinin bakiyesine para geri yüklenir.", dogru: "Kabul ölçütü", neden: "\"Sipariş iptali\" öğesine özel davranış." },
+  { metin: "Bu Sprint öğrenciler siparişini telefondan verebilsin.", dogru: "Sprint Goal", neden: "Sprint'e odak veren, esneklik bırakan amaç." },
+  { metin: "Yemekhane kuyruğunu ortadan kaldıran bir sipariş deneyimi.", dogru: "Product Goal", neden: "Ürünün uzun vadeli hedefi; Product Backlog'un taahhüdü." },
+];
+export const ArtefaktTaahhut = () => (
+  <Siniflandir kategoriler={ARTEFAKT} kartlar={ARTEFAKT_KARTLARI} soru="Her cümle hangi taahhüt ya da kabul ölçütü?" />
+);

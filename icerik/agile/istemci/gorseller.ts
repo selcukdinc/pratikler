@@ -19,4 +19,10 @@ export const GORSELLER: Gorsel[] = [
   g("G-S4-01", "Sütun dedektifi", "Yedi sahnede empirizmin hangi sütununun (şeffaflık, denetim, uyarlama) çöktüğü bulunur.", "Şeffaflık · Denetim · Uyarlama", "sutunDedektifi"),
   g("G-S4-02", "Rehber'de var mı?", "On iki kavram Scrum Rehberi 2020'nin parçası ya da Rehber dışı yaygın uygulama diye ayrılır.", "Sprint Goal ✓ · Story point ✗", "rehberdeVarMi"),
   g("G-S4-03", "Terim haritası", "Organizasyon şemalarında görülen on iki terim Scrum Rehberi, Spotify modeli, SAFe ve araçlar ya da şirket rolü diye kaynağına göre ayrılır.", "Squad · Chapter · Epic · Tech Lead", "terimHaritasi"),
+  g("G-S5-01", "Kim karar verir?", "On iki karar Product Owner, Scrum Master, Developers ya da bütün takım diye son sahibine göre ayrılır.", "PO · SM · Developers · Takım", "kimKarar"),
+  g("G-S6-01", "Time-box hesaplayıcı", "Sprint uzunluğu 1-4 hafta seçilince etkinliklerin orantılı üst sınırları ve Sprint içindeki payları gösterilir.", "Planning 8 · Review 4 · Retro 3 saat", "timebox"),
+  g("G-S6-02", "Daily mi, durum raporu mu?", "Daily'de duyulan sekiz cümle Sprint Goal'e hizmet eden ya da durum raporuna dönüşen diye ayrılır.", "Sprint Goal'e odak · Durum raporu", "dailyMi"),
+  g("G-S7-01", "Retro tahtası", "Sekiz Retro maddesi uygulanabilir iyileştirme ya da belirsiz dilek diye ayrılır.", "Uygulanabilir · Dilek", "retroTahtasi"),
+  g("G-S8-01", "DoD kurucu", "Dokuz maddeden squad'ın Definition of Done'ı kurulur; DoD olmayan maddeler ayıklanır ve bir öğenin bu DoD'a göre Done olup olmadığı gösterilir.", "Definition of Done → Done mı?", "dodKurucu"),
+  g("G-S8-02", "Artefakt ve taahhüt", "Sekiz cümle Product Goal, Sprint Goal, Definition of Done ya da kabul ölçütü diye ayrılır.", "Product Goal · Sprint Goal · DoD", "artefaktTaahhut"),
 ];

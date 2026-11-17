@@ -1,7 +1,21 @@
 // Agile ve Scrum derslerinin etkileşimli şekilleri: Gorsel.etkilesim adı -> bileşen.
 import type { ComponentType } from "react";
 import type { Gorsel } from "../../../../src/gorseller/tip";
-import { AgileMi, CynefinSiniflandirici, DegerTerazisi, IlkeEslestir, IsrafAvi, RehberdeVarMi, SutunDedektifi, TerimHaritasi } from "./siniflandir";
+import {
+  AgileMi,
+  ArtefaktTaahhut,
+  CynefinSiniflandirici,
+  DailyMi,
+  DegerTerazisi,
+  IlkeEslestir,
+  IsrafAvi,
+  KimKararVerir,
+  RehberdeVarMi,
+  RetroTahtasi,
+  SutunDedektifi,
+  TerimHaritasi,
+} from "./siniflandir";
+import { DodKurucu, TimeboxHesap } from "./scrum";
 import { DarbogazSeridi, DegerEgrisi, LittleHesap, PartiOyunu } from "./akis";
 import "./etkilesim.css";
 
@@ -18,4 +32,10 @@ export const ETKILESIMLER: Record<string, ComponentType<{ g: Gorsel }>> = {
   sutunDedektifi: SutunDedektifi,
   rehberdeVarMi: RehberdeVarMi,
   terimHaritasi: TerimHaritasi,
+  kimKarar: KimKararVerir,
+  timebox: TimeboxHesap,
+  dailyMi: DailyMi,
+  retroTahtasi: RetroTahtasi,
+  dodKurucu: DodKurucu,
+  artefaktTaahhut: ArtefaktTaahhut,
 };
