@@ -24,6 +24,17 @@ export interface Yenilik {
 
 export const YENILIKLER: Yenilik[] = [
   {
+    pr: 65,
+    tarih: "2026-11-17",
+    baslik: "Agile ve Scrum pratiği hazırlanıyor: iskelet ve ilk 112 soru",
+    kitle: "yonetici",
+    maddeler: [
+      "Yeni pratik **Agile ve Scrum** (`/agile`, soru öneki `ag-`, katalog alanı Yazılım) açıldı ama henüz yayında değil: 13 ünite üç grupta (Agile'ın kökleri, Scrum çerçevesi, Sahada agile). Agile, Backlog ve Ölçekli Agile üçlüsünün ilki.",
+      "İlk dört ünitede (neden agile, Manifesto ve 12 ilke, Lean ve akış, Scrum'a giriş) 112 soru; etiketler Rehber, Kavram, Sahada, Senaryo ve Hesap. Senaryolar büyük bir squad'da (12 kişi, PO, Scrum Master, Tech Lead ve QA, DevOps, Engineering chapter'ları) geçiyor; 4. ünitede squad, tribe, chapter, epic ve Tech Lead gibi terimlerin nereden geldiğini ayıran bir terim haritası var.",
+      "Yayından önce uzak D1'e `0051_agile_ayarlari.sql` ve `0052_agile_sorular.sql` uygulanmalı. Plan: `docs/plan-agile-scrum-pratigi.md`.",
+    ],
+  },
+  {
     pr: 63,
     tarih: "2026-11-16",
     baslik: "Şifreleme: vaka çalışmaları, tasarım alıştırmaları ve kod atölyesi",
