@@ -477,12 +477,12 @@ export function karne(d: Durum): Karne {
 // olayda Rehber'e uygun ilk seçeneği alır, Retro'da verilen iyileştirmeyi seçer. Hedef ve
 // öğeler verilmezse (ya da tükenirse) öğesi kalan ilk hedefi seçer ve tahmini hızın
 // yaklaşık %85'i kadar iş alır, önce hedefe katkı verenleri.
-export function ornekOyuncu(p: { hedef?: string; sec?: string[]; iyilestirme: string }, s: Senaryo): (d: Durum) => Hamle {
+export function ornekOyuncu(p: { hedef?: string; sec?: string[]; iyilestirme: string | string[] }, s: Senaryo): (d: Durum) => Hamle {
   return (d) => {
     if (d.asama === "planning") {
       const verilen = (p.sec ?? []).filter((id) => d.backlog.some((o) => o.id === id));
       const elle = d.sprint === 1 && p.hedef && p.sec;
-      const hedef = elle ? p.hedef! : s.hedefler.find((h) => d.backlog.some((o) => h.etiketler.includes(o.etiket)))!.id;
+      const hedef = elle ? p.hedef! : (d.hedef ?? s.hedefler.find((h) => d.backlog.some((o) => h.etiketler.includes(o.etiket)))!.id);
       if (d.hedef !== hedef) return { tur: "hedef", id: hedef };
       if (elle) return verilen.length ? { tur: "sec", id: verilen[0]! } : { tur: "planlaBitir" };
       const h = s.hedefler.find((x) => x.id === hedef)!;
@@ -497,7 +497,8 @@ export function ornekOyuncu(p: { hedef?: string; sec?: string[]; iyilestirme: st
       return { tur: "olay", secim: Math.max(0, o.secenekler.findIndex((x) => x.uyum === "uygun")) };
     }
     if (d.asama === "review") return { tur: "reviewBitir" };
-    return { tur: "iyilestir", id: p.iyilestirme };
+    const iy = Array.isArray(p.iyilestirme) ? p.iyilestirme[Math.min(d.sprint, p.iyilestirme.length) - 1]! : p.iyilestirme;
+    return { tur: "iyilestir", id: iy };
   };
 }
 

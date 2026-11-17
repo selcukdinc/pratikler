@@ -9,6 +9,8 @@ const scrum = (ad: "TimeboxHesap" | "DodKurucu") =>
   lazy(() => import("./etkilesim/scrum").then((m) => ({ default: () => createElement(m[ad]) })));
 const olcum = (ad: "CfdGezgini" | "KanbanTahtasi" | "MonteCarlo" | "TeknikBorc") =>
   lazy(() => import("./etkilesim/olcum").then((m) => ({ default: () => createElement(m[ad]) })));
+const senaryo = (ad: "DallananSenaryolar" | "AntiPatternAvi" | "BagimlilikPanosu") =>
+  lazy(() => import("./etkilesim/senaryo").then((m) => ({ default: () => createElement(m[ad]) })));
 const kart = (
   ad:
     | "CynefinSiniflandirici"
@@ -24,7 +26,8 @@ const kart = (
     | "ArtefaktTaahhut"
     | "BurndownOkuma"
     | "ScrumMiKanban"
-    | "XpPratikleri",
+    | "XpPratikleri"
+    | "OlceklemeTerimleri",
 ) =>
   lazy(() => import("./etkilesim/siniflandir").then((m) => ({ default: () => createElement(m[ad]) })));
 
@@ -53,4 +56,8 @@ export const DENEYLER: Deney[] = [
   { id: "scrum-kanban", ad: "Scrum mı, Kanban mı?", unite: 10, bilesen: kart("ScrumMiKanban"), ozet: "Sekiz öğeyi Scrum'a, Kanban'a ya da ikisine birden ait diye ayır." },
   { id: "teknik-borc", ad: "Teknik borç faizi", unite: 11, bilesen: olcum("TeknikBorc"), ozet: "On Sprint boyunca kısayol, normal ya da temizlik seç; hızın ve toplam teslimin nasıl değiştiğini gör." },
   { id: "xp", ad: "XP pratikleri", unite: 11, bilesen: kart("XpPratikleri"), ozet: "Squad'ın sahnelerini TDD, eşli programlama, sürekli entegrasyon ve yeniden düzenlemeyle eşleştir." },
+  { id: "sm-ne-yapar", ad: "Scrum Master şimdi ne yapar?", unite: 12, bilesen: senaryo("DallananSenaryolar"), ozet: "Dört dallanan senaryo: Sprint ortasında yönetici, onaya giden story, Scrum Master'sız squad, on dört kişilik takım. Her seçimin sonucunu ve Rehber'e göre gerekçesini gör." },
+  { id: "anti-pattern", ad: "Anti-pattern avı", unite: 12, bilesen: senaryo("AntiPatternAvi"), ozet: "Squad'ın üç Sprint'lik günlüğünde sorunlu satırları bul: ScrumBut, uzayan Sprint, velocity hedefi, zayıf DoD..." },
+  { id: "bagimlilik", ad: "Bağımlılık panosu", unite: 13, bilesen: senaryo("BagimlilikPanosu"), ozet: "Takımları bileşen ya da özellik takımı olarak kur; takımlar arası bağımlılığın ve Sprint'te biten işin nasıl değiştiğini gör." },
+  { id: "olcekleme", ad: "Ölçekleme terimleri", unite: 13, bilesen: kart("OlceklemeTerimleri"), ozet: "Entegrasyon Takımı, Area Product Owner, Agile Release Train, guild: hangisi Nexus, LeSS, SAFe ya da Spotify modelinden?" },
 ];

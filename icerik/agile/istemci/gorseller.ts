@@ -32,4 +32,8 @@ export const GORSELLER: Gorsel[] = [
   g("G-S10-02", "Scrum mı, Kanban mı?", "Sekiz öğe Scrum'a, Kanban'a ya da ikisine birden ait diye ayrılır.", "Scrum · Kanban · İkisi", "scrumKanban"),
   g("G-S11-01", "Teknik borç faizi", "On Sprint için kısayol, normal ya da temizlik seçilir; Sprint başına hız ve toplam teslim hep normal çalışmayla karşılaştırılır.", "Kısayol bugün hızlı, yarın yavaş", "teknikBorc"),
   g("G-S11-02", "XP pratikleri", "Sekiz sahne TDD, eşli programlama, sürekli entegrasyon ya da yeniden düzenleme ile eşleştirilir.", "TDD · Eşli · CI · Refactoring", "xpPratikleri"),
+  g("G-S12-01", "Scrum Master şimdi ne yapar?", "Dört dallanan senaryoda her adımda bir hamle seçilir; her seçimin sonucu Rehber'e uygun, riskli ya da aykırı diye gerekçesiyle gösterilir.", "Seçim → sonuç → sonraki adım", "smNeYapar"),
+  g("G-S12-02", "Anti-pattern avı", "Squad'ın üç Sprint'lik günlüğünden sorunlu satırlar işaretlenir; kontrol edilince bulunan, kaçırılan ve yanlış işaretlenen satırlar açıklamasıyla gösterilir.", "ScrumBut · uzayan Sprint · zayıf DoD", "antiPattern"),
+  g("G-S13-01", "Bağımlılık panosu", "Altı özelliğin dokunduğu teknik katmanlar verilir; takımlar bileşen ya da özellik takımı olarak kurulunca her özelliğin kaç takıma bağlı olduğu ve Sprint'te bitme olasılığı hesaplanır.", "Bileşen takımı · özellik takımı", "bagimlilik"),
+  g("G-S13-02", "Ölçekleme terimleri", "Sekiz terim ya da kural Nexus, LeSS, SAFe ya da Spotify modeli diye kaynağına göre ayrılır.", "Nexus · LeSS · SAFe · Spotify", "olcekleme"),
 ];

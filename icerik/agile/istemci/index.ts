@@ -12,12 +12,15 @@ import { UNITE_8 } from "./dersler/unite-8";
 import { UNITE_9 } from "./dersler/unite-9";
 import { UNITE_10 } from "./dersler/unite-10";
 import { UNITE_11 } from "./dersler/unite-11";
+import { UNITE_12 } from "./dersler/unite-12";
+import { UNITE_13 } from "./dersler/unite-13";
 import { GORSELLER } from "./gorseller";
 import { ETKILESIMLER } from "./etkilesim";
 import { DENEYLER } from "./lab";
+import { SEVIYE_TESTI } from "./seviye";
 
 const icerik: PratikIstemciIcerigi = {
-  dersler: [UNITE_1, UNITE_2, UNITE_3, UNITE_4, UNITE_5, UNITE_6, UNITE_7, UNITE_8, UNITE_9, UNITE_10, UNITE_11],
+  dersler: [UNITE_1, UNITE_2, UNITE_3, UNITE_4, UNITE_5, UNITE_6, UNITE_7, UNITE_8, UNITE_9, UNITE_10, UNITE_11, UNITE_12, UNITE_13],
   // Soru kartındaki "Derste oku" bağlantısı: kavram -> bölüm (0'dan)
   kavramBolumu: {
     1: { "u1-tahmin-empirik": 0, "u1-waterfall": 1, "u1-belirsizlik": 2, "u1-cynefin": 3, "u1-iteratif": 4, "u1-ucgen": 5, "u1-tarihce": 6 },
@@ -31,10 +34,13 @@ const icerik: PratikIstemciIcerigi = {
     9: { "u9-burndown": 0, "u9-burnup": 1, "u9-velocity": 2, "u9-velocity-tuzak": 3, "u9-akis-olcutleri": 4, "u9-cfd": 5, "u9-goodhart": 6, "u9-monte-carlo": 7 },
     10: { "u10-kanban-tanim": 0, "u10-dow": 1, "u10-wip-siniri": 2, "u10-olcutler": 3, "u10-scrum-kanban": 4, "u10-hangisi": 5, "u10-servis": 6 },
     11: { "u11-xp-degerler": 0, "u11-tdd": 1, "u11-esli": 2, "u11-ci": 3, "u11-refactoring": 4, "u11-xp-pratikler": 5, "u11-teknik-borc": 6, "u11-devops": 7 },
+    12: { "u12-scrumbut": 0, "u12-sahte-sprint": 1, "u12-po-sorun": 2, "u12-sm-sorun": 3, "u12-mudahale": 4, "u12-buyuk-dagitik": 5, "u12-sozlesme": 6, "u12-sm-durus": 7 },
+    13: { "u13-coklu-takim": 0, "u13-nexus": 2, "u13-less": 3, "u13-safe": 4, "u13-spotify": 5, "u13-yonetici": 6, "u13-sertifika": 7 },
   },
   gorseller: GORSELLER,
   etkilesimler: ETKILESIMLER,
   deneyler: DENEYLER,
+  seviyeTesti: SEVIYE_TESTI,
   // Sprint simülatörü: senaryo ve görevler sayfa açılınca ayrı parça olarak yüklenir
   sprintSimulatoru: () => import("./simulasyon").then((m) => m.default),
 };

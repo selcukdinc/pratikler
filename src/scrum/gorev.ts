@@ -14,7 +14,8 @@ export interface SprintGorevi {
   hedef: (d: Durum, s: Senaryo) => boolean;
   // Örnek çözüm: Sprint Goal, seçilecek öğeler ve Retro iyileştirmesi; olaylarda
   // Rehber'e uygun ilk seçenek alınır (motor.ts ornekOyuncu)
-  ornek: { hedef: string; sec: string[]; iyilestirme: string };
+  // iyilestirme dizi olursa her Retro'da sıradaki seçilir (son eleman tekrarlanır)
+  ornek: { hedef: string; sec: string[]; iyilestirme: string | string[] };
 }
 
 export interface SprintIcerigi {
