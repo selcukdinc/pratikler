@@ -8,6 +8,23 @@ export interface Kart {
   metin: string;
   dogru: string;
   neden: string;
+  // Burndown okuma kartları: 10 günlük kalan iş (ilk değer Sprint başı)
+  cizim?: number[];
+}
+
+function MiniBurndown({ d }: { d: number[] }) {
+  const W = 160;
+  const H = 70;
+  const ust = Math.max(...d, 1);
+  const x = (i: number) => 4 + (i / 10) * (W - 8);
+  const y = (v: number) => 4 + (1 - v / ust) * (H - 8);
+  return (
+    <svg className="ag-mini" viewBox={`0 0 ${W} ${H}`} role="img" aria-label={`Kalan iş günlere göre: ${d.join(", ")}`}>
+      <line className="ag-eksen" x1={4} y1={H - 4} x2={W - 4} y2={H - 4} />
+      <line className="ag-ideal" x1={x(0)} y1={y(d[0]!)} x2={x(10)} y2={y(0)} />
+      <polyline className="ag-gercek" points={d.map((v, i) => `${x(i)},${y(v)}`).join(" ")} />
+    </svg>
+  );
 }
 
 export function Siniflandir({ kategoriler, kartlar, soru }: { kategoriler: string[]; kartlar: Kart[]; soru?: string }) {
@@ -23,6 +40,7 @@ export function Siniflandir({ kategoriler, kartlar, soru }: { kategoriler: strin
           return (
             <li key={i} className="ag-kutu">
               <span>{k.metin}</span>
+              {k.cizim && <MiniBurndown d={k.cizim} />}
               <div className="ag-secim" role="group" aria-label="Kategori">
                 {kategoriler.map((h) => (
                   <button key={h} type="button" className="cip" aria-pressed={c === h} onClick={() => setCevaplar({ ...cevaplar, [i]: h })}>
@@ -271,4 +289,53 @@ export const ARTEFAKT_KARTLARI: Kart[] = [
 ];
 export const ArtefaktTaahhut = () => (
   <Siniflandir kategoriler={ARTEFAKT} kartlar={ARTEFAKT_KARTLARI} soru="Her cümle hangi taahhüt ya da kabul ölçütü?" />
+);
+
+// ---------------- G-S9-01: burndown okuma ----------------
+
+const BURNDOWN = ["Sağlıklı", "Sona yığılma", "Kapsam eklendi", "Takıldı", "Hedef bitmeyecek"];
+export const BURNDOWN_KARTLARI: Kart[] = [
+  { metin: "Squad'ın 14. Sprint'i.", cizim: [40, 37, 33, 31, 27, 22, 20, 15, 11, 5, 0], dogru: "Sağlıklı", neden: "İş her gün parça parça Done oluyor; ideal çizgiden küçük sapmalar normaldir." },
+  { metin: "Squad'ın 15. Sprint'i.", cizim: [40, 40, 39, 39, 38, 38, 37, 36, 35, 12, 0], dogru: "Sona yığılma", neden: "İşler paralel açılmış, test ve entegrasyon sona kalmış. Son gün inen çizgi çoğu zaman eksik testi gizler." },
+  { metin: "Squad'ın 16. Sprint'i.", cizim: [40, 36, 33, 30, 42, 39, 34, 29, 24, 19, 14], dogru: "Kapsam eklendi", neden: "Kalan iş arttı: Sprint'e iş eklendi ya da bir öğe yeniden tahmin edildi. Burnup bunu ayrı bir çizgide gösterirdi." },
+  { metin: "Squad'ın 17. Sprint'i.", cizim: [40, 35, 31, 27, 27, 27, 27, 24, 20, 16, 12], dogru: "Takıldı", neden: "Bir engel var ya da herkes yarım işte; Daily'de konuşulması gereken şey tam bu." },
+  { metin: "Squad'ın 18. Sprint'i, 5. gün.", cizim: [40, 38, 36, 34, 32, 30], dogru: "Hedef bitmeyecek", neden: "Squad ancak yarısını bitirecek. Erken görüldüyse PO ile kapsam yeniden konuşulur; Sprint Goal korunur." },
+  { metin: "Squad'ın 19. Sprint'i.", cizim: [40, 33, 26, 19, 11, 4, 0, 0, 0, 0, 0], dogru: "Sağlıklı", neden: "Erken bitti; Sprint Goal'e hizmet eden yeni iş PO ile konuşularak çekilir. Sürekli oluyorsa tahminler fazla temkinli olabilir." },
+];
+export const BurndownOkuma = () => (
+  <Siniflandir kategoriler={BURNDOWN} kartlar={BURNDOWN_KARTLARI} soru="Kesik çizgi ideal iniş, düz çizgi kalan iş. Her burndown neyi anlatıyor?" />
+);
+
+// ---------------- G-S10-02: Scrum mı, Kanban mı? ----------------
+
+const SCRUM_KANBAN = ["Scrum", "Kanban", "İkisinde de"];
+export const SCRUM_KANBAN_KARTLARI: Kart[] = [
+  { metin: "Sabit uzunlukta, hedefi olan zaman dilimleri.", dogru: "Scrum", neden: "Sprint ve Sprint Goal Scrum'ındır; Kanban'da zorunlu bir ritim yoktur." },
+  { metin: "Aşama başına açık bir WIP sınırı.", dogru: "Kanban", neden: "Kanban Rehberi'nin üç pratiğinden biri WIP'i sınırlamaktır. Scrum'da WIP'i Sprint kapsamı dolaylı sınırlar." },
+  { metin: "Product Owner, Scrum Master ve Developers rolleri.", dogru: "Scrum", neden: "Kanban yeni rol tanımlamaz; var olan rollerle başlar." },
+  { metin: "İşin görünür olduğu bir pano.", dogru: "İkisinde de", neden: "Şeffaflık iki yöntemin de temelidir; Scrum panoyu zorunlu tutmaz ama hemen her takım kullanır." },
+  { metin: "Cycle time, throughput ve iş öğesinin yaşı.", dogru: "Kanban", neden: "Kanban'ın dört zorunlu ölçütünden üçü. Scrum takımları da kullanabilir ama Rehber'de geçmez." },
+  { metin: "Düzenli aralıklarla süreci gözden geçirip iyileştirmek.", dogru: "İkisinde de", neden: "Scrum'da Retrospective; Kanban'da akışı iyileştirmek ve Definition of Workflow'u güncellemek." },
+  { metin: "Planlanmış işin yanında gün içinde gelen acil destek talepleri.", dogru: "Kanban", neden: "Sürekli akış, gün içinde yeni iş çekmeye uygundur. Scrum takımı bunun için bir kapasite payı ayırır." },
+  { metin: "Her Sprint sonunda paydaşlarla ürünü denetlemek.", dogru: "Scrum", neden: "Sprint Review Scrum etkinliğidir; Kanban'da teslim ve geri bildirim ritmi takıma kalmıştır." },
+];
+export const ScrumMiKanban = () => (
+  <Siniflandir kategoriler={SCRUM_KANBAN} kartlar={SCRUM_KANBAN_KARTLARI} soru="Bu öğe Scrum'a mı, Kanban'a mı ait, yoksa ikisinde de var mı?" />
+);
+
+// ---------------- G-S11-02: XP pratikleri ----------------
+
+const XP = ["TDD", "Eşli programlama", "Sürekli entegrasyon", "Yeniden düzenleme"];
+export const XP_KARTLARI: Kart[] = [
+  { metin: "Mert önce başarısız olan bir test yazıyor, sonra onu geçirecek en az kodu.", dogru: "TDD", neden: "Kırmızı, yeşil, düzenle döngüsü." },
+  { metin: "Selin yazarken Can yanında oturup kodu okuyor ve sorular soruyor; yarım saatte bir yer değiştiriyorlar.", dogru: "Eşli programlama", neden: "Sürücü ve yol gösterici; inceleme yazım sırasında olur." },
+  { metin: "Her birleştirmede bütün testler otomatik çalışıyor, kırmızı derleme önce düzeltiliyor.", dogru: "Sürekli entegrasyon", neden: "Ana dala günde birkaç kez birleştirilir ve her birleştirme doğrulanır." },
+  { metin: "Davranışı değiştirmeden 300 satırlık işlevi dört küçük işleve bölüyorlar.", dogru: "Yeniden düzenleme", neden: "Dış davranış aynı kalır, iç yapı iyileşir; testler bunun güvencesidir." },
+  { metin: "Okan uzun süren bir dalda çalışmak yerine işini küçük parçalara bölüp her gün ana dala alıyor.", dogru: "Sürekli entegrasyon", neden: "Dal ne kadar uzun yaşarsa birleştirme o kadar acı verir." },
+  { metin: "Yeni bir indirim kuralı için önce “öğrenci kartıyla %10” testini yazıp çalıştırıyorlar, test kırmızı.", dogru: "TDD", neden: "Testin önce kırmızı olması, gerçekten yeni davranışı sınadığını gösterir." },
+  { metin: "Kod tekrarını gidermek için iki benzer sınıfı birleştiriyorlar, testler yeşil kalıyor.", dogru: "Yeniden düzenleme", neden: "Basit tasarıma doğru küçük adım; teknik borcun düzenli ödenmesi." },
+  { metin: "Yeni katılan geliştirici ilk haftasında deneyimli biriyle aynı klavyede çalışıyor.", dogru: "Eşli programlama", neden: "Bilgi yayılır, takımda tek kişiye bağımlı alan azalır." },
+];
+export const XpPratikleri = () => (
+  <Siniflandir kategoriler={XP} kartlar={XP_KARTLARI} soru="Squad her sahnede hangi XP pratiğini uyguluyor?" />
 );

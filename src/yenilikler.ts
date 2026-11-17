@@ -24,6 +24,17 @@ export interface Yenilik {
 
 export const YENILIKLER: Yenilik[] = [
   {
+    pr: 69,
+    tarih: "2026-11-17",
+    baslik: "Agile ve Scrum: ölçüm, Kanban ve XP",
+    kitle: "yonetici",
+    maddeler: [
+      "Üç yeni ünite: Görünürlük ve Ölçüm, Kanban ve Scrum, XP ve Teknik Mükemmellik; 76 yeni soruyla toplam 301 soru.",
+      "Yeni etkileşimler: burndown okuma, kümülatif akış diyagramı, Monte Carlo tahmini, Kanban tahtası, Scrum mı Kanban mı?, teknik borç faizi ve XP pratikleri.",
+      "Pratik henüz yayında değil; son adımda açılacak.",
+    ],
+  },
+  {
     pr: 68,
     tarih: "2026-11-17",
     baslik: "Agile ve Scrum: Sprint simülatörü",

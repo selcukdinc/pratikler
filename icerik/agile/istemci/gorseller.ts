@@ -25,4 +25,11 @@ export const GORSELLER: Gorsel[] = [
   g("G-S7-01", "Retro tahtası", "Sekiz Retro maddesi uygulanabilir iyileştirme ya da belirsiz dilek diye ayrılır.", "Uygulanabilir · Dilek", "retroTahtasi"),
   g("G-S8-01", "DoD kurucu", "Dokuz maddeden squad'ın Definition of Done'ı kurulur; DoD olmayan maddeler ayıklanır ve bir öğenin bu DoD'a göre Done olup olmadığı gösterilir.", "Definition of Done → Done mı?", "dodKurucu"),
   g("G-S8-02", "Artefakt ve taahhüt", "Sekiz cümle Product Goal, Sprint Goal, Definition of Done ya da kabul ölçütü diye ayrılır.", "Product Goal · Sprint Goal · DoD", "artefaktTaahhut"),
+  g("G-S9-01", "Burndown okuma", "Altı mini burndown sağlıklı, sona yığılma, kapsam eklendi, takıldı ya da hedef bitmeyecek diye okunur.", "Kalan iş ↓ · gün →", "burndownOkuma"),
+  g("G-S9-02", "CFD gezgini", "Günde gelen iş ve WIP sınırı seçilince 30 günlük kümülatif akış diyagramı çizilir; ortalama cycle time, WIP ve throughput gösterilir.", "Hazır · Geliştirme · Test · Bitti", "cfd"),
+  g("G-S9-03", "Monte Carlo tahmini", "Son 20 günün throughput'undan 2000 olası gelecek üretilir; bitecek iş sayısına göre %50, %85 ve %95 olasılıklı süreler ortalamayla verilen tek tarihle karşılaştırılır.", "%85 olasılıkla ≤ N gün", "monteCarlo"),
+  g("G-S10-01", "Kanban tahtası", "Dört sütunlu bir tahtada günler ilerletilir; WIP sınırı açılıp kapatılır, kartların yaşı ve dolan sütunlar gösterilir.", "Hazır · Geliştirme 3 · Test 2 · Bitti", "kanbanTahtasi"),
+  g("G-S10-02", "Scrum mı, Kanban mı?", "Sekiz öğe Scrum'a, Kanban'a ya da ikisine birden ait diye ayrılır.", "Scrum · Kanban · İkisi", "scrumKanban"),
+  g("G-S11-01", "Teknik borç faizi", "On Sprint için kısayol, normal ya da temizlik seçilir; Sprint başına hız ve toplam teslim hep normal çalışmayla karşılaştırılır.", "Kısayol bugün hızlı, yarın yavaş", "teknikBorc"),
+  g("G-S11-02", "XP pratikleri", "Sekiz sahne TDD, eşli programlama, sürekli entegrasyon ya da yeniden düzenleme ile eşleştirilir.", "TDD · Eşli · CI · Refactoring", "xpPratikleri"),
 ];

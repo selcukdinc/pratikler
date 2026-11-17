@@ -9,12 +9,15 @@ import { UNITE_5 } from "./dersler/unite-5";
 import { UNITE_6 } from "./dersler/unite-6";
 import { UNITE_7 } from "./dersler/unite-7";
 import { UNITE_8 } from "./dersler/unite-8";
+import { UNITE_9 } from "./dersler/unite-9";
+import { UNITE_10 } from "./dersler/unite-10";
+import { UNITE_11 } from "./dersler/unite-11";
 import { GORSELLER } from "./gorseller";
 import { ETKILESIMLER } from "./etkilesim";
 import { DENEYLER } from "./lab";
 
 const icerik: PratikIstemciIcerigi = {
-  dersler: [UNITE_1, UNITE_2, UNITE_3, UNITE_4, UNITE_5, UNITE_6, UNITE_7, UNITE_8],
+  dersler: [UNITE_1, UNITE_2, UNITE_3, UNITE_4, UNITE_5, UNITE_6, UNITE_7, UNITE_8, UNITE_9, UNITE_10, UNITE_11],
   // Soru kartındaki "Derste oku" bağlantısı: kavram -> bölüm (0'dan)
   kavramBolumu: {
     1: { "u1-tahmin-empirik": 0, "u1-waterfall": 1, "u1-belirsizlik": 2, "u1-cynefin": 3, "u1-iteratif": 4, "u1-ucgen": 5, "u1-tarihce": 6 },
@@ -25,6 +28,9 @@ const icerik: PratikIstemciIcerigi = {
     6: { "u6-sprint": 0, "u6-sprint-kurallar": 1, "u6-iptal": 1, "u6-planning-neden": 2, "u6-planning-ne": 2, "u6-planning-nasil": 2, "u6-daily": 3, "u6-daily-buyuk": 4, "u6-timebox": 5 },
     7: { "u7-review": 0, "u7-review-demo": 1, "u7-retro": 2, "u7-retro-cikti": 3, "u7-retro-bicim": 4, "u7-kolaylastirma": 5 },
     8: { "u8-pb": 0, "u8-product-goal": 1, "u8-refinement": 2, "u8-sb": 3, "u8-sprint-goal": 3, "u8-increment": 4, "u8-dod": 4, "u8-dod-coklu": 5, "u8-dor": 6 },
+    9: { "u9-burndown": 0, "u9-burnup": 1, "u9-velocity": 2, "u9-velocity-tuzak": 3, "u9-akis-olcutleri": 4, "u9-cfd": 5, "u9-goodhart": 6, "u9-monte-carlo": 7 },
+    10: { "u10-kanban-tanim": 0, "u10-dow": 1, "u10-wip-siniri": 2, "u10-olcutler": 3, "u10-scrum-kanban": 4, "u10-hangisi": 5, "u10-servis": 6 },
+    11: { "u11-xp-degerler": 0, "u11-tdd": 1, "u11-esli": 2, "u11-ci": 3, "u11-refactoring": 4, "u11-xp-pratikler": 5, "u11-teknik-borc": 6, "u11-devops": 7 },
   },
   gorseller: GORSELLER,
   etkilesimler: ETKILESIMLER,

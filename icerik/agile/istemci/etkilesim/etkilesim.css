@@ -42,3 +42,26 @@
 .ag-cubuk { height: 10px; border-radius: 4px; background: var(--bar-bg); overflow: hidden; }
 .ag-cubuk > span { display: block; height: 100%; background: var(--link); }
 .ag-cubuk.ag-c-uyari > span { background: var(--error); }
+
+/* Ölçüm: CFD bantları, Kanban kartları, Monte Carlo, teknik borç */
+.ag-bant-hazir { fill: var(--border); }
+.ag-bant-gel { fill: var(--warning); opacity: .75; }
+.ag-bant-test { fill: var(--error); opacity: .55; }
+.ag-bant-bitti { fill: var(--link); opacity: .8; }
+.ag-lejant span.ag-l-hazir::before { background: var(--border); height: 10px; }
+.ag-lejant span.ag-l-gel::before { background: var(--warning); height: 10px; }
+.ag-lejant span.ag-l-test::before { background: var(--error); height: 10px; opacity: .7; }
+.ag-lejant span.ag-l-bitti::before { background: var(--link); height: 10px; }
+.ag-istasyon.ag-dolu { border-color: var(--warning); box-shadow: inset 0 3px 0 var(--warning); }
+.ag-kartlar { display: flex; flex-wrap: wrap; gap: 4px; min-height: 22px; align-content: flex-start; }
+.ag-kanban-kart { font-size: 11.5px; padding: 2px 5px; border-radius: 3px; border: 1px solid var(--border); background: var(--input); font-variant-numeric: tabular-nums; }
+.ag-kanban-kart small { color: var(--muted); }
+.ag-kanban-kart.ag-yasli { border-color: var(--error); color: var(--error); }
+.ag-sutun-a { fill: var(--link); }
+.ag-sutun-b { fill: var(--border); }
+.ag-borc { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 4px 10px; }
+.ag-borc-sprint { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
+.ag-borc-sprint > .ag-not { width: 2.2em; }
+.ag-mini { width: 160px !important; max-width: 100%; margin: 0 !important; }
+.ag-mini .ag-ideal { stroke: var(--border); stroke-dasharray: 4 3; stroke-width: 1.5; fill: none; }
+.ag-mini .ag-gercek { stroke: var(--link); stroke-width: 2.5; fill: none; }
