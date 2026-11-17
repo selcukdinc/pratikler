@@ -1,0 +1,44 @@
+/* Agile ve Scrum derslerinin etkileşimli şekilleri */
+.ag { max-width: 760px; margin: 0 auto; font-size: 14px; display: flex; flex-direction: column; gap: 10px; }
+.ag button.cip { cursor: pointer; font: inherit; font-size: 12.5px; }
+.ag button.cip[aria-pressed="true"] { background: var(--active); border-color: var(--btn-primary-border); font-weight: 600; }
+.ag button.cip:disabled { opacity: .45; cursor: default; }
+.ag-satir { display: flex; flex-wrap: wrap; gap: 6px 12px; align-items: center; }
+.ag-secim { display: flex; flex-wrap: wrap; gap: 6px; }
+.ag label { display: inline-flex; gap: 6px; align-items: center; }
+.ag input[type="number"] { font: inherit; font-size: 13.5px; padding: 4px 6px; border: 1px solid var(--border); border-radius: 4px; background: var(--input); color: var(--text); width: 6em; }
+.ag input[type="range"] { width: 150px; max-width: 100%; }
+.ag-not { margin: 0; color: var(--muted); font-size: 13px; }
+.ag-sonuc { margin: 0; padding: 8px 10px; border-radius: 4px; background: var(--section-header); color: var(--section-text); line-height: 1.5; }
+.ag-iyi { background: var(--tag-ders-bg); color: var(--tag-ders-text); }
+.ag-kotu { background: var(--tag-cikmis-bg); color: var(--tag-cikmis-text); }
+.ag-liste { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 6px; }
+.ag-kutu { border: 1px solid var(--border); border-radius: 6px; padding: 8px 10px; background: var(--panel); display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.ag-kutu h4 { margin: 0; font-size: 13.5px; }
+.ag-izgara { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; }
+.ag-olcu { font-size: 22px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.ag-olcu small { font-size: 12px; font-weight: 400; color: var(--muted); }
+.ag-sayi { font-variant-numeric: tabular-nums; }
+.ag svg { width: 100%; height: auto; display: block; }
+.ag-eksen { stroke: var(--border); stroke-width: 1; }
+.ag-izgara-cizgi { stroke: var(--border-soft); stroke-width: 1; }
+.ag-yazi { fill: var(--muted); font-size: 11px; }
+.ag-cizgi-a { fill: none; stroke: var(--link); stroke-width: 2.5; }
+.ag-cizgi-b { fill: none; stroke: var(--warning); stroke-width: 2.5; stroke-dasharray: 6 4; }
+.ag-dikey { stroke: var(--error); stroke-width: 1.5; stroke-dasharray: 3 3; }
+.ag-lejant { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 12.5px; color: var(--muted); }
+.ag-lejant span::before { content: ""; display: inline-block; width: 18px; height: 3px; margin-right: 6px; vertical-align: middle; background: var(--link); }
+.ag-lejant span.ag-l-b::before { background: var(--warning); }
+
+/* İstasyonlar (parti oyunu, darboğaz) */
+.ag-hat { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 8px; }
+.ag-istasyon { border: 1px solid var(--border); border-radius: 6px; padding: 6px 8px; background: var(--panel); display: flex; flex-direction: column; gap: 4px; }
+.ag-istasyon h4 { margin: 0; font-size: 12.5px; color: var(--muted); font-weight: 600; }
+.ag-istasyon.ag-dar { border-color: var(--error); }
+.ag-parcalar { display: flex; flex-wrap: wrap; gap: 3px; min-height: 14px; }
+.ag-parca { width: 10px; height: 10px; border-radius: 2px; background: var(--border); }
+.ag-parca.ag-p-is { background: var(--warning); }
+.ag-parca.ag-p-bitti { background: var(--link); }
+.ag-cubuk { height: 10px; border-radius: 4px; background: var(--bar-bg); overflow: hidden; }
+.ag-cubuk > span { display: block; height: 100%; background: var(--link); }
+.ag-cubuk.ag-c-uyari > span { background: var(--error); }

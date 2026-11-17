@@ -24,6 +24,17 @@ export interface Yenilik {
 
 export const YENILIKLER: Yenilik[] = [
   {
+    pr: 66,
+    tarih: "2026-11-17",
+    baslik: "Agile ve Scrum: ilk dört ünitenin dersleri ve 11 Lab deneyi",
+    kitle: "yonetici",
+    maddeler: [
+      "Agile'ın kökleri ve Scrum'a giriş ünitelerine ders anlatımı eklendi (30 bölüm). Bölümlerde iki yeni not kutusu var: Rehber'in kendi cümlesi için `> **Rehber ne der:**`, gerçek takımlardaki uygulama için `> **Sahada:**`; ikisi de bütün pratiklerde kullanılabilir.",
+      "Sanal Lab'de 11 deney: değer eğrisi (waterfall ile Sprint'ler), Cynefin sınıflandırıcı, Manifesto değerleri, 12 ilke, parti büyüklüğü oyunu, Little yasası, darboğaz şeridi, israf avı, sütun dedektifi, \"Rehber'de var mı?\" ve organizasyon şemalarındaki terimlerin kaynağını bulduran terim haritası. Hiçbiri sunucuya istek atmıyor.",
+      "Pratik ders listesiyle açılıyor. Hesapları `icerik/agile/istemci/etkilesim/akis.test.ts` sınıyor (parti oyunu soru cevaplarıyla aynı: 80 ve 23 dakika). Migration yok.",
+    ],
+  },
+  {
     pr: 65,
     tarih: "2026-11-17",
     baslik: "Agile ve Scrum pratiği hazırlanıyor: iskelet ve ilk 112 soru",
