@@ -18,7 +18,7 @@ Scrum'un artefaktları işi ya da değeri **şeffaf** kılar. Her birinin, ilerl
 | Sprint Backlog | **Sprint Goal** | Bu Sprint'in tek amacı |
 | Increment | **Definition of Done** | Neyin gerçekten bittiği |
 
-User story, epic, burndown ve story point bu listede yoktur; onlar sahada yaygın tekniklerdir (2. pratik ve 9. ünite).
+User story, epic, burndown ve story point bu listede yoktur; onlar sahada yaygın tekniklerdir ([Backlog pratiği](/backlog) ve 9. ünite).
 
 Squad'ın cümlelerini doğru artefakta ya da taahhüde yerleştir:
 

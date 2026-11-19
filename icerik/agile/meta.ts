@@ -1,7 +1,7 @@
 // Agile ve Scrum Pratik (pratikler.selcukdinc.dev/agile): agile'ın köklerini (neden agile,
 // Manifesto, Lean ve akış), Scrum çerçevesini (Scrum Rehberi 2020) ve sahadaki uygulamayı
 // (ölçüm, Kanban, XP, anti-pattern'ler, ölçekleme) üç grupta 13 ünitede işleyen pratik.
-// Üçlü dizinin ilki: 2. pratik Backlog (Epic, Feature, User Story; yol user-story, önek us-),
+// Üçlü dizinin ilki: 2. pratik Backlog (Epic, Feature, User Story; yol backlog, önek bl-),
 // 3. pratik Ölçekli Agile (Tribe, Squad, Canvas; yol olcekli-agile, önek oa-).
 // Plan: proje kütüphanesinde planlar/plan-agile-scrum-pratigi.md, depoda docs/plan-agile-scrum-pratigi.md.
 //

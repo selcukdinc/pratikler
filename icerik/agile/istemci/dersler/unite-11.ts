@@ -70,7 +70,7 @@ CI'dan sonraki iki adım sık karıştırılır:
 
 Squad sürekli teslimde: Kerem'in kurduğu hat her birleştirmeyi test ortamına kurar, canlıya çıkışı Elif'in onayıyla tek tuş yapar.
 `),
-      dene: [p("kirik-derleme"), p("cd-fark")],
+      dene: [p("kirik-derleme")],
     },
     {
       baslik: "Yeniden düzenleme ve basit tasarım",
@@ -81,7 +81,7 @@ XP'de yeniden düzenleme **sürekli** yapılır: her TDD döngüsünün üçünc
 
 **Basit tasarım**, bugünkü ihtiyacı karşılayan en basit tasarımı yapıp ihtiyaç değişince yeniden düzenlemektir. "İleride lazım olur" diye eklenen esneklik çoğu zaman hiç kullanılmaz (YAGNI: you aren't gonna need it) ama her değişiklikte bakım ister.
 `),
-      dene: [p("basit-tasarim"), p("refactoring-sprint")],
+      dene: [p("refactoring-sprint")],
     },
     {
       baslik: "Öteki XP pratikleri",
@@ -112,7 +112,7 @@ Martin Fowler borcu iki eksende sınıflar: **bilinçli** ya da **farkında olma
 
 > **Sahada:** Borcu ödeme işleri ayrı bir gizli listede değil, **Product Backlog'da** öteki işlerle birlikte görünür durmalı ve PO'nun sırasına girmelidir. Developers faizin maliyetini PO'nun anlayacağı dille anlatır: "Bu modüle her dokunuş iki gün fazla sürüyor."
 `),
-      dene: [p("faiz"), p("bilincli-borc"), p("borc-backlog")],
+      dene: [p("bilincli-borc"), p("borc-backlog")],
       lab: "teknik-borc",
     },
     {

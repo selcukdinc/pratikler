@@ -34,7 +34,7 @@ Kanban Rehberi'ne göre takım, **Definition of Workflow** (iş akışının tan
 
 **Açık kural** örneği: Squad panosunun Bitti sütununun üstüne "Hata kaydı, hatayı yakalayan otomatik testle birlikte kapanır" yazdı. Kural herkesin göreceği yerde durduğu için kimse kendi varsayımına göre çalışmaz.
 `),
-      dene: [p("dow-icerik"), p("sle"), p("acik-kural")],
+      dene: [p("dow-icerik")],
     },
     {
       baslik: "WIP sınırı ve çekme",
@@ -49,7 +49,7 @@ Talep sürekli kapasiteden fazlaysa WIP sınırı talebi azaltmaz; fazla istek *
 
 [[G-S10-01]]
 `),
-      dene: [p("wip-amac"), p("wip-dolu"), p("talep-fazla")],
+      dene: [p("wip-amac"), p("wip-dolu")],
       lab: "kanban",
     },
     {
@@ -94,7 +94,7 @@ Squad'ın kendisi ikisini de yaşar: Kampüs Yemekhanesi uygulamasını Scrum'la
 
 [[G-S10-02]]
 `),
-      dene: [p("destek"), p("urun"), p("rakip-degil")],
+      dene: [p("urun"), p("rakip-degil")],
       lab: "scrum-kanban",
     },
     {

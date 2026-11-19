@@ -128,7 +128,7 @@ Pek çok şirketin organizasyon şemasında şöyle bir tablo görürsün: üstt
 | Epic, Feature, Task | SAFe ve Jira, ClickUp gibi araçlar | Yok; hepsi Product Backlog öğesi ya da Sprint Backlog'daki plan |
 | Tech Lead, Teknik Liderlik | Şirketin kendi rolü | Yok; Rehber'de unvan yok |
 
-Spotify modeli, Henrik Kniberg ile Anders Ivarsson'un 2012'deki "Scaling Agile @ Spotify" makalesinden yaygınlaştı; Ölçekli Agile pratiğinde ayrıntılı işlenecek. Epic, feature ve story hiyerarşisi Backlog pratiğinin konusu.
+Spotify modeli, Henrik Kniberg ile Anders Ivarsson'un 2012'deki "Scaling Agile @ Spotify" makalesinden yaygınlaştı; Ölçekli Agile pratiğinde ayrıntılı işlenecek. Epic, feature ve story hiyerarşisi [Backlog pratiğinin](/backlog) konusu.
 
 [[G-S4-03]]
 

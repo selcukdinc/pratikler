@@ -47,8 +47,10 @@ export function indisli(metin: string): ReactNode {
 // terim: ders ve soru metinlerinde terimlerin İngilizcesi gösterilir; kod
 // parçalarına dokunulmaz.
 // Formül ve indis yalnızca LaTeX'i açık pratiklerde (icerik/<pratik>/meta.ts latex)
-const PARCALA_MAT = /(\$\$[\s\S]+?\$\$|\$[^$\n]+?\$|`[^`]+`|\*\*[^*]+\*\*)/g;
-const PARCALA_DUZ = /(`[^`]+`|\*\*[^*]+\*\*)/g;
+// Bağlantı yalnızca site içi bir yola verilir: [Backlog pratiği](/backlog)
+const PARCALA_MAT = /(\$\$[\s\S]+?\$\$|\$[^$\n]+?\$|`[^`]+`|\*\*[^*]+\*\*|\[[^\]\n]+\]\(\/[^)\s]*\))/g;
+const PARCALA_DUZ = /(`[^`]+`|\*\*[^*]+\*\*|\[[^\]\n]+\]\(\/[^)\s]*\))/g;
+const BAGLANTI = /^\[([^\]\n]+)\]\((\/[^)\s]*)\)$/;
 
 export function inline(text: string, terim = false, latex = PRATIK.latex): ReactNode[] {
   const duz = (s: string) => (latex && /[_^]/.test(s) ? indisli(s) : terim ? terimli(s) : s);
@@ -58,6 +60,8 @@ export function inline(text: string, terim = false, latex = PRATIK.latex): React
       return <span key={i} className={blok ? "mat-blok" : "mat"} dangerouslySetInnerHTML={{ __html: html }} />;
     }
     if (part.startsWith("`") && part.endsWith("`")) return <code key={i}>{part.slice(1, -1)}</code>;
+    const bag = BAGLANTI.exec(part);
+    if (bag && !bag[2]!.startsWith("//")) return <a key={i} href={bag[2]}>{duz(bag[1]!)}</a>;
     if (part.startsWith("**") && part.endsWith("**")) {
       const ic = part.slice(2, -2);
       // "**$F_x$:**" gibi etiketlerde formül kalın yazının içinde de dizilsin
@@ -76,6 +80,8 @@ const NOT_TURLERI: [RegExp, string][] = [
   [/^\*\*Gerçek dünyada/i, "gercek"],
   // Agile ve Scrum dersleri: Rehber'in kendi cümlesi ve sahadaki uygulama
   [/^\*\*Rehber ne der/i, "rehber"],
+  // Backlog dersleri: Rehber'in ya da tekniğin sahibinin tanımı (aynı kutu)
+  [/^\*\*Kaynak ne der/i, "rehber"],
   [/^\*\*Sahada/i, "sahada"],
 ];
 

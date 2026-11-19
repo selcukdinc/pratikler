@@ -27,7 +27,7 @@ Altı burndown'ı oku:
 
 > **Sahada:** Burndown'ı yönetici için değil takım için tut. "Çizgiyi ideale yaklaştırmak" hedef olursa öğeler yarım hâlde Done sayılmaya başlar.
 `),
-      dene: [p("burndown-tanim"), p("ucurum"), p("yukari")],
+      dene: [p("burndown-tanim"), p("yukari")],
       lab: "burndown",
     },
     {
@@ -42,7 +42,7 @@ Burndown tek çizgidir: kalan iş azaldıysa bunun nedeni işin bitmesi mi, kaps
 
 Kalan Sprint sayısı kaba bir bölmeyle bulunur: kalan kapsam ÷ Sprint başına biten iş. Kapsam 100 puan, biten 60 puan ve takım Sprint başına yaklaşık 20 puan bitiriyorsa iki Sprint kalmıştır; kapsam büyümeye devam ederse bu sayı da büyür.
 `),
-      dene: [p("burnup-fark"), p("burnup-kapsam"), p("kalan-burnup")],
+      dene: [p("burnup-fark"), p("kalan-burnup")],
     },
     {
       baslik: "Velocity: takımın kendi aynası",
@@ -121,7 +121,7 @@ Gelen iş takımın kapasitesini aşınca WIP sınırının ne yaptığını gö
 
 Squad bunu nasıl önler? Ölçütleri **takımın öğrenmesi** için kullanır, kişileri ödüllendirmek ya da cezalandırmak için değil. Tek bir sayıya bakmak yerine **birbirini dengeleyen** ölçülere bakar: hız ile birlikte hata oranı, throughput ile birlikte cycle time.
 `),
-      dene: [p("goodhart"), p("hata-sayisi"), p("iyi-olcut")],
+      dene: [p("hata-sayisi"), p("iyi-olcut")],
     },
     {
       baslik: "Monte Carlo: tek tarih yerine olasılık",

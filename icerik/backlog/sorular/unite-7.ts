@@ -1,0 +1,293 @@
+// 7. ünite (Story Bölme): neden küçük story, dikey ve yatay dilim, SPIDR, Richard
+// Lawrence'ın bölme desenleri, iş akışı ve işlem türleriyle bölme, basit/karmaşık ve
+// ertelenen performans, hiyerarşide bölme.
+import { sorular, type Soru } from "./yardimci.ts";
+
+const U = 7;
+
+export const unite7: Soru[] = [
+  ...sorular(U, "u7-neden", [
+    {
+      ad: "fayda",
+      soru: "Büyük bir story'yi bölmenin en önemli faydası hangisidir?",
+      secenekler: [
+        "Değer daha erken teslim edilir ve geri bildirim daha erken gelir",
+        "Toplam iş miktarı kendiliğinden azalır",
+        "Takımın story point sayısı artar ve hızlı görünür",
+        "Kabul kriteri yazmaya gerek kalmaz",
+      ],
+      aciklama: "Bölme toplam işi azaltmaz (hatta biraz artırabilir), ama değeri parçalar hâlinde erken getirir: ilk dilim kullanılırken sonrakiler öğrenilenle şekillenir. Bazı dilimlerin hiç gerekmediği de ortaya çıkabilir.",
+      etiket: "kavram",
+    },
+    {
+      ad: "yapilmayan",
+      zorluk: 2,
+      soru: "\"Kupon\" feature'ı bölündü; ilk iki dilim yayına girince Elif üçüncü dilime (\"kampanya takvimi\") gerek olmadığını gördü. Bu neyi gösterir?",
+      secenekler: [
+        "Bölmenin, gereksiz işi hiç yapmama fırsatı verdiğini",
+        "Bölmenin yanlış yapıldığını",
+        "Product Owner'ın baştan hatalı plan yaptığını",
+        "Üçüncü dilimin yine de yapılması gerektiğini",
+      ],
+      aciklama: "Bölmenin gizli faydası budur: büyük bir story bütün hâlinde yapılsaydı kampanya takvimi de yapılacaktı. Dilimler sırayla gelince her adımda \"bir sonrakine hâlâ ihtiyaç var mı?\" diye sorulabilir.",
+      etiket: "senaryo",
+    },
+    {
+      ad: "sprint-sonu",
+      zorluk: 2,
+      soru: "Squad'ın Sprint'lerinde işin çoğu son iki güne yığılıyor ve bazı story'ler taşıyor. Hangi çare en çok yardım eder?",
+      secenekler: [
+        "Story'leri Sprint boyunca bitebilecek küçük dilimlere bölmek",
+        "Sprint'i bir hafta uzatmak",
+        "Story'leri daha erken test etmeyi yasaklamak",
+        "Her geliştiriciye ayrı bir büyük story vermek",
+      ],
+      aciklama: "Büyük story'ler Sprint'in sonuna kadar \"devam ediyor\" görünür ve birden biter ya da bitmez. Küçük dilimler Sprint boyunca akar; sorun erken görünür.",
+      etiket: "senaryo",
+    },
+  ]),
+  ...sorular(U, "u7-dikey", [
+    {
+      ad: "tanim",
+      soru: "Dikey dilim (vertical slice) nedir?",
+      secenekler: [
+        "Bütün katmanlardan geçen, değer taşıyan ince parça",
+        "Yalnızca kullanıcı arayüzünü kapsayan parça",
+        "Yalnızca veri tabanını kapsayan parça",
+        "Bir Sprint'in ilk yarısında yapılan işler",
+      ],
+      aciklama: "Bir pastayı dikey kestiğinde her dilimde bütün katmanlar vardır (Bill Wake'in katmanlı pasta benzetmesi). Story için de dikey dilim arayüzden veri tabanına kadar ince bir yol açar ve kullanıcıya çalışan bir şey verir.",
+      etiket: "kavram",
+    },
+    {
+      ad: "yatay-zarar",
+      zorluk: 2,
+      soru: "\"Önceden sipariş\" feature'ını \"veri tabanı\", \"servis\", \"ekran\" diye bölmenin en büyük zararı nedir?",
+      secenekler: [
+        "Üçü bitmeden kullanıcıya değer ve geri bildirim yok",
+        "Her parçanın tahmini daha zor olur",
+        "Parçalar birbirinden fazla bağımsız olur",
+        "Ekran tasarımcısının işi azalır",
+      ],
+      aciklama: "Yatay dilimler tek tek bittiğinde \"ilerleme\" var gibi görünür, ama kullanıcı hiçbir şey alamaz; entegrasyon riski en sona kalır. INVEST'te hem Valuable hem Independent bozulur.",
+      etiket: "senaryo",
+    },
+    {
+      ad: "dikey-sec",
+      zorluk: 2,
+      soru: "\"Önceden sipariş\" için hangisi bir dikey dilimdir?",
+      secenekler: [
+        "Öğrenci günün tek menüsünü bakiyesinden ödeyerek ayırtabilir",
+        "Sipariş tablosu ve ilişkileri oluşturulur",
+        "Sipariş ekranının bütün tasarımları çizilir",
+        "Sipariş servisinin bütün uç noktaları yazılır",
+      ],
+      aciklama: "İlk seçenek ince ama uçtan uca çalışır: ekran, servis, veri ve ödeme birlikte. Diğerleri tek bir katmanın tamamıdır.",
+      etiket: "senaryo",
+    },
+    {
+      ad: "hamburger",
+      zorluk: 3,
+      soru: "Gojko Adzic'in \"hamburger yöntemi\" bölmede nasıl çalışır?",
+      secenekler: [
+        "Akışın adımlarını katman gibi dizip her adımdan en basit seçeneği alır",
+        "Story'yi önce arayüz, sonra servis, sonra veri olarak üç katmana böler",
+        "Her story'ye bir hamburger fiyatı kadar puan verir",
+        "Takımı üç gruba bölüp her gruba bir katman verir",
+      ],
+      aciklama: "Hamburger yönteminde akışın adımları (sipariş al, öde, bildir) hamburgerin katmanları gibi alt alta yazılır; her adım için basitten karmaşığa seçenekler sıralanır. İlk dilim her katmandan bir seçenek alan ince bir hamburgerdir; böylece dikey kalır.",
+      etiket: "kaynak",
+    },
+  ]),
+  ...sorular(U, "u7-spidr", [
+    {
+      ad: "harfler",
+      soru: "Mike Cohn'un SPIDR kısaltmasındaki beş bölme yolu hangileridir?",
+      secenekler: [
+        "Spike, Path, Interface, Data, Rules",
+        "Story, Plan, Increment, Done, Review",
+        "Small, Precise, Independent, Done, Ready",
+        "Sprint, Product, Iteration, Delivery, Release",
+      ],
+      aciklama: "SPIDR: **Spike** (önce araştır), **Path** (farklı yollar), **Interface** (farklı arayüzler, cihazlar), **Data** (farklı veri türleri), **Rules** (iş kurallarını ertele ya da ayır).",
+      etiket: "kaynak",
+    },
+    {
+      ad: "path",
+      zorluk: 2,
+      soru: "\"Öğrenci bakiye yükler\" story'si kartla, havaleyle ve kampüs kioskundan nakitle yüklemeyi kapsıyor. SPIDR'ın hangi yolu en doğal bölmeyi verir?",
+      secenekler: ["Path", "Spike", "Rules", "Interface"],
+      aciklama: "Aynı hedefe giden farklı yollar (kart, havale, kiosk) ayrı story olabilir. İlk dilim en çok kullanılan yol (kart) olur; diğerleri sonra gelir.",
+      etiket: "senaryo",
+    },
+    {
+      ad: "interface",
+      zorluk: 2,
+      soru: "Menü ekranı hem telefonda hem yemekhane girişindeki büyük ekranda hem de ekran okuyucuyla kullanılacak. Hangi SPIDR yolu uygundur?",
+      secenekler: ["Interface", "Data", "Path", "Spike"],
+      aciklama: "Farklı arayüzler, cihazlar ya da tarayıcılar ayrı dilimler olabilir: önce telefon, sonra giriş ekranı. Erişilebilirlik ise genellikle ertelenmez, DoD'de yer alır (8. ünite).",
+      etiket: "senaryo",
+    },
+    {
+      ad: "rules",
+      zorluk: 2,
+      soru: "\"Ayırtma\" story'sinde iptal süresi, günlük ayırtma sınırı ve burslulara öncelik kuralları var. SPIDR'ın Rules yolu ne önerir?",
+      secenekler: [
+        "Önce tek kurallı hâli yapıp diğer kuralları sonraki story'lere bırakmak",
+        "Bütün kuralları aynı story'de bırakıp daha büyük tahmin vermek",
+        "Kuralları Definition of Done'a taşımak",
+        "Kuralları yalnızca kabul testinde kontrol etmek",
+      ],
+      aciklama: "Rules bölmesi, iş kurallarının bir kısmını ilk dilimde göz ardı edip sonra eklemektir. İlk dilim temel ayırtmayı getirir; günlük sınır ve burs önceliği sonraki story'ler olur.",
+      etiket: "kaynak",
+    },
+    {
+      ad: "data",
+      zorluk: 2,
+      soru: "Menü verisi ilk etapta yalnızca merkez yemekhaneden gelecek; diğer üç yemekhanenin verileri farklı biçimlerde. SPIDR'ın hangi yolu bu bölmeyi anlatır?",
+      secenekler: ["Data", "Interface", "Path", "Rules"],
+      aciklama: "Farklı veri türleri ya da kaynakları ayrı dilimlerdir: önce tek kaynak, sonra diğerleri. İlk dilim çalışır ve öğrenilenler diğer kaynaklara uygulanır.",
+      etiket: "senaryo",
+    },
+  ]),
+  ...sorular(U, "u7-lawrence", [
+    {
+      ad: "kim",
+      soru: "\"İş akışı adımları, iş kuralı çeşitleri, büyük çaba, basit/karmaşık, ertelenen performans...\" diye sıralanan bölme desenleri kime aittir?",
+      secenekler: ["Richard Lawrence", "Bill Wake", "Ron Jeffries", "Taiichi Ohno"],
+      aciklama: "Richard Lawrence 2009'da story bölme desenlerini yazdı, sonra bunları bir akış şemasına dönüştürdü (Humanizing Work). Bill Wake INVEST'in, Ron Jeffries 3C'nin, Taiichi Ohno Toyota Üretim Sistemi'nin adıdır.",
+      etiket: "kaynak",
+    },
+    {
+      ad: "ilk-soru",
+      zorluk: 3,
+      soru: "Lawrence'ın akış şemasında bölmeye başlamadan önce story için sorulan ilk kontrol hangisidir?",
+      secenekler: [
+        "Small dışında INVEST'e uyuyor mu?",
+        "Story kaç geliştiriciye bölünebilir?",
+        "Story'nin hangi katmanları var?",
+        "Story'nin son tarihi ne?",
+      ],
+      aciklama: "Lawrence önce story'nin Small dışındaki INVEST harflerine uyup uymadığına bakmayı önerir. Değersiz ya da test edilemez bir story'yi bölmek, küçük değersiz parçalar üretir; önce story düzeltilir.",
+      etiket: "kaynak",
+    },
+    {
+      ad: "en-iyi-bolme",
+      zorluk: 3,
+      soru: "Lawrence'a göre birden çok bölme yolu bulunduğunda hangisi tercih edilir?",
+      secenekler: [
+        "Atılabilecek düşük değerli parçayı ortaya çıkaran",
+        "Mümkün olan en çok sayıda story üreten",
+        "Takımın en sevdiği teknolojiyi öne alan",
+        "Katmanları birbirinden ayıran",
+      ],
+      aciklama: "İyi bir bölme ya düşük değerli bir parçayı ortaya çıkarır (o parça yapılmayabilir) ya da kabaca eşit parçalar verir (Product Owner sıralarken esneklik kazanır).",
+      etiket: "kaynak",
+    },
+  ]),
+  ...sorular(U, "u7-akis-crud", [
+    {
+      ad: "is-akisi",
+      zorluk: 2,
+      soru: "\"Yemekhane görevlisi günlük menüyü hazırlar, diyetisyen onaylar, menü yayınlanır\" akışı nasıl bölünebilir?",
+      secenekler: [
+        "Önce baştan sona en basit akış, sonra ara adımlar ayrı story'ler",
+        "Önce bütün hazırlama ekranı, sonra bütün onay ekranı",
+        "Önce veri tabanı, sonra servis, sonra arayüz",
+        "Akış bölünemez; tek story olarak yapılmalı",
+      ],
+      aciklama: "İş akışı adımlarıyla bölmede ilk dilim akışın başını ve sonunu bağlar (onaysız, doğrudan yayın); onay adımı ayrı story olur. \"Önce bütün ilk adım\" yaklaşımı akışı uzun süre yarım bırakır.",
+      etiket: "senaryo",
+    },
+    {
+      ad: "crud",
+      soru: "\"Görevli menüyü yönetir\" story'si için işlem türlerine (CRUD) göre bölme nasıl görünür?",
+      secenekler: ["Menü ekle, menüyü düzenle, menüyü sil ayrı story'ler", "Menü ekranı, menü servisi, menü tablosu", "Sabah menüsü, öğle menüsü, akşam menüsü", "Önce tasarım, sonra kodlama, sonra test"],
+      aciklama: "\"Yönet\" kelimesi genelde oluşturma, okuma, güncelleme ve silmeyi saklar. Her biri ayrı değer taşır; belki ilk sürümde silme gerekmez. Üçüncü seçenek veri çeşidine göre bölmedir; ikinci ve dördüncü yataydır.",
+      etiket: "senaryo",
+    },
+    {
+      ad: "yonet-kelimesi",
+      dy: true,
+      zorluk: 2,
+      soru: "Story'de \"yönet\", \"işle\", \"düzenle\" gibi geniş fiiller birden çok işlemi sakladığı için bölme fırsatı işaret eder.",
+      aciklama: "Doğru. Lawrence bu fiilleri işlem türlerine göre bölme deseninin ipucu olarak anar. \"Bakiyeyi yönet\" içinde yükleme, görme, iade ve aktarma vardır.",
+      etiket: "kaynak",
+    },
+  ]),
+  ...sorular(U, "u7-basit-karmasik", [
+    {
+      ad: "basit-once",
+      soru: "\"Basit/karmaşık\" bölme deseni ne önerir?",
+      secenekler: [
+        "Önce story'nin en basit hâlini yapıp karmaşık varyasyonları sonra eklemek",
+        "Önce en karmaşık hâli yapıp basitleri kendiliğinden bitirmek",
+        "Story'yi basit ve karmaşık diye iki geliştiriciye vermek",
+        "Karmaşık story'leri backlog'dan çıkarmak",
+      ],
+      aciklama: "Konuşmada \"peki şu durumda?\" soruları story'yi büyütmeye başlayınca, en basit çalışan hâl bir story olur, karmaşık durumlar (grup siparişi, özel diyet) sonraki story'ler olur.",
+      etiket: "kaynak",
+    },
+    {
+      ad: "performans",
+      zorluk: 2,
+      soru: "\"Ertelenen performans\" deseni hangi durumda uygundur?",
+      secenekler: [
+        "Önce çalışan hâl, hız ve ölçek sonraki story'de olabiliyorsa",
+        "Ürün için performans hiçbir zaman önemli değilse",
+        "Story'nin tahmini zaten 1 puandan küçükse",
+        "Takım performans testini hiçbir zaman yapmıyorsa",
+      ],
+      aciklama: "\"Çalıştır, sonra hızlandır.\" İlk dilim pilot yemekhanede 50 öğrenciyle çalışır; 5000 öğrenciye ölçeklemek ayrı story olur. Ama öğle saatinde zaten çökecekse bu erteleme kabul edilemez; karar bilinçli verilir.",
+      etiket: "kaynak",
+    },
+    {
+      ad: "buyuk-caba",
+      zorluk: 3,
+      soru: "\"Büyük çaba\" (major effort) deseninde ilk story neden diğerlerinden büyük tahmin edilir?",
+      secenekler: [
+        "Ortak altyapı ilk story'de kurulur; sonrakiler onu kullanır",
+        "İlk story her zaman en değerlisidir",
+        "Product Owner ilk story'yi büyük tahmin etmek zorundadır",
+        "İlk story'de test yazılmaz",
+      ],
+      aciklama: "Örneğin ilk ödeme yöntemi altyapıyı getirir; ikinci ve üçüncü yöntemler çok daha küçüktür. Lawrence bu durumda önce **herhangi bir** yöntemi yapmayı, kalanları sonra eklemeyi önerir.",
+      etiket: "kaynak",
+    },
+  ]),
+  ...sorular(U, "u7-hiyerarsi", [
+    {
+      ad: "epic-feature",
+      zorluk: 2,
+      soru: "\"Bekleme süresini yarıya indir\" epic'ini feature'lara bölmenin en iyi başlangıcı hangisidir?",
+      secenekler: [
+        "Hedefe katkı yapacak farklı yetenekleri çıkarmak",
+        "Epic'i takımdaki geliştirici sayısına bölmek",
+        "Epic'i ayların sayısına bölmek",
+        "Epic'i arayüz, servis ve veri katmanlarına bölmek",
+      ],
+      aciklama: "Epic'ten feature'a inerken soru \"hangi yetenekler bu hedefe katkı yapar?\" sorusudur; impact mapping (3. ünite) burada işe yarar. Her feature ayrı ölçülebilir ve sırası değişebilir.",
+      etiket: "senaryo",
+    },
+    {
+      ad: "yeterince-kucuk",
+      zorluk: 2,
+      soru: "Bölmeyi ne zaman bırakırsın?",
+      secenekler: [
+        "Sprint'e rahat sığıp hâlâ değer taşıdığında",
+        "Story tek satır koda indiğinde",
+        "Story'nin tahmini 1 puana indiğinde",
+        "Takımdaki herkese bir story düştüğünde",
+      ],
+      aciklama: "Amaç en küçük parça değil, değer taşıyan ve Sprint'te birkaç günde bitebilen parçadır. Daha da küçülmek story'yi task'a dönüştürür.",
+      etiket: "sahada",
+    },
+    {
+      ad: "kim-boler",
+      dy: false,
+      soru: "Story bölmek yalnızca Product Owner'ın işidir; Developers'ın bölmeye katılması gerekmez.",
+      aciklama: "Yanlış. Product Owner değeri, Developers teknik riski ve ortak altyapıyı bilir. En iyi bölmeler refinement'ta birlikte bulunur; hangi dilimin gerçekten bağımsız ve küçük olduğunu çoğu zaman Developers söyler.",
+      etiket: "sahada",
+    },
+  ]),
+];

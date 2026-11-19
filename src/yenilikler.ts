@@ -24,6 +24,65 @@ export interface Yenilik {
 
 export const YENILIKLER: Yenilik[] = [
   {
+    pr: 76,
+    tarih: "2026-11-19",
+    baslik: "Yeni pratik: Backlog: Epic, Feature, User Story",
+    maddeler: [
+      "Yeni pratik yayında: **Backlog: Epic, Feature, User Story** (`/backlog`). Belirsiz bir istekten Sprint'e hazır story'lere: iş hiyerarşisi, user story, INVEST, kabul kriterleri, story bölme, tahmin, sıralama, refinement ve sürüm planlama 12 ünitede, 287 soruyla.",
+      "Agile ve Scrum pratiğindeki Kampüs Yemekhanesi squad'ı burada Sprint'ten önceki işi yapıyor; senaryolarda squad'ın üstünde epic ve feature yazıp story onaylayan kurgusal bir Teknik Liderlik var.",
+      "**Backlog Atölyesi:** sanal squad'ın Product Owner'ı ol. Epic, feature ve story ağacını kur, story'leri yaz ve böl, kabul kriterlerini ekle, sanal takımla Planning Poker oyna, backlog'u Teknik Liderlik'in onayına gönder. 7 hedefli görev var.",
+      "Atölyede hazırladığın backlog'u Agile ve Scrum pratiğinin **Sprint Simülatörü**'ne aktarıp oynayabilirsin: yatay dilimler değer vermez, konuşulmamış riskler story'yi büyütür, olumsuz yolu olmayan story Review'da geri döner.",
+      "Sanal Lab'de 19 deney: story map, story ve Gherkin kurucu, Example Mapping, pasta dilimleyici, SPIDR, kova yöntemi, Kano, WSJF hesaplayıcı ve burnup üzerinde sürüm tahmincisi.",
+      "Nereden başlayacağını bilmiyorsan konu anlatımlarının başındaki 9 soruluk seviye testini çöz. Agile ve Scrum derslerindeki Backlog pratiği anmaları artık bu pratiğe bağlantı veriyor.",
+      { metin: "9-12. üniteler (85 soru), 5 deney, atölyeye 2 görev (WSJF sırası, ilk sürüm), Sprint Simülatörü'ne aktarım (`src/backlog/aktar.ts`, `backlog:sprint-aktarim`), seviye testi, tanıtım adımları, ders metinlerinde site içi bağlantı (`[metin](/yol)`), `yayinda: true`. Migration: `0059_backlog_yayin.sql`.", kitle: "yonetici" },
+    ],
+  },
+  {
+    pr: 75,
+    tarih: "2026-11-19",
+    baslik: "Backlog Atölyesi: Sprint'ten önceki işi yap",
+    kitle: "yonetici",
+    maddeler: [
+      "Backlog pratiğine yeni bir sayfa geldi: Nurten Hanım'ın isteğinden epic, feature ve story ağacını kurarsın; story'leri yazar, kabul kriterlerini ekler ve her story'nin INVEST göstergesini canlı izlersin.",
+      "Sanal takımla Planning Poker: farklı kart açana sorunca takımın bilmediğin bilgisi ortaya çıkar, story'nin tahmini değişir ya da bir spike doğar.",
+      "Backlog'u kurgusal Teknik Liderlik'in onayına gönderirsin; yatay dilim, test edilemeyen kabul kriteri ya da eksik olumsuz yol gibi notlarla geri döner.",
+      "İlk beş hedefli görev: üç dikey dilim, epic'i feature'lara bölmek, yatay backlog'u dikeye çevirmek, Poker'daki farkı çözmek ve onayı ilk turda almak. Pratik henüz yayında değil.",
+    ],
+  },
+  {
+    pr: 74,
+    tarih: "2026-11-19",
+    baslik: "Backlog pratiği: INVEST, kabul kriterleri, story bölme ve story olmayan işler",
+    kitle: "yonetici",
+    maddeler: [
+      "5-8. üniteler eklendi: yaklaşık 100 yeni soru ve dört ünitenin ders anlatımı.",
+      "Yeni Lab deneyleri: INVEST dedektifi, Gherkin kurucu, Example Mapping masası, pasta dilimleyici, SPIDR bölücü ve \"NFR nereye yazılır?\" kartları.",
+      "Pratik henüz yayında değil; yalnızca yönetici görür.",
+    ],
+  },
+  {
+    pr: 73,
+    tarih: "2026-11-19",
+    baslik: "Backlog pratiği: ilk dört ünitenin dersleri ve 8 Lab deneyi",
+    kitle: "yonetici",
+    maddeler: [
+      "Backlog'un temeli ve user story'ye giriş (1-4. üniteler) için 28 bölümlük ders anlatımı; açılış sayfası artık ders listesi. Bölümlerde `> **Kaynak ne der:**` kutusu Rehber'in ya da tekniğin sahibinin tanımını, `> **Sahada:**` kutusu squad'daki uygulamayı gösteriyor.",
+      "8 etkileşim ve Sanal Lab deneyi: backlog buzdağı, backlog sağlık kontrolü (DEEP), hiyerarşi ağacı, araç çevirmeni (SAFe, Azure Boards, Jira, ClickUp), etki haritası, story map ve sürüm dilimi, story kurucu, iyi mi kötü mü?",
+      "Pratik henüz yayında değil.",
+    ],
+  },
+  {
+    pr: 72,
+    tarih: "2026-11-19",
+    baslik: "Backlog pratiği hazırlanıyor: iskelet ve ilk 106 soru",
+    kitle: "yonetici",
+    maddeler: [
+      "Yeni pratik **Backlog: Epic, Feature, User Story** (`/backlog`, soru öneki `bl-`, katalog alanı Yazılım) açıldı ama henüz yayında değil: 12 ünite üç grupta (Backlog'un temeli, User story zanaatı, Tahmin, sıralama ve hazırlık). Agile, Backlog ve Ölçekli Agile üçlüsünün ikincisi.",
+      "İlk dört ünitede (Product Backlog'a yakından bakış, iş hiyerarşisi, vizyondan backlog'a, user story nedir?) 106 soru; etiketler Kaynak, Kavram, Sahada, Senaryo ve Hesap. Senaryolar Agile ve Scrum pratiğindeki 12 kişilik squad'da geçiyor; squad'ın üstünde epic ve feature yazıp story onaylayan kurgusal bir Teknik Liderlik var.",
+      "Yayından önce uzak D1'e `0056_backlog_ayarlari.sql` ve `0057_backlog_sorular.sql` uygulanmalı. Plan: `docs/plan-backlog-pratigi.md`.",
+    ],
+  },
+  {
     pr: 70,
     tarih: "2026-11-17",
     baslik: "Yeni pratik: Agile ve Scrum",

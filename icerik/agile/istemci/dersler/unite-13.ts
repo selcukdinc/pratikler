@@ -16,7 +16,7 @@ Her takımın kendi Sprint Backlog'u, kendi Daily'si ve kendi Developers'ı vard
 
 Bütün ölçekli çerçevelerin ortak sorusu budur: **takımlar arası bağımlılığı nasıl azaltırız ve her Sprint entegre bir Increment'i nasıl çıkarırız?**
 `),
-      dene: [p("tek-pb"), p("entegrasyon")],
+      dene: [p("entegrasyon")],
     },
     {
       baslik: "Özellik takımları ve bileşen takımları",
@@ -80,7 +80,7 @@ Scrum Rehberi bunların hiçbirini kullanmaz; yalnızca Product Backlog öğesin
 
 > **Sahada:** SAFe'e en sık yöneltilen eleştiri ağırlığıdır: çok sayıda rol, katman ve etkinlik, mevcut hiyerarşinin yeni adlarla korunmasına izin verebilir. Hangi çerçeve olursa olsun ölçü aynıdır: her Sprint entegre, çalışan bir ürün.
 `),
-      dene: [p("art"), p("epic-koken")],
+      dene: [p("epic-koken")],
     },
     {
       baslik: "Spotify modeli: squad, tribe, chapter, guild",
@@ -130,7 +130,7 @@ PSM ve PSPO sınavlarının birincil kaynağı Scrum Rehberi'dir; sahada yaygın
 
 Buradan iki yol açılır:
 
-- **Backlog: Epic, Feature, User Story** pratiği: Product Backlog öğelerini yazmak, bölmek, kabul ölçütleri, tahmin ve inceltme (yakında).
+- [Backlog: Epic, Feature, User Story](/backlog) pratiği: Product Backlog öğelerini yazmak, bölmek, kabul ölçütleri, tahmin ve inceltme. Backlog Atölyesi'nde hazırladığın backlog'u bu pratiğin Sprint Simülatörü'nde oynayabilirsin.
 - **Ölçekli Agile: Tribe, Squad, Canvas** pratiği: Spotify modeli, Tribe ve Team Canvas, Nexus, LeSS ve SAFe'in ayrıntısı (yakında).
 `),
       dene: [p("psm-pspo"), p("sinav-kaynak")],
@@ -138,6 +138,6 @@ Buradan iki yol açılır:
   ],
   test: [
     p("ortak-dod"), p("nexus-review"), p("less-felsefe"), p("safe-elestiri"), p("spotify-model"),
-    p("tek-pb"), p("ozellik-takimi"), p("art"),
+    p("tek-pb"), p("art"),
   ],
 };
