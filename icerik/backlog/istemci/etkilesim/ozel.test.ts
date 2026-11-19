@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { ARACLAR, dilimDegerlendir, GHERKIN_ORNEKLERI, gherkinDenetle, ilkDegerSprinti, KAPASITE, OMURGA, SEVIYE_ADLARI, storyDenetle } from "./ozel";
+import { ARACLAR, degereGoreSirala, dilimDegerlendir, surumAraligi, toplamGecikme, WSJF_OGELERI, wsjfSirala, GHERKIN_ORNEKLERI, gherkinDenetle, ilkDegerSprinti, KAPASITE, OMURGA, SEVIYE_ADLARI, storyDenetle } from "./ozel";
 
 describe("backlog: araç çevirmeni", () => {
   it("her araçta her seviyenin bir karşılığı ya da boşluğu var", () => {
@@ -55,5 +55,23 @@ describe("backlog: pasta dilimleyici", () => {
   it("dikey bölmede ilk değer 1. Sprint'te, yatayda 3. Sprint'te", () => {
     expect(ilkDegerSprinti("dikey")).toBe(1);
     expect(ilkDegerSprinti("yatay")).toBe(3);
+  });
+});
+
+describe("backlog: WSJF hesaplayıcı", () => {
+  it("küçük ve acil iş öne, büyük ve değerli iş arkaya geçer; toplam gecikme azalır", () => {
+    const w = wsjfSirala(WSJF_OGELERI).map((o) => o.ad);
+    expect(w[0]).toBe("Kayıt haftası hoş geldin bakiyesi");
+    expect(w.at(-1)).toBe("Önceden sipariş");
+    expect(degereGoreSirala(WSJF_OGELERI)[0]!.ad).toBe("Önceden sipariş");
+    expect(toplamGecikme(wsjfSirala(WSJF_OGELERI))).toBeLessThan(toplamGecikme(degereGoreSirala(WSJF_OGELERI)));
+  });
+});
+
+describe("backlog: sürüm tahmincisi", () => {
+  it("aralık en iyi ve en kötü hızdan hesaplanır, kapsam artışı aralığı uzatır", () => {
+    expect(surumAraligi(72, [18, 30], 0)).toEqual({ iyimser: 3, ortalama: 3, kotumser: 4 });
+    expect(surumAraligi(72, [18, 30], 6)).toEqual({ iyimser: 3, ortalama: 4, kotumser: 6 });
+    expect(surumAraligi(72, [18, 30], 18).kotumser).toBe(Infinity);
   });
 });

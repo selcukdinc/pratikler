@@ -12,3 +12,17 @@
 .bl-gherkin-satir { display: grid !important; grid-template-columns: 9.5em 1fr; gap: 8px; align-items: center; }
 @media (max-width: 520px) { .bl-gherkin-satir { grid-template-columns: 1fr; gap: 2px; } }
 .bl-soluk { opacity: .45; }
+.bl-iki { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; }
+.bl-tablo-kap { overflow-x: auto; max-width: 100%; }
+.bl-tablo { border-collapse: collapse; font-size: 13px; min-width: 560px; }
+.bl-tablo th, .bl-tablo td { border-bottom: 1px solid var(--border-soft); padding: 4px 6px; text-align: left; }
+.bl-tablo th { color: var(--muted); font-weight: 600; font-size: 12px; }
+.bl-tablo select { font: inherit; padding: 2px; border: 1px solid var(--border); border-radius: 4px; background: var(--input); color: var(--text); }
+.bl-wsjf-sira { margin: 0; padding-left: 20px; }
+.bl-kaydirac { display: flex; flex-direction: column; gap: 2px; font-size: 13px; min-width: 220px; flex: 1; }
+.ag svg { width: 100%; height: auto; display: block; }
+.bl-eksen { stroke: var(--border); stroke-width: 1; }
+.bl-kapsam { fill: none; stroke: var(--warning); stroke-width: 2; }
+.bl-gercek { fill: none; stroke: var(--link); stroke-width: 2.5; }
+.bl-ideal { fill: none; stroke: var(--muted); stroke-width: 1.5; stroke-dasharray: 5 4; }
+.bl-yazi { fill: var(--muted); font-size: 11px; }

@@ -21,4 +21,9 @@ export const GORSELLER: Gorsel[] = [
   g("G-S7-01", "Pasta dilimleyici", "Aynı 24 puanlık feature katmanlara ya da değer dilimlerine bölünür; her Sprint sonunda öğrencinin ne kullanabildiği karşılaştırılır.", "Yatay: 3. Sprint · Dikey: 1. Sprint", "pastaDilimleyici"),
   g("G-S7-02", "SPIDR bölücü", "Sekiz büyük story için SPIDR'ın en doğal bölme yolu seçilir.", "Spike · Path · Interface · Data · Rules", "spidrBolucu"),
   g("G-S8-01", "Nereye yazılır?", "Dokuz madde kabul kriteri, Definition of Done, ayrı backlog öğesi ya da task diye ayrılır.", "Kabul kriteri · DoD · Öğe · Task", "nereyeYazilir"),
+  g("G-S9-01", "Kova yöntemi", "Sekiz story, 2 puanlık bir referans story'ye göre 1-2, 3-5, 8 ve 13+ kovalarına dağıtılır.", "1-2 · 3-5 · 8 · 13+", "kovaYontemi"),
+  g("G-S10-01", "Kano modeli", "Yemekhane uygulamasının sekiz özelliği temel, performans, heyecan verici ya da ilgisiz diye ayrılır.", "Temel · Performans · Heyecan · İlgisiz", "kanoModeli"),
+  g("G-S10-02", "WSJF hesaplayıcı", "Beş feature'ın iş değeri, zaman kritikliği, risk azaltma ve büyüklüğü değiştirilir; WSJF sırası değer sırasıyla ve toplam gecikme maliyetiyle karşılaştırılır.", "Gecikme maliyeti / büyüklük", "wsjfHesaplayici"),
+  g("G-S11-01", "DoR mı, DoD mi, kabul kriteri mi?", "Sekiz madde Definition of Ready, Definition of Done ya da bir story'nin kabul kriteri diye ayrılır.", "Ready · Done · Kabul kriteri", "hazirMi"),
+  g("G-S12-01", "Sürüm tahmincisi", "Kalan kapsam ve Sprint başına eklenen kapsam değiştirilir; burnup, hız aralığı ve Monte Carlo ile sürüm tahmini gösterilir.", "Burnup · aralık · Monte Carlo", "surumTahmincisi"),
 ];

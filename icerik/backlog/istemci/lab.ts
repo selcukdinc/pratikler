@@ -4,10 +4,10 @@ import { createElement, lazy } from "react";
 import type { Deney } from "../../../src/lab/deneyler";
 
 const kart = (
-  ad: "BacklogBuzdagi" | "SaglikKontrolu" | "HiyerarsiAgaci" | "EtkiHaritasi" | "IyiMiKotuMu" | "InvestDedektifi" | "ExampleMapping" | "SpidrBolucu" | "NereyeYazilir",
+  ad: "BacklogBuzdagi" | "SaglikKontrolu" | "HiyerarsiAgaci" | "EtkiHaritasi" | "IyiMiKotuMu" | "InvestDedektifi" | "ExampleMapping" | "SpidrBolucu" | "NereyeYazilir" | "KovaYontemi" | "KanoModeli" | "HazirMi",
 ) =>
   lazy(() => import("./etkilesim/kartlar").then((m) => ({ default: () => createElement(m[ad]) })));
-const ozel = (ad: "AracCevirmeni" | "StoryMap" | "StoryKurucu" | "GherkinKurucu" | "PastaDilimleyici") =>
+const ozel = (ad: "AracCevirmeni" | "StoryMap" | "StoryKurucu" | "GherkinKurucu" | "PastaDilimleyici" | "WsjfHesaplayici" | "SurumTahmincisi") =>
   lazy(() => import("./etkilesim/ozel").then((m) => ({ default: () => createElement(m[ad]) })));
 
 export const DENEYLER: Deney[] = [
@@ -25,4 +25,9 @@ export const DENEYLER: Deney[] = [
   { id: "pasta", ad: "Pasta dilimleyici", unite: 7, bilesen: ozel("PastaDilimleyici"), ozet: "Aynı feature'ı katmanlara ya da değer dilimlerine böl; öğrencinin ilk değeri hangi Sprint'te aldığını gör." },
   { id: "spidr", ad: "SPIDR bölücü", unite: 7, bilesen: kart("SpidrBolucu"), ozet: "Sekiz büyük story için Spike, Path, Interface, Data ya da Rules: hangisiyle bölünür?" },
   { id: "nereye", ad: "Nereye yazılır?", unite: 8, bilesen: kart("NereyeYazilir"), ozet: "Kalite koşullarını, teknik işleri ve kuralları kabul kriteri, DoD, ayrı öğe ya da task diye yerleştir." },
+  { id: "kova", ad: "Kova yöntemi", unite: 9, bilesen: kart("KovaYontemi"), ozet: "2 puanlık bir referans story'ye göre sekiz story'yi tahmin kovalarına dağıt; 13'ü geçeni böl." },
+  { id: "kano", ad: "Kano modeli", unite: 10, bilesen: kart("KanoModeli"), ozet: "Yemekhane uygulamasının özelliklerini temel, performans, heyecan verici ya da ilgisiz diye ayır." },
+  { id: "wsjf", ad: "WSJF hesaplayıcı", unite: 10, bilesen: ozel("WsjfHesaplayici"), ozet: "Beş feature'ı WSJF ile sırala; yalnızca değere göre sıralamanın toplam gecikme maliyetiyle karşılaştır." },
+  { id: "hazir-mi", ad: "DoR mı, DoD mi, kabul kriteri mi?", unite: 11, bilesen: kart("HazirMi"), ozet: "Sekiz maddeyi hazır olma tanımı, bitti tanımı ya da bir story'nin kabul kriteri diye ayır." },
+  { id: "surum", ad: "Sürüm tahmincisi", unite: 12, bilesen: ozel("SurumTahmincisi"), ozet: "Kalan kapsamı ve kapsam artışını değiştir; burnup, hız aralığı ve Monte Carlo ile sürüm aralığını gör." },
 ];

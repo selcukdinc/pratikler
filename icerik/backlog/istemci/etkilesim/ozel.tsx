@@ -1,7 +1,8 @@
 // Backlog pratiğinin hesaplı şekilleri: araç çevirmeni (G-S2-02), story map ve sürüm
 // dilimi (G-S3-02), story kurucu (G-S4-01). Saf denetimler ayrı işlevlerdedir ve test
 // edilir (ozel.test.ts). Hepsi tarayıcıda çalışır, istek atmaz.
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import { monteCarlo, yuzdelik } from "../../../agile/istemci/etkilesim/olcum";
 import { gherkinDenetle, storyDenetle } from "../../../../src/backlog/kurallar";
 
 export { gherkinDenetle, storyDenetle };
@@ -360,6 +361,193 @@ export function PastaDilimleyici() {
         {sprint >= ilk
           ? `Öğrenciler ${ilk}. Sprint'in sonunda ilk kez bir şey kullanabildi${tur === "yatay" ? "; geri bildirim ve entegrasyon riski en sona kaldı." : "; sonraki dilimler bu geri bildirimle şekillenebilir."}`
           : `${sprint}. Sprint'in sonunda ${sprint * 8} puanlık iş bitti ama öğrencinin kullanabildiği hiçbir şey yok.`}
+      </p>
+    </div>
+  );
+}
+
+// ---------------- G-S10-02: WSJF hesaplayıcı ----------------
+
+export interface WsjfOge {
+  ad: string;
+  deger: number;
+  zaman: number;
+  risk: number;
+  buyukluk: number;
+}
+
+export const WSJF_OLCEK = [1, 2, 3, 5, 8, 13, 20];
+export const WSJF_OGELERI: WsjfOge[] = [
+  { ad: "Önceden sipariş", deger: 8, zaman: 8, risk: 5, buyukluk: 13 },
+  { ad: "Kasada temassız ödeme", deger: 8, zaman: 3, risk: 3, buyukluk: 8 },
+  { ad: "Hazır olunca bildirim", deger: 5, zaman: 5, risk: 2, buyukluk: 3 },
+  { ad: "Kalabalık saat göstergesi", deger: 5, zaman: 3, risk: 1, buyukluk: 5 },
+  { ad: "Kayıt haftası hoş geldin bakiyesi", deger: 3, zaman: 13, risk: 1, buyukluk: 2 },
+];
+
+export const gecikmeMaliyeti = (o: WsjfOge) => o.deger + o.zaman + o.risk;
+export const wsjfPuani = (o: WsjfOge) => Math.round((gecikmeMaliyeti(o) / o.buyukluk) * 10) / 10;
+
+export function wsjfSirala(ogeler: WsjfOge[]): WsjfOge[] {
+  return [...ogeler].sort((a, b) => wsjfPuani(b) - wsjfPuani(a) || gecikmeMaliyeti(b) - gecikmeMaliyeti(a));
+}
+
+export function degereGoreSirala(ogeler: WsjfOge[]): WsjfOge[] {
+  return [...ogeler].sort((a, b) => b.deger - a.deger || gecikmeMaliyeti(b) - gecikmeMaliyeti(a));
+}
+
+// Sırayla yapıldığında her işin bitene kadar ödediği gecikme maliyetinin toplamı
+export function toplamGecikme(sira: WsjfOge[]): number {
+  let zaman = 0;
+  return sira.reduce((t, o) => {
+    zaman += o.buyukluk;
+    return t + gecikmeMaliyeti(o) * zaman;
+  }, 0);
+}
+
+export function WsjfHesaplayici() {
+  const [ogeler, setOgeler] = useState(WSJF_OGELERI);
+  const ayarla = (i: number, alan: keyof Omit<WsjfOge, "ad">, x: number) => setOgeler(ogeler.map((o, j) => (j === i ? { ...o, [alan]: x } : o)));
+  const w = wsjfSirala(ogeler);
+  const d = degereGoreSirala(ogeler);
+  const sec = (i: number, alan: keyof Omit<WsjfOge, "ad">, ad: string) => (
+    <select value={ogeler[i]![alan]} aria-label={`${ogeler[i]!.ad}: ${ad}`} onChange={(e) => ayarla(i, alan, Number(e.target.value))}>
+      {WSJF_OLCEK.map((x) => (
+        <option key={x} value={x}>
+          {x}
+        </option>
+      ))}
+    </select>
+  );
+  const liste = (baslik: string, sira: WsjfOge[]) => (
+    <div className="ag-kutu">
+      <h4>{baslik}</h4>
+      <ol className="bl-wsjf-sira">
+        {sira.map((o) => (
+          <li key={o.ad}>{o.ad}</li>
+        ))}
+      </ol>
+      <p className="ag-not">Toplam gecikme maliyeti: {toplamGecikme(sira)}</p>
+    </div>
+  );
+  return (
+    <div className="ag">
+      <div className="bl-tablo-kap">
+        <table className="bl-tablo">
+          <thead>
+            <tr>
+              <th>Feature</th>
+              <th>İş değeri</th>
+              <th>Zaman kritikliği</th>
+              <th>Risk azaltma</th>
+              <th>Büyüklük</th>
+              <th>Gecikme maliyeti</th>
+              <th>WSJF</th>
+            </tr>
+          </thead>
+          <tbody>
+            {ogeler.map((o, i) => (
+              <tr key={o.ad}>
+                <td>{o.ad}</td>
+                <td>{sec(i, "deger", "iş değeri")}</td>
+                <td>{sec(i, "zaman", "zaman kritikliği")}</td>
+                <td>{sec(i, "risk", "risk azaltma")}</td>
+                <td>{sec(i, "buyukluk", "büyüklük")}</td>
+                <td>{gecikmeMaliyeti(o)}</td>
+                <td>
+                  <strong>{wsjfPuani(o)}</strong>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <div className="bl-iki">
+        {liste("WSJF'ye göre", w)}
+        {liste("Yalnızca iş değerine göre", d)}
+      </div>
+      <p className={`ag-sonuc ${toplamGecikme(w) <= toplamGecikme(d) ? "ag-iyi" : "ag-kotu"}`}>
+        WSJF sırası toplam gecikme maliyetini {toplamGecikme(d) - toplamGecikme(w)} birim azaltıyor. Küçük ve acil işler, daha değerli görünen büyük işlerin önüne geçer.
+      </p>
+      <p className="ag-not">Gecikme maliyeti = iş değeri + zaman kritikliği + risk azaltma; WSJF = gecikme maliyeti / büyüklük. Toplam gecikme, her işin bitene kadar beklediği sürenin gecikme maliyetiyle çarpımlarının toplamıdır.</p>
+    </div>
+  );
+}
+
+// ---------------- G-S12-01: sürüm tahmincisi ----------------
+
+export const SURUM_GECMIS = [18, 26, 22, 30, 20, 24];
+export const SURUM_BITEN = 140;
+
+export function surumAraligi(kalan: number, gecmis: number[], artis: number) {
+  const net = gecmis.map((h) => h - artis);
+  const enAz = Math.min(...net);
+  const enCok = Math.max(...net);
+  const ort = net.reduce((a, b) => a + b, 0) / net.length;
+  const sprint = (h: number) => (h > 0 ? Math.ceil(kalan / h) : Infinity);
+  return { iyimser: sprint(enCok), ortalama: sprint(ort), kotumser: sprint(enAz) };
+}
+
+export function SurumTahmincisi() {
+  const [kalan, setKalan] = useState(120);
+  const [artis, setArtis] = useState(0);
+  const a = surumAraligi(kalan, SURUM_GECMIS, artis);
+  const mc = useMemo(() => monteCarlo(SURUM_GECMIS.map((h) => Math.max(0, h - artis)), kalan, 2000, 7), [kalan, artis]);
+  const p50 = yuzdelik(mc, 50);
+  const p85 = yuzdelik(mc, 85);
+  // Burnup: geçmiş Sprint'ler, sonra kötümser ve iyimser izdüşüm
+  const gecmisN = SURUM_GECMIS.length;
+  const toplamN = gecmisN + (Number.isFinite(a.kotumser) ? a.kotumser : 12);
+  const kapsamSon = SURUM_BITEN + kalan + artis * (toplamN - gecmisN);
+  const W = 640;
+  const H = 240;
+  const x = (i: number) => 36 + (i / toplamN) * (W - 50);
+  const y = (v: number) => H - 24 - (v / kapsamSon) * (H - 40);
+  const birikim = SURUM_GECMIS.reduce<number[]>((d, h) => [...d, (d.at(-1) ?? 0) + h], [0]);
+  const olcek = SURUM_BITEN / birikim.at(-1)!;
+  const biten = birikim.map((v) => v * olcek);
+  const kapsam = (i: number) => SURUM_BITEN + kalan + Math.max(0, i - gecmisN) * artis;
+  const izdusum = (hiz: number) => {
+    const n = hiz > 0 ? Math.min(toplamN - gecmisN, Math.ceil(kalan / hiz)) : 0;
+    return `${x(gecmisN)},${y(SURUM_BITEN)} ${x(gecmisN + n)},${y(Math.min(kapsam(gecmisN + n), SURUM_BITEN + (hiz + artis) * n))}`;
+  };
+  const net = SURUM_GECMIS.map((h) => h - artis);
+  return (
+    <div className="ag">
+      <div className="ag-satir">
+        <label className="bl-kaydirac">
+          Kalan kapsam: <strong>{kalan} puan</strong>
+          <input type="range" min={40} max={240} step={10} value={kalan} onChange={(e) => setKalan(Number(e.target.value))} />
+        </label>
+        <label className="bl-kaydirac">
+          Her Sprint eklenen kapsam: <strong>{artis} puan</strong>
+          <input type="range" min={0} max={14} step={2} value={artis} onChange={(e) => setArtis(Number(e.target.value))} />
+        </label>
+      </div>
+      <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Sürüm burnup grafiği">
+        <line className="bl-eksen" x1={36} y1={H - 24} x2={W - 10} y2={H - 24} />
+        <line className="bl-eksen" x1={36} y1={10} x2={36} y2={H - 24} />
+        <polyline className="bl-kapsam" points={Array.from({ length: toplamN + 1 }, (_, i) => `${x(i)},${y(kapsam(i))}`).join(" ")} />
+        <polyline className="bl-gercek" points={biten.map((v, i) => `${x(i)},${y(v)}`).join(" ")} />
+        <polyline className="bl-ideal" points={izdusum(Math.max(...net))} />
+        <polyline className="bl-ideal" points={izdusum(Math.min(...net))} />
+        <text className="bl-yazi" x={x(gecmisN)} y={H - 8} textAnchor="middle">bugün</text>
+        <text className="bl-yazi" x={W - 12} y={y(kapsamSon) - 4} textAnchor="end">kapsam</text>
+      </svg>
+      <div className="bl-iki">
+        <div className="ag-kutu">
+          <h4>Aralık (geçmiş hızların en iyisi ve en kötüsü)</h4>
+          <p>
+            {Number.isFinite(a.kotumser) ? `${a.iyimser} ile ${a.kotumser} Sprint arası; ortalamayla ${a.ortalama}.` : "Kapsam en yavaş Sprint'teki hızdan hızlı büyüyor; bu hızla sürüm hiç bitmeyebilir."}
+          </p>
+        </div>
+        <div className="ag-kutu">
+          <h4>Monte Carlo (2000 deneme)</h4>
+          <p>{mc.length ? `%50 olasılıkla ${p50}, %85 olasılıkla ${p85} Sprint içinde.` : "Net hız sıfır; sürüm bitmez."}</p>
+        </div>
+      </div>
+      <p className="ag-not">
+        Son altı Sprint'in hızları: {SURUM_GECMIS.join(", ")}. Paydaşa tek tarih yerine aralık söyle: "%85 olasılıkla {p85 || "?"} Sprint içinde". Kapsam artışı burnup'ta kapsam çizgisinin yükselmesi olarak görünür; burndown bunu gizlerdi.
       </p>
     </div>
   );

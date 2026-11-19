@@ -159,3 +159,54 @@ export const NEREYE_KARTLARI: Kart[] = [
 export const NereyeYazilir = () => (
   <Siniflandir kategoriler={YERLER} kartlar={NEREYE_KARTLARI} soru="Her madde backlog'da nereye yazılmalı?" />
 );
+
+// ---------------- G-S9-01: kova yöntemi ----------------
+
+const KOVALAR = ["1-2", "3-5", "8", "13+ (böl)"];
+export const KOVA_KARTLARI: Kart[] = [
+  { metin: "Menü kartındaki yazım hatasını düzelt.", dogru: "1-2", neden: "Referanstan (menüye fotoğraf, 2) bile küçük; tek ekranda tek değişiklik." },
+  { metin: "Menüde alerjen simgesi göster (veri hazır, yalnızca gösterilecek).", dogru: "1-2", neden: "Referansa çok benzer: veri var, tek ekranda gösterim." },
+  { metin: "Siparişi yemekten 30 dakika öncesine kadar iptal et, bakiye geri yüklensin.", dogru: "3-5", neden: "Bir iş kuralı, bakiye hareketi ve iki kabul kriteri: referansın iki katı kadar." },
+  { metin: "Öğle menüsünü önceden sipariş edip bakiyeden öde.", dogru: "3-5", neden: "Uçtan uca ince bir dilim; üç katmana dokunuyor ama tek menü, tek ödeme yolu." },
+  { metin: "Yemeğin hazır olduğunu telefona bildirim olarak gönder.", dogru: "8", neden: "Bildirim altyapısı ilk kez kuruluyor; izin kapalı telefonlar gibi olumsuz yollar da var." },
+  { metin: "Kartla bakiye yükleme (ödeme sağlayıcının test ortamı yok).", dogru: "8", neden: "İş orta büyüklükte ama belirsizlik yüksek; tahmin büyür, önce bir spike düşünülmeli." },
+  { metin: "Dört yemekhanenin menü verisini tek biçimde birleştir ve hepsinde sipariş al.", dogru: "13+ (böl)", neden: "Dört farklı veri kaynağı: SPIDR'ın Data yoluyla önce tek yemekhane, sonra diğerleri." },
+  { metin: "Öğrenciler yemekhaneyle ilgili her şeyi uygulamadan yapabilsin.", dogru: "13+ (böl)", neden: "Bu bir epic; kovaya girmeden önce feature'lara ve story'lere bölünmeli." },
+];
+export const KovaYontemi = () => (
+  <Siniflandir kategoriler={KOVALAR} kartlar={KOVA_KARTLARI} soru={"Referans story: \"Menüye yemek fotoğrafı ekle\" = 2 puan. Her story hangi kovaya girer?"} />
+);
+
+// ---------------- G-S10-01: Kano modeli ----------------
+
+const KANO = ["Temel", "Performans", "Heyecan verici", "İlgisiz"];
+export const KANO_KARTLARI: Kart[] = [
+  { metin: "Kartla ödeme yapılırken kart bilgisinin güvende olması.", dogru: "Temel", neden: "Olmazsa öfke, olunca kimse teşekkür etmez." },
+  { metin: "Öğle saatinde siparişin onaylanma süresi.", dogru: "Performans", neden: "Ne kadar kısaysa memnuniyet o kadar artar; doğrusal bir ilişki." },
+  { metin: "Doğum gününde öğrenciye ücretsiz tatlı hakkı.", dogru: "Heyecan verici", neden: "Beklenmiyor; olunca sevindirir, olmayınca kimse fark etmez." },
+  { metin: "Menüde yemeğin hangi yemekhanede piştiği.", dogru: "İlgisiz", neden: "Öğrencilerin çoğu için memnuniyete etkisi yok." },
+  { metin: "Siparişin doğru yemekle teslim edilmesi.", dogru: "Temel", neden: "Beklenen en temel şey; yanlış teslim güveni yok eder." },
+  { metin: "Bakiyenin ay sonuna kaç öğün yeteceğini gösteren tahmin.", dogru: "Heyecan verici", neden: "Kimse istemedi; ilk görüldüğünde şaşırtır. Zamanla beklentiye dönüşebilir." },
+  { metin: "Menüde gösterilen yemek çeşidi sayısı.", dogru: "Performans", neden: "Çeşit arttıkça memnuniyet artar, azaldıkça düşer." },
+  { metin: "Uygulama simgesinin rengini değiştirebilmek.", dogru: "İlgisiz", neden: "Bekleme süresine ya da yemeğe etkisi yok; çoğu öğrenci umursamaz." },
+];
+export const KanoModeli = () => (
+  <Siniflandir kategoriler={KANO} kartlar={KANO_KARTLARI} soru="Kampüs yemekhanesi uygulamasının her özelliği öğrenciler için Kano'nun hangi kategorisinde?" />
+);
+
+// ---------------- G-S11-01: DoR mı, DoD mi, kabul kriteri mi? ----------------
+
+const HAZIR = ["Definition of Ready", "Definition of Done", "Kabul kriteri"];
+export const HAZIR_KARTLARI: Kart[] = [
+  { metin: "Story'nin dış bir ekibe bağımlılığı yok ya da çözüldü.", dogru: "Definition of Ready", neden: "Sprint'e girmeden önce bakılan bir koşul; işin başlayabilmesiyle ilgili." },
+  { metin: "Takım story'yi tahmin etti ve bir Sprint'e sığdığına inanıyor.", dogru: "Definition of Ready", neden: "Rehber'in \"bir Sprint içinde Done yapılabilir\" ölçüsünün takımdaki karşılığı." },
+  { metin: "Kabul kriterleri yazıldı ve test uzmanı nasıl doğrulayacağını biliyor.", dogru: "Definition of Ready", neden: "Kriterlerin varlığı hazır olmanın koşuludur; kriterlerin kendisi başka bir şeydir." },
+  { metin: "Kod en az bir kişi tarafından incelendi.", dogru: "Definition of Done", neden: "Bütün öğeler için geçerli bir kalite ölçütü." },
+  { metin: "Otomatik testler geçti ve ana dala birleştirildi.", dogru: "Definition of Done", neden: "Her öğenin Increment'e girmesi için gereken ortak ölçüt." },
+  { metin: "Her yeni ekran erişilebilirlik denetiminden geçti.", dogru: "Definition of Done", neden: "Bütün ekranları kapsayan kalite koşulu (8. ünite)." },
+  { metin: "Bakiye yetersizse sipariş alınmaz ve eksik tutar gösterilir.", dogru: "Kabul kriteri", neden: "Yalnızca sipariş story'sine özgü davranış." },
+  { metin: "İptal, yemekten 30 dakika öncesine kadar yapılabilir.", dogru: "Kabul kriteri", neden: "Tek bir story'nin iş kuralı." },
+];
+export const HazirMi = () => (
+  <Siniflandir kategoriler={HAZIR} kartlar={HAZIR_KARTLARI} soru="Her madde nereye yazılır: Definition of Ready, Definition of Done, yoksa bir story'nin kabul kriteri mi?" />
+);
