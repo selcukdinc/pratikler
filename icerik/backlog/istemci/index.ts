@@ -16,6 +16,7 @@ import { UNITE_12 } from "./dersler/unite-12";
 import { GORSELLER } from "./gorseller";
 import { ETKILESIMLER } from "./etkilesim";
 import { DENEYLER } from "./lab";
+import { SEVIYE_TESTI } from "./seviye";
 
 const icerik: PratikIstemciIcerigi = {
   dersler: [UNITE_1, UNITE_2, UNITE_3, UNITE_4, UNITE_5, UNITE_6, UNITE_7, UNITE_8, UNITE_9, UNITE_10, UNITE_11, UNITE_12],
@@ -37,6 +38,7 @@ const icerik: PratikIstemciIcerigi = {
   gorseller: GORSELLER,
   etkilesimler: ETKILESIMLER,
   deneyler: DENEYLER,
+  seviyeTesti: SEVIYE_TESTI,
   backlogAtolyesi: () => import("./atolye").then((m) => m.default),
 };
 

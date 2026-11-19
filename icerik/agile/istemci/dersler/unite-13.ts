@@ -130,7 +130,7 @@ PSM ve PSPO sınavlarının birincil kaynağı Scrum Rehberi'dir; sahada yaygın
 
 Buradan iki yol açılır:
 
-- **Backlog: Epic, Feature, User Story** pratiği: Product Backlog öğelerini yazmak, bölmek, kabul ölçütleri, tahmin ve inceltme (yakında).
+- [Backlog: Epic, Feature, User Story](/backlog) pratiği: Product Backlog öğelerini yazmak, bölmek, kabul ölçütleri, tahmin ve inceltme. Backlog Atölyesi'nde hazırladığın backlog'u bu pratiğin Sprint Simülatörü'nde oynayabilirsin.
 - **Ölçekli Agile: Tribe, Squad, Canvas** pratiği: Spotify modeli, Tribe ve Team Canvas, Nexus, LeSS ve SAFe'in ayrıntısı (yakında).
 `),
       dene: [p("psm-pspo"), p("sinav-kaynak")],

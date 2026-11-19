@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { adim, baslat, dikeyMi, invest, karne, ogeBul, onayIncele, oneriHamleleri, oyna, poker, wsjf } from "../../../../src/backlog/motor";
+import { simulatoreAktar } from "../../../../src/backlog/aktar";
 import { GOREVLER, SENARYO } from "./index";
 
 describe("backlog: atölye görevleri", () => {
@@ -97,5 +98,25 @@ describe("backlog: atölye motoru", () => {
     expect(k.tahminYuzde).toBe(67);
     expect(k.ayrintili).toBe(false);
     expect(k.investYuzde).toBeGreaterThan(0);
+  });
+});
+
+describe("backlog: Sprint Simülatörü'ne aktarım", () => {
+  it("iyi hazırlanmış backlog notsuz aktarılır; her feature bir Sprint Goal olur", () => {
+    const g = GOREVLER.find((x) => x.id === "ilk-surum")!;
+    const a = simulatoreAktar(oyna(baslat(g.baslangic), g.ornek, SENARYO), SENARYO);
+    expect(a.backlog.map((o) => o.id)).toEqual(["ST-4", "ST-5", "ST-6", "ST-7"]);
+    expect(a.hedefler.map((h) => h.id)).toEqual(["F-2", "F-3"]);
+    expect(a.notlar).toEqual([]);
+    expect(Object.keys(a.geriBildirim)).toEqual([]);
+    expect(a.backlog.every((o) => o.deger > 1)).toBe(true);
+  });
+  it("yatay dilim değersiz, konuşulmamış risk büyük, olumsuz yolu olmayan story geri döner", () => {
+    const yatay = simulatoreAktar(baslat(GOREVLER.find((x) => x.id === "yatay-dikey")!.baslangic), SENARYO);
+    expect(yatay.backlog.every((o) => o.deger === 1)).toBe(true);
+    expect(yatay.geriBildirim[1]).toHaveLength(3);
+    const poker = simulatoreAktar(baslat(GOREVLER.find((x) => x.id === "poker-fark")!.baslangic), SENARYO);
+    expect(poker.backlog[0]!.puan).toBe(13);
+    expect(poker.notlar.join(" ")).toMatch(/konuşulmamış/);
   });
 });

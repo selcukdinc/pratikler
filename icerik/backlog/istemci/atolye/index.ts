@@ -2,7 +2,7 @@
 // hazır kart havuzu, takımdakilerin gizli bilgileri ve hedefli görevler. Motor
 // src/backlog/motor.ts; her görevin örnek çözümü atolye.test.ts'te oynatılır.
 import type { AtolyeGorevi, AtolyeIcerigi } from "../../../../src/backlog/gorev";
-import { altlar, dikeyMi, ogeBul, onayIncele, type Backlog, type Kriter, type Oge, type Senaryo } from "../../../../src/backlog/motor";
+import { altlar, dikeyMi, karne, ogeBul, onayIncele, storyler, wsjf, type Backlog, type Kriter, type Oge, type Senaryo } from "../../../../src/backlog/motor";
 import { storyDenetle } from "../../../../src/backlog/kurallar";
 
 const HEPSI = ["ekran", "servis", "veri"] as const;
@@ -127,6 +127,15 @@ const k = (given: string, when: string, then: string, olumsuz = false): Kriter =
 
 const featureStoryleri = (b: Backlog, f: string) => altlar(b, f).filter((o) => o.tur === "story");
 const iyiDilim = (o: Oge) => !o.spike && dikeyMi(o) && storyDenetle(o.rol ?? "", o.istek ?? "", o.fayda ?? "").iyi;
+
+// Story'ler, WSJF'si yüksek feature'ın story'leri önde olacak biçimde mi sıralı?
+function wsjfSirasinda(b: Backlog): boolean {
+  const f = b.ogeler.filter((o) => o.tur === "feature" && featureStoryleri(b, o.id).length > 0);
+  if (f.length < 2 || f.some((o) => wsjf(o, b) == null)) return false;
+  const puan = (id: string | null) => wsjf(ogeBul(b, id)!, b) ?? 0;
+  const st = storyler(b).filter((o) => o.ust && f.some((x) => x.id === o.ust));
+  return st.every((o, i) => i === 0 || puan(st[i - 1]!.ust) >= puan(o.ust));
+}
 
 // ---------------- Görevler ----------------
 
@@ -287,6 +296,106 @@ export const GOREVLER: AtolyeGorevi[] = [
       { tur: "sor", id: "ST-6", kisi: "kerem" },
       { tur: "yaz", oge: { tur: "story", ust: "F-2", baslik: "Spike: ödeme sağlayıcıyla nasıl test ederiz? (2 gün time-box)", spike: true } },
       { tur: "guncelle", id: "ST-6", alanlar: { puan: 8 } },
+      { tur: "onayaGonder" },
+    ],
+  },
+  {
+    id: "wsjf-sira",
+    ad: "WSJF ile sırala",
+    ozet: "Üç feature'ın story'leri backlog'da yazıldıkları sırada duruyor. Her feature'ı WSJF ile puanla ve story'leri, WSJF'si yüksek feature'ın story'leri önde olacak biçimde sırala.",
+    ipucu: "Bir feature seç ve \"WSJF ile puanla\" de. Kayıt haftası gibi bir tarih yoksa zaman kritikliği düşüktür; küçük feature'lar aynı gecikme maliyetiyle öne geçer. Sonra soldaki Sıra listesinde okları kullan.",
+    unite: 10,
+    baslangic: [
+      EPIC, ONSIPARIS,
+      { id: "F-3", tur: "feature", ust: "E-1", baslik: "Hazır olunca bildirim", kart: "f-bildirim" },
+      { id: "F-4", tur: "feature", ust: "E-1", baslik: "Kalabalık saat göstergesi", kart: "f-yogunluk" },
+      kartOge("ST-5", "s-tek-menu", { puan: 5 }),
+      kartOge("ST-6", "s-teslim", { puan: 3 }),
+      kartOge("ST-7", "s-doluluk", { ust: "F-4", puan: 5 }),
+      kartOge("ST-8", "s-hazir-bildirim", { ust: "F-3", puan: 3 }),
+    ],
+    hedef: (b) => wsjfSirasinda(b),
+    durum: (b) => {
+      const f = b.ogeler.filter((o) => o.tur === "feature" && featureStoryleri(b, o.id).length > 0);
+      const puanli = f.filter((o) => wsjf(o, b) != null).length;
+      if (puanli < f.length) return `${f.length} feature'dan ${puanli} tanesi WSJF ile puanlandı.`;
+      return wsjfSirasinda(b) ? "Sıra WSJF'ye uyuyor." : "Hepsi puanlandı; story'lerin sırası henüz WSJF'ye uymuyor.";
+    },
+    ornek: [
+      { tur: "guncelle", id: "F-2", alanlar: { wsjf: { deger: 8, zaman: 5, risk: 3 } } },
+      { tur: "guncelle", id: "F-3", alanlar: { wsjf: { deger: 5, zaman: 5, risk: 2 } } },
+      { tur: "guncelle", id: "F-4", alanlar: { wsjf: { deger: 5, zaman: 3, risk: 1 } } },
+      { tur: "siraKur", sira: ["ST-8", "ST-5", "ST-6", "ST-7"] },
+    ],
+  },
+  {
+    id: "ilk-surum",
+    ad: "Sprint'e hazır ilk sürüm",
+    ozet: "Boş bir epic'ten başla: iki feature, en az dört dikey story, hepsinde olumsuz yolu olan kabul kriterleri ve tahmin. Takımdaki gizli bilgileri bul ve backlog'u Teknik Liderlik'ten onaylı çıkar.",
+    ipucu: "Her story için Planning Poker'da kartları aç; farklı kart açan varsa sor ve öneriyi uygula. Onaya göndermeden önce INVEST göstergelerinin hepsi yeşil olsun. Bitince karnedeki düğmeyle backlog'u Sprint Simülatörü'ne aktarıp oynayabilirsin.",
+    unite: 12,
+    baslangic: [EPIC],
+    hedef: (b, s) => {
+      const k = karne(b, s);
+      const st = storyler(b).filter((o) => !o.spike);
+      const f = b.ogeler.filter((o) => o.tur === "feature");
+      return b.onay.onaylandi && f.length >= 2 && st.length >= 4 && k.gizliBulunan === k.gizliToplam && k.ayrintili;
+    },
+    durum: (b, s) => {
+      const k = karne(b, s);
+      const st = storyler(b).filter((o) => !o.spike).length;
+      const f = b.ogeler.filter((o) => o.tur === "feature").length;
+      return `${f} feature, ${st} story; gizli bilgi ${k.gizliBulunan}/${k.gizliToplam}; ${b.onay.onaylandi ? "onaylandı" : b.onay.tur ? `${b.onay.tur}. turda geri döndü` : "henüz onaya gitmedi"}.`;
+    },
+    ornek: [
+      { tur: "kartEkle", kart: "f-onsiparis", ust: "E-1" },
+      { tur: "kartEkle", kart: "f-bildirim", ust: "E-1" },
+      { tur: "kartEkle", kart: "s-tek-menu", ust: "F-2" },
+      { tur: "kartEkle", kart: "s-teslim", ust: "F-2" },
+      { tur: "kartEkle", kart: "s-iptal", ust: "F-2" },
+      { tur: "kartEkle", kart: "s-hazir-bildirim", ust: "F-3" },
+      {
+        tur: "guncelle", id: "ST-4", alanlar: {
+          puan: 5,
+          kriterler: [
+            k("öğrencinin bakiyesi 60 TL", "45 TL'lik öğle menüsünü önceden sipariş ettiğinde", "bakiyesi 15 TL olur ve sipariş numarası verilir"),
+            k("öğrencinin bakiyesi 30 TL", "45 TL'lik menüyü sipariş etmek istediğinde", "sipariş alınmaz ve \"15 TL eksik\" mesajı görünür", true),
+          ],
+        },
+      },
+      {
+        tur: "guncelle", id: "ST-5", alanlar: {
+          puan: 3,
+          kriterler: [
+            k("öğrencinin hazır bir siparişi var", "teslim noktasında sıra numarasını söylediğinde", "yemeği kasaya uğramadan teslim edilir"),
+            k("öğrencinin siparişi henüz hazır değil", "teslim noktasına geldiğinde", "kalan tahmini süre söylenir", true),
+          ],
+        },
+      },
+      {
+        tur: "guncelle", id: "ST-6", alanlar: {
+          puan: 3,
+          kriterler: [
+            k("öğrencinin 12.00 için 45 TL'lik siparişi var", "11.00'de iptal ettiğinde", "sipariş iptal edilir ve 45 TL bakiyesine geri yüklenir"),
+            k("öğrencinin 12.00 için siparişi var", "11.45'te iptal etmek istediğinde", "iptal yapılmaz ve \"iptal süresi geçti\" mesajı görünür", true),
+          ],
+        },
+      },
+      {
+        tur: "guncelle", id: "ST-7", alanlar: {
+          kriterler: [k("öğrencinin siparişi mutfakta hazırlanıyor", "sipariş hazır olduğunda", "öğrencinin telefonuna sipariş numarasıyla bildirim gelir")],
+        },
+      },
+      { tur: "sor", id: "ST-7", kisi: "deniz" },
+      { tur: "guncelle", id: "ST-7", alanlar: { puan: 5 } },
+      {
+        tur: "guncelle", id: "ST-7", alanlar: {
+          kriterler: [
+            k("öğrencinin siparişi mutfakta hazırlanıyor", "sipariş hazır olduğunda", "öğrencinin telefonuna sipariş numarasıyla bildirim gelir"),
+            k("öğrencinin telefonunda bildirim izni kapalı", "siparişi hazır olduğunda", "sipariş numarası girişteki hazır listesinde görünür", true),
+          ],
+        },
+      },
       { tur: "onayaGonder" },
     ],
   },

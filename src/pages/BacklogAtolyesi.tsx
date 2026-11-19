@@ -30,6 +30,7 @@ import {
   type Tur,
 } from "../backlog/motor";
 import { gherkinDenetle, storyDenetle } from "../backlog/kurallar";
+import { aktarimYaz, simulatoreAktar } from "../backlog/aktar";
 import { tamamlananlariOku, tamamlananlariYaz, type AtolyeGorevi, type AtolyeIcerigi } from "../backlog/gorev";
 import "./sprint.css";
 import "./atolye.css";
@@ -434,13 +435,31 @@ function StoryAlanlari({ o, metin, guncelle }: {
   );
 }
 
+const WSJF_OLCEK = [1, 2, 3, 5, 8, 13, 20];
+
 function WsjfAlani({ o, b, guncelle }: { o: Oge; b: Backlog; guncelle: (alanlar: Partial<Omit<Oge, "id" | "tur">>) => Backlog }) {
-  const w = o.wsjf ?? { deger: 5, zaman: 5, risk: 5 };
-  const puan = wsjf({ ...o, wsjf: w }, b);
+  if (!o.wsjf) {
+    return (
+      <div>
+        <h4>WSJF</h4>
+        <button type="button" className="cip" onClick={() => guncelle({ wsjf: { deger: 5, zaman: 5, risk: 5 } })}>
+          WSJF ile puanla
+        </button>
+      </div>
+    );
+  }
+  const w = o.wsjf;
+  const puan = wsjf(o, b);
   const alan = (ad: string, k: "deger" | "zaman" | "risk") => (
     <label className="ba-alan ba-sayi">
       <span>{ad}</span>
-      <input type="number" min={1} max={10} value={w[k]} onChange={(e) => guncelle({ wsjf: { ...w, [k]: Math.min(10, Math.max(1, Number(e.target.value) || 1)) } })} />
+      <select value={w[k]} onChange={(e) => guncelle({ wsjf: { ...w, [k]: Number(e.target.value) } })}>
+        {WSJF_OLCEK.map((x) => (
+          <option key={x} value={x}>
+            {x}
+          </option>
+        ))}
+      </select>
     </label>
   );
   return (
@@ -585,6 +604,9 @@ function Onay({ b, uygula, sec }: { b: Backlog; uygula: (h: Hamle) => Backlog; s
 
 function KarneKutusu({ b, s }: { b: Backlog; s: Senaryo }) {
   const k = karne(b, s);
+  const [aktarildi, setAktarildi] = useState(false);
+  // Backlog değişince aktarım eskir; düğme yeniden aktarmayı ister
+  useEffect(() => setAktarildi(false), [b]);
   return (
     <div>
       <h3>Karne</h3>
@@ -612,6 +634,28 @@ function KarneKutusu({ b, s }: { b: Backlog; s: Senaryo }) {
           <span className="sp-not">onay turu{k.onaylandi ? " (onaylandı)" : ""}</span>
         </div>
       </div>
+      <h4>Sprint Simülatörü'nde oyna</h4>
+      <p className="sp-not">
+        Bu backlog'la Agile ve Scrum pratiğinin Sprint Simülatörü'nü oyna. Hazırlık oyuna yansır: yatay dilimler değer vermez, konuşulmamış riskler story'yi büyütür, olumsuz yolu olmayan story Review'da düzeltme olarak geri döner.
+      </p>
+      {storyler(b).length === 0 ? (
+        <p className="sp-not">Önce backlog'a story ekle.</p>
+      ) : aktarildi ? (
+        <a className="cip" href="/agile/sprint">
+          Sprint Simülatörü'nü aç →
+        </a>
+      ) : (
+        <button
+          type="button"
+          className="cip"
+          onClick={() => {
+            aktarimYaz(simulatoreAktar(b, s));
+            setAktarildi(true);
+          }}
+        >
+          Backlog'u simülatöre aktar
+        </button>
+      )}
     </div>
   );
 }

@@ -24,6 +24,20 @@ export interface Yenilik {
 
 export const YENILIKLER: Yenilik[] = [
   {
+    pr: 76,
+    tarih: "2026-11-19",
+    baslik: "Yeni pratik: Backlog: Epic, Feature, User Story",
+    maddeler: [
+      "Yeni pratik yayında: **Backlog: Epic, Feature, User Story** (`/backlog`). Belirsiz bir istekten Sprint'e hazır story'lere: iş hiyerarşisi, user story, INVEST, kabul kriterleri, story bölme, tahmin, sıralama, refinement ve sürüm planlama 12 ünitede, 287 soruyla.",
+      "Agile ve Scrum pratiğindeki Kampüs Yemekhanesi squad'ı burada Sprint'ten önceki işi yapıyor; senaryolarda squad'ın üstünde epic ve feature yazıp story onaylayan kurgusal bir Teknik Liderlik var.",
+      "**Backlog Atölyesi:** sanal squad'ın Product Owner'ı ol. Epic, feature ve story ağacını kur, story'leri yaz ve böl, kabul kriterlerini ekle, sanal takımla Planning Poker oyna, backlog'u Teknik Liderlik'in onayına gönder. 7 hedefli görev var.",
+      "Atölyede hazırladığın backlog'u Agile ve Scrum pratiğinin **Sprint Simülatörü**'ne aktarıp oynayabilirsin: yatay dilimler değer vermez, konuşulmamış riskler story'yi büyütür, olumsuz yolu olmayan story Review'da geri döner.",
+      "Sanal Lab'de 19 deney: story map, story ve Gherkin kurucu, Example Mapping, pasta dilimleyici, SPIDR, kova yöntemi, Kano, WSJF hesaplayıcı ve burnup üzerinde sürüm tahmincisi.",
+      "Nereden başlayacağını bilmiyorsan konu anlatımlarının başındaki 9 soruluk seviye testini çöz. Agile ve Scrum derslerindeki Backlog pratiği anmaları artık bu pratiğe bağlantı veriyor.",
+      { metin: "9-12. üniteler (85 soru), 5 deney, atölyeye 2 görev (WSJF sırası, ilk sürüm), Sprint Simülatörü'ne aktarım (`src/backlog/aktar.ts`, `backlog:sprint-aktarim`), seviye testi, tanıtım adımları, ders metinlerinde site içi bağlantı (`[metin](/yol)`), `yayinda: true`. Migration: `0059_backlog_yayin.sql`.", kitle: "yonetici" },
+    ],
+  },
+  {
     pr: 75,
     tarih: "2026-11-19",
     baslik: "Backlog Atölyesi: Sprint'ten önceki işi yap",

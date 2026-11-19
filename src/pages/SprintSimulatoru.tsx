@@ -20,6 +20,7 @@ import {
   type Uyum,
 } from "../scrum/motor";
 import { tamamlananlariOku, tamamlananlariYaz, type SprintGorevi, type SprintIcerigi } from "../scrum/gorev";
+import { aktarimOku, type Aktarim } from "../backlog/aktar";
 import "./sprint.css";
 
 const OYUN = "agile:sprint-oyun";
@@ -29,6 +30,8 @@ const ROL_ADI: Record<Rol, string> = { sm: "Scrum Master", po: "Product Owner" }
 interface Kayitli {
   gorev: string | null;
   durum: Durum;
+  // Backlog Atölyesi'nden aktarılan backlog'la oynanıyor mu
+  aktarim?: boolean;
 }
 
 function kayitliOku(): Kayitli | null {
@@ -61,11 +64,19 @@ export function SprintSimulatoru({ yukle }: { yukle: () => Promise<SprintIcerigi
     };
   }, [yukle]);
   if (!icerik) return <p className="empty">Simülatör yükleniyor…</p>;
-  return <Oyun senaryo={icerik.senaryo} gorevler={icerik.gorevler} />;
+  return <Oyun ana={icerik.senaryo} gorevler={icerik.gorevler} />;
 }
 
-function Oyun({ senaryo, gorevler }: { senaryo: Senaryo; gorevler: SprintGorevi[] }) {
-  const [oyun, setOyun] = useState<Kayitli>(() => kayitliOku() ?? { gorev: null, durum: baslat(senaryo, { tohum: yeniTohum() }) });
+// Atölyeden gelen backlog, senaryonun ürününün yerine geçer; takım, olaylar ve iyileştirmeler aynı kalır
+const aktarilmis = (s: Senaryo, a: Aktarim): Senaryo => ({ ...s, backlog: a.backlog, hedefler: a.hedefler, geriBildirim: a.geriBildirim });
+
+function Oyun({ ana, gorevler }: { ana: Senaryo; gorevler: SprintGorevi[] }) {
+  const [aktarim] = useState<Aktarim | null>(() => aktarimOku());
+  const [oyun, setOyun] = useState<Kayitli>(() => {
+    const k = kayitliOku();
+    return k && (!k.aktarim || aktarim) ? k : { gorev: null, durum: baslat(ana, { tohum: yeniTohum() }) };
+  });
+  const senaryo = oyun.aktarim && aktarim ? aktarilmis(ana, aktarim) : ana;
   const [tamam, setTamam] = useState<Set<string>>(() => tamamlananlariOku());
   const gorev = gorevler.find((g) => g.id === oyun.gorev) ?? null;
   const d = oyun.durum;
@@ -81,16 +92,23 @@ function Oyun({ senaryo, gorevler }: { senaryo: Senaryo; gorevler: SprintGorevi[
   }, [gorev, basarili, tamam]);
 
   const oyna = (h: Hamle) => setOyun({ ...oyun, durum: adim(d, h, senaryo) });
-  const basla = (g: SprintGorevi | null, rol: Rol = d.rol) =>
-    setOyun({ gorev: g?.id ?? null, durum: baslat(senaryo, g ? g.ayar : { tohum: yeniTohum(), rol }) });
+  const basla = (g: SprintGorevi | null, rol: Rol = d.rol, atolye = false) => {
+    const s = atolye && aktarim && !g ? aktarilmis(ana, aktarim) : ana;
+    setOyun({ gorev: g?.id ?? null, durum: baslat(s, g ? g.ayar : { tohum: yeniTohum(), rol }), aktarim: atolye && !g });
+  };
 
   return (
     <div className="sp">
       <section className="sp-ust" aria-label="Görevler">
         <div className="sp-cipler" role="group" aria-label="Görev seç">
-          <button type="button" className="cip" aria-pressed={!gorev} onClick={() => basla(null)}>
+          <button type="button" className="cip" aria-pressed={!gorev && !oyun.aktarim} onClick={() => basla(null)}>
             Serbest oyun
           </button>
+          {aktarim && (
+            <button type="button" className="cip" aria-pressed={!!oyun.aktarim} onClick={() => basla(null, d.rol, true)}>
+              Backlog Atölyesi'ndeki backlog'un
+            </button>
+          )}
           {gorevler.map((g, i) => (
             <button key={g.id} type="button" className="cip" aria-pressed={gorev?.id === g.id} onClick={() => basla(g)}>
               {tamam.has(g.id) ? "✓ " : ""}
@@ -110,11 +128,21 @@ function Oyun({ senaryo, gorevler }: { senaryo: Senaryo; gorevler: SprintGorevi[
           </div>
         ) : (
           <div className="sp-gorev">
-            <strong>Serbest oyun: {d.sprintSayisi} Sprint</strong>
+            <strong>{oyun.aktarim ? "Backlog Atölyesi'nden gelen backlog" : "Serbest oyun"}: {d.sprintSayisi} Sprint</strong>
+            {oyun.aktarim && aktarim && aktarim.notlar.length > 0 && (
+              <details>
+                <summary>Hazırlığın oyuna yansıması ({aktarim.notlar.length} not)</summary>
+                <ul>
+                  {aktarim.notlar.map((n) => (
+                    <li key={n}>{n}</li>
+                  ))}
+                </ul>
+              </details>
+            )}
             <span>
               Rolün:{" "}
               {(["sm", "po"] as Rol[]).map((r) => (
-                <button key={r} type="button" className="cip" aria-pressed={d.rol === r} onClick={() => basla(null, r)}>
+                <button key={r} type="button" className="cip" aria-pressed={d.rol === r} onClick={() => basla(null, r, !!oyun.aktarim)}>
                   {ROL_ADI[r]}
                 </button>
               ))}{" "}
@@ -127,7 +155,7 @@ function Oyun({ senaryo, gorevler }: { senaryo: Senaryo; gorevler: SprintGorevi[
             Sprint {d.sprint}/{d.sprintSayisi} · {ASAMA_ADI[d.asama]}
             {d.asama === "gun" ? ` · ${d.gun}. gün` : ""}
           </span>
-          <button type="button" className="cip" onClick={() => basla(gorev)}>
+          <button type="button" className="cip" onClick={() => basla(gorev, d.rol, !!oyun.aktarim)}>
             Yeniden başla
           </button>
         </div>
