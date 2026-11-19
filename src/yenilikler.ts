@@ -24,6 +24,17 @@ export interface Yenilik {
 
 export const YENILIKLER: Yenilik[] = [
   {
+    pr: 74,
+    tarih: "2026-11-19",
+    baslik: "Backlog pratiği: INVEST, kabul kriterleri, story bölme ve story olmayan işler",
+    kitle: "yonetici",
+    maddeler: [
+      "5-8. üniteler eklendi: yaklaşık 100 yeni soru ve dört ünitenin ders anlatımı.",
+      "Yeni Lab deneyleri: INVEST dedektifi, Gherkin kurucu, Example Mapping masası, pasta dilimleyici, SPIDR bölücü ve \"NFR nereye yazılır?\" kartları.",
+      "Pratik henüz yayında değil; yalnızca yönetici görür.",
+    ],
+  },
+  {
     pr: 73,
     tarih: "2026-11-19",
     baslik: "Backlog pratiği: ilk dört ünitenin dersleri ve 8 Lab deneyi",

@@ -3,9 +3,11 @@
 import { createElement, lazy } from "react";
 import type { Deney } from "../../../src/lab/deneyler";
 
-const kart = (ad: "BacklogBuzdagi" | "SaglikKontrolu" | "HiyerarsiAgaci" | "EtkiHaritasi" | "IyiMiKotuMu") =>
+const kart = (
+  ad: "BacklogBuzdagi" | "SaglikKontrolu" | "HiyerarsiAgaci" | "EtkiHaritasi" | "IyiMiKotuMu" | "InvestDedektifi" | "ExampleMapping" | "SpidrBolucu" | "NereyeYazilir",
+) =>
   lazy(() => import("./etkilesim/kartlar").then((m) => ({ default: () => createElement(m[ad]) })));
-const ozel = (ad: "AracCevirmeni" | "StoryMap" | "StoryKurucu") =>
+const ozel = (ad: "AracCevirmeni" | "StoryMap" | "StoryKurucu" | "GherkinKurucu" | "PastaDilimleyici") =>
   lazy(() => import("./etkilesim/ozel").then((m) => ({ default: () => createElement(m[ad]) })));
 
 export const DENEYLER: Deney[] = [
@@ -17,4 +19,10 @@ export const DENEYLER: Deney[] = [
   { id: "story-map", ad: "Story map ve sürüm dilimi", unite: 3, bilesen: ozel("StoryMap"), ozet: "Öğrencinin yolculuğundan 16 puanlık bir ilk sürüm dilimi kes; yürüyen iskeleti bul." },
   { id: "story-kurucu", ad: "Story kurucu", unite: 4, bilesen: ozel("StoryKurucu"), ozet: "Rol, istek ve faydadan story kur ya da kendin yaz; kalıbın tipik kokuları anında uyarılır." },
   { id: "iyi-mi-kotu-mu", ad: "İyi mi, kötü mü?", unite: 4, bilesen: kart("IyiMiKotuMu"), ozet: "Sekiz story'nin hangisi iyi, hangisinde rol, fayda ya da istek sorunu var?" },
+  { id: "invest", ad: "INVEST dedektifi", unite: 5, bilesen: kart("InvestDedektifi"), ozet: "Dokuz story'de INVEST'in en çok bozulan harfini bul." },
+  { id: "gherkin", ad: "Gherkin kurucu", unite: 6, bilesen: ozel("GherkinKurucu"), ozet: "Given/When/Then yaz; eksik sonuç, birden çok eylem, belirsiz kelime ve arayüz adımı anında uyarılır." },
+  { id: "example-mapping", ad: "Example Mapping masası", unite: 6, bilesen: kart("ExampleMapping"), ozet: "Yemek ayırtma story'sinin kartlarını kural, örnek ve soru diye ayır." },
+  { id: "pasta", ad: "Pasta dilimleyici", unite: 7, bilesen: ozel("PastaDilimleyici"), ozet: "Aynı feature'ı katmanlara ya da değer dilimlerine böl; öğrencinin ilk değeri hangi Sprint'te aldığını gör." },
+  { id: "spidr", ad: "SPIDR bölücü", unite: 7, bilesen: kart("SpidrBolucu"), ozet: "Sekiz büyük story için Spike, Path, Interface, Data ya da Rules: hangisiyle bölünür?" },
+  { id: "nereye", ad: "Nereye yazılır?", unite: 8, bilesen: kart("NereyeYazilir"), ozet: "Kalite koşullarını, teknik işleri ve kuralları kabul kriteri, DoD, ayrı öğe ya da task diye yerleştir." },
 ];

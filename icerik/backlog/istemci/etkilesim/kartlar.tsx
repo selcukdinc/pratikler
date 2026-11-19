@@ -90,3 +90,72 @@ export const TESHIS_KARTLARI: Kart[] = [
 export const IyiMiKotuMu = () => (
   <Siniflandir kategoriler={STORY_TESHIS} kartlar={TESHIS_KARTLARI} soru="Her story iyi mi, yoksa en belirgin sorunu ne?" />
 );
+
+// ---------------- G-S5-01: INVEST dedektifi ----------------
+
+const INVEST = ["Independent", "Negotiable", "Valuable", "Estimable", "Small", "Testable"];
+export const INVEST_KARTLARI: Kart[] = [
+  { metin: "\"Sipariş servisini yaz\" story'si; ekran ve veri tabanı başka story'lerde.", dogru: "Valuable", neden: "Tek başına kullanıcıya hiçbir şey vermeyen yatay bir dilim." },
+  { metin: "\"Bakiye ekranı\" story'si ancak \"Bakiye servisi\" story'si bittikten sonra başlayabiliyor; o da \"Bakiye tablosu\"nu bekliyor.", dogru: "Independent", neden: "Sıkı bir zincir: Product Owner sırayı değiştiremez, bir gecikme hepsini durdurur." },
+  { metin: "\"Rapor Excel'de, mavi başlıklı, 12 punto, A4 yatay olmalı.\"", dogru: "Negotiable", neden: "Biçim dikte ediliyor; asıl ihtiyaç (yarın kaç porsiyon pişirileceği) konuşulmuyor." },
+  { metin: "\"Turnikede kartla geçiş\"; takım eski kart sistemini hiç görmemiş, tahmin veremiyor.", dogru: "Estimable", neden: "Teknik bilgi eksik; kısa bir spike gerekiyor." },
+  { metin: "\"Öğrenciler yemekhaneyle ilgili her şeyi uygulamadan yapabilsin.\"", dogru: "Small", neden: "Bu bir epic; aylarca sürer. Feature'lara ve story'lere bölünmeli." },
+  { metin: "\"Uygulama öğrencilere keyifli gelmeli.\"", dogru: "Testable", neden: "Ne zaman tamam olduğu ölçülemez; bir ölçü ve koşul gerekiyor." },
+  { metin: "\"Bir geliştirici olarak loglama kütüphanesini değiştirmek istiyorum.\"", dogru: "Valuable", neden: "Kime hangi değer? \"Gece hatası 5 dakikada bulunsun, öğle kesintisi kısalsın\" yazılırsa sıralanabilir." },
+  { metin: "\"Burs indirimi\"; takım burs kurallarını bilmediği için 3 de diyor 21 de.", dogru: "Estimable", neden: "Alan bilgisi eksik; burs ofisiyle bir konuşma yeter." },
+  { metin: "\"Ödeme hızlı olmalı.\"", dogru: "Testable", neden: "\"Öğle saatinde ödemelerin %95'i 2 saniyede bitsin\" gibi ölçülebilir hâle getirilmeli." },
+];
+export const InvestDedektifi = () => (
+  <Siniflandir kategoriler={INVEST} kartlar={INVEST_KARTLARI} soru="Her story INVEST'in en çok hangi harfini bozuyor?" />
+);
+
+// ---------------- G-S6-02: Example Mapping masası ----------------
+
+const EM_RENKLERI = ["Kural (mavi)", "Örnek (yeşil)", "Soru (kırmızı)"];
+export const EM_KARTLARI: Kart[] = [
+  { metin: "Ayırtma, yemek saatinden 30 dakika öncesine kadar iptal edilebilir.", dogru: "Kural (mavi)", neden: "Genel bir iş kuralı; altına örnekler gelir." },
+  { metin: "Zehra 12.00'de başlayan öğle yemeğini 11.20'de iptal eder; bakiyesi iade edilir.", dogru: "Örnek (yeşil)", neden: "Kuralı somut bir durumla gösteriyor." },
+  { metin: "Zehra 11.45'te iptal etmek ister; uygulama \"iptal süresi geçti\" der.", dogru: "Örnek (yeşil)", neden: "Kuralın sınırını gösteren olumsuz örnek." },
+  { metin: "Bir öğrenci günde en fazla iki öğün ayırtabilir.", dogru: "Kural (mavi)", neden: "İkinci bir kural; story büyüyorsa ayrı story'ye bölünebilir." },
+  { metin: "Burslu öğrencinin ayırttığı indirimli yemek iptal edilince indirim hakkı geri gelir mi?", dogru: "Soru (kırmızı)", neden: "Takım cevabı bilmiyor; burs ofisine sorulmalı. Cevaplanmadan story hazır değil." },
+  { metin: "Mert sabah ve öğle ayırtmış; akşam için de ayırtmak ister, uygulama izin vermez.", dogru: "Örnek (yeşil)", neden: "Günlük iki öğün kuralının örneği." },
+  { metin: "Yemekhane o gün kapanırsa ayırtmalar kendiliğinden iptal mi olur?", dogru: "Soru (kırmızı)", neden: "Kimsenin henüz düşünmediği bir durum; Nurten Hanım'a sorulmalı." },
+];
+export const ExampleMapping = () => (
+  <Siniflandir kategoriler={EM_RENKLERI} kartlar={EM_KARTLARI} soru={"\"Yemek ayırtma\" story'si için masadaki her kart hangi renge yazılmalı?"} />
+);
+
+// ---------------- G-S7-02: SPIDR bölücü ----------------
+
+const SPIDR = ["Spike", "Path", "Interface", "Data", "Rules"];
+export const SPIDR_KARTLARI: Kart[] = [
+  { metin: "Bakiye kartla, havaleyle ya da kampüs kioskundan yüklenebilecek.", dogru: "Path", neden: "Aynı hedefe giden farklı yollar: önce kart, diğerleri sonra." },
+  { metin: "Menü hem telefonda hem yemekhane girişindeki büyük ekranda görünecek.", dogru: "Interface", neden: "Farklı arayüz ya da cihaz: önce telefon." },
+  { metin: "Menü verisi dört yemekhaneden dört farklı biçimde geliyor.", dogru: "Data", neden: "Farklı veri kaynakları: önce merkez yemekhane." },
+  { metin: "Ayırtmada iptal süresi, günlük sınır ve burs önceliği kuralları var.", dogru: "Rules", neden: "Önce temel ayırtma, kurallar sonraki story'lerde." },
+  { metin: "Turnike entegrasyonu için kart sisteminin nasıl çalıştığını kimse bilmiyor.", dogru: "Spike", neden: "Önce kısa bir araştırma; sonra story tahmin edilebilir ve bölünebilir." },
+  { metin: "Sipariş hazır bildirimi uygulama içi, SMS ve e-postayla gidebilecek.", dogru: "Interface", neden: "Bildirim kanalları farklı arayüzlerdir; önce uygulama içi bildirim." },
+  { metin: "Yorumlar metin, fotoğraf ya da kısa video olabilir.", dogru: "Data", neden: "Farklı veri türleri: önce metin." },
+  { metin: "Grup siparişinde ödeme tek kişiden ya da kişi başı alınabilir.", dogru: "Path", neden: "Akışta iki farklı yol; önce tek kişinin ödediği yol." },
+];
+export const SpidrBolucu = () => (
+  <Siniflandir kategoriler={SPIDR} kartlar={SPIDR_KARTLARI} soru="Her büyük story için SPIDR'ın en doğal bölme yolu hangisi?" />
+);
+
+// ---------------- G-S8-01: nereye yazılır? ----------------
+
+const YERLER = ["Kabul kriteri", "Definition of Done", "Ayrı backlog öğesi", "Task"];
+export const NEREYE_KARTLARI: Kart[] = [
+  { metin: "Her yeni ekran WCAG 2.1 AA erişilebilirlik denetiminden geçer.", dogru: "Definition of Done", neden: "Bütün öğeler için ortak kalite ölçütü." },
+  { metin: "Sipariş onayı ekranda 2 saniye içinde görünür.", dogru: "Kabul kriteri", neden: "Yalnızca sipariş davranışına ait ölçülebilir koşul." },
+  { metin: "Öğle saatindeki 3000 eş zamanlı kullanıcı için önbellek katmanı kur.", dogru: "Ayrı backlog öğesi", neden: "Kendisi iş gerektiren bir değişiklik; değeriyle sıralanır." },
+  { metin: "Kod en az bir kişi tarafından incelendi.", dogru: "Definition of Done", neden: "Her öğe için geçerli." },
+  { metin: "Ödeme sağlayıcısının test anahtarlarını kasaya ekle.", dogru: "Task", neden: "Bir story'yi bitirmek için teknik adım." },
+  { metin: "Kişisel veriler (öğrenci numarası) loglara yazılmaz.", dogru: "Definition of Done", neden: "Her değişiklikte geçerli bir güvenlik ve KVKK ölçütü." },
+  { metin: "Ödeme kütüphanesini yeni ana sürüme geçir; eski sürümün güvenlik desteği Mart'ta bitiyor.", dogru: "Ayrı backlog öğesi", neden: "Riski ve tarihiyle Product Owner'ın sıralayacağı teknik iş." },
+  { metin: "Bakiye 10 TL'nin altına inince öğrenciye bildirim gider.", dogru: "Kabul kriteri", neden: "Bakiye story'sinin işlevsel koşulu." },
+  { metin: "Bildirim servisi için kuyruk tablosunu oluştur.", dogru: "Task", neden: "Story'nin içindeki teknik adım; Developers Sprint'te ekler." },
+];
+export const NereyeYazilir = () => (
+  <Siniflandir kategoriler={YERLER} kartlar={NEREYE_KARTLARI} soru="Her madde backlog'da nereye yazılmalı?" />
+);

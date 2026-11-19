@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { ARACLAR, dilimDegerlendir, KAPASITE, OMURGA, SEVIYE_ADLARI, storyDenetle } from "./ozel";
+import { ARACLAR, dilimDegerlendir, GHERKIN_ORNEKLERI, gherkinDenetle, ilkDegerSprinti, KAPASITE, OMURGA, SEVIYE_ADLARI, storyDenetle } from "./ozel";
 
 describe("backlog: araç çevirmeni", () => {
   it("her araçta her seviyenin bir karşılığı ya da boşluğu var", () => {
@@ -34,5 +34,26 @@ describe("backlog: story kurucu", () => {
     expect(storyDenetle("bir geliştirici", "ödeme tablosuna indeks eklemek", "").uyarilar).toHaveLength(3);
     expect(storyDenetle("bir kullanıcı", "uygulamanın hızlı ve kullanışlı olmasını", "sırada beklemeyeyim").uyarilar).toHaveLength(3);
     expect(storyDenetle("bir akademisyen", "menüyü görmek, yemek ayırtmak ve bakiye yüklemek", "zaman kazanayım").uyarilar).toHaveLength(1);
+  });
+});
+
+describe("backlog: Gherkin kurucu", () => {
+  it("hazır örneklerden yalnızca ilki uyarısız", () => {
+    const sonuc = GHERKIN_ORNEKLERI.map((o) => gherkinDenetle(o.given, o.when, o.then).iyi);
+    expect(sonuc).toEqual([true, false, false, false, false]);
+  });
+  it("her kötü örnek kendi uyarısını alır", () => {
+    const [, sonucYok, belirsiz, arayuz, iki] = GHERKIN_ORNEKLERI.map((o) => gherkinDenetle(o.given, o.when, o.then).uyarilar.join(" "));
+    expect(sonucYok).toMatch(/Then boş/);
+    expect(belirsiz).toMatch(/Ölçülemeyen/);
+    expect(arayuz).toMatch(/arayüz/);
+    expect(iki).toMatch(/birden çok eylem/);
+  });
+});
+
+describe("backlog: pasta dilimleyici", () => {
+  it("dikey bölmede ilk değer 1. Sprint'te, yatayda 3. Sprint'te", () => {
+    expect(ilkDegerSprinti("dikey")).toBe(1);
+    expect(ilkDegerSprinti("yatay")).toBe(3);
   });
 });

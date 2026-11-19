@@ -263,3 +263,142 @@ export function StoryKurucu() {
     </div>
   );
 }
+
+// ---------------- G-S6-01: Gherkin kurucu ----------------
+
+export const GHERKIN_ORNEKLERI: { ad: string; given: string; when: string; then: string }[] = [
+  { ad: "İyi örnek", given: "öğrencinin bakiyesi 30 TL", when: "öğrenci 45 TL'lik menüyü ayırtmak istediğinde", then: "ayırtma yapılmaz ve \"15 TL eksik\" mesajı görünür" },
+  { ad: "Sonuç yok", given: "öğrencinin bakiyesi 30 TL", when: "öğrenci 45 TL'lik menüyü ayırtmak istediğinde", then: "" },
+  { ad: "Belirsiz", given: "öğrenci giriş yapmış", when: "menüyü açtığında", then: "menü hızlı ve düzgün görünür" },
+  { ad: "Arayüz adımları", given: "öğrenci ana sayfada", when: "Menü butonuna tıklayıp tarihi seçip Ayırt butonuna bastığında", then: "ekranda yeşil kutu çıkar" },
+  { ad: "İki davranış", given: "öğrencinin bakiyesi 100 TL", when: "öğrenci yemeği ayırttığında ve sonra iptal ettiğinde", then: "bakiye önce düşer sonra geri gelir" },
+];
+
+const ARAYUZ = /(?<!\p{L})(tıkla\p{L}*|buton\p{L}*|düğme\p{L}*|sayfa\p{L}*|kutu\p{L}*|yeşil|kırmızı|ekranda)(?!\p{L})/iu;
+const GHERKIN_BELIRSIZ = /(?<!\p{L})(hızlı|düzgün|kolay|makul|uygun|kullanıcı dostu|doğru şekilde|sorunsuz)(?!\p{L})/iu;
+
+export function gherkinDenetle(given: string, when: string, then: string): StoryDenetimi {
+  const u: string[] = [];
+  if (!given.trim()) u.push("Given boş: senaryo hangi durumda başlıyor?");
+  if (!when.trim()) u.push("When boş: hangi eylem ya da olay oluyor?");
+  if (!then.trim()) u.push("Then boş: beklenen sonuç yoksa senaryo test edilemez.");
+  if (/(?<!\p{L})(ve sonra|sonra da|ardından)(?!\p{L})/iu.test(when)) u.push("When birden çok eylem içeriyor; her davranış ayrı senaryo olsun.");
+  if (GHERKIN_BELIRSIZ.test(then) || GHERKIN_BELIRSIZ.test(when)) u.push("Ölçülemeyen bir kelime var (hızlı, düzgün, makul...); gözlenebilir bir sonuç yaz.");
+  if (ARAYUZ.test(`${given} ${when} ${then}`)) u.push("Senaryo arayüz adımlarıyla yazılmış; davranışı iş dilinde anlat (\"ayırtmak istediğinde\"), ekranı değil.");
+  return { uyarilar: u, iyi: u.length === 0 };
+}
+
+export function GherkinKurucu() {
+  const [g, setG] = useState(GHERKIN_ORNEKLERI[0]!.given);
+  const [w, setW] = useState(GHERKIN_ORNEKLERI[0]!.when);
+  const [t, setT] = useState(GHERKIN_ORNEKLERI[0]!.then);
+  const d = gherkinDenetle(g, w, t);
+  const alan = (etiket: string, deger: string, ayarla: (x: string) => void) => (
+    <label className="bl-gherkin-satir">
+      <strong>{etiket}</strong>
+      <input className="bl-girdi" value={deger} onChange={(e) => ayarla(e.target.value)} />
+    </label>
+  );
+  return (
+    <div className="ag">
+      <div className="ag-secim" role="group" aria-label="Hazır senaryolar">
+        {GHERKIN_ORNEKLERI.map((o) => (
+          <button
+            key={o.ad}
+            type="button"
+            className="cip"
+            aria-pressed={o.given === g && o.when === w && o.then === t}
+            onClick={() => {
+              setG(o.given);
+              setW(o.when);
+              setT(o.then);
+            }}
+          >
+            {o.ad}
+          </button>
+        ))}
+      </div>
+      <div className="ag-kutu">
+        {alan("Verilen (Given)", g, setG)}
+        {alan("Olduğunda (When)", w, setW)}
+        {alan("O zaman (Then)", t, setT)}
+      </div>
+      <div className={`ag-sonuc ${d.iyi ? "ag-iyi" : "ag-kotu"}`}>
+        {d.iyi ? (
+          "✓ Tek davranış, gözlenebilir sonuç, iş dili. Şimdi sınırdaki örneği de yaz: bakiye tam 45 TL olsaydı?"
+        ) : (
+          <ul className="bl-uyarilar">
+            {d.uyarilar.map((x) => (
+              <li key={x}>{x}</li>
+            ))}
+          </ul>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ---------------- G-S7-01: pasta dilimleyici ----------------
+
+export type BolmeTuru = "yatay" | "dikey";
+
+// Aynı "önceden sipariş" feature'ı (toplam 24 puan, Sprint başına 8 puan) iki türlü bölünür
+export const BOLMELER: Record<BolmeTuru, { story: string; puan: number; kullanici: string | null }[]> = {
+  yatay: [
+    { story: "Sipariş ve bakiye tabloları", puan: 8, kullanici: null },
+    { story: "Sipariş ve ödeme servisleri", puan: 8, kullanici: null },
+    { story: "Sipariş ekranları ve bildirim", puan: 8, kullanici: "Öğrenci menü seçip öder, sıra numarası ve hazır bildirimi alır." },
+  ],
+  dikey: [
+    { story: "Günün tek menüsünü bakiyeden öde, sıra numarası al", puan: 8, kullanici: "Öğrenci günün menüsünü önceden ödeyip sıra numarasıyla alabilir." },
+    { story: "Ek yemek ve içecek ekle; sipariş hazır bildirimi", puan: 8, kullanici: "Öğrenci tatlı ve içecek ekleyebilir, hazır olunca bildirim alır." },
+    { story: "Teslim noktası seç; siparişi iptal et", puan: 8, kullanici: "Öğrenci teslim noktasını seçer, planı değişirse iptal eder." },
+  ],
+};
+
+export function ilkDegerSprinti(tur: BolmeTuru): number {
+  return BOLMELER[tur].findIndex((s) => s.kullanici !== null) + 1;
+}
+
+export function PastaDilimleyici() {
+  const [tur, setTur] = useState<BolmeTuru>("yatay");
+  const [sprint, setSprint] = useState(1);
+  const plan = BOLMELER[tur];
+  const ilk = ilkDegerSprinti(tur);
+  return (
+    <div className="ag">
+      <div className="ag-satir">
+        <div className="ag-secim" role="group" aria-label="Bölme türü">
+          <button type="button" className="cip" aria-pressed={tur === "yatay"} onClick={() => setTur("yatay")}>
+            Katmanlara böl (yatay)
+          </button>
+          <button type="button" className="cip" aria-pressed={tur === "dikey"} onClick={() => setTur("dikey")}>
+            Değer dilimlerine böl (dikey)
+          </button>
+        </div>
+        <div className="ag-secim" role="group" aria-label="Sprint">
+          {[1, 2, 3].map((n) => (
+            <button key={n} type="button" className="cip" aria-pressed={sprint === n} onClick={() => setSprint(n)}>
+              {n}. Sprint sonu
+            </button>
+          ))}
+        </div>
+      </div>
+      <ol className="ag-liste">
+        {plan.map((s, i) => (
+          <li key={s.story} className={`ag-kutu ${i < sprint ? "" : "bl-soluk"}`}>
+            <span>
+              <strong>{i + 1}. Sprint:</strong> {s.story} <small className="ag-not">({s.puan} puan)</small>
+            </span>
+            {i < sprint && <span className="ag-not">{s.kullanici ? `Öğrenci için: ${s.kullanici}` : "Öğrenci için: henüz hiçbir şey değişmedi."}</span>}
+          </li>
+        ))}
+      </ol>
+      <p className={`ag-sonuc ${sprint >= ilk ? "ag-iyi" : "ag-kotu"}`}>
+        {sprint >= ilk
+          ? `Öğrenciler ${ilk}. Sprint'in sonunda ilk kez bir şey kullanabildi${tur === "yatay" ? "; geri bildirim ve entegrasyon riski en sona kaldı." : "; sonraki dilimler bu geri bildirimle şekillenebilir."}`
+          : `${sprint}. Sprint'in sonunda ${sprint * 8} puanlık iş bitti ama öğrencinin kullanabildiği hiçbir şey yok.`}
+      </p>
+    </div>
+  );
+}
