@@ -24,6 +24,17 @@ export interface Yenilik {
 
 export const YENILIKLER: Yenilik[] = [
   {
+    pr: 73,
+    tarih: "2026-11-19",
+    baslik: "Backlog pratiği: ilk dört ünitenin dersleri ve 8 Lab deneyi",
+    kitle: "yonetici",
+    maddeler: [
+      "Backlog'un temeli ve user story'ye giriş (1-4. üniteler) için 28 bölümlük ders anlatımı; açılış sayfası artık ders listesi. Bölümlerde `> **Kaynak ne der:**` kutusu Rehber'in ya da tekniğin sahibinin tanımını, `> **Sahada:**` kutusu squad'daki uygulamayı gösteriyor.",
+      "8 etkileşim ve Sanal Lab deneyi: backlog buzdağı, backlog sağlık kontrolü (DEEP), hiyerarşi ağacı, araç çevirmeni (SAFe, Azure Boards, Jira, ClickUp), etki haritası, story map ve sürüm dilimi, story kurucu, iyi mi kötü mü?",
+      "Pratik henüz yayında değil.",
+    ],
+  },
+  {
     pr: 72,
     tarih: "2026-11-19",
     baslik: "Backlog pratiği hazırlanıyor: iskelet ve ilk 106 soru",

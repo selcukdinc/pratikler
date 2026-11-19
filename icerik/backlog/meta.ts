@@ -56,7 +56,7 @@ export const backlog: PratikMeta = {
   uniteKisa: "Ü",
   yayinda: false,
   latex: false,
-  // Açılış sayfası dersler eklenince (2. PR) ders listesi olacak: anaSayfa: "ders"
+  anaSayfa: "ders",
   uniteGruplari: GRUPLAR,
   logo: "/logolar/backlog.svg",
   etiketler: [

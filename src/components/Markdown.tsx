@@ -76,6 +76,8 @@ const NOT_TURLERI: [RegExp, string][] = [
   [/^\*\*Gerçek dünyada/i, "gercek"],
   // Agile ve Scrum dersleri: Rehber'in kendi cümlesi ve sahadaki uygulama
   [/^\*\*Rehber ne der/i, "rehber"],
+  // Backlog dersleri: Rehber'in ya da tekniğin sahibinin tanımı (aynı kutu)
+  [/^\*\*Kaynak ne der/i, "rehber"],
   [/^\*\*Sahada/i, "sahada"],
 ];
 
