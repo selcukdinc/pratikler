@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2F7D6D"/>
+      <stop offset="1" stop-color="#174A40"/>
+    </linearGradient>
+  </defs>
+  <rect x="100" y="100" width="824" height="824" rx="185" fill="url(#bg)"/>
+  <!-- iş hiyerarşisi: geniş epic kartı, altında iki feature, en altta küçük story kartları -->
+  <rect x="232" y="250" width="560" height="120" rx="28" fill="#FFFFFF"/>
+  <rect x="232" y="430" width="262" height="110" rx="26" fill="#FFFFFF" opacity="0.88"/>
+  <rect x="530" y="430" width="262" height="110" rx="26" fill="#FFFFFF" opacity="0.88"/>
+  <g fill="#F2C46D">
+    <rect x="232" y="600" width="116" height="170" rx="22"/>
+    <rect x="378" y="600" width="116" height="170" rx="22"/>
+    <rect x="530" y="600" width="116" height="170" rx="22"/>
+    <rect x="676" y="600" width="116" height="170" rx="22"/>
+  </g>
+</svg>

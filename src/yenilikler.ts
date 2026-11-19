@@ -24,6 +24,17 @@ export interface Yenilik {
 
 export const YENILIKLER: Yenilik[] = [
   {
+    pr: 72,
+    tarih: "2026-11-19",
+    baslik: "Backlog pratiği hazırlanıyor: iskelet ve ilk 106 soru",
+    kitle: "yonetici",
+    maddeler: [
+      "Yeni pratik **Backlog: Epic, Feature, User Story** (`/backlog`, soru öneki `bl-`, katalog alanı Yazılım) açıldı ama henüz yayında değil: 12 ünite üç grupta (Backlog'un temeli, User story zanaatı, Tahmin, sıralama ve hazırlık). Agile, Backlog ve Ölçekli Agile üçlüsünün ikincisi.",
+      "İlk dört ünitede (Product Backlog'a yakından bakış, iş hiyerarşisi, vizyondan backlog'a, user story nedir?) 106 soru; etiketler Kaynak, Kavram, Sahada, Senaryo ve Hesap. Senaryolar Agile ve Scrum pratiğindeki 12 kişilik squad'da geçiyor; squad'ın üstünde epic ve feature yazıp story onaylayan kurgusal bir Teknik Liderlik var.",
+      "Yayından önce uzak D1'e `0056_backlog_ayarlari.sql` ve `0057_backlog_sorular.sql` uygulanmalı. Plan: `docs/plan-backlog-pratigi.md`.",
+    ],
+  },
+  {
     pr: 70,
     tarih: "2026-11-17",
     baslik: "Yeni pratik: Agile ve Scrum",

@@ -14,6 +14,7 @@ import * as isletme from "./isletme/sorular/index.ts";
 import * as git from "./git/sorular/index.ts";
 import * as sifreleme from "./sifreleme/sorular/index.ts";
 import * as agile from "./agile/sorular/index.ts";
+import * as backlog from "./backlog/sorular/index.ts";
 
 export const SORULAR: Record<string, PratikSorulari> = {
   "tip-elektronigi": tipElektronigi,
@@ -30,4 +31,5 @@ export const SORULAR: Record<string, PratikSorulari> = {
   git,
   sifreleme,
   agile,
+  backlog,
 };

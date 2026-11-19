@@ -16,7 +16,7 @@ Her takımın kendi Sprint Backlog'u, kendi Daily'si ve kendi Developers'ı vard
 
 Bütün ölçekli çerçevelerin ortak sorusu budur: **takımlar arası bağımlılığı nasıl azaltırız ve her Sprint entegre bir Increment'i nasıl çıkarırız?**
 `),
-      dene: [p("tek-pb"), p("entegrasyon")],
+      dene: [p("entegrasyon")],
     },
     {
       baslik: "Özellik takımları ve bileşen takımları",
@@ -80,7 +80,7 @@ Scrum Rehberi bunların hiçbirini kullanmaz; yalnızca Product Backlog öğesin
 
 > **Sahada:** SAFe'e en sık yöneltilen eleştiri ağırlığıdır: çok sayıda rol, katman ve etkinlik, mevcut hiyerarşinin yeni adlarla korunmasına izin verebilir. Hangi çerçeve olursa olsun ölçü aynıdır: her Sprint entegre, çalışan bir ürün.
 `),
-      dene: [p("art"), p("epic-koken")],
+      dene: [p("epic-koken")],
     },
     {
       baslik: "Spotify modeli: squad, tribe, chapter, guild",
@@ -138,6 +138,6 @@ Buradan iki yol açılır:
   ],
   test: [
     p("ortak-dod"), p("nexus-review"), p("less-felsefe"), p("safe-elestiri"), p("spotify-model"),
-    p("tek-pb"), p("ozellik-takimi"), p("art"),
+    p("tek-pb"), p("art"),
   ],
 };

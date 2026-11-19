@@ -15,10 +15,11 @@ import { isletme } from "./isletme/meta.ts";
 import { git } from "./git/meta.ts";
 import { sifreleme } from "./sifreleme/meta.ts";
 import { agile } from "./agile/meta.ts";
+import { backlog } from "./backlog/meta.ts";
 
 export type { PratikMeta } from "./tipler.ts";
 
-export const PRATIKLER: PratikMeta[] = [tipElektronigi, biyomedikal, isIngilizcesi, isletme, kimya, dsp, fizik, ayrik, fpga, girisimcilik, sinif6Turkce, git, sifreleme, agile];
+export const PRATIKLER: PratikMeta[] = [tipElektronigi, biyomedikal, isIngilizcesi, isletme, kimya, dsp, fizik, ayrik, fpga, girisimcilik, sinif6Turkce, git, sifreleme, agile, backlog];
 
 // Çatı sitesinin alt alan adı (katalog, tek hesap)
 export const CATI_ALT = "pratikler";
