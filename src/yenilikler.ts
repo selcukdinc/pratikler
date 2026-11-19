@@ -24,6 +24,18 @@ export interface Yenilik {
 
 export const YENILIKLER: Yenilik[] = [
   {
+    pr: 75,
+    tarih: "2026-11-19",
+    baslik: "Backlog Atölyesi: Sprint'ten önceki işi yap",
+    kitle: "yonetici",
+    maddeler: [
+      "Backlog pratiğine yeni bir sayfa geldi: Nurten Hanım'ın isteğinden epic, feature ve story ağacını kurarsın; story'leri yazar, kabul kriterlerini ekler ve her story'nin INVEST göstergesini canlı izlersin.",
+      "Sanal takımla Planning Poker: farklı kart açana sorunca takımın bilmediğin bilgisi ortaya çıkar, story'nin tahmini değişir ya da bir spike doğar.",
+      "Backlog'u kurgusal Teknik Liderlik'in onayına gönderirsin; yatay dilim, test edilemeyen kabul kriteri ya da eksik olumsuz yol gibi notlarla geri döner.",
+      "İlk beş hedefli görev: üç dikey dilim, epic'i feature'lara bölmek, yatay backlog'u dikeye çevirmek, Poker'daki farkı çözmek ve onayı ilk turda almak. Pratik henüz yayında değil.",
+    ],
+  },
+  {
     pr: 74,
     tarih: "2026-11-19",
     baslik: "Backlog pratiği: INVEST, kabul kriterleri, story bölme ve story olmayan işler",

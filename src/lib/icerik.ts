@@ -15,6 +15,7 @@ import { SINAVLAR } from "../cikmis/sinavlar";
 import type { ComponentType } from "react";
 import type { Gorev } from "../gitsim/gorev";
 import type { SprintIcerigi } from "../scrum/gorev";
+import type { AtolyeIcerigi } from "../backlog/gorev";
 import type { SeviyeTestiTanimi } from "../components/SeviyeTesti";
 import { ETKILESIMLER } from "../components/etkilesim";
 
@@ -37,15 +38,18 @@ export interface PratikIstemciIcerigi {
   mesajlasma?: boolean;
   // Sprint simülatörü (Agile ve Scrum): menüde sayfası; senaryo ve görevler sayfa açılınca yüklenir
   sprintSimulatoru?: () => Promise<SprintIcerigi>;
+  // Backlog Atölyesi (Backlog): menüde sayfası; senaryo ve görevler sayfa açılınca yüklenir
+  backlogAtolyesi?: () => Promise<AtolyeIcerigi>;
   // "Nereden başlamalıyım?" seviye testi (ders listesinin başında; uniteGruplari gerekir)
   seviyeTesti?: SeviyeTestiTanimi;
 }
 
 // Açık pratiğin özellikleri; menü ve sayfalar buna bakar
-export const OZELLIKLER: { matstudio: boolean; vhdl: boolean; gitSandbox: (() => Promise<Gorev[]>) | null; mesajlasma: boolean; sprint: (() => Promise<SprintIcerigi>) | null; seviyeTesti: SeviyeTestiTanimi | null } = {
+export const OZELLIKLER: { matstudio: boolean; vhdl: boolean; gitSandbox: (() => Promise<Gorev[]>) | null; mesajlasma: boolean; sprint: (() => Promise<SprintIcerigi>) | null; atolye: (() => Promise<AtolyeIcerigi>) | null; seviyeTesti: SeviyeTestiTanimi | null } = {
   matstudio: false,
   mesajlasma: false,
   sprint: null,
+  atolye: null,
   vhdl: false,
   gitSandbox: null,
   seviyeTesti: null,
@@ -68,6 +72,7 @@ export function icerigiKur(i: PratikIstemciIcerigi) {
   OZELLIKLER.gitSandbox = i.gitSandbox ?? null;
   OZELLIKLER.mesajlasma = i.mesajlasma ?? false;
   OZELLIKLER.sprint = i.sprintSimulatoru ?? null;
+  OZELLIKLER.atolye = i.backlogAtolyesi ?? null;
   OZELLIKLER.seviyeTesti = i.seviyeTesti ?? null;
 }
 

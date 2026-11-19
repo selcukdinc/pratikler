@@ -37,6 +37,7 @@ const IKONLAR = {
   sandbox: "M4 5h16v14H4zM7.5 9.5l3 2.5-3 2.5M12.5 15h4",
   mesajlasma: "M4 5h16v11H9l-5 4zM12 8.5a1.5 1.5 0 00-1.5 1.5v1h3v-1A1.5 1.5 0 0012 8.5zM10 11h4v3h-4z",
   sprint: "M20 12a8 8 0 11-2.3-5.7M20 4v4h-4M8 12l3 3 5-6",
+  atolye: "M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 17h6M17 14v6",
   cikmis: "M6 3h9l4 4v14H6zM14 3v5h5M9 13h7M9 17h5",
   ders: "M4 5a2 2 0 012-2h13v16H6a2 2 0 00-2 2zM4 5v16M8 7h7M8 11h7",
   sorular: "M9 6h11M9 12h11M9 18h11M4 6h.01M4 12h.01M4 18h.01",
@@ -71,6 +72,7 @@ const ETKIN: Partial<Record<Route["page"], Route["page"][]>> = {
   sandbox: ["sandbox"],
   mesajlasma: ["mesajlasma"],
   sprint: ["sprint"],
+  atolye: ["atolye"],
   cikmis: ["cikmis"],
 };
 
@@ -367,6 +369,7 @@ export function Shell({ route, currentWeek, title, status, duyuru, children }: P
         {OZELLIKLER.gitSandbox && <NavLink to={{ page: "sandbox" }} current={route} ikon="sandbox">Git sandbox</NavLink>}
         {OZELLIKLER.mesajlasma && <NavLink to={{ page: "mesajlasma" }} current={route} ikon="mesajlasma">Mesajlaşma simülatörü</NavLink>}
         {OZELLIKLER.sprint && <NavLink to={{ page: "sprint" }} current={route} ikon="sprint">Sprint simülatörü</NavLink>}
+        {OZELLIKLER.atolye && <NavLink to={{ page: "atolye" }} current={route} ikon="atolye">Backlog Atölyesi</NavLink>}
         <NavLink to={{ page: "pratik" }} current={route} ikon="pratik">Karma test</NavLink>
 
         <div className="nav-section">ÇALIŞ</div>

@@ -29,6 +29,7 @@ const icerik: PratikIstemciIcerigi = {
   gorseller: GORSELLER,
   etkilesimler: ETKILESIMLER,
   deneyler: DENEYLER,
+  backlogAtolyesi: () => import("./atolye").then((m) => m.default),
 };
 
 export default icerik;
